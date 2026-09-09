@@ -17,10 +17,13 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-s
 a{color:inherit}
 .wrap{width:min(var(--max),calc(100% - 32px));margin:auto}
 .topbar{position:sticky;top:0;z-index:20;background:rgba(11,12,14,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.nav{height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.nav{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.nav-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.nav-link{text-decoration:none;border:1px solid var(--line);background:var(--panel);padding:9px 12px;border-radius:10px;font-size:13px;font-weight:800;transition:.2s ease}
+.nav-link:hover{border-color:var(--red2);transform:translateY(-1px)}
 .brand{font-weight:900;letter-spacing:-.02em;font-size:18px}
 .brand span{color:var(--red)}
-.nav a.cta{text-decoration:none;background:var(--red);padding:10px 15px;border-radius:10px;font-weight:800}
+.nav a.cta{text-decoration:none;background:var(--red);padding:10px 15px;border-radius:10px;font-weight:800;white-space:nowrap}
 .hero{padding:68px 0 44px;display:grid;grid-template-columns:1.15fr .85fr;gap:42px;align-items:center}
 .eyebrow{color:var(--red2);font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
 h1{font-size:clamp(46px,7vw,86px);line-height:.92;letter-spacing:-.055em;margin:0 0 20px;max-width:9ch;text-transform:uppercase}
@@ -92,21 +95,62 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   .stats,.steps,.roadmap,.results,.split,.section-head{grid-template-columns:1fr}
   .section-head{gap:14px}
   .results{grid-template-columns:1fr 1fr}
-  .nav .cta{display:none}
+  .nav{padding:10px 0;align-items:flex-start}
+  .nav-actions{gap:6px}
+  .nav-link{padding:8px 9px;font-size:11px}
+  .nav .cta{padding:8px 10px;font-size:11px}
   .mobile-buy{display:block;position:fixed;left:12px;right:12px;bottom:12px;z-index:30;background:var(--red);color:white;text-align:center;text-decoration:none;font-weight:950;padding:15px;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.45)}
   footer{padding-bottom:100px}
 }
 @media(max-width:520px){
+  .nav{align-items:center}
+  .brand{font-size:16px}
+  .nav-actions{max-width:72%;justify-content:flex-end}
+  .nav-link{font-size:10px;padding:7px 8px}
+  .nav .cta{font-size:10px;padding:7px 8px}
   .results{grid-template-columns:1fr}
   .stats{grid-template-columns:1fr 1fr}
 }
+
+/* Failure Point member dashboard */
+.member-section{padding:72px 0}
+.member-shell{background:linear-gradient(180deg,#181b20,#111318);border:1px solid var(--line);border-radius:24px;padding:28px}
+.member-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.member-head h2{max-width:12ch}
+.member-head p{margin:0;color:var(--muted);max-width:58ch}
+.auth-grid,.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.member-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.member-card h3{margin:0 0 14px;font-size:20px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.field label{font-size:12px;color:var(--muted);font-weight:800}
+.field input,.field textarea{width:100%;border:1px solid var(--line);background:#0e1014;color:var(--text);border-radius:10px;padding:12px;font:inherit;outline:none}
+.field input:focus,.field textarea:focus{border-color:var(--red2)}
+.field textarea{min-height:88px;resize:vertical}
+.member-message{min-height:20px;margin-top:10px;font-size:13px;color:var(--muted)}
+.member-message.error{color:#ff8b94}.member-message.success{color:#88e09a}
+.member-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.member-user{font-size:13px;color:var(--muted)}
+.log-list{display:flex;flex-direction:column;gap:10px}
+.log-row{border:1px solid var(--line);background:#0e1014;border-radius:12px;padding:14px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.log-main strong{display:block;font-size:15px}.log-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.log-actions{display:flex;gap:8px}.mini-btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:9px;padding:8px 10px;font-weight:800;cursor:pointer}.mini-btn.danger{color:#ff8b94}
+.empty-state{color:var(--muted);font-size:14px;padding:18px 0}
+.hidden{display:none!important}
+@media(max-width:800px){.auth-grid,.dashboard-grid,.field-grid{grid-template-columns:1fr}.member-shell{padding:20px 16px}}
+
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="wrap nav">
     <div class="brand">FAILURE <span>POINT</span></div>
-    <a class="cta" href="https://payhip.com/b/ijVdM">Get the program</a>
+    <div class="nav-actions">
+      <a class="nav-link" href="#personal-buy">Customer Support</a>
+      <a class="nav-link" href="#signup-card">Sign Up</a>
+      <a class="nav-link" href="#login-card">Log In</a>
+      <a class="cta" href="https://payhip.com/b/ijVdM">Get the program</a>
+    </div>
   </div>
 </header>
 
@@ -196,12 +240,71 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
       </figure></div><p class='note'>Individual results vary based on training history, nutrition, recovery, consistency, and other factors.</p></div></section>
 
 
+
+  <section class="member-section" id="members">
+    <div class="wrap">
+      <div class="member-shell">
+        <div class="member-head">
+          <div><div class="kicker">Failure Point members</div><h2>Log Your Workouts Daily.</h2></div>
+          <p>Create an account to save your own workout history. Your logs are tied to your account and protected by Supabase Row Level Security.</p>
+        </div>
+
+        <div id="authView" class="auth-grid">
+          <div class="member-card" id="signup-card">
+            <h3>Create account</h3>
+            <div class="field"><label for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+            <div class="field"><label for="signupPassword">Password</label><input id="signupPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters"></div>
+            <button class="btn primary" id="signupBtn" type="button">Sign up →</button>
+            <div id="signupMsg" class="member-message"></div>
+          </div>
+          <div class="member-card" id="login-card">
+            <h3>Log in</h3>
+            <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+            <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div>
+            <button class="btn secondary" id="loginBtn" type="button">Log in →</button>
+            <div id="loginMsg" class="member-message"></div>
+          </div>
+        </div>
+
+        <div id="dashboardView" class="hidden">
+          <div class="member-toolbar">
+            <div class="member-user">Signed in as <strong id="memberEmail"></strong></div>
+            <button class="mini-btn" id="logoutBtn" type="button">Log out</button>
+          </div>
+          <div class="dashboard-grid">
+            <div class="member-card">
+              <h3 id="formTitle">Log a set</h3>
+              <input id="editId" type="hidden">
+              <div class="field"><label for="exerciseInput">Exercise</label><input id="exerciseInput" type="text" placeholder="Weighted Dips"></div>
+              <div class="field-grid">
+                <div class="field"><label for="weightInput">Weight</label><input id="weightInput" type="number" step="0.01" min="0" placeholder="135"></div>
+                <div class="field"><label for="repsInput">Reps</label><input id="repsInput" type="number" step="1" min="0" placeholder="10"></div>
+                <div class="field"><label for="setInput">Set number</label><input id="setInput" type="number" step="1" min="1" placeholder="1"></div>
+                <div class="field"><label for="dateInput">Workout date</label><input id="dateInput" type="date"></div>
+              </div>
+              <div class="field"><label for="notesInput">Notes</label><textarea id="notesInput" placeholder="How the set felt, form notes, next target..."></textarea></div>
+              <div class="hero-actions">
+                <button class="btn primary" id="saveLogBtn" type="button">Save log →</button>
+                <button class="btn secondary hidden" id="cancelEditBtn" type="button">Cancel edit</button>
+              </div>
+              <div id="logMsg" class="member-message"></div>
+            </div>
+            <div class="member-card">
+              <h3>Saved workouts</h3>
+              <div id="logList" class="log-list"><div class="empty-state">No workout logs yet.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="personal-buy" id="personal-buy">
     <div class="wrap">
       <div class="personal-card">
-        <div class="kicker">Direct purchase</div>
-        <h2>Buy Personally From Indomitible</h2>
-        <p>Prefer to buy directly or need help with your order? Contact Indomitible by email or text and I’ll help you out.</p>
+        <div class="kicker">Customer support</div>
+        <h2>Need Help?</h2>
+        <p>Questions about Failure Point, your order, or direct purchase? Contact Indomitible by email or text.</p>
         <div class="personal-actions">
           <a class="btn primary" href="mailto:brandonssillyalt@gmail.com?subject=Failure%20Point%20Purchase">Email Me →</a>
           <a class="btn secondary" href="sms:8435108328?body=Hey%20Brandon%2C%20I%27m%20interested%20in%20buying%20Failure%20Point.">Text Me →</a>
@@ -233,5 +336,130 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 </footer>
 
 <a class="mobile-buy" href="https://payhip.com/b/ijVdM">Get The Failure Point →</a>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  const SUPABASE_URL = 'https://endazjmlwqcfvniyxpos.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CDLjF7ILDgZFvrNqN1LZig_cxJdT9Y7';
+  const { createClient } = window.supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  const $ = (id) => document.getElementById(id);
+  const authView = $('authView');
+  const dashboardView = $('dashboardView');
+  const memberEmail = $('memberEmail');
+  const logList = $('logList');
+
+  function msg(el, text, type='') {
+    el.textContent = text || '';
+    el.className = 'member-message' + (type ? ' ' + type : '');
+  }
+  function today() { return new Date().toISOString().slice(0,10); }
+  $('dateInput').value = today();
+
+  async function refreshSession() {
+    const { data: { session } } = await db.auth.getSession();
+    if (session?.user) {
+      authView.classList.add('hidden');
+      dashboardView.classList.remove('hidden');
+      memberEmail.textContent = session.user.email || '';
+      await loadLogs();
+    } else {
+      dashboardView.classList.add('hidden');
+      authView.classList.remove('hidden');
+    }
+  }
+
+  $('signupBtn').addEventListener('click', async () => {
+    const email = $('signupEmail').value.trim();
+    const password = $('signupPassword').value;
+    msg($('signupMsg'),'');
+    if (!email || password.length < 6) return msg($('signupMsg'),'Enter a valid email and a password with at least 6 characters.','error');
+    const { data, error } = await db.auth.signUp({
+      email, password,
+      options: { emailRedirectTo: 'https://indomitible.github.io/failure-point/' }
+    });
+    if (error) return msg($('signupMsg'), error.message, 'error');
+    if (data.session) { msg($('signupMsg'),'Account created. You are signed in.','success'); await refreshSession(); }
+    else msg($('signupMsg'),'Account created. Check your email and confirm it, then log in.','success');
+  });
+
+  $('loginBtn').addEventListener('click', async () => {
+    const email = $('loginEmail').value.trim();
+    const password = $('loginPassword').value;
+    msg($('loginMsg'),'');
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error) return msg($('loginMsg'), error.message, 'error');
+    msg($('loginMsg'),'Logged in.','success');
+    await refreshSession();
+  });
+
+  $('logoutBtn').addEventListener('click', async () => { await db.auth.signOut(); await refreshSession(); });
+
+  function clearForm() {
+    $('editId').value=''; $('exerciseInput').value=''; $('weightInput').value=''; $('repsInput').value=''; $('setInput').value=''; $('dateInput').value=today(); $('notesInput').value='';
+    $('formTitle').textContent='Log a set'; $('saveLogBtn').textContent='Save log →'; $('cancelEditBtn').classList.add('hidden'); msg($('logMsg'),'');
+  }
+  $('cancelEditBtn').addEventListener('click', clearForm);
+
+  $('saveLogBtn').addEventListener('click', async () => {
+    msg($('logMsg'),'');
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) return msg($('logMsg'),'Please log in first.','error');
+    const exercise = $('exerciseInput').value.trim();
+    const workout_date = $('dateInput').value || today();
+    if (!exercise) return msg($('logMsg'),'Enter an exercise name.','error');
+    const payload = {
+      user_id: user.id, exercise,
+      weight: $('weightInput').value === '' ? null : Number($('weightInput').value),
+      reps: $('repsInput').value === '' ? null : Number($('repsInput').value),
+      set_number: $('setInput').value === '' ? null : Number($('setInput').value),
+      workout_date, notes: $('notesInput').value.trim() || null
+    };
+    const editId = $('editId').value;
+    let error;
+    if (editId) ({ error } = await db.from('workout_logs').update(payload).eq('id', editId));
+    else ({ error } = await db.from('workout_logs').insert(payload));
+    if (error) return msg($('logMsg'), error.message, 'error');
+    msg($('logMsg'), editId ? 'Workout updated.' : 'Workout saved.', 'success');
+    await loadLogs();
+    setTimeout(clearForm, 600);
+  });
+
+  async function loadLogs() {
+    const { data, error } = await db.from('workout_logs').select('*').order('workout_date',{ascending:false}).order('created_at',{ascending:false});
+    if (error) { logList.innerHTML='<div class="empty-state"></div>'; logList.firstChild.textContent=error.message; return; }
+    if (!data?.length) { logList.innerHTML='<div class="empty-state">No workout logs yet.</div>'; return; }
+    logList.innerHTML='';
+    for (const row of data) {
+      const item=document.createElement('div'); item.className='log-row';
+      const main=document.createElement('div'); main.className='log-main';
+      const title=document.createElement('strong'); title.textContent=row.exercise || 'Workout';
+      const meta=document.createElement('div'); meta.className='log-meta';
+      const parts=[row.workout_date || '', row.set_number != null ? `Set ${row.set_number}` : '', row.weight != null ? `${row.weight} lb` : '', row.reps != null ? `${row.reps} reps` : ''].filter(Boolean);
+      meta.textContent=parts.join(' · ') + (row.notes ? ` — ${row.notes}` : '');
+      main.append(title,meta);
+      const actions=document.createElement('div'); actions.className='log-actions';
+      const edit=document.createElement('button'); edit.className='mini-btn'; edit.textContent='Edit';
+      edit.addEventListener('click',()=>{
+        $('editId').value=row.id; $('exerciseInput').value=row.exercise || ''; $('weightInput').value=row.weight ?? ''; $('repsInput').value=row.reps ?? ''; $('setInput').value=row.set_number ?? ''; $('dateInput').value=row.workout_date || today(); $('notesInput').value=row.notes || '';
+        $('formTitle').textContent='Edit log'; $('saveLogBtn').textContent='Update log →'; $('cancelEditBtn').classList.remove('hidden'); document.querySelector('#members').scrollIntoView({behavior:'smooth'});
+      });
+      const del=document.createElement('button'); del.className='mini-btn danger'; del.textContent='Delete';
+      del.addEventListener('click',async()=>{
+        if(!confirm('Delete this workout log?')) return;
+        const { error }=await db.from('workout_logs').delete().eq('id',row.id);
+        if(error) return msg($('logMsg'),error.message,'error'); await loadLogs();
+      });
+      actions.append(edit,del); item.append(main,actions); logList.appendChild(item);
+    }
+  }
+
+  db.auth.onAuthStateChange(() => refreshSession());
+  refreshSession();
+})();
+</script>
+
 </body>
 </html>
