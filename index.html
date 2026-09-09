@@ -147,8 +147,10 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     <div class="brand">FAILURE <span>POINT</span></div>
     <div class="nav-actions">
       <a class="nav-link" href="#personal-buy">Customer Support</a>
-      <a class="nav-link" href="#signup-card">Sign Up</a>
-      <a class="nav-link" href="#login-card">Log In</a>
+      <a class="nav-link" id="navSignup" href="#signup-card">Sign Up</a>
+      <a class="nav-link" id="navLogin" href="#login-card">Log In</a>
+      <a class="nav-link hidden" id="navWorkouts" href="#members">My Workouts</a>
+      <button class="nav-link hidden" id="navLogout" type="button" style="color:inherit;cursor:pointer;font-family:inherit">Log Out</button>
       <a class="cta" href="https://payhip.com/b/ijVdM">Get the program</a>
     </div>
   </div>
@@ -350,6 +352,10 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   const dashboardView = $('dashboardView');
   const memberEmail = $('memberEmail');
   const logList = $('logList');
+  const navSignup = $('navSignup');
+  const navLogin = $('navLogin');
+  const navWorkouts = $('navWorkouts');
+  const navLogout = $('navLogout');
 
   function msg(el, text, type='') {
     el.textContent = text || '';
@@ -364,10 +370,18 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
       authView.classList.add('hidden');
       dashboardView.classList.remove('hidden');
       memberEmail.textContent = session.user.email || '';
+      navSignup.classList.add('hidden');
+      navLogin.classList.add('hidden');
+      navWorkouts.classList.remove('hidden');
+      navLogout.classList.remove('hidden');
       await loadLogs();
     } else {
       dashboardView.classList.add('hidden');
       authView.classList.remove('hidden');
+      navSignup.classList.remove('hidden');
+      navLogin.classList.remove('hidden');
+      navWorkouts.classList.add('hidden');
+      navLogout.classList.add('hidden');
     }
   }
 
@@ -395,7 +409,9 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     await refreshSession();
   });
 
-  $('logoutBtn').addEventListener('click', async () => { await db.auth.signOut(); await refreshSession(); });
+  async function logout() { await db.auth.signOut(); await refreshSession(); }
+  $('logoutBtn').addEventListener('click', logout);
+  navLogout.addEventListener('click', logout);
 
   function clearForm() {
     $('editId').value=''; $('exerciseInput').value=''; $('weightInput').value=''; $('repsInput').value=''; $('setInput').value=''; $('dateInput').value=today(); $('notesInput').value='';
