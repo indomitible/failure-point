@@ -1,5 +1,5 @@
-doctype html>
-<html <!lang="en">
+<!doctype html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -550,6 +550,94 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   .friends-grid{grid-template-columns:1fr}
 }
 
+
+/* FAILURE POINT VIP */
+.vip-shell{
+  margin:18px 0 22px;
+  padding:22px;
+  border:1px solid rgba(239,67,85,.5);
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(239,67,85,.09),rgba(16,18,22,.96));
+  text-align:center;
+}
+.vip-kicker{
+  color:#ef4355;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.vip-title{
+  margin-top:6px;
+  color:#fff;
+  font-size:27px;
+  font-weight:900;
+}
+.vip-copy{
+  max-width:620px;
+  margin:8px auto 0;
+  color:#a9b0ba;
+  font-size:12px;
+  line-height:1.55;
+}
+.vip-price{
+  margin-top:14px;
+  color:#fff;
+  font-size:22px;
+  font-weight:900;
+}
+.vip-price span{
+  color:#8f96a3;
+  font-size:11px;
+  font-weight:700;
+}
+.vip-buy{
+  display:inline-block;
+  margin-top:13px;
+  padding:12px 18px;
+  border-radius:10px;
+  background:#ef4355;
+  color:#fff!important;
+  text-decoration:none;
+  font-weight:900;
+}
+.vip-buy:hover{filter:brightness(1.08)}
+
+
+/* AUTOMATIC VIP ACCESS */
+.vip-status-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:10px;padding:7px 10px;border-radius:999px;
+  background:#1a1d22;border:1px solid #313741;color:#aab1bc;
+  font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;
+}
+.vip-status-pill.active{
+  background:rgba(103,232,165,.10);
+  border-color:rgba(103,232,165,.45);
+  color:#67e8a5;
+}
+.vip-locked,.vip-unlocked{margin-top:14px}
+.vip-unlocked{
+  padding:16px;border:1px solid rgba(103,232,165,.4);
+  border-radius:12px;background:rgba(24,80,56,.18)
+}
+.vip-unlocked strong{display:block;color:#67e8a5;font-size:18px}
+.vip-unlocked p{margin:6px 0 0;color:#b9c5bf;font-size:12px}
+.vip-email-note{
+  margin:10px auto 0;max-width:600px;color:#a4abb5;font-size:11px;line-height:1.5
+}
+.vip-refresh{
+  margin-left:8px;border:1px solid #343a43;background:#181b20;
+  color:#fff;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer
+}
+.vip-refresh:hover{filter:brightness(1.08)}
+.profile-vip-badge{
+  display:inline-flex;align-items:center;gap:4px;margin-left:7px;
+  padding:4px 7px;border-radius:999px;background:#ef4355;color:#fff;
+  font-size:9px;font-weight:900;letter-spacing:.06em;vertical-align:middle;
+  text-transform:uppercase;
+}
+
 </style>
 </head>
 <body>
@@ -560,6 +648,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
       <a class="nav-link" id="navSupport" href="mailto:brandonssillyalt@gmail.com?subject=Failure%20Point%20Support&body=Hey%20Brandon%2C%20I%20need%20help%20with%20Failure%20Point.">Customer Support</a>
       <a class="nav-link" id="navChat" href="#login-card">Chat</a>
       <a class="nav-link" id="navFriends" href="#login-card">Friends</a>
+      <a class="nav-link" id="navVip" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">VIP</a>
       <a class="nav-link" id="navSignup" href="#signup-card">Sign Up</a>
       <a class="nav-link" id="navLogin" href="#login-card">Log In</a>
       <a class="nav-link hidden" id="navWorkouts" href="#members">My Workouts</a>
@@ -702,7 +791,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     <div class="profile-ident">
       <div id="profileAvatar" class="profile-avatar">FP</div>
       <div>
-        <div id="profileDisplayName" class="profile-name">Failure Point Member</div>
+        <div><span id="profileDisplayName" class="profile-name">Failure Point Member</span><span id="profileVipBadge" class="profile-vip-badge hidden">★ VIP</span></div>
         <div id="profileEmail" class="profile-email"></div>
       </div>
     </div>
@@ -745,6 +834,37 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     <div id="profileMessage" style="font-size:12px;margin-top:8px;color:#9aa1ad"></div>
   </div>
 
+</div>
+
+
+
+<div id="vipSection" class="vip-shell">
+  <div class="vip-kicker">Failure Point VIP</div>
+  <div class="vip-title">Failure Point VIP</div>
+  <div id="vipStatusPill" class="vip-status-pill">Checking VIP status…</div>
+
+  <div id="vipUnlocked" class="vip-unlocked hidden">
+    <strong>★ VIP ACTIVE</strong>
+    <p>Your purchase is verified. VIP access is connected to your Failure Point account.</p>
+  </div>
+
+  <div id="vipLocked" class="vip-locked">
+    <div class="vip-copy">Unlock upcoming VIP-only Failure Point features, badges, and member perks.</div>
+    <div class="vip-price">$5 <span>one-time</span></div>
+    <a class="vip-buy" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">Unlock VIP — $5</a>
+    <button id="vipRefreshBtn" class="vip-refresh" type="button">Refresh VIP Status</button>
+    <div class="vip-email-note">
+      Important: buy VIP using the <strong>same email address</strong> as your Failure Point account.
+      After Payhip confirms the payment, come back here and press “Refresh VIP Status.”
+    </div>
+  </div>
+
+  <div id="vipCheckMessage" class="vip-email-note"></div>
+</div>
+  <div class="vip-title">Unlock VIP Access</div>
+  <div class="vip-copy">Get access to upcoming VIP-only Failure Point features, badges, and member perks.</div>
+  <div class="vip-price">$5 <span>one-time</span></div>
+  <a class="vip-buy" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">Unlock VIP — $5</a>
 </div>
 
 <div id="friendsSection" class="friends-shell" style="display:none">
@@ -1100,10 +1220,19 @@ window.fpVerificationCallback = (() => {
   const navSignup = $('navSignup');
   const navChat = $('navChat');
   const navFriends = $('navFriends');
+  const navVip = $('navVip');
   const navLogin = $('navLogin');
   const navWorkouts = $('navWorkouts');
   const navLogout = $('navLogout');
   const beatLast = $('beatLast');
+
+  const vipStatusPill = $('vipStatusPill');
+  const vipUnlocked = $('vipUnlocked');
+  const vipLocked = $('vipLocked');
+  const vipRefreshBtn = $('vipRefreshBtn');
+  const vipCheckMessage = $('vipCheckMessage');
+  const profileVipBadge = $('profileVipBadge');
+
 
   function msg(el, text, type='') {
     el.textContent = text || '';
@@ -1111,6 +1240,77 @@ window.fpVerificationCallback = (() => {
   }
   function today() { return new Date().toISOString().slice(0,10); }
   $('dateInput').value = today();
+
+
+  function setVipUi(isVip, message='') {
+    if (vipStatusPill) {
+      vipStatusPill.textContent = isVip ? '★ VIP ACTIVE' : 'VIP LOCKED';
+      vipStatusPill.classList.toggle('active', !!isVip);
+    }
+    if (vipUnlocked) vipUnlocked.classList.toggle('hidden', !isVip);
+    if (vipLocked) vipLocked.classList.toggle('hidden', !!isVip);
+    if (profileVipBadge) profileVipBadge.classList.toggle('hidden', !isVip);
+    if (navVip) {
+      navVip.textContent = isVip ? 'VIP ✓' : 'VIP';
+      if (isVip) {
+        navVip.setAttribute('href', '#vipSection');
+        navVip.removeAttribute('target');
+        navVip.removeAttribute('rel');
+      } else {
+        navVip.setAttribute('href', '#vipSection');
+        navVip.removeAttribute('target');
+        navVip.removeAttribute('rel');
+      }
+    }
+    if (vipCheckMessage) vipCheckMessage.textContent = message || '';
+  }
+
+  async function refreshVipStatus(showMessage=false) {
+    const { data: { session } } = await db.auth.getSession();
+
+    if (!session?.user) {
+      setVipUi(false, 'Log in to connect VIP to your Failure Point account.');
+      if (navVip) {
+        navVip.textContent = 'VIP';
+        navVip.setAttribute('href', 'https://payhip.com/b/dNH7Y');
+        navVip.setAttribute('target', '_blank');
+        navVip.setAttribute('rel', 'noopener');
+      }
+      return false;
+    }
+
+    if (vipStatusPill) vipStatusPill.textContent = 'Checking VIP status…';
+    if (vipCheckMessage && showMessage) vipCheckMessage.textContent = 'Checking your Payhip purchase…';
+
+    const { data, error } = await db.rpc('my_vip_status');
+
+    if (error) {
+      setVipUi(false, 'VIP check is not connected yet.');
+      if (vipCheckMessage) vipCheckMessage.textContent = 'VIP check error: ' + error.message;
+      return false;
+    }
+
+    const isVip = data === true;
+
+    setVipUi(
+      isVip,
+      isVip
+        ? 'Your $5 Payhip purchase has been verified.'
+        : (showMessage ? 'No verified VIP purchase found for ' + (session.user.email || 'this account') + ' yet.' : '')
+    );
+
+    return isVip;
+  }
+
+  if (vipRefreshBtn) {
+    vipRefreshBtn.addEventListener('click', async () => {
+      vipRefreshBtn.disabled = true;
+      vipRefreshBtn.textContent = 'Checking…';
+      await refreshVipStatus(true);
+      vipRefreshBtn.disabled = false;
+      vipRefreshBtn.textContent = 'Refresh VIP Status';
+    });
+  }
 
   async function refreshSession() {
     const { data: { session } } = await db.auth.getSession();
@@ -1125,6 +1325,7 @@ window.fpVerificationCallback = (() => {
       if (navChat) navChat.setAttribute('href', '#communityChat');
       if (navFriends) navFriends.setAttribute('href', '#friendsSection');
       await loadLogs();
+      await refreshVipStatus();
     } else {
       dashboardView.classList.add('hidden');
       authView.classList.remove('hidden');
@@ -1134,6 +1335,7 @@ window.fpVerificationCallback = (() => {
       navLogout.classList.add('hidden');
       if (navChat) navChat.setAttribute('href', '#login-card');
       if (navFriends) navFriends.setAttribute('href', '#login-card');
+      await refreshVipStatus();
     }
   }
 
