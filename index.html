@@ -410,6 +410,50 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 }
 .chat-public-achievements{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
 
+
+/* SOCIAL PROFILE / FRIENDS / PRESENCE */
+.chat-user-button{pointer-events:auto!important;position:relative;z-index:2}
+.chat-user-button,.chat-avatar[data-chat-user]{cursor:pointer!important}
+.chat-user-button:hover .chat-user{text-decoration:underline;color:#ff6675}
+
+.chat-avatar-wrap{position:relative;width:34px;height:34px;min-width:34px}
+.chat-avatar-wrap .chat-avatar{width:34px;height:34px;min-width:34px}
+.chat-presence-dot{
+  position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;
+  border-radius:50%;border:2px solid #090b0e;background:#66707c;z-index:3
+}
+.chat-presence-dot.online{background:#3ee58a}
+
+.chat-public-identity{min-width:0}
+.chat-public-status{
+  display:inline-flex;align-items:center;gap:6px;margin-top:4px;
+  font-size:11px;font-weight:800;color:#8d96a2
+}
+.chat-public-status .status-dot{
+  width:8px;height:8px;border-radius:50%;background:#66707c
+}
+.chat-public-status.online{color:#67e8a5}
+.chat-public-status.online .status-dot{background:#3ee58a}
+.chat-public-status.offline{color:#8d96a2}
+.chat-public-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+.chat-friend-area{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-top:14px;padding-top:14px;border-top:1px solid #262b32
+}
+.chat-friend-btn{
+  border:0;border-radius:10px;padding:10px 14px;
+  background:#ef4355;color:#fff;font-weight:900;cursor:pointer
+}
+.chat-friend-btn:hover{filter:brightness(1.08)}
+.chat-friend-btn.secondary{background:#242830}
+.chat-friend-btn:disabled{opacity:.65;cursor:default}
+.chat-friend-note{font-size:11px;color:#8e96a3}
+
+@media(max-width:520px){
+  .chat-public-stats{grid-template-columns:1fr 1fr}
+}
+
 </style>
 </head>
 <body>
@@ -841,6 +885,39 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 
 <a class="mobile-buy" href="https://payhip.com/b/ijVdM">Get The Failure Point →</a>
 
+
+<div id="chatProfileOverlay" class="chat-profile-overlay" aria-hidden="true">
+  <div class="chat-public-profile" role="dialog" aria-modal="true" aria-labelledby="chatPublicName">
+    <button id="chatProfileClose" class="chat-profile-close" type="button" aria-label="Close">×</button>
+
+    <div class="chat-public-head">
+      <div id="chatPublicAvatar" class="chat-public-avatar">FP</div>
+      <div class="chat-public-identity">
+        <div id="chatPublicName" class="chat-public-name">Member</div>
+        <div id="chatPublicStatus" class="chat-public-status offline">
+          <span class="status-dot"></span><span>Offline</span>
+        </div>
+        <div id="chatPublicSub" class="chat-public-sub">Failure Point Community Member</div>
+      </div>
+    </div>
+
+    <div class="chat-public-stats">
+      <div class="chat-public-stat"><span>Community level</span><b id="chatPublicLevel">1</b></div>
+      <div class="chat-public-stat"><span>Lifetime messages</span><b id="chatPublicMessages">0</b></div>
+      <div class="chat-public-stat"><span>Workouts logged</span><b id="chatPublicWorkouts">0</b></div>
+      <div class="chat-public-stat"><span>Sets logged</span><b id="chatPublicSets">0</b></div>
+    </div>
+
+    <div id="chatFriendArea" class="chat-friend-area">
+      <button id="chatFriendBtn" class="chat-friend-btn" type="button">Add Friend</button>
+      <div id="chatFriendNote" class="chat-friend-note"></div>
+    </div>
+
+    <div class="chat-public-achievements-title">Achievements</div>
+    <div id="chatPublicAchievements" class="chat-public-achievements"></div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 window.fpVerificationCallback = (() => {
@@ -1170,6 +1247,7 @@ if(saveProfileBtn){
     }
 
     profileMessage.textContent = '✓ PROFILE UPDATED';
+  updateOwnPresence();
     profileMessage.style.color = '#67e8a5';
     profileMessage.style.fontWeight = '900';
     profileMessage.style.color = '#67e8a5';
@@ -1218,6 +1296,17 @@ const chatPublicName = document.getElementById('chatPublicName');
 const chatPublicSub = document.getElementById('chatPublicSub');
 const chatPublicLevel = document.getElementById('chatPublicLevel');
 const chatPublicMessages = document.getElementById('chatPublicMessages');
+
+const chatPublicWorkouts = document.getElementById('chatPublicWorkouts');
+const chatPublicSets = document.getElementById('chatPublicSets');
+const chatPublicStatus = document.getElementById('chatPublicStatus');
+const chatFriendArea = document.getElementById('chatFriendArea');
+const chatFriendBtn = document.getElementById('chatFriendBtn');
+const chatFriendNote = document.getElementById('chatFriendNote');
+
+let openedChatUserId = null;
+let openedFriendship = null;
+
 const chatPublicAchievements = document.getElementById('chatPublicAchievements');
 
 
@@ -1252,10 +1341,13 @@ function chatAvatarMarkup(row){
   const uid = escapeChat(row.user_id || '');
   const safeName = escapeChat(name);
   const safeAvatar = escapeChat(row.avatar_url || '');
-  if(row.avatar_url){
-    return `<div class="chat-avatar" data-chat-user="${uid}" data-chat-name="${safeName}" data-chat-avatar="${safeAvatar}"><img src="${safeAvatar}" alt="${safeName} profile photo"></div>`;
-  }
-  return `<div class="chat-avatar" data-chat-user="${uid}" data-chat-name="${safeName}" data-chat-avatar="">${escapeChat(chatInitials(name))}</div>`;
+  const onlineClass = row.is_online ? 'online' : '';
+
+  const avatar = row.avatar_url
+    ? `<div class="chat-avatar" data-chat-user="${uid}" data-chat-name="${safeName}" data-chat-avatar="${safeAvatar}"><img src="${safeAvatar}" alt="${safeName} profile photo"></div>`
+    : `<div class="chat-avatar" data-chat-user="${uid}" data-chat-name="${safeName}" data-chat-avatar="">${escapeChat(chatInitials(name))}</div>`;
+
+  return `<div class="chat-avatar-wrap">${avatar}<span class="chat-presence-dot ${onlineClass}" title="${row.is_online ? 'Online' : 'Offline'}"></span></div>`;
 }
 
 function setChatStatus(message, type='normal'){
@@ -1362,6 +1454,165 @@ async function refreshChatLevel(){
 }
 
 
+
+const ONLINE_WINDOW_MS = 120000; // online if seen within the last 2 minutes
+let presenceTimer = null;
+
+function isPresenceOnline(lastSeen){
+  if(!lastSeen) return false;
+  return (Date.now() - new Date(lastSeen).getTime()) <= ONLINE_WINDOW_MS;
+}
+
+function renderPublicPresence(lastSeen){
+  if(!chatPublicStatus) return;
+  const online = isPresenceOnline(lastSeen);
+  chatPublicStatus.className = `chat-public-status ${online ? 'online' : 'offline'}`;
+  chatPublicStatus.innerHTML = `<span class="status-dot"></span><span>${online ? 'Online' : 'Offline'}</span>`;
+}
+
+async function updateOwnPresence(){
+  try{
+    const client = window.failurePointDb;
+    if(!client) return;
+
+    const session = await getChatSession();
+    if(!session?.user) return;
+
+    const user = session.user;
+    const meta = user.user_metadata || {};
+
+    await client
+      .from('member_presence')
+      .upsert({
+        user_id: user.id,
+        display_name: meta.display_name || (user.email ? user.email.split('@')[0] : 'Member'),
+        avatar_url: meta.avatar_url || null,
+        last_seen: new Date().toISOString()
+      }, { onConflict:'user_id' });
+  }catch(err){
+    console.error('Presence heartbeat error:', err);
+  }
+}
+
+function startPresenceHeartbeat(){
+  clearInterval(presenceTimer);
+  updateOwnPresence();
+  presenceTimer = setInterval(updateOwnPresence, 30000);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') updateOwnPresence();
+});
+
+async function getFriendshipState(targetUserId){
+  const client = window.failurePointDb;
+  const session = await getChatSession();
+  if(!client || !session?.user || !targetUserId) return null;
+
+  const { data, error } = await client
+    .from('friendships')
+    .select('id,requester_id,addressee_id,status,created_at')
+    .or(`requester_id.eq.${targetUserId},addressee_id.eq.${targetUserId}`)
+    .limit(10);
+
+  if(error) throw error;
+
+  return (data || []).find(row =>
+    (row.requester_id === session.user.id && row.addressee_id === targetUserId) ||
+    (row.requester_id === targetUserId && row.addressee_id === session.user.id)
+  ) || null;
+}
+
+async function renderFriendButton(targetUserId){
+  if(!chatFriendBtn || !chatFriendArea) return;
+
+  const session = await getChatSession();
+  if(!session?.user){
+    chatFriendArea.style.display = 'none';
+    return;
+  }
+
+  if(targetUserId === session.user.id){
+    chatFriendArea.style.display = 'none';
+    openedFriendship = null;
+    return;
+  }
+
+  chatFriendArea.style.display = '';
+  chatFriendNote.textContent = '';
+  openedFriendship = await getFriendshipState(targetUserId);
+
+  chatFriendBtn.disabled = false;
+  chatFriendBtn.classList.remove('secondary');
+
+  if(!openedFriendship){
+    chatFriendBtn.textContent = 'Add Friend';
+    chatFriendNote.textContent = 'Send a friend request.';
+    return;
+  }
+
+  if(openedFriendship.status === 'accepted'){
+    chatFriendBtn.textContent = 'Friends ✓';
+    chatFriendBtn.classList.add('secondary');
+    chatFriendNote.textContent = 'Click to remove friend.';
+    return;
+  }
+
+  if(openedFriendship.requester_id === session.user.id){
+    chatFriendBtn.textContent = 'Request Sent';
+    chatFriendBtn.classList.add('secondary');
+    chatFriendNote.textContent = 'Click to cancel request.';
+  }else{
+    chatFriendBtn.textContent = 'Accept Friend';
+    chatFriendNote.textContent = 'This member sent you a request.';
+  }
+}
+
+async function handleFriendAction(){
+  if(!openedChatUserId || !chatFriendBtn) return;
+
+  const client = window.failurePointDb;
+  const session = await getChatSession();
+  if(!client || !session?.user) return;
+
+  chatFriendBtn.disabled = true;
+  chatFriendNote.textContent = 'Updating...';
+
+  try{
+    if(!openedFriendship){
+      const { error } = await client.rpc('send_friend_request', {
+        target_user: openedChatUserId
+      });
+      if(error) throw error;
+    }else if(openedFriendship.status === 'accepted'){
+      const { error } = await client.rpc('remove_friendship', {
+        friendship_id: openedFriendship.id
+      });
+      if(error) throw error;
+    }else if(openedFriendship.addressee_id === session.user.id){
+      const { error } = await client.rpc('accept_friend_request', {
+        friendship_id: openedFriendship.id
+      });
+      if(error) throw error;
+    }else{
+      const { error } = await client.rpc('remove_friendship', {
+        friendship_id: openedFriendship.id
+      });
+      if(error) throw error;
+    }
+
+    await renderFriendButton(openedChatUserId);
+  }catch(err){
+    chatFriendNote.textContent = err?.message || String(err);
+    chatFriendNote.style.color = '#ff5a6b';
+    chatFriendBtn.disabled = false;
+  }
+}
+
+if(chatFriendBtn){
+  chatFriendBtn.addEventListener('click', handleFriendAction);
+}
+
 function renderPublicAchievements(count){
   if(!chatPublicAchievements) return;
   chatPublicAchievements.innerHTML = CHAT_ACHIEVEMENTS.map(a => {
@@ -1375,6 +1626,9 @@ function renderPublicAchievements(count){
 async function openChatPublicProfile(userId, displayName, avatarUrl){
   if(!userId || !chatProfileOverlay) return;
 
+  openedChatUserId = userId;
+  openedFriendship = null;
+
   const name = displayName || 'Member';
   chatPublicName.textContent = name;
   chatPublicSub.textContent = 'Failure Point Community Member';
@@ -1387,7 +1641,11 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
 
   chatPublicLevel.textContent = '—';
   chatPublicMessages.textContent = '—';
+  if(chatPublicWorkouts) chatPublicWorkouts.textContent = '—';
+  if(chatPublicSets) chatPublicSets.textContent = '—';
   chatPublicAchievements.innerHTML = '';
+  renderPublicPresence(null);
+
   chatProfileOverlay.classList.add('show');
   chatProfileOverlay.setAttribute('aria-hidden','false');
 
@@ -1395,23 +1653,58 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
     const client = window.failurePointDb;
     if(!client) throw new Error('Database connection is not ready.');
 
-    const { data: stat, error } = await client
-      .from('chat_stats')
-      .select('lifetime_messages')
-      .eq('user_id', userId)
-      .maybeSingle();
+    const [statRes, workoutRes, presenceRes] = await Promise.all([
+      client
+        .from('chat_stats')
+        .select('lifetime_messages')
+        .eq('user_id', userId)
+        .maybeSingle(),
 
-    if(error) throw error;
+      client.rpc('get_public_member_stats', {
+        target_user: userId
+      }),
 
-    const total = Number(stat?.lifetime_messages || 0);
+      client
+        .from('member_presence')
+        .select('last_seen,display_name,avatar_url')
+        .eq('user_id', userId)
+        .maybeSingle()
+    ]);
+
+    if(statRes.error) throw statRes.error;
+    if(workoutRes.error) throw workoutRes.error;
+    if(presenceRes.error) throw presenceRes.error;
+
+    const total = Number(statRes.data?.lifetime_messages || 0);
     const info = getChatLevelInfo(total);
     chatPublicLevel.textContent = info.level;
     chatPublicMessages.textContent = total;
     renderPublicAchievements(total);
+
+    const workoutStats = Array.isArray(workoutRes.data)
+      ? workoutRes.data[0]
+      : workoutRes.data;
+
+    if(chatPublicWorkouts) chatPublicWorkouts.textContent = Number(workoutStats?.workouts_logged || 0);
+    if(chatPublicSets) chatPublicSets.textContent = Number(workoutStats?.sets_logged || 0);
+
+    if(presenceRes.data){
+      renderPublicPresence(presenceRes.data.last_seen);
+
+      // Prefer the latest profile name/photo from presence if available.
+      if(presenceRes.data.display_name){
+        chatPublicName.textContent = presenceRes.data.display_name;
+      }
+      if(presenceRes.data.avatar_url){
+        chatPublicAvatar.innerHTML = `<img src="${escapeChat(presenceRes.data.avatar_url)}" alt="${escapeChat(presenceRes.data.display_name || name)} profile photo">`;
+      }
+    }
+
+    await renderFriendButton(userId);
   }catch(err){
-    chatPublicLevel.textContent = '—';
-    chatPublicMessages.textContent = '—';
     console.error('Public chat profile error:', err);
+    if(chatFriendNote) chatFriendNote.textContent = 'Some profile stats could not load.';
+    try{ await renderFriendButton(userId); }catch(_){}
   }
 }
 
@@ -1419,6 +1712,8 @@ function closeChatPublicProfile(){
   if(!chatProfileOverlay) return;
   chatProfileOverlay.classList.remove('show');
   chatProfileOverlay.setAttribute('aria-hidden','true');
+  openedChatUserId = null;
+  openedFriendship = null;
 }
 
 if(chatProfileClose){
@@ -1454,7 +1749,29 @@ async function loadCommunityChat(scrollToBottom=false){
 
     if(error) throw error;
 
+
     const rows = data || [];
+
+    // Load online/offline state for everyone visible in the chat.
+    const userIds = [...new Set(rows.map(row => row.user_id).filter(Boolean))];
+    let presenceMap = {};
+
+    if(userIds.length){
+      const { data: presenceRows, error: presenceError } = await client
+        .from('member_presence')
+        .select('user_id,last_seen')
+        .in('user_id', userIds);
+
+      if(!presenceError){
+        presenceMap = Object.fromEntries(
+          (presenceRows || []).map(p => [p.user_id, p.last_seen])
+        );
+      }
+    }
+
+    rows.forEach(row => {
+      row.is_online = isPresenceOnline(presenceMap[row.user_id]);
+    });
 
     if(!rows.length){
       chatMessages.innerHTML =
@@ -1570,18 +1887,24 @@ if(chatInput){
   });
 }
 
+
+// Delegated chatter-profile click. This works even when chat messages are re-rendered.
+document.addEventListener('click', (e) => {
+  const profileTarget = e.target.closest('[data-chat-user]');
+  if(!profileTarget || e.target.closest('[data-chat-delete]')) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  openChatPublicProfile(
+    profileTarget.dataset.chatUser,
+    profileTarget.dataset.chatName || 'Member',
+    profileTarget.dataset.chatAvatar || ''
+  );
+});
+
 if(chatMessages){
   chatMessages.addEventListener('click', async (e) => {
-    const profileTarget = e.target.closest('[data-chat-user]');
-    if(profileTarget && !e.target.closest('[data-chat-delete]')){
-      openChatPublicProfile(
-        profileTarget.dataset.chatUser,
-        profileTarget.dataset.chatName || 'Member',
-        profileTarget.dataset.chatAvatar || ''
-      );
-      return;
-    }
-
     const btn = e.target.closest('[data-chat-delete]');
     if(!btn) return;
 
@@ -1609,6 +1932,7 @@ if(chatMessages){
 }
 
 function startCommunityChat(){
+  startPresenceHeartbeat();
   clearInterval(chatPollTimer);
   refreshChatLevel();
   loadCommunityChat(true);
@@ -1689,6 +2013,7 @@ async function uploadProfilePhoto(){
   }
 
   profileMessage.textContent = '✓ PROFILE PHOTO UPDATED';
+  updateOwnPresence();
   profileMessage.style.fontWeight = '900';
   profileMessage.style.color = '#67e8a5';
   await fpDb
@@ -1722,6 +2047,7 @@ async function removeProfilePhoto(){
   }
 
   profileMessage.textContent = '✓ Profile photo removed.';
+  updateOwnPresence();
   profileMessage.style.color = '#67e8a5';
   await fpDb
     .from('messages')
@@ -1748,15 +2074,6 @@ if(removeProfilePhotoBtn){
 </script>
 
 
-<div id="chatProfileOverlay" class="chat-profile-overlay" aria-hidden="true">
-  <div class="chat-public-profile" role="dialog" aria-modal="true" aria-labelledby="chatPublicName">
-    <button id="chatProfileClose" class="chat-profile-close" type="button" aria-label="Close">×</button>
-    <div class="chat-public-head">
-      <div id="chatPublicAvatar" class="chat-public-avatar">FP</div>
-      <div>
-        <div id="chatPublicName" class="chat-public-name">Member</div>
-        <div id="chatPublicSub" class="chat-public-sub">Failure Point Community Member</div>
-      </div>
     </div>
     <div class="chat-public-stats">
       <div class="chat-public-stat"><span>Community level</span><b id="chatPublicLevel">1</b></div>
