@@ -638,6 +638,55 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   text-transform:uppercase;
 }
 
+
+/* PUBLIC GYMCEL VIP BADGES */
+.chat-vip-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  margin-left:6px;
+  padding:2px 6px;
+  border-radius:999px;
+  background:rgba(239,67,85,.14);
+  border:1px solid rgba(239,67,85,.55);
+  color:#ff6675;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  vertical-align:middle;
+}
+.public-vip-badge{
+  display:none;
+  align-items:center;
+  gap:5px;
+  margin-top:6px;
+  width:max-content;
+  padding:5px 8px;
+  border-radius:999px;
+  background:rgba(239,67,85,.14);
+  border:1px solid rgba(239,67,85,.55);
+  color:#ff6675;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.public-vip-badge.show{display:inline-flex}
+.friend-vip-badge{
+  display:inline-flex;
+  align-items:center;
+  margin-left:5px;
+  padding:2px 5px;
+  border-radius:999px;
+  background:rgba(239,67,85,.12);
+  border:1px solid rgba(239,67,85,.45);
+  color:#ff6675;
+  font-size:7px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
 </style>
 </head>
 <body>
@@ -1146,6 +1195,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
       <div id="chatPublicAvatar" class="chat-public-avatar">FP</div>
       <div class="chat-public-identity">
         <div id="chatPublicName" class="chat-public-name">Member</div>
+        <div id="chatPublicVipBadge" class="public-vip-badge">Gymcel VIP 🔱</div>
         <div id="chatPublicStatus" class="chat-public-status offline">
           <span class="status-dot"></span><span>Offline</span>
         </div>
@@ -1630,6 +1680,7 @@ const chatProfileOverlay = document.getElementById('chatProfileOverlay');
 const chatProfileClose = document.getElementById('chatProfileClose');
 const chatPublicAvatar = document.getElementById('chatPublicAvatar');
 const chatPublicName = document.getElementById('chatPublicName');
+const chatPublicVipBadge = document.getElementById('chatPublicVipBadge');
 const chatPublicSub = document.getElementById('chatPublicSub');
 const chatPublicLevel = document.getElementById('chatPublicLevel');
 const chatPublicMessages = document.getElementById('chatPublicMessages');
@@ -1669,6 +1720,36 @@ function escapeChat(text){
     .replaceAll('>','&gt;')
     .replaceAll('"','&quot;')
     .replaceAll("'",'&#039;');
+}
+
+
+const publicVipCache = new Map();
+
+async function getPublicVipStatus(userId, force=false){
+  if(!userId) return false;
+  if(!force && publicVipCache.has(userId)) return publicVipCache.get(userId);
+
+  try{
+    const client = window.failurePointDb;
+    if(!client) return false;
+
+    const { data, error } = await client.rpc('public_member_vip_status', {
+      target_user: userId
+    });
+
+    if(error) throw error;
+
+    const isVip = data === true;
+    publicVipCache.set(userId, isVip);
+    return isVip;
+  }catch(err){
+    console.error('Public VIP status error:', err);
+    return false;
+  }
+}
+
+function vipBadgeMarkup(isVip){
+  return isVip ? '<span class="chat-vip-badge">Gymcel VIP 🔱</span>' : '';
 }
 
 function chatDisplayName(user){
@@ -1877,7 +1958,18 @@ async function getPresenceMapForUsers(userIds){
 
   if(error) throw error;
 
-  return Object.fromEntries((data || []).map(row => [row.user_id, row]));
+  const map = Object.fromEntries((data || []).map(row => [row.user_id, row]));
+
+  const vipEntries = await Promise.all(
+    userIds.map(async uid => [uid, await getPublicVipStatus(uid)])
+  );
+
+  for(const [uid, isVip] of vipEntries){
+    if(!map[uid]) map[uid] = { user_id:uid, display_name:'Member', avatar_url:null, last_seen:null };
+    map[uid].is_vip = !!isVip;
+  }
+
+  return map;
 }
 
 function renderFriendPersonRow(person, extraHtml=''){
@@ -1890,7 +1982,7 @@ function renderFriendPersonRow(person, extraHtml=''){
     <div class="friend-row-click" data-chat-user="${userId}" data-chat-name="${name}" data-chat-avatar="${avatar}" style="display:flex;align-items:center;gap:9px;flex:1;min-width:0">
       ${friendAvatarMarkup(person, online)}
       <div class="friend-main">
-        <div class="friend-name">${name}</div>
+        <div class="friend-name">${name}${person?.is_vip ? '<span class="friend-vip-badge">VIP 🔱</span>' : ''}</div>
         <div class="friend-state ${online ? 'online' : ''}">${online ? 'Online' : 'Offline'}</div>
       </div>
     </div>
@@ -2159,6 +2251,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
   const name = displayName || 'Member';
   chatPublicName.textContent = name;
   chatPublicSub.textContent = 'Failure Point Community Member';
+  if(chatPublicVipBadge) chatPublicVipBadge.classList.remove('show');
 
   if(avatarUrl){
     chatPublicAvatar.innerHTML = `<img src="${escapeChat(avatarUrl)}" alt="${escapeChat(name)} profile photo">`;
@@ -2180,7 +2273,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
     const client = window.failurePointDb;
     if(!client) throw new Error('Database connection is not ready.');
 
-    const [statRes, workoutRes, presenceRes] = await Promise.all([
+    const [statRes, workoutRes, presenceRes, isVip] = await Promise.all([
       client
         .from('chat_stats')
         .select('lifetime_messages')
@@ -2195,12 +2288,16 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
         .from('member_presence')
         .select('last_seen,display_name,avatar_url')
         .eq('user_id', userId)
-        .maybeSingle()
+        .maybeSingle(),
+
+      getPublicVipStatus(userId, true)
     ]);
 
     if(statRes.error) throw statRes.error;
     if(workoutRes.error) throw workoutRes.error;
     if(presenceRes.error) throw presenceRes.error;
+
+    if(chatPublicVipBadge) chatPublicVipBadge.classList.toggle('show', !!isVip);
 
     const total = Number(statRes.data?.lifetime_messages || 0);
     const info = getChatLevelInfo(total);
@@ -2301,6 +2398,15 @@ async function loadCommunityChat(scrollToBottom=false){
       row.is_online = isPresenceOnline(presenceMap[row.user_id]);
     });
 
+    const vipEntries = await Promise.all(
+      userIds.map(async uid => [uid, await getPublicVipStatus(uid)])
+    );
+    const vipMap = Object.fromEntries(vipEntries);
+
+    rows.forEach(row => {
+      row.is_vip = !!vipMap[row.user_id];
+    });
+
     if(!rows.length){
       chatMessages.innerHTML =
         '<div class="chat-empty">No messages yet — start the conversation.</div>';
@@ -2323,7 +2429,7 @@ async function loadCommunityChat(scrollToBottom=false){
             <div class="chat-message-body">
               <div class="chat-meta">
                 <div>
-                  <button class="chat-user-button" type="button" data-chat-user="${escapeChat(row.user_id || '')}" data-chat-name="${escapeChat(row.display_name || 'Member')}" data-chat-avatar="${escapeChat(row.avatar_url || '')}"><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span></button>
+                  <button class="chat-user-button" type="button" data-chat-user="${escapeChat(row.user_id || '')}" data-chat-name="${escapeChat(row.display_name || 'Member')}" data-chat-avatar="${escapeChat(row.avatar_url || '')}"><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span></button>${vipBadgeMarkup(row.is_vip)}
                   <span class="chat-time"> · ${escapeChat(when)}</span>
                 </div>
                 ${mine
