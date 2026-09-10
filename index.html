@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="The Gymcels.lol — a focused 12-week hypertrophy program built around 2 hard working sets, 8–12 reps, progression, and tracking.">
-<title>The Gymcels.lol — 12-Week Hypertrophy Program</title>
+<title>Gymcels.lol</title>
 <style>
 :root {
   --bg:#0b0c0e; --panel:#121419; --panel2:#171a20; --text:#f4f4f2;
@@ -694,7 +694,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   <div class="wrap nav">
     <div class="brand">FAILURE <span>POINT</span></div>
     <div class="nav-actions">
-      <a class="nav-link" id="navSupport" href="mailto:brandonssillyalt@gmail.com?subject=Failure%20Point%20Support&body=Hey%20Brandon%2C%20I%20need%20help%20with%20Failure%20Point.">Customer Support</a>
+      <a class="nav-link" id="navSupport" href="mailto:brandonssillyalt@gmail.com?subject=Gymcels.lol%20Support&body=Hey%20Brandon%2C%20I%20need%20help%20with%20Gymcels.lol.">Customer Support</a>
       <a class="nav-link" id="navChat" href="#login-card">Chat</a>
       <a class="nav-link" id="navFriends" href="#login-card">Friends</a>
       <a class="nav-link" id="navVip" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">VIP</a>
@@ -1155,8 +1155,8 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
         <h2>Need Help?</h2>
         <p>Questions about Gymcels.lol, your order, or direct purchase? Contact Indomitible by email or text.</p>
         <div class="personal-actions">
-          <a class="btn primary" href="mailto:brandonssillyalt@gmail.com?subject=Failure%20Point%20Purchase">Email Me →</a>
-          <a class="btn secondary" href="sms:8435108328?body=Hey%20Brandon%2C%20I%27m%20interested%20in%20buying%20Failure%20Point.">Text Me →</a>
+          <a class="btn primary" href="mailto:brandonssillyalt@gmail.com?subject=Gymcels.lol%20Purchase">Email Me →</a>
+          <a class="btn secondary" href="sms:8435108328?body=Hey%20Brandon%2C%20I%27m%20interested%20in%20buying%20Gymcels.lol.">Text Me →</a>
         </div>
         <div class="micro" style="margin-top:14px">Support: brandonssillyalt@gmail.com · 843-510-8328</div>
       </div>
@@ -1236,7 +1236,7 @@ window.fpVerificationCallback = (() => {
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CDLjF7ILDgZFvrNqN1LZig_cxJdT9Y7';
   const { createClient } = window.supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-  window.failurePointDb = db;
+  window.gymcelsLolDb = db;
 
   const verificationSuccess = document.getElementById('verificationSuccess');
   const verificationCallback = window.fpVerificationCallback || {};
@@ -1514,7 +1514,7 @@ window.fpVerificationCallback = (() => {
 })();
 
 
-const fpDb = window.failurePointDb;
+const fpDb = window.gymcelsLolDb;
 
 // ---- Gymcels.lol member profile (stored in Supabase Auth user metadata) ----
 const profileBox = document.getElementById('memberProfile');
@@ -1730,7 +1730,7 @@ async function getPublicVipStatus(userId, force=false){
   if(!force && publicVipCache.has(userId)) return publicVipCache.get(userId);
 
   try{
-    const client = window.failurePointDb;
+    const client = window.gymcelsLolDb;
     if(!client) return false;
 
     const { data, error } = await client.rpc('public_member_vip_status', {
@@ -1790,7 +1790,7 @@ function setChatStatus(message, type='normal'){
 }
 
 async function getChatSession(){
-  const client = window.failurePointDb;
+  const client = window.gymcelsLolDb;
   if(!client) throw new Error('Chat database connection is not ready.');
   const { data, error } = await client.auth.getSession();
   if(error) throw error;
@@ -1842,7 +1842,7 @@ function renderChatAchievements(count){
 
 async function refreshChatLevel(){
   try{
-    const client = window.failurePointDb;
+    const client = window.gymcelsLolDb;
     if(!client) return;
 
     const session = await getChatSession();
@@ -1901,7 +1901,7 @@ function renderPublicPresence(lastSeen){
 
 async function updateOwnPresence(){
   try{
-    const client = window.failurePointDb;
+    const client = window.gymcelsLolDb;
     if(!client) return;
 
     const session = await getChatSession();
@@ -1948,7 +1948,7 @@ function friendAvatarMarkup(person, online){
 }
 
 async function getPresenceMapForUsers(userIds){
-  const client = window.failurePointDb;
+  const client = window.gymcelsLolDb;
   if(!client || !userIds.length) return {};
 
   const { data, error } = await client
@@ -1994,7 +1994,7 @@ async function loadFriendsSection(){
   if(!friendsSection) return;
 
   try{
-    const client = window.failurePointDb;
+    const client = window.gymcelsLolDb;
     if(!client) throw new Error('Friends database connection is not ready.');
 
     const session = await getChatSession();
@@ -2084,7 +2084,7 @@ async function handleFriendsSectionAction(e){
   e.stopPropagation();
 
   try{
-    const client = window.failurePointDb;
+    const client = window.gymcelsLolDb;
     if(!client) throw new Error('Friends database connection is not ready.');
 
     if(acceptBtn){
@@ -2123,7 +2123,7 @@ if(navFriends){
 }
 
 async function getFriendshipState(targetUserId){
-  const client = window.failurePointDb;
+  const client = window.gymcelsLolDb;
   const session = await getChatSession();
   if(!client || !session?.user || !targetUserId) return null;
 
@@ -2189,7 +2189,7 @@ async function renderFriendButton(targetUserId){
 async function handleFriendAction(){
   if(!openedChatUserId || !chatFriendBtn) return;
 
-  const client = window.failurePointDb;
+  const client = window.gymcelsLolDb;
   const session = await getChatSession();
   if(!client || !session?.user) return;
 
@@ -2270,7 +2270,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
   chatProfileOverlay.setAttribute('aria-hidden','false');
 
   try{
-    const client = window.failurePointDb;
+    const client = window.gymcelsLolDb;
     if(!client) throw new Error('Database connection is not ready.');
 
     const [statRes, workoutRes, presenceRes, isVip] = await Promise.all([
@@ -2354,7 +2354,7 @@ document.addEventListener('keydown', (e) => {
 
 async function loadCommunityChat(scrollToBottom=false){
   try{
-    const client = window.failurePointDb;
+    const client = window.gymcelsLolDb;
     if(!client) throw new Error('Chat database connection is not ready.');
 
     const session = await getChatSession();
@@ -2468,7 +2468,7 @@ async function sendCommunityMessage(){
   setChatStatus('Sending...');
 
   try{
-    const client = window.failurePointDb;
+    const client = window.gymcelsLolDb;
     if(!client) throw new Error('Chat database connection is not ready.');
 
     const session = await getChatSession();
@@ -2543,7 +2543,7 @@ if(chatMessages){
     if(!btn) return;
 
     try{
-      const client = window.failurePointDb;
+      const client = window.gymcelsLolDb;
       if(!client) throw new Error('Chat database connection is not ready.');
 
       const id = Number(btn.dataset.chatDelete);
@@ -2574,8 +2574,8 @@ function startCommunityChat(){
   chatPollTimer = setInterval(() => loadCommunityChat(false), 3000);
 }
 
-if(window.failurePointDb){
-  window.failurePointDb.auth.onAuthStateChange((_event, session) => {
+if(window.gymcelsLolDb){
+  window.gymcelsLolDb.auth.onAuthStateChange((_event, session) => {
     if(session?.user){
       startCommunityChat();
     } else {
