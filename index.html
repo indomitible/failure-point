@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="en">
+doctype html>
+<html <!lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -454,6 +454,102 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   .chat-public-stats{grid-template-columns:1fr 1fr}
 }
 
+
+/* FRIENDS SECTION */
+.friends-shell{
+  margin:18px 0 22px;
+  padding:18px;
+  border:1px solid #292d34;
+  border-radius:18px;
+  background:#101216;
+}
+.friends-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.friends-title{font-size:20px;font-weight:900;color:#fff}
+.friends-sub{font-size:11px;color:#9299a5;margin-top:3px}
+.friends-refresh{
+  border:1px solid #30343b;
+  background:#171a1f;
+  color:#fff;
+  border-radius:9px;
+  padding:8px 11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.friends-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.friend-group{
+  background:#0a0c0f;
+  border:1px solid #252932;
+  border-radius:12px;
+  padding:12px;
+  min-width:0;
+}
+.friend-group-title{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:#8e96a3;
+  margin-bottom:9px;
+  font-weight:900;
+}
+.friend-list{display:flex;flex-direction:column;gap:8px}
+.friend-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:8px;
+  border:1px solid #222831;
+  border-radius:10px;
+  background:#11151a;
+}
+.friend-row-click{cursor:pointer}
+.friend-row-click:hover{border-color:#3a414c}
+.friend-mini-avatar-wrap{position:relative;width:38px;height:38px;min-width:38px}
+.friend-mini-avatar{
+  width:38px;height:38px;border-radius:50%;
+  overflow:hidden;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ef4355,#8f1724);
+  border:1px solid #ff6474;color:#fff;font-size:11px;font-weight:900;
+}
+.friend-mini-avatar img{width:100%;height:100%;object-fit:cover}
+.friend-mini-dot{
+  position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;
+  border-radius:50%;border:2px solid #11151a;background:#66707c
+}
+.friend-mini-dot.online{background:#3ee58a}
+.friend-main{flex:1;min-width:0}
+.friend-name{
+  color:#fff;font-size:12px;font-weight:900;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.friend-state{font-size:10px;color:#808996;margin-top:2px}
+.friend-state.online{color:#67e8a5}
+.friend-actions{display:flex;gap:5px;flex-wrap:wrap}
+.friend-action{
+  border:0;border-radius:8px;padding:7px 9px;
+  background:#ef4355;color:#fff;font-size:10px;font-weight:900;cursor:pointer
+}
+.friend-action.secondary{background:#242830}
+.friend-empty{font-size:11px;color:#747d89;padding:5px 2px}
+.friend-count{
+  display:inline-grid;place-items:center;min-width:20px;height:20px;
+  border-radius:99px;background:#ef4355;color:#fff;
+  font-size:10px;font-weight:900;padding:0 6px;margin-left:5px
+}
+@media(max-width:850px){
+  .friends-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -463,6 +559,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     <div class="nav-actions">
       <a class="nav-link" id="navSupport" href="mailto:brandonssillyalt@gmail.com?subject=Failure%20Point%20Support&body=Hey%20Brandon%2C%20I%20need%20help%20with%20Failure%20Point.">Customer Support</a>
       <a class="nav-link" id="navChat" href="#login-card">Chat</a>
+      <a class="nav-link" id="navFriends" href="#login-card">Friends</a>
       <a class="nav-link" id="navSignup" href="#signup-card">Sign Up</a>
       <a class="nav-link" id="navLogin" href="#login-card">Log In</a>
       <a class="nav-link hidden" id="navWorkouts" href="#members">My Workouts</a>
@@ -649,6 +746,41 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   </div>
 
 </div>
+
+<div id="friendsSection" class="friends-shell" style="display:none">
+  <div class="friends-head">
+    <div>
+      <div class="friends-title">Friends</div>
+      <div class="friends-sub">See who’s online, incoming requests, and your Failure Point friends.</div>
+    </div>
+    <button id="friendsRefreshBtn" class="friends-refresh" type="button">Refresh</button>
+  </div>
+
+  <div class="friends-grid">
+    <div class="friend-group">
+      <div class="friend-group-title">My Friends <span id="friendsCount" class="friend-count">0</span></div>
+      <div id="friendsList" class="friend-list">
+        <div class="friend-empty">No friends yet.</div>
+      </div>
+    </div>
+
+    <div class="friend-group">
+      <div class="friend-group-title">Incoming Requests <span id="incomingCount" class="friend-count">0</span></div>
+      <div id="incomingFriendsList" class="friend-list">
+        <div class="friend-empty">No incoming requests.</div>
+      </div>
+    </div>
+
+    <div class="friend-group">
+      <div class="friend-group-title">Sent Requests <span id="sentCount" class="friend-count">0</span></div>
+      <div id="sentFriendsList" class="friend-list">
+        <div class="friend-empty">No pending requests.</div>
+      </div>
+    </div>
+  </div>
+  <div id="friendsStatus" style="font-size:11px;color:#8e96a3;margin-top:8px"></div>
+</div>
+
 <div id="communityChat" class="chat-shell">
   <div class="chat-head">
     <div>
@@ -967,6 +1099,7 @@ window.fpVerificationCallback = (() => {
   const logList = $('logList');
   const navSignup = $('navSignup');
   const navChat = $('navChat');
+  const navFriends = $('navFriends');
   const navLogin = $('navLogin');
   const navWorkouts = $('navWorkouts');
   const navLogout = $('navLogout');
@@ -990,6 +1123,7 @@ window.fpVerificationCallback = (() => {
       navWorkouts.classList.remove('hidden');
       navLogout.classList.remove('hidden');
       if (navChat) navChat.setAttribute('href', '#communityChat');
+      if (navFriends) navFriends.setAttribute('href', '#friendsSection');
       await loadLogs();
     } else {
       dashboardView.classList.add('hidden');
@@ -999,6 +1133,7 @@ window.fpVerificationCallback = (() => {
       navWorkouts.classList.add('hidden');
       navLogout.classList.add('hidden');
       if (navChat) navChat.setAttribute('href', '#login-card');
+      if (navFriends) navFriends.setAttribute('href', '#login-card');
     }
   }
 
@@ -1307,6 +1442,17 @@ const chatFriendNote = document.getElementById('chatFriendNote');
 let openedChatUserId = null;
 let openedFriendship = null;
 
+const friendsSection = document.getElementById('friendsSection');
+const friendsList = document.getElementById('friendsList');
+const incomingFriendsList = document.getElementById('incomingFriendsList');
+const sentFriendsList = document.getElementById('sentFriendsList');
+const friendsCount = document.getElementById('friendsCount');
+const incomingCount = document.getElementById('incomingCount');
+const sentCount = document.getElementById('sentCount');
+const friendsRefreshBtn = document.getElementById('friendsRefreshBtn');
+const friendsStatus = document.getElementById('friendsStatus');
+
+
 const chatPublicAchievements = document.getElementById('chatPublicAchievements');
 
 
@@ -1504,6 +1650,184 @@ document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'visible') updateOwnPresence();
 });
 
+
+function friendAvatarMarkup(person, online){
+  const name = person?.display_name || 'Member';
+  const avatar = person?.avatar_url || '';
+  const avatarInner = avatar
+    ? `<div class="friend-mini-avatar"><img src="${escapeChat(avatar)}" alt="${escapeChat(name)} profile photo"></div>`
+    : `<div class="friend-mini-avatar">${escapeChat(chatInitials(name))}</div>`;
+
+  return `<div class="friend-mini-avatar-wrap">
+    ${avatarInner}
+    <span class="friend-mini-dot ${online ? 'online' : ''}"></span>
+  </div>`;
+}
+
+async function getPresenceMapForUsers(userIds){
+  const client = window.failurePointDb;
+  if(!client || !userIds.length) return {};
+
+  const { data, error } = await client
+    .from('member_presence')
+    .select('user_id,display_name,avatar_url,last_seen')
+    .in('user_id', userIds);
+
+  if(error) throw error;
+
+  return Object.fromEntries((data || []).map(row => [row.user_id, row]));
+}
+
+function renderFriendPersonRow(person, extraHtml=''){
+  const online = isPresenceOnline(person?.last_seen);
+  const userId = escapeChat(person?.user_id || '');
+  const name = escapeChat(person?.display_name || 'Member');
+  const avatar = escapeChat(person?.avatar_url || '');
+
+  return `<div class="friend-row">
+    <div class="friend-row-click" data-chat-user="${userId}" data-chat-name="${name}" data-chat-avatar="${avatar}" style="display:flex;align-items:center;gap:9px;flex:1;min-width:0">
+      ${friendAvatarMarkup(person, online)}
+      <div class="friend-main">
+        <div class="friend-name">${name}</div>
+        <div class="friend-state ${online ? 'online' : ''}">${online ? 'Online' : 'Offline'}</div>
+      </div>
+    </div>
+    ${extraHtml}
+  </div>`;
+}
+
+async function loadFriendsSection(){
+  if(!friendsSection) return;
+
+  try{
+    const client = window.failurePointDb;
+    if(!client) throw new Error('Friends database connection is not ready.');
+
+    const session = await getChatSession();
+    if(!session?.user){
+      friendsSection.style.display = 'none';
+      return;
+    }
+
+    friendsSection.style.display = '';
+    if(friendsStatus) friendsStatus.textContent = 'Loading...';
+
+    const me = session.user.id;
+
+    const { data: rows, error } = await client
+      .from('friendships')
+      .select('id,requester_id,addressee_id,status,created_at')
+      .or(`requester_id.eq.${me},addressee_id.eq.${me}`)
+      .order('created_at', { ascending:false });
+
+    if(error) throw error;
+
+    const friendships = rows || [];
+    const otherIds = [...new Set(friendships.map(row =>
+      row.requester_id === me ? row.addressee_id : row.requester_id
+    ).filter(Boolean))];
+
+    const presenceMap = await getPresenceMapForUsers(otherIds);
+
+    const accepted = friendships.filter(row => row.status === 'accepted');
+    const incoming = friendships.filter(row => row.status === 'pending' && row.addressee_id === me);
+    const sent = friendships.filter(row => row.status === 'pending' && row.requester_id === me);
+
+    friendsCount.textContent = accepted.length;
+    incomingCount.textContent = incoming.length;
+    sentCount.textContent = sent.length;
+
+    friendsList.innerHTML = accepted.length
+      ? accepted.map(row => {
+          const otherId = row.requester_id === me ? row.addressee_id : row.requester_id;
+          const person = presenceMap[otherId] || {user_id:otherId,display_name:'Member',avatar_url:null,last_seen:null};
+          return renderFriendPersonRow(
+            person,
+            `<div class="friend-actions"><button class="friend-action secondary" type="button" data-friend-remove="${row.id}">Remove</button></div>`
+          );
+        }).join('')
+      : '<div class="friend-empty">No friends yet. Click someone in chat and send a request.</div>';
+
+    incomingFriendsList.innerHTML = incoming.length
+      ? incoming.map(row => {
+          const person = presenceMap[row.requester_id] || {user_id:row.requester_id,display_name:'Member',avatar_url:null,last_seen:null};
+          return renderFriendPersonRow(
+            person,
+            `<div class="friend-actions">
+              <button class="friend-action" type="button" data-friend-accept="${row.id}">Accept</button>
+              <button class="friend-action secondary" type="button" data-friend-remove="${row.id}">Decline</button>
+            </div>`
+          );
+        }).join('')
+      : '<div class="friend-empty">No incoming requests.</div>';
+
+    sentFriendsList.innerHTML = sent.length
+      ? sent.map(row => {
+          const person = presenceMap[row.addressee_id] || {user_id:row.addressee_id,display_name:'Member',avatar_url:null,last_seen:null};
+          return renderFriendPersonRow(
+            person,
+            `<div class="friend-actions"><button class="friend-action secondary" type="button" data-friend-remove="${row.id}">Cancel</button></div>`
+          );
+        }).join('')
+      : '<div class="friend-empty">No pending requests.</div>';
+
+    if(friendsStatus) friendsStatus.textContent = '';
+  }catch(err){
+    if(friendsStatus){
+      friendsStatus.textContent = 'Friends error: ' + (err?.message || String(err));
+      friendsStatus.style.color = '#ff5a6b';
+    }
+    console.error('Friends section error:', err);
+  }
+}
+
+async function handleFriendsSectionAction(e){
+  const acceptBtn = e.target.closest('[data-friend-accept]');
+  const removeBtn = e.target.closest('[data-friend-remove]');
+  if(!acceptBtn && !removeBtn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  try{
+    const client = window.failurePointDb;
+    if(!client) throw new Error('Friends database connection is not ready.');
+
+    if(acceptBtn){
+      const friendshipId = Number(acceptBtn.dataset.friendAccept);
+      const { error } = await client.rpc('accept_friend_request', { friendship_id: friendshipId });
+      if(error) throw error;
+    }
+
+    if(removeBtn){
+      const friendshipId = Number(removeBtn.dataset.friendRemove);
+      const { error } = await client.rpc('remove_friendship', { friendship_id: friendshipId });
+      if(error) throw error;
+    }
+
+    await loadFriendsSection();
+  }catch(err){
+    if(friendsStatus){
+      friendsStatus.textContent = err?.message || String(err);
+      friendsStatus.style.color = '#ff5a6b';
+    }
+  }
+}
+
+[friendsList, incomingFriendsList, sentFriendsList].forEach(list => {
+  if(list) list.addEventListener('click', handleFriendsSectionAction);
+});
+
+if(friendsRefreshBtn){
+  friendsRefreshBtn.addEventListener('click', () => loadFriendsSection());
+}
+
+if(navFriends){
+  navFriends.addEventListener('click', () => {
+    setTimeout(loadFriendsSection, 50);
+  });
+}
+
 async function getFriendshipState(targetUserId){
   const client = window.failurePointDb;
   const session = await getChatSession();
@@ -1602,6 +1926,7 @@ async function handleFriendAction(){
     }
 
     await renderFriendButton(openedChatUserId);
+    await loadFriendsSection();
   }catch(err){
     chatFriendNote.textContent = err?.message || String(err);
     chatFriendNote.style.color = '#ff5a6b';
@@ -1736,6 +2061,7 @@ async function loadCommunityChat(scrollToBottom=false){
     const session = await getChatSession();
     if(!session?.user){
       if(communityChat) communityChat.style.display = 'none';
+      if(friendsSection) friendsSection.style.display = 'none';
       return;
     }
 
@@ -1933,6 +2259,7 @@ if(chatMessages){
 
 function startCommunityChat(){
   startPresenceHeartbeat();
+  loadFriendsSection();
   clearInterval(chatPollTimer);
   refreshChatLevel();
   loadCommunityChat(true);
