@@ -126,9 +126,17 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 .field label{font-size:12px;color:var(--muted);font-weight:800}
 .field input,.field textarea{width:100%;border:1px solid var(--line);background:#0e1014;color:var(--text);border-radius:10px;padding:12px;font:inherit;outline:none}
 .field input:focus,.field textarea:focus{border-color:var(--red2)}
+.field input[list]{cursor:text}
+.exercise-help{font-size:11px;color:var(--muted);margin-top:-3px;margin-bottom:2px}
+
 .field textarea{min-height:88px;resize:vertical}
 .member-message{min-height:20px;margin-top:10px;font-size:13px;color:var(--muted)}
 .member-message.error{color:#ff8b94}.member-message.success{color:#88e09a}
+.beat-last{border:1px solid var(--line);background:#0e1014;border-radius:12px;padding:14px;margin:-2px 0 14px}
+.beat-last-label{font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:var(--red2);margin-bottom:5px}
+.beat-last-main{font-size:17px;font-weight:900;color:var(--text)}
+.beat-last-sub{font-size:12px;color:var(--muted);margin-top:4px}
+
 .member-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .member-user{font-size:13px;color:var(--muted)}
 .log-list{display:flex;flex-direction:column;gap:10px}
@@ -138,6 +146,62 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 .empty-state{color:var(--muted);font-size:14px;padding:18px 0}
 .hidden{display:none!important}
 @media(max-width:800px){.auth-grid,.dashboard-grid,.field-grid{grid-template-columns:1fr}.member-shell{padding:20px 16px}}
+
+
+/* MEMBER PROFILE */
+.profile-shell{margin:22px 0 10px;padding:20px;border:1px solid #292d34;border-radius:18px;background:#101216}
+.profile-top{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.profile-ident{display:flex;gap:13px;align-items:center}
+.profile-avatar{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ef4355,#8f1724);color:#fff;font-weight:900;font-size:20px;border:1px solid #ff6474}
+.profile-name{font-weight:900;font-size:20px;color:#fff}
+.profile-email{font-size:12px;color:#969ca8;margin-top:3px}
+.profile-edit{background:#ef4355;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+.profile-edit:hover{filter:brightness(1.08)}
+.profile-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.profile-stat{background:#0a0c0f;border:1px solid #252932;border-radius:12px;padding:13px}
+.profile-stat b{display:block;font-size:20px;color:#fff;margin-top:4px}
+.profile-stat span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8f96a3}
+.profile-form{display:none;margin-top:16px;padding-top:16px;border-top:1px solid #262a31}
+.profile-form.show{display:block}
+.profile-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.profile-form label{display:block;font-size:11px;color:#969ca8;margin-bottom:5px}
+.profile-form input{width:100%;box-sizing:border-box;background:#0a0c0f;color:#fff;border:1px solid #30343b;border-radius:9px;padding:11px}
+.profile-actions{display:flex;gap:8px;margin-top:10px}
+.profile-save,.profile-cancel{border:0;border-radius:9px;padding:9px 13px;font-weight:800;cursor:pointer}
+.profile-save{background:#ef4355;color:#fff}
+.profile-cancel{background:#24272d;color:#fff}
+@media(max-width:700px){
+  .profile-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .profile-form-grid{grid-template-columns:1fr}
+}
+
+
+/* FAILURE POINT COMMUNITY CHAT */
+.chat-shell{margin:18px 0 10px;padding:18px;border:1px solid #292d34;border-radius:18px;background:#101216}
+.chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.chat-title{font-size:20px;font-weight:900;color:#fff}
+.chat-sub{font-size:11px;color:#9299a5;margin-top:3px}
+.chat-live{font-size:10px;font-weight:800;letter-spacing:.08em;color:#ff5365;text-transform:uppercase}
+.chat-messages{height:320px;overflow-y:auto;background:#090b0e;border:1px solid #242830;border-radius:12px;padding:12px}
+.chat-empty{color:#7f8793;font-size:12px;padding:8px}
+.chat-message{padding:10px 11px;border-bottom:1px solid #1f2329}
+.chat-message:last-child{border-bottom:0}
+.chat-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.chat-user{font-size:12px;font-weight:900;color:#ff5365}
+.chat-time{font-size:10px;color:#737b87}
+.chat-text{font-size:13px;color:#f0f2f5;white-space:pre-wrap;word-break:break-word;line-height:1.4}
+.chat-delete{background:transparent;border:0;color:#737b87;font-size:10px;cursor:pointer;padding:0;margin-left:8px}
+.chat-delete:hover{color:#ff5365}
+.chat-compose{display:flex;gap:8px;margin-top:10px}
+.chat-compose input{flex:1;background:#0a0c0f;color:#fff;border:1px solid #30343b;border-radius:10px;padding:12px}
+.chat-compose button{background:#ef4355;color:#fff;border:0;border-radius:10px;padding:0 16px;font-weight:900;cursor:pointer}
+.chat-compose button:hover{filter:brightness(1.08)}
+.chat-status{font-size:11px;color:#8e96a3;margin-top:7px;min-height:16px}
+@media(max-width:650px){
+  .chat-messages{height:280px}
+  .chat-compose{flex-direction:column}
+  .chat-compose button{padding:12px}
+}
 
 </style>
 </head>
@@ -247,7 +311,11 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     <div class="wrap">
       <div class="member-shell">
         <div class="member-head">
-          <div><div class="kicker">Failure Point members</div><h2>Log Your Workouts Daily.</h2></div>
+          <div><div class="kicker">Failure Point members</div><h2>Log Your Workouts Daily.</h2>
+
+
+</div>
+</div>
           <p>Create an account to save your own workout history. Your logs are tied to your account and protected by Supabase Row Level Security.</p>
         </div>
 
@@ -274,11 +342,199 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
             <div class="member-user">Signed in as <strong id="memberEmail"></strong></div>
             <button class="mini-btn" id="logoutBtn" type="button">Log out</button>
           </div>
+<div id="memberProfile" class="profile-shell">
+  <div class="profile-top">
+    <div class="profile-ident">
+      <div id="profileAvatar" class="profile-avatar">FP</div>
+      <div>
+        <div id="profileDisplayName" class="profile-name">Failure Point Member</div>
+        <div id="profileEmail" class="profile-email"></div>
+      </div>
+    </div>
+    <button id="editProfileBtn" class="profile-edit" type="button">Edit Profile</button>
+  </div>
+
+  <div class="profile-stats">
+    <div class="profile-stat"><span>Member since</span><b id="profileMemberSince">—</b></div>
+    <div class="profile-stat"><span>Program week</span><b id="profileProgramWeek">—</b></div>
+    <div class="profile-stat"><span>Workouts logged</span><b id="profileWorkoutCount">0</b></div>
+    <div class="profile-stat"><span>Sets logged</span><b id="profileSetCount">0</b></div>
+  </div>
+
+  <div id="profileForm" class="profile-form">
+    <div class="profile-form-grid">
+      <div>
+        <label for="profileNameInput">Display name</label>
+        <input id="profileNameInput" type="text" maxlength="30" placeholder="Your name">
+      </div>
+      <div>
+        <label for="profileStartInput">Failure Point start date</label>
+        <input id="profileStartInput" type="date">
+      </div>
+    </div>
+    <div class="profile-actions">
+      <button id="saveProfileBtn" class="profile-save" type="button">Save Profile</button>
+      <button id="cancelProfileBtn" class="profile-cancel" type="button">Cancel</button>
+    </div>
+    <div id="profileMessage" style="font-size:12px;margin-top:8px;color:#9aa1ad"></div>
+  </div>
           <div class="dashboard-grid">
-            <div class="member-card">
+            
+<div id="communityChat" class="chat-shell hidden">
+  <div class="chat-head">
+    <div>
+      <div class="chat-title">Failure Point Community</div>
+      <div class="chat-sub">Public member chat — everyone logged in can see these messages.</div>
+    </div>
+    <div class="chat-live">● Live</div>
+  </div>
+
+  <div id="chatMessages" class="chat-messages">
+    <div class="chat-empty">Loading chat...</div>
+  </div>
+
+  <form id="chatForm" class="chat-compose">
+    <input id="chatInput" type="text" maxlength="300" autocomplete="off" placeholder="Say something to the community..." required>
+    <button type="submit">Send</button>
+  </form>
+  <div id="chatStatus" class="chat-status"></div>
+</div>
+
+<div class="member-card">
               <h3 id="formTitle">Log a set</h3>
               <input id="editId" type="hidden">
-              <div class="field"><label for="exerciseInput">Exercise</label><input id="exerciseInput" type="text" placeholder="Weighted Dips"></div>
+              <div class="field"><label for="exerciseInput">Exercise</label><input id="exerciseInput" type="text" list="exerciseOptions" autocomplete="off" placeholder="Search exercises...">
+<datalist id="exerciseOptions">
+<option value="Bench Press"></option>
+<option value="Incline Barbell Bench"></option>
+<option value="Decline Bench Press"></option>
+<option value="Close-Grip Bench Press"></option>
+<option value="Dumbbell Bench Press"></option>
+<option value="Incline Dumbbell Press"></option>
+<option value="Decline Dumbbell Press"></option>
+<option value="Machine Chest Press"></option>
+<option value="Incline Machine Press"></option>
+<option value="Chest Press Machine"></option>
+<option value="Cable Chest Press"></option>
+<option value="Cable Fly"></option>
+<option value="Low-to-High Cable Fly"></option>
+<option value="High-to-Low Cable Fly"></option>
+<option value="Dumbbell Fly"></option>
+<option value="Pec Deck"></option>
+<option value="Push-Ups"></option>
+<option value="Weighted Push-Ups"></option>
+<option value="Dips"></option>
+<option value="Weighted Dips"></option>
+<option value="Pull-Ups"></option>
+<option value="Weighted Pull-Ups"></option>
+<option value="Chin-Ups"></option>
+<option value="Weighted Chin-Ups"></option>
+<option value="Lat Pulldown"></option>
+<option value="Close-Grip Lat Pulldown"></option>
+<option value="Wide-Grip Lat Pulldown"></option>
+<option value="Neutral-Grip Lat Pulldown"></option>
+<option value="Barbell Rows"></option>
+<option value="Pendlay Rows"></option>
+<option value="Dumbbell Rows"></option>
+<option value="Chest-Supported Dumbbell Rows"></option>
+<option value="T-Bar Rows"></option>
+<option value="Chest-Supported T-Bar Rows"></option>
+<option value="Seated Cable Rows"></option>
+<option value="Machine Rows"></option>
+<option value="Single-Arm Cable Rows"></option>
+<option value="Straight-Arm Pulldowns"></option>
+<option value="Cable Pullovers"></option>
+<option value="Dumbbell Pullovers"></option>
+<option value="Rack Pulls"></option>
+<option value="Deadlifts"></option>
+<option value="Overhead Press"></option>
+<option value="Barbell Shoulder Press"></option>
+<option value="Dumbbell Shoulder Press"></option>
+<option value="Arnold Press"></option>
+<option value="Machine Shoulder Press"></option>
+<option value="Lateral Raises"></option>
+<option value="Dumbbell Lateral Raises"></option>
+<option value="Cable Lateral Raises"></option>
+<option value="Machine Lateral Raises"></option>
+<option value="Front Raises"></option>
+<option value="Rear Delt Fly"></option>
+<option value="Reverse Pec Deck"></option>
+<option value="Face Pulls"></option>
+<option value="Upright Rows"></option>
+<option value="Barbell Curls"></option>
+<option value="EZ-Bar Curls"></option>
+<option value="Dumbbell Curls"></option>
+<option value="Alternating Dumbbell Curls"></option>
+<option value="Hammer Curls"></option>
+<option value="Cross-Body Hammer Curls"></option>
+<option value="Incline Dumbbell Curls"></option>
+<option value="Preacher Curls"></option>
+<option value="Machine Preacher Curls"></option>
+<option value="Cable Curls"></option>
+<option value="Bayesian Cable Curls"></option>
+<option value="Concentration Curls"></option>
+<option value="Spider Curls"></option>
+<option value="Reverse Curls"></option>
+<option value="Cable Triceps Extensions"></option>
+<option value="Triceps Pushdowns"></option>
+<option value="Rope Pushdowns"></option>
+<option value="Straight-Bar Pushdowns"></option>
+<option value="Single-Arm Triceps Extensions"></option>
+<option value="Overhead Cable Triceps Extensions"></option>
+<option value="Dumbbell Overhead Triceps Extensions"></option>
+<option value="Skull Crushers"></option>
+<option value="EZ-Bar Skull Crushers"></option>
+<option value="Bench Dips"></option>
+<option value="Barbell Squats"></option>
+<option value="Back Squats"></option>
+<option value="Front Squats"></option>
+<option value="Hack Squats"></option>
+<option value="Pendulum Squats"></option>
+<option value="Smith Machine Squats"></option>
+<option value="Goblet Squats"></option>
+<option value="Bulgarian Split Squats"></option>
+<option value="Walking Lunges"></option>
+<option value="Reverse Lunges"></option>
+<option value="Leg Press"></option>
+<option value="Single-Leg Press"></option>
+<option value="Leg Extensions"></option>
+<option value="Step-Ups"></option>
+<option value="Hip Thrusts"></option>
+<option value="Barbell Hip Thrusts"></option>
+<option value="Glute Bridges"></option>
+<option value="Cable Kickbacks"></option>
+<option value="Hip Abduction Machine"></option>
+<option value="Romanian Deadlifts (RDLs)"></option>
+<option value="Barbell RDLs"></option>
+<option value="Dumbbell RDLs"></option>
+<option value="Stiff-Leg Deadlifts"></option>
+<option value="Seated Leg Curls"></option>
+<option value="Lying Leg Curls"></option>
+<option value="Standing Leg Curls"></option>
+<option value="Nordic Curls"></option>
+<option value="Good Mornings"></option>
+<option value="Standing Calf Raises"></option>
+<option value="Seated Calf Raises"></option>
+<option value="Leg Press Calf Raises"></option>
+<option value="Single-Leg Calf Raises"></option>
+<option value="Cable Crunches"></option>
+<option value="Ab Crunch Machine"></option>
+<option value="Hanging Leg Raises"></option>
+<option value="Hanging Knee Raises"></option>
+<option value="Decline Sit-Ups"></option>
+<option value="Plank"></option>
+<option value="Weighted Plank"></option>
+<option value="Ab Wheel Rollouts"></option>
+<option value="Russian Twists"></option>
+<option value="Barbell Shrugs"></option>
+<option value="Dumbbell Shrugs"></option>
+<option value="Machine Shrugs"></option>
+<option value="Wrist Curls"></option>
+<option value="Reverse Wrist Curls"></option>
+<option value="Farmer's Carries"></option>
+</datalist>
+<div class="exercise-help">Search the list or type any exercise name.</div></div>
+              <div id="beatLast" class="beat-last"><div class="beat-last-label">Beat last workout</div><div class="beat-last-main">Enter an exercise to see your last performance.</div><div class="beat-last-sub">Your previous set will appear here automatically.</div></div>
               <div class="field-grid">
                 <div class="field"><label for="weightInput">Weight</label><input id="weightInput" type="number" step="0.01" min="0" placeholder="135"></div>
                 <div class="field"><label for="repsInput">Reps</label><input id="repsInput" type="number" step="1" min="0" placeholder="10"></div>
@@ -357,6 +613,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   const navLogin = $('navLogin');
   const navWorkouts = $('navWorkouts');
   const navLogout = $('navLogout');
+  const beatLast = $('beatLast');
 
   function msg(el, text, type='') {
     el.textContent = text || '';
@@ -414,9 +671,41 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   $('logoutBtn').addEventListener('click', logout);
   navLogout.addEventListener('click', logout);
 
+  function normalizeExercise(name) { return (name || '').trim().toLowerCase(); }
+
+  async function updateBeatLast() {
+    const exercise = $('exerciseInput').value.trim();
+    if (!exercise) {
+      beatLast.querySelector('.beat-last-main').textContent='Enter an exercise to see your last performance.';
+      beatLast.querySelector('.beat-last-sub').textContent='Your previous set will appear here automatically.';
+      return;
+    }
+    const { data, error } = await db.from('workout_logs').select('*').order('workout_date',{ascending:false}).order('created_at',{ascending:false});
+    if (error) return;
+    const editId = $('editId').value;
+    const previous = (data || []).find(r => String(r.id) !== String(editId) && normalizeExercise(r.exercise) === normalizeExercise(exercise));
+    if (!previous) {
+      beatLast.querySelector('.beat-last-main').textContent='No previous set yet — set the standard.';
+      beatLast.querySelector('.beat-last-sub').textContent='Save this set and Failure Point will give you a target next time.';
+      return;
+    }
+    const performance=[previous.weight != null ? `${previous.weight} lb` : '', previous.reps != null ? `${previous.reps} reps` : ''].filter(Boolean).join(' × ');
+    beatLast.querySelector('.beat-last-main').textContent=`Last: ${performance || 'logged set'}`;
+    let target='Beat it with more weight or more reps while keeping good form.';
+    if (previous.reps != null && previous.weight != null) {
+      target = previous.reps >= 12 ? `Target: increase the weight and stay in the 8–12 rep range.` : `Target: ${previous.weight} lb × ${previous.reps + 1} reps or better.`;
+    } else if (previous.reps != null) target=`Target: ${previous.reps + 1} reps or better.`;
+    beatLast.querySelector('.beat-last-sub').textContent=`${previous.workout_date || 'Previous workout'} · ${target}`;
+  }
+
+  let beatTimer;
+  $('exerciseInput').addEventListener('input',()=>{ clearTimeout(beatTimer); beatTimer=setTimeout(updateBeatLast,250); });
+  $('exerciseInput').addEventListener('change',updateBeatLast);
+
   function clearForm() {
     $('editId').value=''; $('exerciseInput').value=''; $('weightInput').value=''; $('repsInput').value=''; $('setInput').value=''; $('dateInput').value=today(); $('notesInput').value='';
     $('formTitle').textContent='Log a set'; $('saveLogBtn').textContent='Save log →'; $('cancelEditBtn').classList.add('hidden'); msg($('logMsg'),'');
+    updateBeatLast();
   }
   $('cancelEditBtn').addEventListener('click', clearForm);
 
@@ -461,7 +750,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
       const edit=document.createElement('button'); edit.className='mini-btn'; edit.textContent='Edit';
       edit.addEventListener('click',()=>{
         $('editId').value=row.id; $('exerciseInput').value=row.exercise || ''; $('weightInput').value=row.weight ?? ''; $('repsInput').value=row.reps ?? ''; $('setInput').value=row.set_number ?? ''; $('dateInput').value=row.workout_date || today(); $('notesInput').value=row.notes || '';
-        $('formTitle').textContent='Edit log'; $('saveLogBtn').textContent='Update log →'; $('cancelEditBtn').classList.remove('hidden'); document.querySelector('#members').scrollIntoView({behavior:'smooth'});
+        $('formTitle').textContent='Edit log'; $('saveLogBtn').textContent='Update log →'; $('cancelEditBtn').classList.remove('hidden'); updateBeatLast(); document.querySelector('#members').scrollIntoView({behavior:'smooth'});
       });
       const del=document.createElement('button'); del.className='mini-btn danger'; del.textContent='Delete';
       del.addEventListener('click',async()=>{
@@ -476,6 +765,262 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   db.auth.onAuthStateChange(() => refreshSession());
   refreshSession();
 })();
+
+
+// ---- Failure Point member profile (stored in Supabase Auth user metadata) ----
+const profileBox = document.getElementById('memberProfile');
+const profileAvatar = document.getElementById('profileAvatar');
+const profileDisplayName = document.getElementById('profileDisplayName');
+const profileEmail = document.getElementById('profileEmail');
+const profileMemberSince = document.getElementById('profileMemberSince');
+const profileProgramWeek = document.getElementById('profileProgramWeek');
+const profileWorkoutCount = document.getElementById('profileWorkoutCount');
+const profileSetCount = document.getElementById('profileSetCount');
+const profileForm = document.getElementById('profileForm');
+const profileNameInput = document.getElementById('profileNameInput');
+const profileStartInput = document.getElementById('profileStartInput');
+const profileMessage = document.getElementById('profileMessage');
+const editProfileBtn = document.getElementById('editProfileBtn');
+const saveProfileBtn = document.getElementById('saveProfileBtn');
+const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+
+function fpInitials(name, email){
+  const source = (name || email || 'FP').trim();
+  const parts = source.split(/\s+/).filter(Boolean);
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0,2).toUpperCase();
+}
+
+function fpProgramWeek(startDate){
+  if(!startDate) return '—';
+  const start = new Date(startDate + 'T00:00:00');
+  const now = new Date();
+  if(Number.isNaN(start.getTime()) || start > now) return '—';
+  const days = Math.floor((now - start) / 86400000);
+  return Math.min(12, Math.floor(days / 7) + 1);
+}
+
+async function refreshMemberProfile(){
+  if(!profileBox) return;
+
+  const { data: { session } } = await db.auth.getSession();
+  if(!session?.user){
+    profileBox.classList.add('hidden');
+    return;
+  }
+
+  const user = session.user;
+  const meta = user.user_metadata || {};
+  const displayName = meta.display_name || 'Failure Point Member';
+  const startDate = meta.fp_start_date || '';
+
+  profileBox.classList.remove('hidden');
+  profileDisplayName.textContent = displayName;
+  profileEmail.textContent = user.email || '';
+  profileAvatar.textContent = fpInitials(displayName, user.email);
+  profileMemberSince.textContent = user.created_at
+    ? new Date(user.created_at).toLocaleDateString(undefined,{month:'short',year:'numeric'})
+    : '—';
+  profileProgramWeek.textContent = fpProgramWeek(startDate);
+  profileNameInput.value = meta.display_name || '';
+  profileStartInput.value = startDate;
+
+  const { data: logs, error } = await db
+    .from('workout_logs')
+    .select('workout_date');
+
+  if(!error && Array.isArray(logs)){
+    profileSetCount.textContent = logs.length;
+    const uniqueDays = new Set(logs.map(x => x.workout_date).filter(Boolean));
+    profileWorkoutCount.textContent = uniqueDays.size;
+  }
+}
+
+if(editProfileBtn){
+  editProfileBtn.addEventListener('click', () => {
+    profileForm.classList.add('show');
+    profileMessage.textContent = '';
+  });
+}
+if(cancelProfileBtn){
+  cancelProfileBtn.addEventListener('click', () => {
+    profileForm.classList.remove('show');
+    profileMessage.textContent = '';
+  });
+}
+if(saveProfileBtn){
+  saveProfileBtn.addEventListener('click', async () => {
+    const display_name = profileNameInput.value.trim() || 'Failure Point Member';
+    const fp_start_date = profileStartInput.value || null;
+    profileMessage.textContent = 'Saving...';
+
+    const { error } = await db.auth.updateUser({
+      data: { display_name, fp_start_date }
+    });
+
+    if(error){
+      profileMessage.textContent = error.message;
+      return;
+    }
+
+    profileMessage.textContent = 'Profile saved.';
+    await refreshMemberProfile();
+    setTimeout(() => profileForm.classList.remove('show'), 500);
+  });
+}
+
+// Keep profile synced with login/logout and workout log changes.
+db.auth.onAuthStateChange(() => {
+  setTimeout(refreshMemberProfile, 0);
+});
+setTimeout(refreshMemberProfile, 0);
+
+if(document.getElementById('workoutForm')){
+  document.getElementById('workoutForm').addEventListener('submit', () => {
+    setTimeout(refreshMemberProfile, 700);
+  });
+}
+
+
+
+// ---- Failure Point Community Chat ----
+const communityChat = document.getElementById('communityChat');
+const chatMessages = document.getElementById('chatMessages');
+const chatForm = document.getElementById('chatForm');
+const chatInput = document.getElementById('chatInput');
+const chatStatus = document.getElementById('chatStatus');
+let chatPollTimer = null;
+let lastChatSignature = '';
+
+function escapeChat(text){
+  return String(text ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#039;');
+}
+
+function chatDisplayName(user){
+  return user?.user_metadata?.display_name || (user?.email ? user.email.split('@')[0] : 'Member');
+}
+
+async function loadCommunityChat(forceScroll=false){
+  if(!communityChat || !chatMessages) return;
+  const { data: { session } } = await db.auth.getSession();
+  if(!session?.user){
+    communityChat.classList.add('hidden');
+    return;
+  }
+
+  communityChat.classList.remove('hidden');
+
+  const { data, error } = await db
+    .from('messages')
+    .select('id,user_id,display_name,message,created_at')
+    .order('created_at', { ascending: true })
+    .limit(100);
+
+  if(error){
+    chatMessages.innerHTML = '<div class="chat-empty">Chat is not connected yet. Finish the Supabase messages-table setup.</div>';
+    chatStatus.textContent = error.message;
+    return;
+  }
+
+  const rows = data || [];
+  const signature = rows.map(x => `${x.id}:${x.created_at}`).join('|');
+  if(signature === lastChatSignature && !forceScroll) return;
+  lastChatSignature = signature;
+
+  const nearBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 80;
+
+  if(!rows.length){
+    chatMessages.innerHTML = '<div class="chat-empty">No messages yet — start the conversation.</div>';
+    return;
+  }
+
+  chatMessages.innerHTML = rows.map(row => {
+    const mine = row.user_id === session.user.id;
+    const when = row.created_at ? new Date(row.created_at).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '';
+    return `
+      <div class="chat-message">
+        <div class="chat-meta">
+          <div><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span><span class="chat-time"> · ${escapeChat(when)}</span></div>
+          ${mine ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}">Delete</button>` : ''}
+        </div>
+        <div class="chat-text">${escapeChat(row.message)}</div>
+      </div>`;
+  }).join('');
+
+  if(forceScroll || nearBottom) chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+if(chatForm){
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if(!text) return;
+
+    const { data: { session } } = await db.auth.getSession();
+    if(!session?.user){
+      chatStatus.textContent = 'Log in to send messages.';
+      return;
+    }
+
+    chatStatus.textContent = 'Sending...';
+    const { error } = await db.from('messages').insert({
+      user_id: session.user.id,
+      display_name: chatDisplayName(session.user),
+      message: text
+    });
+
+    if(error){
+      chatStatus.textContent = error.message;
+      return;
+    }
+
+    chatInput.value = '';
+    chatStatus.textContent = '';
+    await loadCommunityChat(true);
+  });
+}
+
+if(chatMessages){
+  chatMessages.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-chat-delete]');
+    if(!btn) return;
+    const id = Number(btn.dataset.chatDelete);
+    if(!id) return;
+
+    const { error } = await db.from('messages').delete().eq('id', id);
+    if(error){
+      chatStatus.textContent = error.message;
+      return;
+    }
+    await loadCommunityChat(false);
+  });
+}
+
+function startChatPolling(){
+  clearInterval(chatPollTimer);
+  loadCommunityChat(true);
+  chatPollTimer = setInterval(() => loadCommunityChat(false), 4000);
+}
+
+db.auth.onAuthStateChange((_event, session) => {
+  if(session?.user){
+    startChatPolling();
+  } else {
+    clearInterval(chatPollTimer);
+    if(communityChat) communityChat.classList.add('hidden');
+  }
+});
+
+setTimeout(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if(session?.user) startChatPolling();
+}, 300);
+
 </script>
 
 </body>
