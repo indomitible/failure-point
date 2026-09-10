@@ -408,10 +408,10 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   <div id="chatMessages" class="chat-messages">
     <div class="chat-empty">Loading chat...</div>
   </div>
-  <form id="chatForm" class="chat-compose" action="javascript:void(0)">
+  <div id="chatForm" class="chat-compose">
     <input id="chatInput" type="text" maxlength="300" autocomplete="off" placeholder="Say something to the community..." required>
-    <button id="chatSendBtn" type="submit">Send</button>
-  </form>
+    <button id="chatSendBtn" type="button">Send</button>
+  </div>
   <div id="chatStatus" class="chat-status"></div>
 </div>
 
@@ -929,11 +929,12 @@ if(document.getElementById('workoutForm')){
 // ---- Failure Point Community Chat ----
 const communityChat = document.getElementById('communityChat');
 const chatMessages = document.getElementById('chatMessages');
-const chatForm = document.getElementById('chatForm');
 const chatInput = document.getElementById('chatInput');
+const chatSendBtn = document.getElementById('chatSendBtn');
 const chatStatus = document.getElementById('chatStatus');
+
 let chatPollTimer = null;
-let lastChatSignature = '';
+let chatSending = false;
 
 function escapeChat(text){
   return String(text ?? '')
@@ -945,108 +946,153 @@ function escapeChat(text){
 }
 
 function chatDisplayName(user){
-  return user?.user_metadata?.display_name || (user?.email ? user.email.split('@')[0] : 'Member');
+  return user?.user_metadata?.display_name ||
+    (user?.email ? user.email.split('@')[0] : 'Member');
 }
 
-
-function fpTimeout(promise, ms=12000){
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out. Refresh the page and try again.')), ms))
-  ]);
+function setChatStatus(message, type='normal'){
+  if(!chatStatus) return;
+  chatStatus.textContent = message;
+  chatStatus.style.fontWeight = type === 'success' ? '900' : '700';
+  chatStatus.style.color =
+    type === 'error' ? '#ff5a6b' :
+    type === 'success' ? '#67e8a5' :
+    '#9aa1ad';
 }
 
-async function loadCommunityChat(forceScroll=false){
-  if(!communityChat || !chatMessages) return;
+async function getChatSession(){
+  const client = window.failurePointDb;
+  if(!client) throw new Error('Chat database connection is not ready.');
+  const { data, error } = await client.auth.getSession();
+  if(error) throw error;
+  return data?.session || null;
+}
 
-  const { data: { session } } = await fpDb.auth.getSession();
-  if(!session?.user){
-    communityChat.style.display = 'none';
-    return;
-  }
+async function loadCommunityChat(scrollToBottom=false){
+  try{
+    const client = window.failurePointDb;
+    if(!client) throw new Error('Chat database connection is not ready.');
 
-  communityChat.style.display = '';
+    const session = await getChatSession();
+    if(!session?.user){
+      if(communityChat) communityChat.style.display = 'none';
+      return;
+    }
 
-  const { data, error } = await db
-    .from('messages')
-    .select('id,user_id,display_name,message,created_at')
-    .order('created_at', { ascending: true })
-    .limit(100);
+    if(communityChat) communityChat.style.display = '';
 
-  if(error){
-    chatMessages.innerHTML = '<div class="chat-empty">Chat connection error.</div>';
-    chatStatus.textContent = 'Chat error: ' + error.message;
-    chatStatus.style.color = '#ff5a6b';
-    chatStatus.style.fontWeight = '700';
-    return;
-  }
+    const { data, error } = await client
+      .from('messages')
+      .select('id,user_id,display_name,message,created_at')
+      .order('created_at', { ascending: true })
+      .limit(100);
 
-  const rows = data || [];
-  const signature = rows.map(x => `${x.id}:${x.created_at}`).join('|');
-  if(signature === lastChatSignature && !forceScroll) return;
-  lastChatSignature = signature;
+    if(error) throw error;
 
-  const nearBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 80;
+    const rows = data || [];
 
-  if(!rows.length){
-    chatMessages.innerHTML = '<div class="chat-empty">No messages yet — start the conversation.</div>';
-  } else {
+    if(!rows.length){
+      chatMessages.innerHTML =
+        '<div class="chat-empty">No messages yet — start the conversation.</div>';
+      return;
+    }
+
     chatMessages.innerHTML = rows.map(row => {
       const mine = row.user_id === session.user.id;
-      const when = row.created_at ? new Date(row.created_at).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '';
+      const when = row.created_at
+        ? new Date(row.created_at).toLocaleTimeString([], {
+            hour:'numeric',
+            minute:'2-digit'
+          })
+        : '';
+
       return `
         <div class="chat-message">
           <div class="chat-meta">
-            <div><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span><span class="chat-time"> · ${escapeChat(when)}</span></div>
-            ${mine ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}">Delete</button>` : ''}
+            <div>
+              <span class="chat-user">${escapeChat(row.display_name || 'Member')}</span>
+              <span class="chat-time"> · ${escapeChat(when)}</span>
+            </div>
+            ${mine
+              ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}">Delete</button>`
+              : ''}
           </div>
           <div class="chat-text">${escapeChat(row.message)}</div>
         </div>`;
     }).join('');
-  }
 
-  if(forceScroll || nearBottom) chatMessages.scrollTop = chatMessages.scrollHeight;
+    if(scrollToBottom){
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  } catch(err){
+    if(chatMessages){
+      chatMessages.innerHTML =
+        '<div class="chat-empty">Could not load chat.</div>';
+    }
+    setChatStatus('Chat error: ' + (err?.message || String(err)), 'error');
+    console.error('Failure Point chat load error:', err);
+  }
 }
 
-if(chatForm){
-  chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+async function sendCommunityMessage(){
+  if(chatSending) return;
 
-    const text = chatInput.value.trim();
-    if(!text) return false;
+  const text = chatInput?.value.trim();
+  if(!text) return;
 
-    const { data: { session } } = await fpDb.auth.getSession();
-    if(!session?.user){
-      chatStatus.textContent = 'Log in to send messages.';
-      return false;
-    }
+  chatSending = true;
+  if(chatSendBtn) chatSendBtn.disabled = true;
+  setChatStatus('Sending...');
 
-    chatStatus.style.color = '#9aa1ad';
-    chatStatus.textContent = 'Sending...';
-    chatStatus.style.fontWeight = '700';
+  try{
+    const client = window.failurePointDb;
+    if(!client) throw new Error('Chat database connection is not ready.');
 
-    const { error } = await db
+    const session = await getChatSession();
+    if(!session?.user) throw new Error('You must be logged in to send messages.');
+
+    const { error } = await client
       .from('messages')
-      .insert([{
+      .insert({
         user_id: session.user.id,
         display_name: chatDisplayName(session.user),
         message: text
-      }]);
+      });
 
-    if(error){
-      chatStatus.textContent = error.message;
-      chatStatus.style.color = '#ff5a6b';
-      return false;
-    }
+    if(error) throw error;
 
     chatInput.value = '';
-    chatStatus.textContent = '✓ MESSAGE SENT';
-    chatStatus.style.fontWeight = '900';
-    chatStatus.style.color = '#67e8a5';
+    setChatStatus('✓ MESSAGE SENT', 'success');
     await loadCommunityChat(true);
-    setTimeout(() => { if(chatStatus.textContent === '✓ MESSAGE SENT') chatStatus.textContent = ''; }, 3000);
-    return false;
+
+    setTimeout(() => {
+      if(chatStatus?.textContent === '✓ MESSAGE SENT'){
+        chatStatus.textContent = '';
+      }
+    }, 3000);
+  } catch(err){
+    setChatStatus('Send failed: ' + (err?.message || String(err)), 'error');
+    console.error('Failure Point chat send error:', err);
+  } finally{
+    chatSending = false;
+    if(chatSendBtn) chatSendBtn.disabled = false;
+  }
+}
+
+if(chatSendBtn){
+  chatSendBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    sendCommunityMessage();
+  });
+}
+
+if(chatInput){
+  chatInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      sendCommunityMessage();
+    }
   });
 }
 
@@ -1055,48 +1101,54 @@ if(chatMessages){
     const btn = e.target.closest('[data-chat-delete]');
     if(!btn) return;
 
-    const id = Number(btn.dataset.chatDelete);
-    if(!id) return;
+    try{
+      const client = window.failurePointDb;
+      if(!client) throw new Error('Chat database connection is not ready.');
 
-    const { error } = await fpDb.from('messages').delete().eq('id', id);
-    if(error){
-      chatStatus.textContent = error.message;
-      return;
+      const id = Number(btn.dataset.chatDelete);
+      if(!id) return;
+
+      const { error } = await client
+        .from('messages')
+        .delete()
+        .eq('id', id);
+
+      if(error) throw error;
+
+      await loadCommunityChat(false);
+    } catch(err){
+      setChatStatus('Delete failed: ' + (err?.message || String(err)), 'error');
     }
-    await loadCommunityChat(false);
   });
 }
 
-function startChatPolling(){
+function startCommunityChat(){
   clearInterval(chatPollTimer);
   loadCommunityChat(true);
-  chatPollTimer = setInterval(() => loadCommunityChat(false), 4000);
+  chatPollTimer = setInterval(() => loadCommunityChat(false), 3000);
 }
 
-fpDb.auth.onAuthStateChange((_event, session) => {
-  if(session?.user) startChatPolling();
-  else {
-    clearInterval(chatPollTimer);
-    if(communityChat) communityChat.style.display = 'none';
-  }
-});
-
-setTimeout(async () => {
-  const { data: { session } } = await fpDb.auth.getSession();
-  if(session?.user) startChatPolling();
-}, 300);
-
-
-
-const chatSendBtn = document.getElementById('chatSendBtn');
-if(chatSendBtn){
-  chatSendBtn.addEventListener('click', (e) => {
-    // The submit handler handles the send; this prevents any accidental page navigation.
-    e.stopPropagation();
+if(window.failurePointDb){
+  window.failurePointDb.auth.onAuthStateChange((_event, session) => {
+    if(session?.user){
+      startCommunityChat();
+    } else {
+      clearInterval(chatPollTimer);
+      if(communityChat) communityChat.style.display = 'none';
+    }
   });
+
+  setTimeout(async () => {
+    try{
+      const session = await getChatSession();
+      if(session?.user) startCommunityChat();
+    } catch(err){
+      setChatStatus('Chat error: ' + (err?.message || String(err)), 'error');
+    }
+  }, 250);
+} else {
+  setChatStatus('Chat database connection is not ready.', 'error');
 }
-
-
 
 async function uploadProfilePhoto(){
   const file = profilePhotoInput?.files?.[0];
