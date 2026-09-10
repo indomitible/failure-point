@@ -874,6 +874,7 @@ if(editProfileBtn){
   editProfileBtn.addEventListener('click', () => {
     profileForm.classList.add('show');
     profileMessage.textContent = '';
+    profileMessage.style.fontWeight = '';
   });
 }
 if(cancelProfileBtn){
@@ -902,7 +903,9 @@ if(saveProfileBtn){
       return;
     }
 
-    profileMessage.textContent = '✓ Profile updated!';
+    profileMessage.textContent = '✓ PROFILE UPDATED';
+    profileMessage.style.color = '#67e8a5';
+    profileMessage.style.fontWeight = '900';
     profileMessage.style.color = '#67e8a5';
     await refreshMemberProfile();
     setTimeout(() => profileForm.classList.remove('show'), 500);
@@ -943,6 +946,14 @@ function escapeChat(text){
 
 function chatDisplayName(user){
   return user?.user_metadata?.display_name || (user?.email ? user.email.split('@')[0] : 'Member');
+}
+
+
+function fpTimeout(promise, ms=12000){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out. Refresh the page and try again.')), ms))
+  ]);
 }
 
 async function loadCommunityChat(forceScroll=false){
@@ -1011,6 +1022,7 @@ if(chatForm){
 
     chatStatus.style.color = '#9aa1ad';
     chatStatus.textContent = 'Sending...';
+    chatStatus.style.fontWeight = '700';
 
     const { error } = await db
       .from('messages')
@@ -1027,10 +1039,11 @@ if(chatForm){
     }
 
     chatInput.value = '';
-    chatStatus.textContent = '✓ Message sent';
+    chatStatus.textContent = '✓ MESSAGE SENT';
+    chatStatus.style.fontWeight = '900';
     chatStatus.style.color = '#67e8a5';
     await loadCommunityChat(true);
-    setTimeout(() => { if(chatStatus.textContent === '✓ Message sent') chatStatus.textContent = ''; }, 1200);
+    setTimeout(() => { if(chatStatus.textContent === '✓ MESSAGE SENT') chatStatus.textContent = ''; }, 1200);
     return false;
   });
 }
@@ -1109,22 +1122,24 @@ async function uploadProfilePhoto(){
   profileMessage.textContent = 'Uploading photo...';
 
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const filePath = `${session.user.id}/avatar.${ext}`;
+  const filePath = `${session.user.id}/avatar-${Date.now()}.${ext}`;
 
   const { error: uploadError } = await fpDb.storage
     .from('avatars')
-    .upload(filePath, file, { upsert: true, contentType: file.type });
+    .upload(filePath, file, { contentType: file.type });
 
   if(uploadError){
     profileMessage.textContent = uploadError.message;
+    profileMessage.style.color = '#ff5a6b';
+    profileMessage.style.fontWeight = '700';
     return;
   }
 
   const { data: publicData } = fpDb.storage.from('avatars').getPublicUrl(filePath);
-  const avatar_url = `${publicData.publicUrl}?v=${Date.now()}`;
+  const avatar_url = publicData.publicUrl;
 
   const { error: updateError } = await fpDb.auth.updateUser({
-    data: { avatar_url }
+    data: { avatar_url, avatar_path: filePath }
   });
 
   if(updateError){
@@ -1132,7 +1147,8 @@ async function uploadProfilePhoto(){
     return;
   }
 
-  profileMessage.textContent = '✓ Profile photo updated!';
+  profileMessage.textContent = '✓ PROFILE PHOTO UPDATED';
+  profileMessage.style.fontWeight = '900';
   profileMessage.style.color = '#67e8a5';
   profilePhotoInput.value = '';
   await refreshMemberProfile();
@@ -1145,18 +1161,14 @@ async function removeProfilePhoto(){
   profileMessage.textContent = 'Removing photo...';
 
   const meta = session.user.user_metadata || {};
-  const currentUrl = meta.avatar_url || '';
+  const currentPath = meta.avatar_path || '';
 
-  // Remove common avatar filenames if present. Metadata removal is what controls display.
-  await fpDb.storage.from('avatars').remove([
-    `${session.user.id}/avatar.jpg`,
-    `${session.user.id}/avatar.jpeg`,
-    `${session.user.id}/avatar.png`,
-    `${session.user.id}/avatar.webp`
-  ]);
+  if(currentPath){
+    await fpDb.storage.from('avatars').remove([currentPath]);
+  }
 
   const { error } = await fpDb.auth.updateUser({
-    data: { avatar_url: null }
+    data: { avatar_url: null, avatar_path: null }
   });
 
   if(error){
