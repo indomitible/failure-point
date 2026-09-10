@@ -619,6 +619,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CDLjF7ILDgZFvrNqN1LZig_cxJdT9Y7';
   const { createClient } = window.supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  window.failurePointDb = db;
 
   const $ = (id) => document.getElementById(id);
   const authView = $('authView');
@@ -783,6 +784,8 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 })();
 
 
+const fpDb = window.failurePointDb;
+
 // ---- Failure Point member profile (stored in Supabase Auth user metadata) ----
 const profileBox = document.getElementById('memberProfile');
 const profileAvatar = document.getElementById('profileAvatar');
@@ -834,7 +837,7 @@ function fpProgramWeek(startDate){
 async function refreshMemberProfile(){
   if(!profileBox) return;
 
-  const { data: { session } } = await db.auth.getSession();
+  const { data: { session } } = await fpDb.auth.getSession();
   if(!session?.user){
     profileBox.classList.add('hidden');
     return;
@@ -886,25 +889,28 @@ if(saveProfileBtn){
 
     const display_name = profileNameInput.value.trim() || 'Failure Point Member';
     const fp_start_date = profileStartInput.value || null;
+    profileMessage.style.color = '#9aa1ad';
     profileMessage.textContent = 'Saving...';
 
-    const { data, error } = await db.auth.updateUser({
+    const { data, error } = await fpDb.auth.updateUser({
       data: { display_name, fp_start_date }
     });
 
     if(error){
       profileMessage.textContent = error.message;
+      profileMessage.style.color = '#ff5a6b';
       return;
     }
 
-    profileMessage.textContent = 'Profile saved.';
+    profileMessage.textContent = '✓ Profile updated!';
+    profileMessage.style.color = '#67e8a5';
     await refreshMemberProfile();
     setTimeout(() => profileForm.classList.remove('show'), 500);
   });
 }
 
 // Keep profile synced with login/logout and workout log changes.
-db.auth.onAuthStateChange(() => {
+fpDb.auth.onAuthStateChange(() => {
   setTimeout(refreshMemberProfile, 0);
 });
 setTimeout(refreshMemberProfile, 0);
@@ -942,7 +948,7 @@ function chatDisplayName(user){
 async function loadCommunityChat(forceScroll=false){
   if(!communityChat || !chatMessages) return;
 
-  const { data: { session } } = await db.auth.getSession();
+  const { data: { session } } = await fpDb.auth.getSession();
   if(!session?.user){
     communityChat.style.display = 'none';
     return;
@@ -997,12 +1003,13 @@ if(chatForm){
     const text = chatInput.value.trim();
     if(!text) return false;
 
-    const { data: { session } } = await db.auth.getSession();
+    const { data: { session } } = await fpDb.auth.getSession();
     if(!session?.user){
       chatStatus.textContent = 'Log in to send messages.';
       return false;
     }
 
+    chatStatus.style.color = '#9aa1ad';
     chatStatus.textContent = 'Sending...';
 
     const { error } = await db
@@ -1015,13 +1022,15 @@ if(chatForm){
 
     if(error){
       chatStatus.textContent = error.message;
+      chatStatus.style.color = '#ff5a6b';
       return false;
     }
 
     chatInput.value = '';
-    chatStatus.textContent = 'Sent.';
+    chatStatus.textContent = '✓ Message sent';
+    chatStatus.style.color = '#67e8a5';
     await loadCommunityChat(true);
-    setTimeout(() => { if(chatStatus.textContent === 'Sent.') chatStatus.textContent = ''; }, 1200);
+    setTimeout(() => { if(chatStatus.textContent === '✓ Message sent') chatStatus.textContent = ''; }, 1200);
     return false;
   });
 }
@@ -1034,7 +1043,7 @@ if(chatMessages){
     const id = Number(btn.dataset.chatDelete);
     if(!id) return;
 
-    const { error } = await db.from('messages').delete().eq('id', id);
+    const { error } = await fpDb.from('messages').delete().eq('id', id);
     if(error){
       chatStatus.textContent = error.message;
       return;
@@ -1049,7 +1058,7 @@ function startChatPolling(){
   chatPollTimer = setInterval(() => loadCommunityChat(false), 4000);
 }
 
-db.auth.onAuthStateChange((_event, session) => {
+fpDb.auth.onAuthStateChange((_event, session) => {
   if(session?.user) startChatPolling();
   else {
     clearInterval(chatPollTimer);
@@ -1058,7 +1067,7 @@ db.auth.onAuthStateChange((_event, session) => {
 });
 
 setTimeout(async () => {
-  const { data: { session } } = await db.auth.getSession();
+  const { data: { session } } = await fpDb.auth.getSession();
   if(session?.user) startChatPolling();
 }, 300);
 
@@ -1091,7 +1100,7 @@ async function uploadProfilePhoto(){
     return;
   }
 
-  const { data: { session } } = await db.auth.getSession();
+  const { data: { session } } = await fpDb.auth.getSession();
   if(!session?.user){
     profileMessage.textContent = 'Log in first.';
     return;
@@ -1102,7 +1111,7 @@ async function uploadProfilePhoto(){
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
   const filePath = `${session.user.id}/avatar.${ext}`;
 
-  const { error: uploadError } = await db.storage
+  const { error: uploadError } = await fpDb.storage
     .from('avatars')
     .upload(filePath, file, { upsert: true, contentType: file.type });
 
@@ -1111,10 +1120,10 @@ async function uploadProfilePhoto(){
     return;
   }
 
-  const { data: publicData } = db.storage.from('avatars').getPublicUrl(filePath);
+  const { data: publicData } = fpDb.storage.from('avatars').getPublicUrl(filePath);
   const avatar_url = `${publicData.publicUrl}?v=${Date.now()}`;
 
-  const { error: updateError } = await db.auth.updateUser({
+  const { error: updateError } = await fpDb.auth.updateUser({
     data: { avatar_url }
   });
 
@@ -1123,13 +1132,14 @@ async function uploadProfilePhoto(){
     return;
   }
 
-  profileMessage.textContent = 'Profile photo updated.';
+  profileMessage.textContent = '✓ Profile photo updated!';
+  profileMessage.style.color = '#67e8a5';
   profilePhotoInput.value = '';
   await refreshMemberProfile();
 }
 
 async function removeProfilePhoto(){
-  const { data: { session } } = await db.auth.getSession();
+  const { data: { session } } = await fpDb.auth.getSession();
   if(!session?.user) return;
 
   profileMessage.textContent = 'Removing photo...';
@@ -1138,14 +1148,14 @@ async function removeProfilePhoto(){
   const currentUrl = meta.avatar_url || '';
 
   // Remove common avatar filenames if present. Metadata removal is what controls display.
-  await db.storage.from('avatars').remove([
+  await fpDb.storage.from('avatars').remove([
     `${session.user.id}/avatar.jpg`,
     `${session.user.id}/avatar.jpeg`,
     `${session.user.id}/avatar.png`,
     `${session.user.id}/avatar.webp`
   ]);
 
-  const { error } = await db.auth.updateUser({
+  const { error } = await fpDb.auth.updateUser({
     data: { avatar_url: null }
   });
 
@@ -1154,7 +1164,8 @@ async function removeProfilePhoto(){
     return;
   }
 
-  profileMessage.textContent = 'Profile photo removed.';
+  profileMessage.textContent = '✓ Profile photo removed.';
+  profileMessage.style.color = '#67e8a5';
   await refreshMemberProfile();
 }
 
