@@ -235,6 +235,104 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 .verify-banner strong{display:block;color:#67e8a5;font-size:17px;margin-bottom:4px}
 .verify-banner span{font-size:12px;color:#c8d7cf}
 
+
+/* CHAT LEVELS + ACHIEVEMENTS */
+.chat-level-card{
+  margin:0 0 12px;
+  padding:14px;
+  border:1px solid #272c34;
+  border-radius:12px;
+  background:#0b0d11;
+}
+.chat-level-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.chat-level-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.chat-level-badge{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#ef4355,#8f1724);
+  border:1px solid #ff6474;
+  color:#fff;
+  font-weight:900;
+  font-size:17px;
+}
+.chat-level-name{
+  color:#fff;
+  font-weight:900;
+  font-size:15px;
+}
+.chat-level-count{
+  color:#8f96a3;
+  font-size:11px;
+  margin-top:2px;
+}
+.chat-level-next{
+  color:#a9b0bb;
+  font-size:11px;
+  text-align:right;
+}
+.chat-xp-track{
+  margin-top:12px;
+  height:8px;
+  border-radius:99px;
+  overflow:hidden;
+  background:#1b1f25;
+  border:1px solid #262b33;
+}
+.chat-xp-fill{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#ef4355,#ff6a79);
+  transition:width .25s ease;
+}
+.chat-achievements-title{
+  margin-top:13px;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.chat-achievements{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.chat-achievement{
+  padding:7px 9px;
+  border-radius:9px;
+  border:1px solid #2b3038;
+  background:#12151a;
+  color:#6f7782;
+  font-size:10px;
+  font-weight:800;
+}
+.chat-achievement.unlocked{
+  color:#fff;
+  border-color:rgba(239,67,85,.55);
+  background:rgba(239,67,85,.12);
+}
+.chat-achievement .lock{
+  opacity:.7;
+  margin-right:3px;
+}
+@media(max-width:650px){
+  .chat-level-next{text-align:left}
+}
+
 </style>
 </head>
 <body>
@@ -438,6 +536,27 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     </div>
     <div class="chat-live">● Live</div>
   </div>
+
+  <div id="chatLevelCard" class="chat-level-card">
+    <div class="chat-level-top">
+      <div class="chat-level-left">
+        <div id="chatLevelBadge" class="chat-level-badge">1</div>
+        <div>
+          <div id="chatLevelName" class="chat-level-name">Community Level 1</div>
+          <div id="chatMessageCount" class="chat-level-count">0 messages sent</div>
+        </div>
+      </div>
+      <div id="chatNextLevel" class="chat-level-next">Send 5 messages to reach Level 2</div>
+    </div>
+
+    <div class="chat-xp-track" aria-label="Chat level progress">
+      <div id="chatXpFill" class="chat-xp-fill"></div>
+    </div>
+
+    <div class="chat-achievements-title">Achievements</div>
+    <div id="chatAchievements" class="chat-achievements"></div>
+  </div>
+
   <div id="chatMessages" class="chat-messages">
     <div class="chat-empty">Loading chat...</div>
   </div>
@@ -1008,6 +1127,14 @@ const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
 const chatStatus = document.getElementById('chatStatus');
 
+const chatLevelBadge = document.getElementById('chatLevelBadge');
+const chatLevelName = document.getElementById('chatLevelName');
+const chatMessageCount = document.getElementById('chatMessageCount');
+const chatNextLevel = document.getElementById('chatNextLevel');
+const chatXpFill = document.getElementById('chatXpFill');
+const chatAchievements = document.getElementById('chatAchievements');
+
+
 let chatPollTimer = null;
 let chatSending = false;
 
@@ -1057,6 +1184,90 @@ async function getChatSession(){
   const { data, error } = await client.auth.getSession();
   if(error) throw error;
   return data?.session || null;
+}
+
+
+const CHAT_LEVELS = [
+  { level:1, min:0,   next:5 },
+  { level:2, min:5,   next:15 },
+  { level:3, min:15,  next:30 },
+  { level:4, min:30,  next:50 },
+  { level:5, min:50,  next:75 },
+  { level:6, min:75,  next:100 },
+  { level:7, min:100, next:150 },
+  { level:8, min:150, next:250 },
+  { level:9, min:250, next:500 },
+  { level:10,min:500, next:null }
+];
+
+const CHAT_ACHIEVEMENTS = [
+  { count:1,   name:'First Message', icon:'💬' },
+  { count:5,   name:'Getting Active', icon:'⚡' },
+  { count:10,  name:'Regular', icon:'🔥' },
+  { count:25,  name:'Talkative', icon:'📣' },
+  { count:50,  name:'Community Grinder', icon:'🏋️' },
+  { count:100, name:'Century Club', icon:'💯' },
+  { count:250, name:'Chat Veteran', icon:'🏆' },
+  { count:500, name:'FP Legend', icon:'👑' }
+];
+
+function getChatLevelInfo(count){
+  let current = CHAT_LEVELS[0];
+  for(const level of CHAT_LEVELS){
+    if(count >= level.min) current = level;
+  }
+  return current;
+}
+
+function renderChatAchievements(count){
+  if(!chatAchievements) return;
+  chatAchievements.innerHTML = CHAT_ACHIEVEMENTS.map(a => {
+    const unlocked = count >= a.count;
+    return `<div class="chat-achievement ${unlocked ? 'unlocked' : ''}" title="${unlocked ? 'Unlocked' : `Unlock at ${a.count} messages`}">
+      <span class="lock">${unlocked ? a.icon : '🔒'}</span>${escapeChat(a.name)}
+    </div>`;
+  }).join('');
+}
+
+async function refreshChatLevel(){
+  try{
+    const client = window.failurePointDb;
+    if(!client) return;
+
+    const session = await getChatSession();
+    if(!session?.user) return;
+
+    const { count, error } = await client
+      .from('messages')
+      .select('id', { count:'exact', head:true })
+      .eq('user_id', session.user.id);
+
+    if(error) throw error;
+
+    const total = count || 0;
+    const info = getChatLevelInfo(total);
+
+    if(chatLevelBadge) chatLevelBadge.textContent = info.level;
+    if(chatLevelName) chatLevelName.textContent = `Community Level ${info.level}`;
+    if(chatMessageCount) chatMessageCount.textContent = `${total} message${total === 1 ? '' : 's'} sent`;
+
+    if(info.next === null){
+      if(chatNextLevel) chatNextLevel.textContent = 'MAX LEVEL — Failure Point Legend';
+      if(chatXpFill) chatXpFill.style.width = '100%';
+    }else{
+      const needed = Math.max(0, info.next - total);
+      if(chatNextLevel) chatNextLevel.textContent =
+        `Send ${needed} more message${needed === 1 ? '' : 's'} to reach Level ${info.level + 1}`;
+
+      const span = info.next - info.min;
+      const progress = span > 0 ? ((total - info.min) / span) * 100 : 100;
+      if(chatXpFill) chatXpFill.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+    }
+
+    renderChatAchievements(total);
+  } catch(err){
+    console.error('Chat level error:', err);
+  }
 }
 
 async function loadCommunityChat(scrollToBottom=false){
@@ -1120,6 +1331,8 @@ async function loadCommunityChat(scrollToBottom=false){
     if(scrollToBottom){
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
+
+    await refreshChatLevel();
   } catch(err){
     if(chatMessages){
       chatMessages.innerHTML =
@@ -1160,6 +1373,7 @@ async function sendCommunityMessage(){
 
     chatInput.value = '';
     setChatStatus('✓ MESSAGE SENT', 'success');
+    await refreshChatLevel();
     await loadCommunityChat(true);
 
     setTimeout(() => {
@@ -1221,6 +1435,7 @@ if(chatMessages){
 
 function startCommunityChat(){
   clearInterval(chatPollTimer);
+  refreshChatLevel();
   loadCommunityChat(true);
   chatPollTimer = setInterval(() => loadCommunityChat(false), 3000);
 }
