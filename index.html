@@ -333,6 +333,83 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   .chat-level-next{text-align:left}
 }
 
+
+/* CLICKABLE CHATTERS + PUBLIC CHAT PROFILE */
+.chat-user-button{
+  display:inline-flex;
+  align-items:center;
+  gap:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:inherit;
+  cursor:pointer;
+  font:inherit;
+}
+.chat-user-button:hover .chat-user{text-decoration:underline}
+.chat-avatar[data-chat-user]{cursor:pointer}
+.chat-avatar[data-chat-user]:hover{transform:scale(1.04)}
+.chat-avatar{transition:transform .15s ease}
+
+.chat-profile-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(0,0,0,.72);
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.chat-profile-overlay.show{display:flex}
+.chat-public-profile{
+  width:min(460px,100%);
+  background:#101216;
+  border:1px solid #30343b;
+  border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);
+  padding:20px;
+  position:relative;
+}
+.chat-profile-close{
+  position:absolute;
+  right:14px;
+  top:12px;
+  width:34px;
+  height:34px;
+  border:1px solid #2b3038;
+  border-radius:9px;
+  background:#171a1f;
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+}
+.chat-public-head{display:flex;gap:14px;align-items:center;padding-right:38px}
+.chat-public-avatar{
+  width:64px;height:64px;min-width:64px;border-radius:50%;
+  overflow:hidden;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ef4355,#8f1724);
+  border:1px solid #ff6474;color:#fff;font-size:18px;font-weight:900;
+}
+.chat-public-avatar img{width:100%;height:100%;object-fit:cover}
+.chat-public-name{font-size:20px;font-weight:900;color:#fff}
+.chat-public-sub{font-size:11px;color:#8f96a3;margin-top:3px}
+.chat-public-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px
+}
+.chat-public-stat{
+  background:#0a0c0f;border:1px solid #252932;border-radius:12px;padding:12px
+}
+.chat-public-stat span{
+  display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#808895
+}
+.chat-public-stat b{display:block;margin-top:4px;font-size:18px;color:#fff}
+.chat-public-achievements-title{
+  margin-top:15px;color:#fff;font-size:10px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.08em
+}
+.chat-public-achievements{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+
 </style>
 </head>
 <body>
@@ -1134,6 +1211,16 @@ const chatNextLevel = document.getElementById('chatNextLevel');
 const chatXpFill = document.getElementById('chatXpFill');
 const chatAchievements = document.getElementById('chatAchievements');
 
+const chatProfileOverlay = document.getElementById('chatProfileOverlay');
+const chatProfileClose = document.getElementById('chatProfileClose');
+const chatPublicAvatar = document.getElementById('chatPublicAvatar');
+const chatPublicName = document.getElementById('chatPublicName');
+const chatPublicSub = document.getElementById('chatPublicSub');
+const chatPublicLevel = document.getElementById('chatPublicLevel');
+const chatPublicMessages = document.getElementById('chatPublicMessages');
+const chatPublicAchievements = document.getElementById('chatPublicAchievements');
+
+
 
 let chatPollTimer = null;
 let chatSending = false;
@@ -1162,10 +1249,13 @@ function chatInitials(name){
 
 function chatAvatarMarkup(row){
   const name = row.display_name || 'Member';
+  const uid = escapeChat(row.user_id || '');
+  const safeName = escapeChat(name);
+  const safeAvatar = escapeChat(row.avatar_url || '');
   if(row.avatar_url){
-    return `<div class="chat-avatar"><img src="${escapeChat(row.avatar_url)}" alt="${escapeChat(name)} profile photo"></div>`;
+    return `<div class="chat-avatar" data-chat-user="${uid}" data-chat-name="${safeName}" data-chat-avatar="${safeAvatar}"><img src="${safeAvatar}" alt="${safeName} profile photo"></div>`;
   }
-  return `<div class="chat-avatar">${escapeChat(chatInitials(name))}</div>`;
+  return `<div class="chat-avatar" data-chat-user="${uid}" data-chat-name="${safeName}" data-chat-avatar="">${escapeChat(chatInitials(name))}</div>`;
 }
 
 function setChatStatus(message, type='normal'){
@@ -1237,14 +1327,15 @@ async function refreshChatLevel(){
     const session = await getChatSession();
     if(!session?.user) return;
 
-    const { count, error } = await client
-      .from('messages')
-      .select('id', { count:'exact', head:true })
-      .eq('user_id', session.user.id);
+    const { data: stat, error } = await client
+      .from('chat_stats')
+      .select('lifetime_messages')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
 
     if(error) throw error;
 
-    const total = count || 0;
+    const total = Number(stat?.lifetime_messages || 0);
     const info = getChatLevelInfo(total);
 
     if(chatLevelBadge) chatLevelBadge.textContent = info.level;
@@ -1269,6 +1360,78 @@ async function refreshChatLevel(){
     console.error('Chat level error:', err);
   }
 }
+
+
+function renderPublicAchievements(count){
+  if(!chatPublicAchievements) return;
+  chatPublicAchievements.innerHTML = CHAT_ACHIEVEMENTS.map(a => {
+    const unlocked = count >= a.count;
+    return `<div class="chat-achievement ${unlocked ? 'unlocked' : ''}" title="${unlocked ? 'Unlocked' : `Unlock at ${a.count} lifetime messages`}">
+      <span class="lock">${unlocked ? a.icon : '🔒'}</span>${escapeChat(a.name)}
+    </div>`;
+  }).join('');
+}
+
+async function openChatPublicProfile(userId, displayName, avatarUrl){
+  if(!userId || !chatProfileOverlay) return;
+
+  const name = displayName || 'Member';
+  chatPublicName.textContent = name;
+  chatPublicSub.textContent = 'Failure Point Community Member';
+
+  if(avatarUrl){
+    chatPublicAvatar.innerHTML = `<img src="${escapeChat(avatarUrl)}" alt="${escapeChat(name)} profile photo">`;
+  }else{
+    chatPublicAvatar.textContent = chatInitials(name);
+  }
+
+  chatPublicLevel.textContent = '—';
+  chatPublicMessages.textContent = '—';
+  chatPublicAchievements.innerHTML = '';
+  chatProfileOverlay.classList.add('show');
+  chatProfileOverlay.setAttribute('aria-hidden','false');
+
+  try{
+    const client = window.failurePointDb;
+    if(!client) throw new Error('Database connection is not ready.');
+
+    const { data: stat, error } = await client
+      .from('chat_stats')
+      .select('lifetime_messages')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if(error) throw error;
+
+    const total = Number(stat?.lifetime_messages || 0);
+    const info = getChatLevelInfo(total);
+    chatPublicLevel.textContent = info.level;
+    chatPublicMessages.textContent = total;
+    renderPublicAchievements(total);
+  }catch(err){
+    chatPublicLevel.textContent = '—';
+    chatPublicMessages.textContent = '—';
+    console.error('Public chat profile error:', err);
+  }
+}
+
+function closeChatPublicProfile(){
+  if(!chatProfileOverlay) return;
+  chatProfileOverlay.classList.remove('show');
+  chatProfileOverlay.setAttribute('aria-hidden','true');
+}
+
+if(chatProfileClose){
+  chatProfileClose.addEventListener('click', closeChatPublicProfile);
+}
+if(chatProfileOverlay){
+  chatProfileOverlay.addEventListener('click', (e) => {
+    if(e.target === chatProfileOverlay) closeChatPublicProfile();
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeChatPublicProfile();
+});
 
 async function loadCommunityChat(scrollToBottom=false){
   try{
@@ -1315,7 +1478,7 @@ async function loadCommunityChat(scrollToBottom=false){
             <div class="chat-message-body">
               <div class="chat-meta">
                 <div>
-                  <span class="chat-user">${escapeChat(row.display_name || 'Member')}</span>
+                  <button class="chat-user-button" type="button" data-chat-user="${escapeChat(row.user_id || '')}" data-chat-name="${escapeChat(row.display_name || 'Member')}" data-chat-avatar="${escapeChat(row.avatar_url || '')}"><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span></button>
                   <span class="chat-time"> · ${escapeChat(when)}</span>
                 </div>
                 ${mine
@@ -1409,6 +1572,16 @@ if(chatInput){
 
 if(chatMessages){
   chatMessages.addEventListener('click', async (e) => {
+    const profileTarget = e.target.closest('[data-chat-user]');
+    if(profileTarget && !e.target.closest('[data-chat-delete]')){
+      openChatPublicProfile(
+        profileTarget.dataset.chatUser,
+        profileTarget.dataset.chatName || 'Member',
+        profileTarget.dataset.chatAvatar || ''
+      );
+      return;
+    }
+
     const btn = e.target.closest('[data-chat-delete]');
     if(!btn) return;
 
@@ -1426,7 +1599,9 @@ if(chatMessages){
 
       if(error) throw error;
 
+      // Deleting a message does NOT subtract from lifetime chat XP.
       await loadCommunityChat(false);
+      await refreshChatLevel();
     } catch(err){
       setChatStatus('Delete failed: ' + (err?.message || String(err)), 'error');
     }
@@ -1571,6 +1746,26 @@ if(removeProfilePhotoBtn){
 }
 
 </script>
+
+
+<div id="chatProfileOverlay" class="chat-profile-overlay" aria-hidden="true">
+  <div class="chat-public-profile" role="dialog" aria-modal="true" aria-labelledby="chatPublicName">
+    <button id="chatProfileClose" class="chat-profile-close" type="button" aria-label="Close">×</button>
+    <div class="chat-public-head">
+      <div id="chatPublicAvatar" class="chat-public-avatar">FP</div>
+      <div>
+        <div id="chatPublicName" class="chat-public-name">Member</div>
+        <div id="chatPublicSub" class="chat-public-sub">Failure Point Community Member</div>
+      </div>
+    </div>
+    <div class="chat-public-stats">
+      <div class="chat-public-stat"><span>Community level</span><b id="chatPublicLevel">1</b></div>
+      <div class="chat-public-stat"><span>Lifetime messages</span><b id="chatPublicMessages">0</b></div>
+    </div>
+    <div class="chat-public-achievements-title">Achievements</div>
+    <div id="chatPublicAchievements" class="chat-public-achievements"></div>
+  </div>
+</div>
 
 </body>
 </html>
