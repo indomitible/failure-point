@@ -177,12 +177,12 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 
 
 /* FAILURE POINT COMMUNITY CHAT */
-.chat-shell{margin:18px 0 10px;padding:18px;border:1px solid #292d34;border-radius:18px;background:#101216}
+.chat-shell{margin:18px 0 22px;padding:18px;border:1px solid #292d34;border-radius:18px;background:#101216}
 .chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .chat-title{font-size:20px;font-weight:900;color:#fff}
 .chat-sub{font-size:11px;color:#9299a5;margin-top:3px}
 .chat-live{font-size:10px;font-weight:800;letter-spacing:.08em;color:#ff5365;text-transform:uppercase}
-.chat-messages{height:320px;overflow-y:auto;background:#090b0e;border:1px solid #242830;border-radius:12px;padding:12px}
+.chat-messages{height:300px;overflow-y:auto;background:#090b0e;border:1px solid #242830;border-radius:12px;padding:12px}
 .chat-empty{color:#7f8793;font-size:12px;padding:8px}
 .chat-message{padding:10px 11px;border-bottom:1px solid #1f2329}
 .chat-message:last-child{border-bottom:0}
@@ -190,18 +190,13 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 .chat-user{font-size:12px;font-weight:900;color:#ff5365}
 .chat-time{font-size:10px;color:#737b87}
 .chat-text{font-size:13px;color:#f0f2f5;white-space:pre-wrap;word-break:break-word;line-height:1.4}
-.chat-delete{background:transparent;border:0;color:#737b87;font-size:10px;cursor:pointer;padding:0;margin-left:8px}
+.chat-delete{background:transparent;border:0;color:#737b87;font-size:10px;cursor:pointer;padding:0}
 .chat-delete:hover{color:#ff5365}
 .chat-compose{display:flex;gap:8px;margin-top:10px}
 .chat-compose input{flex:1;background:#0a0c0f;color:#fff;border:1px solid #30343b;border-radius:10px;padding:12px}
 .chat-compose button{background:#ef4355;color:#fff;border:0;border-radius:10px;padding:0 16px;font-weight:900;cursor:pointer}
-.chat-compose button:hover{filter:brightness(1.08)}
 .chat-status{font-size:11px;color:#8e96a3;margin-top:7px;min-height:16px}
-@media(max-width:650px){
-  .chat-messages{height:280px}
-  .chat-compose{flex-direction:column}
-  .chat-compose button{padding:12px}
-}
+@media(max-width:650px){.chat-messages{height:260px}.chat-compose{flex-direction:column}.chat-compose button{padding:12px}}
 
 </style>
 </head>
@@ -378,9 +373,9 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     </div>
     <div id="profileMessage" style="font-size:12px;margin-top:8px;color:#9aa1ad"></div>
   </div>
-          <div class="dashboard-grid">
-            
-<div id="communityChat" class="chat-shell hidden">
+
+</div>
+<div id="communityChat" class="chat-shell">
   <div class="chat-head">
     <div>
       <div class="chat-title">Failure Point Community</div>
@@ -388,11 +383,9 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     </div>
     <div class="chat-live">● Live</div>
   </div>
-
   <div id="chatMessages" class="chat-messages">
     <div class="chat-empty">Loading chat...</div>
   </div>
-
   <form id="chatForm" class="chat-compose">
     <input id="chatInput" type="text" maxlength="300" autocomplete="off" placeholder="Say something to the community..." required>
     <button type="submit">Send</button>
@@ -400,7 +393,8 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   <div id="chatStatus" class="chat-status"></div>
 </div>
 
-<div class="member-card">
+          <div class="dashboard-grid">
+            <div class="member-card">
               <h3 id="formTitle">Log a set</h3>
               <input id="editId" type="hidden">
               <div class="field"><label for="exerciseInput">Exercise</label><input id="exerciseInput" type="text" list="exerciseOptions" autocomplete="off" placeholder="Search exercises...">
@@ -907,13 +901,14 @@ function chatDisplayName(user){
 
 async function loadCommunityChat(forceScroll=false){
   if(!communityChat || !chatMessages) return;
+
   const { data: { session } } = await db.auth.getSession();
   if(!session?.user){
-    communityChat.classList.add('hidden');
+    communityChat.style.display = 'none';
     return;
   }
 
-  communityChat.classList.remove('hidden');
+  communityChat.style.display = '';
 
   const { data, error } = await db
     .from('messages')
@@ -922,7 +917,7 @@ async function loadCommunityChat(forceScroll=false){
     .limit(100);
 
   if(error){
-    chatMessages.innerHTML = '<div class="chat-empty">Chat is not connected yet. Finish the Supabase messages-table setup.</div>';
+    chatMessages.innerHTML = '<div class="chat-empty">Chat connection error.</div>';
     chatStatus.textContent = error.message;
     return;
   }
@@ -936,21 +931,20 @@ async function loadCommunityChat(forceScroll=false){
 
   if(!rows.length){
     chatMessages.innerHTML = '<div class="chat-empty">No messages yet — start the conversation.</div>';
-    return;
+  } else {
+    chatMessages.innerHTML = rows.map(row => {
+      const mine = row.user_id === session.user.id;
+      const when = row.created_at ? new Date(row.created_at).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '';
+      return `
+        <div class="chat-message">
+          <div class="chat-meta">
+            <div><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span><span class="chat-time"> · ${escapeChat(when)}</span></div>
+            ${mine ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}">Delete</button>` : ''}
+          </div>
+          <div class="chat-text">${escapeChat(row.message)}</div>
+        </div>`;
+    }).join('');
   }
-
-  chatMessages.innerHTML = rows.map(row => {
-    const mine = row.user_id === session.user.id;
-    const when = row.created_at ? new Date(row.created_at).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '';
-    return `
-      <div class="chat-message">
-        <div class="chat-meta">
-          <div><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span><span class="chat-time"> · ${escapeChat(when)}</span></div>
-          ${mine ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}">Delete</button>` : ''}
-        </div>
-        <div class="chat-text">${escapeChat(row.message)}</div>
-      </div>`;
-  }).join('');
 
   if(forceScroll || nearBottom) chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -989,6 +983,7 @@ if(chatMessages){
   chatMessages.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-chat-delete]');
     if(!btn) return;
+
     const id = Number(btn.dataset.chatDelete);
     if(!id) return;
 
@@ -1008,11 +1003,10 @@ function startChatPolling(){
 }
 
 db.auth.onAuthStateChange((_event, session) => {
-  if(session?.user){
-    startChatPolling();
-  } else {
+  if(session?.user) startChatPolling();
+  else {
     clearInterval(chatPollTimer);
-    if(communityChat) communityChat.classList.add('hidden');
+    if(communityChat) communityChat.style.display = 'none';
   }
 });
 
