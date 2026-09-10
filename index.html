@@ -1396,7 +1396,7 @@ window.fpVerificationCallback = (() => {
     if (!email || password.length < 6) return msg($('signupMsg'),'Enter a valid email and a password with at least 6 characters.','error');
     const { data, error } = await db.auth.signUp({
       email, password,
-      options: { emailRedirectTo: 'https://indomitible.github.io/failure-point/' }
+      options: { emailRedirectTo: 'https://gymcels.lol/' }
     });
     if (error) return msg($('signupMsg'), error.message, 'error');
     if (data.session) { msg($('signupMsg'),'Account created. You are signed in.','success'); await refreshSession(); }
