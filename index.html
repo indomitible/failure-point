@@ -198,6 +198,17 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 .chat-status{font-size:11px;color:#8e96a3;margin-top:7px;min-height:16px}
 @media(max-width:650px){.chat-messages{height:260px}.chat-compose{flex-direction:column}.chat-compose button{padding:12px}}
 
+
+/* PROFILE PHOTO */
+.profile-avatar{overflow:hidden;position:relative}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.profile-photo-tools{margin-top:12px;padding-top:12px;border-top:1px solid #252a31}
+.profile-photo-tools label{display:block;font-size:11px;color:#969ca8;margin-bottom:6px}
+.profile-photo-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.profile-photo-row input[type="file"]{max-width:100%;font-size:12px;color:#c7ccd4}
+.profile-photo-btn{background:#24272d;color:#fff;border:0;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}
+.profile-photo-btn:hover{filter:brightness(1.08)}
+
 </style>
 </head>
 <body>
@@ -367,7 +378,18 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
         <input id="profileStartInput" type="date">
       </div>
     </div>
-    <div class="profile-actions">
+    
+    <div class="profile-photo-tools">
+      <label for="profilePhotoInput">Profile photo</label>
+      <div class="profile-photo-row">
+        <input id="profilePhotoInput" type="file" accept="image/png,image/jpeg,image/webp">
+        <button id="uploadProfilePhotoBtn" class="profile-photo-btn" type="button">Upload Photo</button>
+        <button id="removeProfilePhotoBtn" class="profile-photo-btn" type="button">Remove Photo</button>
+      </div>
+      <div style="font-size:10px;color:#747c88;margin-top:6px">JPG, PNG, or WebP. Keep it under 5 MB.</div>
+    </div>
+
+<div class="profile-actions">
       <button id="saveProfileBtn" class="profile-save" type="button">Save Profile</button>
       <button id="cancelProfileBtn" class="profile-cancel" type="button">Cancel</button>
     </div>
@@ -386,9 +408,9 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   <div id="chatMessages" class="chat-messages">
     <div class="chat-empty">Loading chat...</div>
   </div>
-  <form id="chatForm" class="chat-compose">
+  <form id="chatForm" class="chat-compose" action="javascript:void(0)">
     <input id="chatInput" type="text" maxlength="300" autocomplete="off" placeholder="Say something to the community..." required>
-    <button type="submit">Send</button>
+    <button id="chatSendBtn" type="submit">Send</button>
   </form>
   <div id="chatStatus" class="chat-status"></div>
 </div>
@@ -774,6 +796,11 @@ const profileForm = document.getElementById('profileForm');
 const profileNameInput = document.getElementById('profileNameInput');
 const profileStartInput = document.getElementById('profileStartInput');
 const profileMessage = document.getElementById('profileMessage');
+
+const profilePhotoInput = document.getElementById('profilePhotoInput');
+const uploadProfilePhotoBtn = document.getElementById('uploadProfilePhotoBtn');
+const removeProfilePhotoBtn = document.getElementById('removeProfilePhotoBtn');
+
 const editProfileBtn = document.getElementById('editProfileBtn');
 const saveProfileBtn = document.getElementById('saveProfileBtn');
 const cancelProfileBtn = document.getElementById('cancelProfileBtn');
@@ -783,6 +810,16 @@ function fpInitials(name, email){
   const parts = source.split(/\s+/).filter(Boolean);
   if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return source.slice(0,2).toUpperCase();
+}
+
+
+function renderProfileAvatar(name, email, photoUrl){
+  if(!profileAvatar) return;
+  if(photoUrl){
+    profileAvatar.innerHTML = `<img src="${photoUrl}" alt="Profile photo">`;
+  } else {
+    profileAvatar.textContent = fpInitials(name, email);
+  }
 }
 
 function fpProgramWeek(startDate){
@@ -811,7 +848,7 @@ async function refreshMemberProfile(){
   profileBox.classList.remove('hidden');
   profileDisplayName.textContent = displayName;
   profileEmail.textContent = user.email || '';
-  profileAvatar.textContent = fpInitials(displayName, user.email);
+  renderProfileAvatar(displayName, user.email, meta.avatar_url || '');
   profileMemberSince.textContent = user.created_at
     ? new Date(user.created_at).toLocaleDateString(undefined,{month:'short',year:'numeric'})
     : '—';
@@ -843,12 +880,15 @@ if(cancelProfileBtn){
   });
 }
 if(saveProfileBtn){
-  saveProfileBtn.addEventListener('click', async () => {
+  saveProfileBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     const display_name = profileNameInput.value.trim() || 'Failure Point Member';
     const fp_start_date = profileStartInput.value || null;
     profileMessage.textContent = 'Saving...';
 
-    const { error } = await db.auth.updateUser({
+    const { data, error } = await db.auth.updateUser({
       data: { display_name, fp_start_date }
     });
 
@@ -952,30 +992,37 @@ async function loadCommunityChat(forceScroll=false){
 if(chatForm){
   chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+
     const text = chatInput.value.trim();
-    if(!text) return;
+    if(!text) return false;
 
     const { data: { session } } = await db.auth.getSession();
     if(!session?.user){
       chatStatus.textContent = 'Log in to send messages.';
-      return;
+      return false;
     }
 
     chatStatus.textContent = 'Sending...';
-    const { error } = await db.from('messages').insert({
-      user_id: session.user.id,
-      display_name: chatDisplayName(session.user),
-      message: text
-    });
+
+    const { error } = await db
+      .from('messages')
+      .insert([{
+        user_id: session.user.id,
+        display_name: chatDisplayName(session.user),
+        message: text
+      }]);
 
     if(error){
       chatStatus.textContent = error.message;
-      return;
+      return false;
     }
 
     chatInput.value = '';
-    chatStatus.textContent = '';
+    chatStatus.textContent = 'Sent.';
     await loadCommunityChat(true);
+    setTimeout(() => { if(chatStatus.textContent === 'Sent.') chatStatus.textContent = ''; }, 1200);
+    return false;
   });
 }
 
@@ -1014,6 +1061,117 @@ setTimeout(async () => {
   const { data: { session } } = await db.auth.getSession();
   if(session?.user) startChatPolling();
 }, 300);
+
+
+
+const chatSendBtn = document.getElementById('chatSendBtn');
+if(chatSendBtn){
+  chatSendBtn.addEventListener('click', (e) => {
+    // The submit handler handles the send; this prevents any accidental page navigation.
+    e.stopPropagation();
+  });
+}
+
+
+
+async function uploadProfilePhoto(){
+  const file = profilePhotoInput?.files?.[0];
+  if(!file){
+    profileMessage.textContent = 'Choose a photo first.';
+    return;
+  }
+  if(file.size > 5 * 1024 * 1024){
+    profileMessage.textContent = 'Photo must be under 5 MB.';
+    return;
+  }
+
+  const allowed = ['image/jpeg','image/png','image/webp'];
+  if(!allowed.includes(file.type)){
+    profileMessage.textContent = 'Use a JPG, PNG, or WebP image.';
+    return;
+  }
+
+  const { data: { session } } = await db.auth.getSession();
+  if(!session?.user){
+    profileMessage.textContent = 'Log in first.';
+    return;
+  }
+
+  profileMessage.textContent = 'Uploading photo...';
+
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const filePath = `${session.user.id}/avatar.${ext}`;
+
+  const { error: uploadError } = await db.storage
+    .from('avatars')
+    .upload(filePath, file, { upsert: true, contentType: file.type });
+
+  if(uploadError){
+    profileMessage.textContent = uploadError.message;
+    return;
+  }
+
+  const { data: publicData } = db.storage.from('avatars').getPublicUrl(filePath);
+  const avatar_url = `${publicData.publicUrl}?v=${Date.now()}`;
+
+  const { error: updateError } = await db.auth.updateUser({
+    data: { avatar_url }
+  });
+
+  if(updateError){
+    profileMessage.textContent = updateError.message;
+    return;
+  }
+
+  profileMessage.textContent = 'Profile photo updated.';
+  profilePhotoInput.value = '';
+  await refreshMemberProfile();
+}
+
+async function removeProfilePhoto(){
+  const { data: { session } } = await db.auth.getSession();
+  if(!session?.user) return;
+
+  profileMessage.textContent = 'Removing photo...';
+
+  const meta = session.user.user_metadata || {};
+  const currentUrl = meta.avatar_url || '';
+
+  // Remove common avatar filenames if present. Metadata removal is what controls display.
+  await db.storage.from('avatars').remove([
+    `${session.user.id}/avatar.jpg`,
+    `${session.user.id}/avatar.jpeg`,
+    `${session.user.id}/avatar.png`,
+    `${session.user.id}/avatar.webp`
+  ]);
+
+  const { error } = await db.auth.updateUser({
+    data: { avatar_url: null }
+  });
+
+  if(error){
+    profileMessage.textContent = error.message;
+    return;
+  }
+
+  profileMessage.textContent = 'Profile photo removed.';
+  await refreshMemberProfile();
+}
+
+if(uploadProfilePhotoBtn){
+  uploadProfilePhotoBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await uploadProfilePhoto();
+  });
+}
+if(removeProfilePhotoBtn){
+  removeProfilePhotoBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await removeProfilePhoto();
+  });
+}
 
 </script>
 
