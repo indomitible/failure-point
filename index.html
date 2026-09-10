@@ -185,6 +185,17 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 .chat-messages{height:300px;overflow-y:auto;background:#090b0e;border:1px solid #242830;border-radius:12px;padding:12px}
 .chat-empty{color:#7f8793;font-size:12px;padding:8px}
 .chat-message{padding:10px 11px;border-bottom:1px solid #1f2329}
+
+.chat-message-row{display:flex;gap:10px;align-items:flex-start}
+.chat-avatar{
+  width:34px;height:34px;min-width:34px;border-radius:50%;
+  overflow:hidden;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ef4355,#8f1724);
+  border:1px solid #ff6474;color:#fff;font-size:11px;font-weight:900;
+}
+.chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.chat-message-body{flex:1;min-width:0}
+
 .chat-message:last-child{border-bottom:0}
 .chat-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
 .chat-user{font-size:12px;font-weight:900;color:#ff5365}
@@ -209,6 +220,21 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 .profile-photo-btn{background:#24272d;color:#fff;border:0;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}
 .profile-photo-btn:hover{filter:brightness(1.08)}
 
+
+/* EMAIL VERIFICATION SUCCESS */
+.verify-banner{
+  display:none;
+  margin:0 0 18px;
+  padding:16px 18px;
+  border:1px solid rgba(103,232,165,.45);
+  border-radius:14px;
+  background:rgba(24,80,56,.22);
+  color:#ecfff5;
+}
+.verify-banner.show{display:block}
+.verify-banner strong{display:block;color:#67e8a5;font-size:17px;margin-bottom:4px}
+.verify-banner span{font-size:12px;color:#c8d7cf}
+
 </style>
 </head>
 <body>
@@ -217,6 +243,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
     <div class="brand">FAILURE <span>POINT</span></div>
     <div class="nav-actions">
       <a class="nav-link" id="navSupport" href="mailto:brandonssillyalt@gmail.com?subject=Failure%20Point%20Support&body=Hey%20Brandon%2C%20I%20need%20help%20with%20Failure%20Point.">Customer Support</a>
+      <a class="nav-link" id="navChat" href="#login-card">Chat</a>
       <a class="nav-link" id="navSignup" href="#signup-card">Sign Up</a>
       <a class="nav-link" id="navLogin" href="#login-card">Log In</a>
       <a class="nav-link hidden" id="navWorkouts" href="#members">My Workouts</a>
@@ -323,6 +350,12 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 </div>
 </div>
           <p>Create an account to save your own workout history. Your logs are tied to your account and protected by Supabase Row Level Security.</p>
+        </div>
+
+
+        <div id="verificationSuccess" class="verify-banner" role="status">
+          <strong>✓ Email verified successfully!</strong>
+          <span>Your Failure Point account is confirmed and ready to use.</span>
         </div>
 
         <div id="authView" class="auth-grid">
@@ -614,6 +647,15 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+window.fpVerificationCallback = (() => {
+  const rawHash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+  const params = new URLSearchParams(rawHash);
+  return {
+    isSignup: params.get('type') === 'signup',
+    hasError: !!params.get('error'),
+    errorDescription: params.get('error_description') || ''
+  };
+})();
 (() => {
   const SUPABASE_URL = 'https://endazjmlwqcfvniyxpos.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CDLjF7ILDgZFvrNqN1LZig_cxJdT9Y7';
@@ -621,12 +663,37 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   window.failurePointDb = db;
 
+  const verificationSuccess = document.getElementById('verificationSuccess');
+  const verificationCallback = window.fpVerificationCallback || {};
+
+  async function handleVerificationCallback() {
+    if (!verificationCallback.isSignup || verificationCallback.hasError) return;
+
+    // Give Supabase a moment to finish reading the confirmation tokens from the URL.
+    await new Promise(resolve => setTimeout(resolve, 350));
+    const { data: { session } } = await db.auth.getSession();
+
+    if (verificationSuccess) {
+      verificationSuccess.classList.add('show');
+      verificationSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Only remove the sensitive auth fragment after Supabase has had a chance to consume it.
+    if (session) {
+      setTimeout(() => {
+        history.replaceState(null, '', window.location.pathname + window.location.search + '#members');
+      }, 900);
+    }
+  }
+
+
   const $ = (id) => document.getElementById(id);
   const authView = $('authView');
   const dashboardView = $('dashboardView');
   const memberEmail = $('memberEmail');
   const logList = $('logList');
   const navSignup = $('navSignup');
+  const navChat = $('navChat');
   const navLogin = $('navLogin');
   const navWorkouts = $('navWorkouts');
   const navLogout = $('navLogout');
@@ -649,6 +716,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
       navLogin.classList.add('hidden');
       navWorkouts.classList.remove('hidden');
       navLogout.classList.remove('hidden');
+      if (navChat) navChat.setAttribute('href', '#communityChat');
       await loadLogs();
     } else {
       dashboardView.classList.add('hidden');
@@ -657,6 +725,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
       navLogin.classList.remove('hidden');
       navWorkouts.classList.add('hidden');
       navLogout.classList.add('hidden');
+      if (navChat) navChat.setAttribute('href', '#login-card');
     }
   }
 
@@ -781,6 +850,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 
   db.auth.onAuthStateChange(() => refreshSession());
   refreshSession();
+  handleVerificationCallback();
 })();
 
 
@@ -907,6 +977,11 @@ if(saveProfileBtn){
     profileMessage.style.color = '#67e8a5';
     profileMessage.style.fontWeight = '900';
     profileMessage.style.color = '#67e8a5';
+    // Sync old chat messages so the community shows the member's newest display name.
+    await fpDb
+      .from('messages')
+      .update({ display_name })
+      .eq('user_id', data.user.id); // Sync old chat messages
     await refreshMemberProfile();
     setTimeout(() => profileForm.classList.remove('show'), 500);
   });
@@ -950,6 +1025,22 @@ function chatDisplayName(user){
     (user?.email ? user.email.split('@')[0] : 'Member');
 }
 
+
+function chatInitials(name){
+  const source = String(name || 'FP').trim();
+  const parts = source.split(/\s+/).filter(Boolean);
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0,2).toUpperCase();
+}
+
+function chatAvatarMarkup(row){
+  const name = row.display_name || 'Member';
+  if(row.avatar_url){
+    return `<div class="chat-avatar"><img src="${escapeChat(row.avatar_url)}" alt="${escapeChat(name)} profile photo"></div>`;
+  }
+  return `<div class="chat-avatar">${escapeChat(chatInitials(name))}</div>`;
+}
+
 function setChatStatus(message, type='normal'){
   if(!chatStatus) return;
   chatStatus.textContent = message;
@@ -983,7 +1074,7 @@ async function loadCommunityChat(scrollToBottom=false){
 
     const { data, error } = await client
       .from('messages')
-      .select('id,user_id,display_name,message,created_at')
+      .select('id,user_id,display_name,avatar_url,message,created_at')
       .order('created_at', { ascending: true })
       .limit(100);
 
@@ -1008,16 +1099,21 @@ async function loadCommunityChat(scrollToBottom=false){
 
       return `
         <div class="chat-message">
-          <div class="chat-meta">
-            <div>
-              <span class="chat-user">${escapeChat(row.display_name || 'Member')}</span>
-              <span class="chat-time"> · ${escapeChat(when)}</span>
+          <div class="chat-message-row">
+            ${chatAvatarMarkup(row)}
+            <div class="chat-message-body">
+              <div class="chat-meta">
+                <div>
+                  <span class="chat-user">${escapeChat(row.display_name || 'Member')}</span>
+                  <span class="chat-time"> · ${escapeChat(when)}</span>
+                </div>
+                ${mine
+                  ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}">Delete</button>`
+                  : ''}
+              </div>
+              <div class="chat-text">${escapeChat(row.message)}</div>
             </div>
-            ${mine
-              ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}">Delete</button>`
-              : ''}
           </div>
-          <div class="chat-text">${escapeChat(row.message)}</div>
         </div>`;
     }).join('');
 
@@ -1056,6 +1152,7 @@ async function sendCommunityMessage(){
       .insert({
         user_id: session.user.id,
         display_name: chatDisplayName(session.user),
+        avatar_url: session.user?.user_metadata?.avatar_url || null,
         message: text
       });
 
@@ -1204,6 +1301,10 @@ async function uploadProfilePhoto(){
   profileMessage.textContent = '✓ PROFILE PHOTO UPDATED';
   profileMessage.style.fontWeight = '900';
   profileMessage.style.color = '#67e8a5';
+  await fpDb
+    .from('messages')
+    .update({ avatar_url })
+    .eq('user_id', session.user.id); // Sync avatar into old chat messages
   profilePhotoInput.value = '';
   await refreshMemberProfile();
 }
@@ -1232,6 +1333,10 @@ async function removeProfilePhoto(){
 
   profileMessage.textContent = '✓ Profile photo removed.';
   profileMessage.style.color = '#67e8a5';
+  await fpDb
+    .from('messages')
+    .update({ avatar_url: null })
+    .eq('user_id', session.user.id); // Remove avatar from old chat messages
   await refreshMemberProfile();
 }
 
