@@ -975,7 +975,9 @@ async function loadCommunityChat(forceScroll=false){
 
   if(error){
     chatMessages.innerHTML = '<div class="chat-empty">Chat connection error.</div>';
-    chatStatus.textContent = error.message;
+    chatStatus.textContent = 'Chat error: ' + error.message;
+    chatStatus.style.color = '#ff5a6b';
+    chatStatus.style.fontWeight = '700';
     return;
   }
 
@@ -1043,7 +1045,7 @@ if(chatForm){
     chatStatus.style.fontWeight = '900';
     chatStatus.style.color = '#67e8a5';
     await loadCommunityChat(true);
-    setTimeout(() => { if(chatStatus.textContent === '✓ MESSAGE SENT') chatStatus.textContent = ''; }, 1200);
+    setTimeout(() => { if(chatStatus.textContent === '✓ MESSAGE SENT') chatStatus.textContent = ''; }, 3000);
     return false;
   });
 }
