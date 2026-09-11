@@ -120,7 +120,7 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 }
 
 /* Gymcels.lol member dashboard */
-.member-section{padding:72px 0}
+.member-section{padding:38px 0 72px}
 .member-shell{background:linear-gradient(180deg,#181b20,#111318);border:1px solid var(--line);border-radius:24px;padding:28px}
 .member-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:22px}
 .member-head h2{max-width:12ch}
@@ -3055,8 +3055,387 @@ section{background:rgba(8,9,11,.60)}
 
 
 
-  
+  <section class="member-section" id="members">
+    <div class="wrap">
+      <div class="member-shell">
+        <div id="verificationSuccess" class="verify-banner" role="status">
+          <strong>✓ Email verified successfully!</strong>
+          <span>Your Gymcels.lol account is confirmed and ready to use.</span>
+        </div>
 
+        <div id="authView" class="auth-grid">
+          <div class="member-card" id="signup-card">
+            <h3>Create account</h3>
+            <div class="field"><label for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+            <div class="field"><label for="signupPassword">Password</label><input id="signupPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters"></div>
+            <button class="btn primary" id="signupBtn" type="button">Sign up →</button>
+            <div class="micro" style="margin-top:10px">After signing up, we’ll send a verification link to your email. You must verify your email before logging in.</div>
+            <div id="signupMsg" class="member-message"></div>
+          </div>
+          <div class="member-card" id="login-card">
+            <h3>Log in</h3>
+            <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+            <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div>
+            <button class="btn secondary" id="loginBtn" type="button">Log in →</button>
+            <div id="loginMsg" class="member-message"></div>
+          </div>
+        </div>
+
+        <div id="dashboardView" class="hidden">
+          <div class="member-toolbar">
+            <div class="member-user">Signed in as <strong id="memberEmail"></strong></div>
+            <button class="mini-btn" id="logoutBtn" type="button">Log out</button>
+          </div>
+<div id="memberProfile" class="profile-shell">
+  <div class="profile-top">
+    <div class="profile-ident">
+      <div id="profileAvatar" class="profile-avatar">GL</div>
+      <div>
+        <div><span id="profileDisplayName" class="profile-name">Gymcels.lol Member</span><span id="profileVipBadge" class="profile-vip-badge hidden">★ VIP</span></div>
+        <div id="profileEmail" class="profile-email"></div>
+        <div id="profileBioText" class="profile-bio empty">No bio yet.</div>
+      </div>
+    </div>
+    <button id="editProfileBtn" class="profile-edit" type="button">Edit Profile</button>
+  </div>
+
+  <div class="profile-stats">
+    <div class="profile-stat"><span>Member since</span><b id="profileMemberSince">—</b></div>
+    <div class="profile-stat"><span>Program week</span><b id="profileProgramWeek">—</b></div>
+    <div class="profile-stat"><span>Workouts logged</span><b id="profileWorkoutCount">0</b></div>
+    <div class="profile-stat"><span>Sets logged</span><b id="profileSetCount">0</b></div>
+    <div class="profile-stat" title="Consecutive weeks with at least one logged workout"><span>Current streak</span><b id="profileCurrentStreak"><span class="streak-flame">🔥</span> 0 wk</b></div>
+    <div class="profile-stat" title="Best consecutive weekly workout streak"><span>Best streak</span><b id="profileBestStreak">0 wk</b></div>
+  </div>
+
+  <div class="profile-physique-section">
+    <div class="profile-physique-title">Physique</div>
+    <div id="profilePhysiqueCard" class="profile-physique-card">
+      <div class="profile-physique-empty">No physique photo added yet.</div>
+    </div>
+  </div>
+
+  <div id="profileForm" class="profile-form">
+    <div class="profile-form-grid">
+      <div>
+        <label for="profileNameInput">Display name</label>
+        <input id="profileNameInput" type="text" maxlength="30" placeholder="Your name">
+      </div>
+      <div>
+        <label for="profileStartInput">Gymcels.lol start date</label>
+        <input id="profileStartInput" type="date">
+      </div>
+    </div>
+    
+    
+    <div style="margin-top:10px">
+      <label for="profileBioInput">Bio</label>
+      <textarea id="profileBioInput" maxlength="160" placeholder="Tell the community a little about yourself..."></textarea>
+      <div style="font-size:10px;color:#747c88;margin-top:5px">Up to 160 characters. This is visible on your public profile.</div>
+    </div>
+
+    <div class="profile-photo-tools">
+      <label for="profilePhotoInput">Profile photo</label>
+      <div class="profile-photo-row">
+        <input id="profilePhotoInput" type="file" accept="image/png,image/jpeg,image/webp">
+        <button id="removeProfilePhotoBtn" class="profile-photo-btn" type="button">Remove Photo</button>
+      </div>
+      <div id="profilePhotoNote" class="profile-photo-note">Choose a JPG, PNG, or WebP under 5 MB, then click Save Profile.</div>
+    </div>
+
+    <div class="profile-physique-tools">
+      <label for="profilePhysiqueInput">Physique photo</label>
+      <div class="profile-physique-row">
+        <input id="profilePhysiqueInput" type="file" accept="image/png,image/jpeg,image/webp">
+        <button id="removePhysiqueBtn" class="profile-photo-btn" type="button">Remove Physique</button>
+      </div>
+      <div id="profilePhysiqueNote" class="profile-physique-note">Optional public physique photo. JPG, PNG, or WebP under 8 MB. Click Save Profile to apply it.</div>
+    </div>
+
+<div class="profile-actions">
+      <button id="saveProfileBtn" class="profile-save" type="button">Save Profile</button>
+      <button id="cancelProfileBtn" class="profile-cancel" type="button">Cancel</button>
+    </div>
+    <div id="profileMessage" style="font-size:12px;margin-top:8px;color:#9aa1ad"></div>
+  </div>
+
+</div>
+
+
+
+<div id="vipSection" class="vip-shell">
+  <div class="vip-kicker">Gymcel VIP 🔱</div>
+  <div class="vip-title">Gymcel VIP 🔱</div>
+  <div id="vipStatusPill" class="vip-status-pill">Checking VIP status…</div>
+
+  <div id="vipUnlocked" class="vip-unlocked hidden">
+    <strong>★ VIP ACTIVE</strong>
+    <p>Your purchase is verified. VIP access is connected to your Gymcels.lol account.</p>
+  </div>
+
+  <div id="vipLocked" class="vip-locked">
+    <div class="vip-copy">Unlock upcoming VIP-only Gymcels.lol features, badges, and member perks.</div>
+    <div class="vip-price">$5 <span>one-time</span></div>
+    <a class="vip-buy" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">Unlock VIP — $5</a>
+    <button id="vipRefreshBtn" class="vip-refresh" type="button">Refresh VIP Status</button>
+    <div class="vip-email-note">
+      Important: buy VIP using the <strong>same email address</strong> as your Gymcels.lol account.
+      After Payhip confirms the payment, come back here and press “Refresh VIP Status.”
+    </div>
+  </div>
+
+  <div id="vipCheckMessage" class="vip-email-note"></div>
+</div>
+  <div class="vip-title">Unlock VIP Access</div>
+  <div class="vip-copy">Get access to upcoming VIP-only Gymcels.lol features, badges, and member perks.</div>
+  <div class="vip-price">$5 <span>one-time</span></div>
+  <a class="vip-buy" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">Unlock VIP — $5</a>
+</div>
+
+<div id="friendsSection" class="friends-shell" style="display:none">
+  <div class="friends-head">
+    <div>
+      <div class="friends-title">Friends</div>
+      <div class="friends-sub">See who’s online, incoming requests, and your Gymcels.lol friends.</div>
+    </div>
+    <button id="friendsRefreshBtn" class="friends-refresh" type="button">Refresh</button>
+  </div>
+
+  <div class="friend-search-box">
+    <div class="friend-search-title">Add Friend</div>
+    <div class="friend-search-sub">Type a Gymcels.lol display name to find someone.</div>
+    <div class="friend-search-row">
+      <input id="friendSearchInput" type="text" maxlength="30" autocomplete="off" placeholder="Search username...">
+      <button id="friendSearchBtn" type="button">Search</button>
+    </div>
+    <div id="friendSearchResults" class="friend-search-results">
+      <div class="friend-search-empty">Search for a member to send a friend request.</div>
+    </div>
+    <div id="friendSearchStatus" class="friend-search-status"></div>
+  </div>
+
+  <div class="friends-grid">
+    <div class="friend-group">
+      <div class="friend-group-title">My Friends <span id="friendsCount" class="friend-count">0</span></div>
+      <div id="friendsList" class="friend-list">
+        <div class="friend-empty">No friends yet.</div>
+      </div>
+    </div>
+
+    <div class="friend-group">
+      <div class="friend-group-title">Incoming Requests <span id="incomingCount" class="friend-count">0</span></div>
+      <div id="incomingFriendsList" class="friend-list">
+        <div class="friend-empty">No incoming requests.</div>
+      </div>
+    </div>
+
+    <div class="friend-group">
+      <div class="friend-group-title">Sent Requests <span id="sentCount" class="friend-count">0</span></div>
+      <div id="sentFriendsList" class="friend-list">
+        <div class="friend-empty">No pending requests.</div>
+      </div>
+    </div>
+  </div>
+  <div id="friendsStatus" style="font-size:11px;color:#8e96a3;margin-top:8px"></div>
+</div>
+
+
+<div id="dmSection" class="dm-shell" style="display:none">
+  <div class="dm-head">
+    <div>
+      <div class="dm-title">Direct Messages</div>
+      <div class="dm-sub">Private messages between accepted Gymcels.lol friends.</div>
+    </div>
+    <button id="dmRefreshBtn" class="friends-refresh" type="button">Refresh</button>
+  </div>
+
+  <div class="dm-layout">
+    <div id="dmFriendList" class="dm-sidebar">
+      <div class="dm-empty">Add a friend to start messaging.</div>
+    </div>
+
+    <div class="dm-thread">
+      <div id="dmThreadHead" class="dm-thread-head">
+        <div>
+          <div id="dmThreadName" class="dm-thread-name">Select a friend</div>
+          <div id="dmThreadState" class="dm-thread-state">Choose someone from your friends list.</div>
+        </div>
+        <button id="dmCallBtn" class="dm-call-btn hidden" type="button" title="Private voice call">📞 Call</button>
+      </div>
+
+      <div id="dmMessages" class="dm-messages">
+        <div class="dm-empty">Your private conversation will appear here.</div>
+      </div>
+
+      <div class="dm-compose">
+        <input id="dmInput" type="text" maxlength="1000" autocomplete="off" placeholder="Message a friend..." disabled>
+        <button id="dmSendBtn" type="button" disabled>Send</button>
+      </div>
+      <div id="dmStatus" class="dm-status"></div>
+    </div>
+  </div>
+</div>
+
+
+
+          <div class="dashboard-grid">
+            <div class="member-card">
+              <h3 id="formTitle">Log a set</h3>
+              <input id="editId" type="hidden">
+              <div class="field"><label for="exerciseInput">Exercise</label><input id="exerciseInput" type="text" list="exerciseOptions" autocomplete="off" placeholder="Search exercises...">
+<datalist id="exerciseOptions">
+<option value="Bench Press"></option>
+<option value="Incline Barbell Bench"></option>
+<option value="Decline Bench Press"></option>
+<option value="Close-Grip Bench Press"></option>
+<option value="Dumbbell Bench Press"></option>
+<option value="Incline Dumbbell Press"></option>
+<option value="Decline Dumbbell Press"></option>
+<option value="Machine Chest Press"></option>
+<option value="Incline Machine Press"></option>
+<option value="Chest Press Machine"></option>
+<option value="Cable Chest Press"></option>
+<option value="Cable Fly"></option>
+<option value="Low-to-High Cable Fly"></option>
+<option value="High-to-Low Cable Fly"></option>
+<option value="Dumbbell Fly"></option>
+<option value="Pec Deck"></option>
+<option value="Push-Ups"></option>
+<option value="Weighted Push-Ups"></option>
+<option value="Dips"></option>
+<option value="Weighted Dips"></option>
+<option value="Pull-Ups"></option>
+<option value="Weighted Pull-Ups"></option>
+<option value="Chin-Ups"></option>
+<option value="Weighted Chin-Ups"></option>
+<option value="Lat Pulldown"></option>
+<option value="Close-Grip Lat Pulldown"></option>
+<option value="Wide-Grip Lat Pulldown"></option>
+<option value="Neutral-Grip Lat Pulldown"></option>
+<option value="Barbell Rows"></option>
+<option value="Pendlay Rows"></option>
+<option value="Dumbbell Rows"></option>
+<option value="Chest-Supported Dumbbell Rows"></option>
+<option value="T-Bar Rows"></option>
+<option value="Chest-Supported T-Bar Rows"></option>
+<option value="Seated Cable Rows"></option>
+<option value="Machine Rows"></option>
+<option value="Single-Arm Cable Rows"></option>
+<option value="Straight-Arm Pulldowns"></option>
+<option value="Cable Pullovers"></option>
+<option value="Dumbbell Pullovers"></option>
+<option value="Rack Pulls"></option>
+<option value="Deadlifts"></option>
+<option value="Overhead Press"></option>
+<option value="Barbell Shoulder Press"></option>
+<option value="Dumbbell Shoulder Press"></option>
+<option value="Arnold Press"></option>
+<option value="Machine Shoulder Press"></option>
+<option value="Lateral Raises"></option>
+<option value="Dumbbell Lateral Raises"></option>
+<option value="Cable Lateral Raises"></option>
+<option value="Machine Lateral Raises"></option>
+<option value="Front Raises"></option>
+<option value="Rear Delt Fly"></option>
+<option value="Reverse Pec Deck"></option>
+<option value="Face Pulls"></option>
+<option value="Upright Rows"></option>
+<option value="Barbell Curls"></option>
+<option value="EZ-Bar Curls"></option>
+<option value="Dumbbell Curls"></option>
+<option value="Alternating Dumbbell Curls"></option>
+<option value="Hammer Curls"></option>
+<option value="Cross-Body Hammer Curls"></option>
+<option value="Incline Dumbbell Curls"></option>
+<option value="Preacher Curls"></option>
+<option value="Machine Preacher Curls"></option>
+<option value="Cable Curls"></option>
+<option value="Bayesian Cable Curls"></option>
+<option value="Concentration Curls"></option>
+<option value="Spider Curls"></option>
+<option value="Reverse Curls"></option>
+<option value="Cable Triceps Extensions"></option>
+<option value="Triceps Pushdowns"></option>
+<option value="Rope Pushdowns"></option>
+<option value="Straight-Bar Pushdowns"></option>
+<option value="Single-Arm Triceps Extensions"></option>
+<option value="Overhead Cable Triceps Extensions"></option>
+<option value="Dumbbell Overhead Triceps Extensions"></option>
+<option value="Skull Crushers"></option>
+<option value="EZ-Bar Skull Crushers"></option>
+<option value="Bench Dips"></option>
+<option value="Barbell Squats"></option>
+<option value="Back Squats"></option>
+<option value="Front Squats"></option>
+<option value="Hack Squats"></option>
+<option value="Pendulum Squats"></option>
+<option value="Smith Machine Squats"></option>
+<option value="Goblet Squats"></option>
+<option value="Bulgarian Split Squats"></option>
+<option value="Walking Lunges"></option>
+<option value="Reverse Lunges"></option>
+<option value="Leg Press"></option>
+<option value="Single-Leg Press"></option>
+<option value="Leg Extensions"></option>
+<option value="Step-Ups"></option>
+<option value="Hip Thrusts"></option>
+<option value="Barbell Hip Thrusts"></option>
+<option value="Glute Bridges"></option>
+<option value="Cable Kickbacks"></option>
+<option value="Hip Abduction Machine"></option>
+<option value="Romanian Deadlifts (RDLs)"></option>
+<option value="Barbell RDLs"></option>
+<option value="Dumbbell RDLs"></option>
+<option value="Stiff-Leg Deadlifts"></option>
+<option value="Seated Leg Curls"></option>
+<option value="Lying Leg Curls"></option>
+<option value="Standing Leg Curls"></option>
+<option value="Nordic Curls"></option>
+<option value="Good Mornings"></option>
+<option value="Standing Calf Raises"></option>
+<option value="Seated Calf Raises"></option>
+<option value="Leg Press Calf Raises"></option>
+<option value="Single-Leg Calf Raises"></option>
+<option value="Cable Crunches"></option>
+<option value="Ab Crunch Machine"></option>
+<option value="Hanging Leg Raises"></option>
+<option value="Hanging Knee Raises"></option>
+<option value="Decline Sit-Ups"></option>
+<option value="Plank"></option>
+<option value="Weighted Plank"></option>
+<option value="Ab Wheel Rollouts"></option>
+<option value="Russian Twists"></option>
+<option value="Barbell Shrugs"></option>
+<option value="Dumbbell Shrugs"></option>
+<option value="Machine Shrugs"></option>
+<option value="Wrist Curls"></option>
+<option value="Reverse Wrist Curls"></option>
+<option value="Farmer's Carries"></option>
+</datalist>
+<div class="exercise-help">Search the list or type any exercise name.</div></div>
+              <div id="beatLast" class="beat-last"><div class="beat-last-label">Beat last workout</div><div class="beat-last-main">Enter an exercise to see your last performance.</div><div class="beat-last-sub">Your previous set will appear here automatically.</div></div>
+              <div class="field-grid">
+                <div class="field"><label for="weightInput">Weight</label><input id="weightInput" type="number" step="0.01" min="0" placeholder="135"></div>
+                <div class="field"><label for="repsInput">Reps</label><input id="repsInput" type="number" step="1" min="0" placeholder="10"></div>
+                <div class="field"><label for="setInput">Set number</label><input id="setInput" type="number" step="1" min="1" placeholder="1"></div>
+                <div class="field"><label for="dateInput">Workout date</label><input id="dateInput" type="date"></div>
+              </div>
+              <div class="field"><label for="notesInput">Notes</label><textarea id="notesInput" placeholder="How the set felt, form notes, next target..."></textarea></div>
+              <div class="hero-actions">
+                <button class="btn primary" id="saveLogBtn" type="button">Save log →</button>
+                <button class="btn secondary hidden" id="cancelEditBtn" type="button">Cancel edit</button>
+              </div>
+              <div id="logMsg" class="member-message"></div>
+            </div>
+            <div class="member-card">
+              <h3>Saved workouts</h3>
+              <div id="logList" class="log-list"><div class="empty-state">No workout logs yet.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section class="personal-buy" id="personal-buy">
     <div class="wrap">
