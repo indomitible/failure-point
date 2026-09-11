@@ -5088,6 +5088,195 @@ section{background:rgba(8,9,11,.60)}
   .products-head{gap:8px}
 }
 
+
+/* BUY PRODUCTS MENU + VIP-ONLY MAIN SECTION */
+.desktop-buy-products-wrap{
+  position:relative;
+  flex:0 0 auto;
+}
+.desktop-buy-products-btn{
+  min-height:38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:1px solid rgba(239,67,85,.55);
+  border-radius:10px;
+  background:var(--red);
+  color:#fff;
+  padding:9px 13px;
+  font:inherit;
+  font-size:12px;
+  font-weight:950;
+  cursor:pointer;
+  white-space:nowrap;
+  box-shadow:0 8px 24px rgba(228,63,77,.14);
+}
+.desktop-buy-products-btn:hover{
+  background:var(--red2);
+}
+.desktop-buy-products-btn span{
+  font-size:10px;
+  transition:transform .16s ease;
+}
+.desktop-buy-products-btn.open span{
+  transform:rotate(180deg);
+}
+.desktop-buy-products-menu{
+  position:absolute;
+  top:calc(100% + 9px);
+  right:0;
+  z-index:500;
+  width:310px;
+  padding:15px;
+  border:1px solid #343a43;
+  border-radius:14px;
+  background:rgba(16,19,24,.98);
+  box-shadow:0 22px 60px rgba(0,0,0,.52);
+  backdrop-filter:blur(16px);
+}
+.desktop-buy-products-kicker{
+  color:#ef6675;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.desktop-buy-products-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:5px;
+}
+.desktop-buy-products-top strong{
+  color:#fff;
+  font-size:15px;
+}
+.desktop-buy-products-top b{
+  color:#fff;
+  font-size:17px;
+  white-space:nowrap;
+}
+.desktop-buy-products-top small{
+  color:#7f8995;
+  font-size:7px;
+  font-weight:700;
+}
+.desktop-buy-products-menu p{
+  margin:8px 0 11px;
+  color:#98a1ad;
+  font-size:9px;
+  line-height:1.5;
+}
+.desktop-buy-products-menu>a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  border-radius:9px;
+  background:#ef4355;
+  color:#fff;
+  text-decoration:none;
+  font-size:9px;
+  font-weight:950;
+}
+.desktop-buy-products-menu>a:hover{
+  filter:brightness(1.08);
+}
+
+/* Only VIP remains in the main purchase area. */
+.products-head{
+  grid-template-columns:minmax(240px,.8fr) minmax(300px,1.2fr);
+}
+.products-grid{
+  grid-template-columns:minmax(0,760px)!important;
+  justify-content:center;
+}
+.product-card-vip{
+  width:100%;
+  min-height:0;
+}
+#vipSection{
+  scroll-margin-top:92px;
+}
+
+/* Mobile program purchase lives inside the More drawer. */
+.mobile-drawer-product{
+  margin-top:10px;
+  padding:12px;
+  border:1px solid rgba(239,67,85,.34);
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(239,67,85,.07),#11151a);
+}
+.mobile-drawer-product-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.mobile-drawer-product-top small{
+  display:block;
+  color:#ef6675;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.mobile-drawer-product-top strong{
+  display:block;
+  margin-top:2px;
+  color:#fff;
+  font-size:13px;
+}
+.mobile-drawer-product-top>b{
+  color:#fff;
+  font-size:20px;
+}
+.mobile-drawer-product p{
+  margin:6px 0 9px;
+  color:#808a96;
+  font-size:8px;
+}
+.mobile-drawer-product>a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  border-radius:10px;
+  background:#ef4355;
+  color:#fff;
+  text-decoration:none;
+  font-size:9px;
+  font-weight:950;
+}
+
+@media(max-width:1050px) and (min-width:801px){
+  .nav-actions{
+    gap:5px;
+  }
+  .nav-link{
+    padding:8px 9px;
+    font-size:10px;
+  }
+  .desktop-buy-products-btn{
+    padding:8px 10px;
+    font-size:10px;
+  }
+}
+
+@media(max-width:800px){
+  .products-head{
+    grid-template-columns:1fr;
+    gap:7px;
+  }
+  .products-grid{
+    grid-template-columns:1fr!important;
+  }
+  .product-card-vip{
+    padding:18px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5109,7 +5298,7 @@ section{background:rgba(8,9,11,.60)}
       <a class="nav-link" id="navFriends" href="#login-card">Friends</a>
       <a class="nav-link" id="navDms" href="#login-card">DMs</a>
       <a class="nav-link" id="navVoice" href="#voiceSection">Voice</a>
-      <a class="nav-link" id="navVip" href="#productsSection">Products</a>
+      <a class="nav-link" id="navVip" href="#vipSection">VIP</a>
       <button class="nav-link hidden notification-nav-btn" id="navNotifications" type="button" aria-label="Notifications" title="Notifications">
         <span aria-hidden="true">🔔</span><span id="notificationBadge" class="notification-badge hidden">0</span>
       </button>
@@ -5119,6 +5308,28 @@ section{background:rgba(8,9,11,.60)}
       <a class="nav-link hidden" id="navWorkouts" href="#members">My Workouts</a>
       <a class="nav-link hidden" id="navNutrition" href="#nutritionSection">Nutrition</a>
       <button class="nav-link hidden" id="navLogout" type="button" style="color:inherit;cursor:pointer;font-family:inherit">Log Out</button>
+
+      <div class="desktop-buy-products-wrap">
+        <button id="desktopBuyProductsBtn" class="desktop-buy-products-btn" type="button"
+                aria-expanded="false" aria-controls="desktopBuyProductsMenu">
+          Buy Products <span>▾</span>
+        </button>
+
+        <div id="desktopBuyProductsMenu" class="desktop-buy-products-menu hidden">
+          <div class="desktop-buy-products-kicker">Training program</div>
+
+          <div class="desktop-buy-products-top">
+            <strong>The Gymcel Protocol</strong>
+            <b>$10 <small>one-time</small></b>
+          </div>
+
+          <p>Full 12-week hypertrophy program with the complete Push / Pull / Legs training setup.</p>
+
+          <a href="https://payhip.com/b/ijVdM" target="_blank" rel="noopener">
+            Buy Gymcel Protocol — $10
+          </a>
+        </div>
+      </div>
     </div>
 
     <div class="mobile-header-actions" aria-label="Mobile actions">
@@ -5211,7 +5422,7 @@ section{background:rgba(8,9,11,.60)}
       <span>◎</span><b>Edit Profile</b>
     </button>
     <button class="mobile-drawer-link" type="button" data-mobile-proxy="navVip">
-      <span>🛒</span><b>Products</b>
+      <span>🔱</span><b>VIP</b>
     </button>
     <button class="mobile-drawer-link" type="button" data-mobile-proxy="navSupport">
       <span>?</span><b>Support</b>
@@ -5227,7 +5438,21 @@ section{background:rgba(8,9,11,.60)}
     </button>
   </div>
 
-  <a class="mobile-drawer-buy" href="#productsSection">View Products →</a>
+  <div class="mobile-drawer-product">
+    <div class="mobile-drawer-product-top">
+      <div>
+        <small>TRAINING PROGRAM</small>
+        <strong>Gymcel Protocol</strong>
+      </div>
+      <b>$10</b>
+    </div>
+
+    <p>12-week hypertrophy program · one-time purchase.</p>
+
+    <a href="https://payhip.com/b/ijVdM" target="_blank" rel="noopener">
+      Buy Gymcel Protocol — $10
+    </a>
+  </div>
 </aside>
 
 <main>
@@ -5235,37 +5460,14 @@ section{background:rgba(8,9,11,.60)}
     <div class="wrap">
       <div class="products-head">
         <div>
-          <div class="kicker">Gymcels.lol Shop</div>
-          <h2>Products</h2>
+          <div class="kicker">Gymcels.lol Membership</div>
+          <h2>Gymcel VIP</h2>
         </div>
-        <p>All Gymcels purchases are kept in one place. Pick the training program or unlock VIP access.</p>
+        <p>Unlock the VIP badge, member perks, and upcoming VIP-only Gymcels.lol features.</p>
       </div>
 
       <div class="products-grid">
-        <article id="programProduct" class="product-card">
-          <div class="product-card-top">
-            <span class="product-tag">Training</span>
-            <span class="product-price">$10 <small>one-time</small></span>
-          </div>
-
-          <h3>The Gymcel Protocol</h3>
-          <p class="product-description">
-            The full 12-week hypertrophy program built around hard sets, progression, and tracking.
-          </p>
-
-          <div class="product-points">
-            <span>✓ Push / Pull / Legs structure</span>
-            <span>✓ 2 hard working sets per exercise</span>
-            <span>✓ 8–12 reps · 0 RIR / technical failure</span>
-            <span>✓ Digital delivery through Payhip</span>
-          </div>
-
-          <a class="product-buy-btn" href="https://payhip.com/b/ijVdM" target="_blank" rel="noopener">
-            Buy Gymcel Protocol — $10
-          </a>
-        </article>
-
-        <article id="vipSection" class="product-card product-card-vip">
+<article id="vipSection" class="product-card product-card-vip">
           <div class="product-card-top">
             <span class="product-tag vip">VIP 🔱</span>
             <span class="product-price">$5 <small>one-time</small></span>
@@ -6512,7 +6714,7 @@ section{background:rgba(8,9,11,.60)}
   </div>
 </footer>
 
-<a class="mobile-buy" href="#productsSection">View Products →</a>
+
 
 
 <div id="chatProfileOverlay" class="chat-profile-overlay" aria-hidden="true">
@@ -6747,8 +6949,8 @@ window.fpVerificationCallback = (() => {
     if (vipLocked) vipLocked.classList.toggle('hidden', !!isVip);
     if (profileVipBadge) profileVipBadge.classList.toggle('hidden', !isVip);
     if (navVip) {
-      navVip.textContent = isVip ? 'Products ✓' : 'Products';
-      navVip.setAttribute('href', '#productsSection');
+      navVip.textContent = isVip ? 'VIP ✓' : 'VIP';
+      navVip.setAttribute('href', '#vipSection');
       navVip.removeAttribute('target');
       navVip.removeAttribute('rel');
     }
@@ -6761,8 +6963,8 @@ window.fpVerificationCallback = (() => {
     if (!session?.user) {
       setVipUi(false, 'Log in to connect VIP to your Gymcels.lol account.');
       if (navVip) {
-        navVip.textContent = 'Products';
-        navVip.setAttribute('href', '#productsSection');
+        navVip.textContent = 'VIP';
+        navVip.setAttribute('href', '#vipSection');
         navVip.removeAttribute('target');
         navVip.removeAttribute('rel');
       }
@@ -16668,6 +16870,41 @@ setTimeout(() => {
   }catch(err){
     // Last-resort containment: reporting can fail without freezing Gymcels.
     console.warn('Gymcels report module disabled:',err);
+  }
+})();
+
+
+
+// ---- Desktop Buy Products dropdown ----
+(function initDesktopBuyProductsMenu(){
+  try{
+    const btn=document.getElementById('desktopBuyProductsBtn');
+    const menu=document.getElementById('desktopBuyProductsMenu');
+
+    if(!btn || !menu) return;
+
+    function setOpen(open){
+      menu.classList.toggle('hidden',!open);
+      btn.classList.toggle('open',open);
+      btn.setAttribute('aria-expanded',open ? 'true' : 'false');
+    }
+
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      setOpen(menu.classList.contains('hidden'));
+    });
+
+    menu.addEventListener('click',(e)=>e.stopPropagation());
+
+    document.addEventListener('click',()=>{
+      if(!menu.classList.contains('hidden')) setOpen(false);
+    });
+
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==='Escape') setOpen(false);
+    });
+  }catch(err){
+    console.warn('Buy Products menu disabled:',err);
   }
 })();
 
