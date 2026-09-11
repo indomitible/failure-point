@@ -1580,7 +1580,7 @@ section{background:rgba(8,9,11,.60)}
 }
 
 
-/* GYMCEL VOICE */
+/* GYMCEL CREW */
 .voice-section{padding:0 0 58px}
 .voice-shell{
   border:1px solid #292d34;
@@ -1784,6 +1784,36 @@ section{background:rgba(8,9,11,.60)}
 @media(max-width:760px){
   .voice-channel-grid{grid-template-columns:1fr}
   .voice-controls{align-items:flex-start;flex-direction:column}
+}
+
+
+/* INDIVIDUAL VOICE MUTES — local to your browser only */
+.voice-member{
+  position:relative;
+}
+.voice-member.local-muted{
+  opacity:.72;
+  border-color:rgba(239,67,85,.28);
+}
+.voice-person-mute{
+  margin-left:3px;
+  border:0;
+  border-radius:999px;
+  padding:3px 6px;
+  background:#242a31;
+  color:#aab2bd;
+  font-size:7px;
+  font-weight:900;
+  cursor:pointer;
+  font-family:inherit;
+}
+.voice-person-mute:hover{
+  background:#303741;
+  color:#fff;
+}
+.voice-person-mute.active{
+  background:rgba(239,67,85,.16);
+  color:#ff8b96;
 }
 
 </style>
@@ -2023,7 +2053,7 @@ section{background:rgba(8,9,11,.60)}
       <div class="voice-head">
         <div>
           <div class="kicker">Live voice</div>
-          <h2>Gymcel Voice</h2>
+          <h2>Gymcel Crew</h2>
           <p>Join a room and talk live with other logged-in Gymcels.lol members.</p>
         </div>
         <div id="voiceMicState" class="voice-mic-state">Mic disconnected</div>
@@ -2078,7 +2108,7 @@ section{background:rgba(8,9,11,.60)}
           </div>
         </div>
         <div class="voice-control-actions">
-          <button id="voiceMuteBtn" class="voice-control-btn" type="button">Mute</button>
+          <button id="voiceMuteBtn" class="voice-control-btn" type="button">Mute Mic</button>
           <button id="voiceLeaveBtn" class="voice-control-btn danger" type="button">Leave</button>
         </div>
       </div>
@@ -5740,7 +5770,7 @@ function startThreads(session){
 
 
 
-// ---- Gymcel Voice: General + Gaming ----
+// ---- Gymcel Crew: General + Gaming ----
 const navVoiceOutside = document.getElementById('navVoice');
 const voiceSection = document.getElementById('voiceSection');
 const voiceGuestNote = document.getElementById('voiceGuestNote');
@@ -5768,6 +5798,9 @@ let voiceRoomKey = null;
 let voiceRealtimeChannel = null;
 let voiceLocalStream = null;
 let voiceMuted = false;
+// These are people YOU chose to silence locally.
+// This does not change their microphone or what anyone else hears.
+let voiceLocallyMutedUsers = new Set();
 let voiceSessionUser = null;
 let voicePeers = new Map();
 let voicePresence = {};
@@ -5794,13 +5827,24 @@ function voiceSafeName(){
     (voiceSessionUser?.email ? voiceSessionUser.email.split('@')[0] : 'Member');
 }
 
-function voiceMemberHtml(entry, myId){
+function voiceMemberHtml(entry, myId, allowLocalMute=false){
+  const userId = String(entry?.user_id || '');
   const name = escapeChat(entry?.display_name || 'Member');
-  const muted = !!entry?.muted;
-  const mine = entry?.user_id === myId;
-  return `<span class="voice-member ${muted ? 'muted' : ''} ${mine ? 'you' : ''}">
+  const micMuted = !!entry?.muted;
+  const mine = userId === myId;
+  const locallyMuted = !mine && voiceLocallyMutedUsers.has(userId);
+
+  const localMuteButton = allowLocalMute && !mine
+    ? `<button class="voice-person-mute ${locallyMuted ? 'active' : ''}"
+               type="button"
+               data-local-voice-mute="${escapeChat(userId)}"
+               title="${locallyMuted ? 'Hear this person again' : 'Mute only this person for you'}">${locallyMuted ? 'Unmute' : 'Mute'}</button>`
+    : '';
+
+  return `<span class="voice-member ${micMuted ? 'muted' : ''} ${mine ? 'you' : ''} ${locallyMuted ? 'local-muted' : ''}">
     <span class="voice-member-dot"></span>
-    ${name}${mine ? ' (You)' : ''}${muted ? ' · muted' : ''}
+    ${name}${mine ? ' (You)' : ''}${micMuted ? ' · mic muted' : ''}${locallyMuted ? ' · muted by you' : ''}
+    ${localMuteButton}
   </span>`;
 }
 
@@ -5824,8 +5868,9 @@ function renderVoiceRoom(roomKey, state){
 
   if(countEl) countEl.textContent = String(people.length);
   if(membersEl){
+    const activeRoom = roomKey === voiceRoomKey;
     membersEl.innerHTML = people.length
-      ? people.map(p => voiceMemberHtml(p, voiceSessionUser?.id || null)).join('')
+      ? people.map(p => voiceMemberHtml(p, voiceSessionUser?.id || null, activeRoom)).join('')
       : '<div class="voice-empty">Nobody is in here yet.</div>';
   }
 
@@ -5880,6 +5925,8 @@ function ensureVoicePeer(userId){
   const audio = document.createElement('audio');
   audio.autoplay = true;
   audio.playsInline = true;
+  // Muting this element silences only this remote person on YOUR device.
+  audio.muted = voiceLocallyMutedUsers.has(userId);
   audio.dataset.voicePeer = userId;
   if(voiceAudioMount) voiceAudioMount.appendChild(audio);
 
@@ -5895,6 +5942,7 @@ function ensureVoicePeer(userId){
   pc.ontrack = (event) => {
     const stream = event.streams?.[0] || new MediaStream([event.track]);
     audio.srcObject = stream;
+    audio.muted = voiceLocallyMutedUsers.has(userId);
     audio.play().catch(() => {});
   };
 
@@ -6073,7 +6121,7 @@ async function leaveVoiceChannel(showStatus=true, restorePreviews=true){
     voiceMicState.textContent = 'Mic disconnected';
     voiceMicState.classList.remove('live');
   }
-  if(voiceMuteBtn) voiceMuteBtn.textContent = 'Mute';
+  if(voiceMuteBtn) voiceMuteBtn.textContent = 'Mute Mic';
 
   renderAllVoiceRooms();
 
@@ -6206,6 +6254,31 @@ async function joinVoiceChannel(roomKey){
   }
 }
 
+
+function toggleLocalVoiceMute(userId){
+  if(!userId || userId === voiceSessionUser?.id) return;
+
+  if(voiceLocallyMutedUsers.has(userId)){
+    voiceLocallyMutedUsers.delete(userId);
+  }else{
+    voiceLocallyMutedUsers.add(userId);
+  }
+
+  const peer = voicePeers.get(userId);
+  if(peer?.audio){
+    peer.audio.muted = voiceLocallyMutedUsers.has(userId);
+  }
+
+  renderAllVoiceRooms();
+
+  setVoiceStatus(
+    voiceLocallyMutedUsers.has(userId)
+      ? 'That member is muted only for you.'
+      : 'That member is unmuted for you.',
+    'normal'
+  );
+}
+
 async function toggleVoiceMute(){
   if(!voiceLocalStream || !voiceRoomKey) return;
 
@@ -6214,7 +6287,7 @@ async function toggleVoiceMute(){
     track.enabled = !voiceMuted;
   });
 
-  if(voiceMuteBtn) voiceMuteBtn.textContent = voiceMuted ? 'Unmute' : 'Mute';
+  if(voiceMuteBtn) voiceMuteBtn.textContent = voiceMuted ? 'Unmute Mic' : 'Mute Mic';
   if(voiceMicState){
     voiceMicState.textContent = voiceMuted ? 'Mic muted' : 'Mic live';
     voiceMicState.classList.toggle('live',!voiceMuted);
@@ -6245,8 +6318,11 @@ function setVoiceAuthState(session){
     if(joinVoiceGaming) joinVoiceGaming.textContent = voiceRoomKey === 'gaming' ? 'Joined' : 'Join';
   }
 
-  if(!signedIn && voiceRoomKey){
-    leaveVoiceChannel(false, false);
+  if(!signedIn){
+    voiceLocallyMutedUsers.clear();
+    if(voiceRoomKey){
+      leaveVoiceChannel(false, false);
+    }
   }
 }
 
@@ -6292,6 +6368,24 @@ async function startVoiceRoomPreviews(session){
 async function startVoiceSystem(session){
   setVoiceAuthState(session);
   await startVoiceRoomPreviews(session);
+}
+
+
+function handleVoiceMemberMuteClick(e){
+  const btn = e.target.closest('[data-local-voice-mute]');
+  if(!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  toggleLocalVoiceMute(btn.dataset.localVoiceMute);
+}
+
+if(voiceMembersGeneral){
+  voiceMembersGeneral.addEventListener('click', handleVoiceMemberMuteClick);
+}
+if(voiceMembersGaming){
+  voiceMembersGaming.addEventListener('click', handleVoiceMemberMuteClick);
 }
 
 if(joinVoiceGeneral){
