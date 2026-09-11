@@ -4299,6 +4299,214 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* THREAD POLLS — isolated feature */
+.thread-poll-builder{
+  margin-top:10px;
+  padding:10px;
+  border:1px solid #292f37;
+  border-radius:10px;
+  background:#0b0f13;
+}
+.thread-poll-toggle{
+  border:1px solid #343b45;
+  border-radius:8px;
+  background:#171c22;
+  color:#e7ebf0;
+  padding:8px 11px;
+  font:inherit;
+  font-size:9px;
+  font-weight:900;
+  cursor:pointer;
+}
+.thread-poll-toggle.active{
+  border-color:rgba(239,67,85,.45);
+  background:rgba(239,67,85,.08);
+  color:#ff9aa4;
+}
+.thread-poll-fields{margin-top:10px}
+.thread-poll-builder-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.thread-poll-builder-head strong{
+  display:block;
+  color:#fff;
+  font-size:10px;
+}
+.thread-poll-builder-head span{
+  display:block;
+  margin-top:2px;
+  color:#747e89;
+  font-size:8px;
+}
+.thread-poll-builder-head button{
+  border:0;
+  background:transparent;
+  color:#ff8995;
+  font:inherit;
+  font-size:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.thread-poll-question-field{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-top:10px;
+}
+.thread-poll-question-field>span{
+  color:#aeb6c0;
+  font-size:8px;
+  font-weight:900;
+}
+.thread-poll-question-field input,
+.thread-poll-option-edit input{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #303741;
+  border-radius:8px;
+  background:#090c10;
+  color:#fff;
+  padding:9px 10px;
+  font:inherit;
+  font-size:10px;
+  outline:none;
+}
+.thread-poll-question-field input:focus,
+.thread-poll-option-edit input:focus{border-color:#ef4355}
+.thread-poll-options{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:8px;
+}
+.thread-poll-option-edit{
+  display:grid;
+  grid-template-columns:24px minmax(0,1fr) 28px;
+  align-items:center;
+  gap:6px;
+}
+.thread-poll-option-edit>span{
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  border:1px solid #2a3139;
+  border-radius:999px;
+  color:#8d97a2;
+  font-size:8px;
+  font-weight:900;
+}
+.thread-poll-option-edit>button{
+  width:28px;
+  height:28px;
+  border:0;
+  border-radius:7px;
+  background:#191f26;
+  color:#ff8b97;
+  cursor:pointer;
+}
+.thread-poll-option-edit>button:disabled{opacity:.3;cursor:default}
+.thread-poll-add-option{
+  margin-top:8px;
+  border:1px dashed #343c46;
+  border-radius:8px;
+  background:transparent;
+  color:#aab3bd;
+  padding:7px 9px;
+  font:inherit;
+  font-size:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.thread-poll-add-option:disabled{opacity:.35;cursor:default}
+.thread-poll-fields>small{
+  display:block;
+  margin-top:6px;
+  color:#65707b;
+  font-size:7px;
+}
+
+.thread-poll-card{
+  margin-top:10px;
+  padding:12px;
+  border:1px solid #2a323b;
+  border-radius:12px;
+  background:#0a0e12;
+}
+.thread-poll-question{
+  color:#fff;
+  font-size:13px;
+  font-weight:950;
+  line-height:1.35;
+}
+.thread-poll-options-live{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-top:10px;
+}
+.thread-poll-option-live{
+  position:relative;
+  overflow:hidden;
+  width:100%;
+  min-height:42px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  border:1px solid #2b323b;
+  border-radius:9px;
+  background:#11161b;
+  color:#dbe0e6;
+  padding:9px 10px;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+}
+.thread-poll-option-live:disabled{cursor:default}
+.thread-poll-option-live.selected{
+  border-color:rgba(239,67,85,.48);
+}
+.thread-poll-option-fill{
+  position:absolute;
+  inset:0 auto 0 0;
+  width:0;
+  background:rgba(239,67,85,.10);
+  pointer-events:none;
+}
+.thread-poll-option-copy,
+.thread-poll-option-result{
+  position:relative;
+  z-index:1;
+}
+.thread-poll-option-copy{
+  font-size:9px;
+  font-weight:850;
+}
+.thread-poll-option-copy b{
+  margin-left:5px;
+  color:#ef4355;
+}
+.thread-poll-option-result{
+  color:#8d97a2;
+  font-size:8px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.thread-poll-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:8px;
+  color:#68737e;
+  font-size:7px;
+}
+
 </style>
 </head>
 <body>
@@ -4640,6 +4848,42 @@ section{background:rgba(8,9,11,.60)}
           <button id="threadMediaRemove" class="thread-media-clear" type="button">Clear photos</button>
         </div>
 
+        <div class="thread-poll-builder">
+          <button id="threadPollToggle" class="thread-poll-toggle" type="button">📊 Add poll</button>
+
+          <div id="threadPollFields" class="thread-poll-fields hidden">
+            <div class="thread-poll-builder-head">
+              <div>
+                <strong>Create a poll</strong>
+                <span>Members can vote once and change their vote.</span>
+              </div>
+              <button id="threadPollRemove" type="button">Remove poll</button>
+            </div>
+
+            <label class="thread-poll-question-field">
+              <span>Question</span>
+              <input id="threadPollQuestion" type="text" maxlength="180"
+                     placeholder="What do you want everyone to vote on?">
+            </label>
+
+            <div id="threadPollOptions" class="thread-poll-options">
+              <div class="thread-poll-option-edit" data-poll-option-row>
+                <span>1</span>
+                <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 1">
+                <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+              </div>
+              <div class="thread-poll-option-edit" data-poll-option-row>
+                <span>2</span>
+                <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 2">
+                <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+              </div>
+            </div>
+
+            <button id="threadPollAddOption" class="thread-poll-add-option" type="button">+ Add option</button>
+            <small>2–6 choices. Results are visible to everyone.</small>
+          </div>
+        </div>
+
         <div class="thread-composer-actions">
           <button id="createThreadBtn" class="thread-primary-btn" type="button">Post Thread</button>
           <button id="cancelThreadBtn" class="thread-secondary-btn" type="button">Cancel</button>
@@ -4688,6 +4932,7 @@ section{background:rgba(8,9,11,.60)}
     </div>
     <div id="threadViewBody" class="thread-view-body"></div>
     <div id="threadViewMedia" class="thread-view-media hidden"></div>
+    <div id="threadViewPoll" class="thread-poll-card hidden"></div>
     <div class="thread-view-social-row">
       <div id="threadViewReactions" class="reaction-bar reaction-bar-thread"></div>
       <button id="threadViewBookmarkBtn" class="thread-view-bookmark hidden" type="button">🔖 Save</button>
@@ -11512,6 +11757,12 @@ const threadMediaInput = document.getElementById('threadMediaInput');
 const threadMediaPreview = document.getElementById('threadMediaPreview');
 const threadMediaPreviewList = document.getElementById('threadMediaPreviewList');
 const threadMediaRemove = document.getElementById('threadMediaRemove');
+const threadPollToggle = document.getElementById('threadPollToggle');
+const threadPollFields = document.getElementById('threadPollFields');
+const threadPollRemove = document.getElementById('threadPollRemove');
+const threadPollQuestion = document.getElementById('threadPollQuestion');
+const threadPollOptions = document.getElementById('threadPollOptions');
+const threadPollAddOption = document.getElementById('threadPollAddOption');
 const createThreadBtn = document.getElementById('createThreadBtn');
 const cancelThreadBtn = document.getElementById('cancelThreadBtn');
 const threadComposerStatus = document.getElementById('threadComposerStatus');
@@ -11531,6 +11782,7 @@ const threadViewAuthorStaff = document.getElementById('threadViewAuthorStaff');
 const threadViewTime = document.getElementById('threadViewTime');
 const threadViewBody = document.getElementById('threadViewBody');
 const threadViewMedia = document.getElementById('threadViewMedia');
+const threadViewPoll = document.getElementById('threadViewPoll');
 const threadViewReactions = document.getElementById('threadViewReactions');
 const threadViewBookmarkBtn = document.getElementById('threadViewBookmarkBtn');
 const threadOwnerActions = document.getElementById('threadOwnerActions');
@@ -11564,6 +11816,7 @@ let threadsPollTimer = null;
 let threadPosting = false;
 let threadReplyPosting = false;
 let threadReplyTarget = null;
+let threadPollEnabled = false;
 let threadSearchTerm = '';
 let threadSearchTimer = null;
 let threadBookmarksOnly = false;
@@ -11828,6 +12081,236 @@ function setThreadsAuthState(session){
 }
 
 
+
+function renumberThreadPollOptions(){
+  const rows=[...(threadPollOptions?.querySelectorAll('[data-poll-option-row]') || [])];
+
+  rows.forEach((row,index)=>{
+    const number=row.querySelector(':scope > span');
+    const input=row.querySelector('[data-thread-poll-option]');
+    const remove=row.querySelector('[data-remove-poll-option]');
+
+    if(number) number.textContent=String(index+1);
+    if(input) input.placeholder=`Option ${index+1}`;
+    if(remove) remove.disabled=rows.length<=2;
+  });
+
+  if(threadPollAddOption) threadPollAddOption.disabled=rows.length>=6;
+}
+
+function addThreadPollOption(){
+  if(!threadPollOptions) return;
+
+  const current=threadPollOptions.querySelectorAll('[data-poll-option-row]').length;
+  if(current>=6) return;
+
+  const row=document.createElement('div');
+  row.className='thread-poll-option-edit';
+  row.setAttribute('data-poll-option-row','');
+  row.innerHTML=`
+    <span>${current+1}</span>
+    <input type="text" maxlength="100" data-thread-poll-option placeholder="Option ${current+1}">
+    <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+  `;
+
+  threadPollOptions.appendChild(row);
+  renumberThreadPollOptions();
+  row.querySelector('input')?.focus();
+}
+
+function setThreadPollEnabled(enabled){
+  threadPollEnabled=!!enabled;
+  threadPollFields?.classList.toggle('hidden',!threadPollEnabled);
+
+  if(threadPollToggle){
+    threadPollToggle.classList.toggle('active',threadPollEnabled);
+    threadPollToggle.textContent=threadPollEnabled ? '📊 Poll added' : '📊 Add poll';
+  }
+
+  if(threadPollEnabled) threadPollQuestion?.focus();
+}
+
+function resetThreadPollComposer(){
+  threadPollEnabled=false;
+  threadPollFields?.classList.add('hidden');
+
+  if(threadPollToggle){
+    threadPollToggle.classList.remove('active');
+    threadPollToggle.textContent='📊 Add poll';
+  }
+
+  if(threadPollQuestion) threadPollQuestion.value='';
+
+  if(threadPollOptions){
+    threadPollOptions.innerHTML=`
+      <div class="thread-poll-option-edit" data-poll-option-row>
+        <span>1</span>
+        <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 1">
+        <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+      </div>
+      <div class="thread-poll-option-edit" data-poll-option-row>
+        <span>2</span>
+        <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 2">
+        <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+      </div>
+    `;
+  }
+
+  renumberThreadPollOptions();
+}
+
+function collectThreadPollDraft(){
+  if(!threadPollEnabled){
+    return {enabled:false,question:'',options:[],error:''};
+  }
+
+  const question=String(threadPollQuestion?.value || '').trim();
+  const options=[...(threadPollOptions?.querySelectorAll('[data-thread-poll-option]') || [])]
+    .map(input=>String(input.value || '').trim())
+    .filter(Boolean);
+
+  if(question.length<3){
+    return {enabled:true,question,options,error:'Give your poll a question.'};
+  }
+
+  if(options.length<2){
+    return {enabled:true,question,options,error:'Add at least 2 poll options.'};
+  }
+
+  if(options.length>6){
+    return {enabled:true,question,options,error:'Polls can have up to 6 options.'};
+  }
+
+  const unique=new Set(options.map(x=>x.toLowerCase()));
+  if(unique.size!==options.length){
+    return {enabled:true,question,options,error:'Poll options must be different.'};
+  }
+
+  return {enabled:true,question,options,error:''};
+}
+
+async function loadThreadPoll(threadId,session=null){
+  if(!threadViewPoll) return;
+
+  const client=window.gymcelsLolDb;
+  if(!client) return;
+
+  const currentSession=session || await getChatSession();
+
+  try{
+    const {data,error}=await client.rpc('get_thread_poll',{
+      target_thread_id:Number(threadId)
+    });
+
+    if(error) throw error;
+
+    const rows=data || [];
+
+    if(!rows.length){
+      threadViewPoll.innerHTML='';
+      threadViewPoll.classList.add('hidden');
+      return;
+    }
+
+    const first=rows[0];
+    const totalVotes=Number(first.total_votes || 0);
+    const canVote=!!currentSession?.user && !activeThread?.is_locked;
+
+    threadViewPoll.innerHTML=`
+      <div class="thread-poll-question">${escapeChat(first.question || 'Poll')}</div>
+
+      <div class="thread-poll-options-live">
+        ${rows.map(row=>{
+          const count=Number(row.vote_count || 0);
+          const percent=totalVotes>0 ? Math.round((count/totalVotes)*100) : 0;
+          const selected=row.selected===true;
+
+          return `<button class="thread-poll-option-live ${selected ? 'selected' : ''}"
+                          type="button"
+                          data-thread-poll-vote="${Number(row.option_id)}"
+                          data-thread-poll-id="${Number(row.poll_id)}"
+                          ${canVote ? '' : 'disabled'}>
+            <span class="thread-poll-option-fill" style="width:${percent}%"></span>
+            <span class="thread-poll-option-copy">
+              ${escapeChat(row.option_text || 'Option')}
+              ${selected ? '<b>✓ Your vote</b>' : ''}
+            </span>
+            <span class="thread-poll-option-result">${percent}% · ${count}</span>
+          </button>`;
+        }).join('')}
+      </div>
+
+      <div class="thread-poll-footer">
+        <span>${totalVotes} vote${totalVotes===1?'':'s'}</span>
+        <span>${
+          !currentSession?.user
+            ? 'Log in to vote'
+            : (activeThread?.is_locked ? 'Poll closed while thread is locked' : 'Tap an option to vote · you can change it')
+        }</span>
+      </div>
+    `;
+
+    threadViewPoll.classList.remove('hidden');
+  }catch(err){
+    console.error('Poll load error:',err);
+    threadViewPoll.innerHTML='';
+    threadViewPoll.classList.add('hidden');
+  }
+}
+
+async function voteThreadPoll(pollId,optionId){
+  const client=window.gymcelsLolDb;
+  const session=await getChatSession();
+
+  if(!client || !session?.user){
+    document.getElementById('login-card')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  try{
+    const {error}=await client.rpc('vote_in_thread_poll',{
+      target_poll_id:Number(pollId),
+      target_option_id:Number(optionId)
+    });
+
+    if(error) throw error;
+
+    if(activeThread){
+      await loadThreadPoll(activeThread.id,session);
+    }
+  }catch(err){
+    setThreadStatus(threadReplyStatus,err?.message || String(err),'error');
+  }
+}
+
+threadPollToggle?.addEventListener('click',()=>{
+  setThreadPollEnabled(!threadPollEnabled);
+});
+
+threadPollRemove?.addEventListener('click',resetThreadPollComposer);
+threadPollAddOption?.addEventListener('click',addThreadPollOption);
+
+threadPollOptions?.addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-remove-poll-option]');
+  if(!btn) return;
+
+  const rows=threadPollOptions.querySelectorAll('[data-poll-option-row]');
+  if(rows.length<=2) return;
+
+  btn.closest('[data-poll-option-row]')?.remove();
+  renumberThreadPollOptions();
+});
+
+threadViewPoll?.addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-thread-poll-vote]');
+  if(!btn || btn.disabled) return;
+
+  voteThreadPoll(
+    Number(btn.dataset.threadPollId),
+    Number(btn.dataset.threadPollVote)
+  );
+});
+
 async function loadThreadBookmarks(session=null){
   const client=window.gymcelsLolDb;
   const currentSession=session || await getChatSession();
@@ -12022,13 +12505,19 @@ async function createThread(){
   const title = String(threadTitle?.value || '').trim();
   const body = String(threadBody?.value || '').trim();
   const category = String(threadCategory?.value || 'General');
+  const pollDraft=collectThreadPollDraft();
 
   if(title.length < 3){
     setThreadStatus(threadComposerStatus,'Give your thread a title.','error');
     return;
   }
-  if(body.length < 2 && !threadMediaFiles.length){
-    setThreadStatus(threadComposerStatus,'Write something or add a photo.','error');
+  if(body.length < 2 && !threadMediaFiles.length && !pollDraft.enabled){
+    setThreadStatus(threadComposerStatus,'Write something, add a photo, or add a poll.','error');
+    return;
+  }
+
+  if(pollDraft.error){
+    setThreadStatus(threadComposerStatus,pollDraft.error,'error');
     return;
   }
 
@@ -12066,9 +12555,28 @@ async function createThread(){
       throw error;
     }
 
+    if(pollDraft.enabled){
+      const {error:pollError}=await client.rpc('create_thread_poll',{
+        target_thread_id:Number(data.id),
+        poll_question:pollDraft.question,
+        poll_options:pollDraft.options
+      });
+
+      if(pollError){
+        // Keep the database clean if the thread was created but its poll failed.
+        try{ await client.from('forum_threads').delete().eq('id',Number(data.id)); }catch(_){}
+        if(uploadedMedia.paths.length){
+          await cleanupUploadedThreadMedia(uploadedMedia.paths);
+          uploadedMedia={urls:[],paths:[]};
+        }
+        throw pollError;
+      }
+    }
+
     if(threadTitle) threadTitle.value = '';
     if(threadBody) threadBody.value = '';
     clearThreadMediaSelection();
+    resetThreadPollComposer();
     if(threadComposer) threadComposer.classList.add('hidden');
     setThreadStatus(threadComposerStatus,'✓ THREAD POSTED','success');
 
@@ -12330,6 +12838,7 @@ async function openThread(threadId){
   threadOverlay.setAttribute('aria-hidden','false');
 
   await loadThreadReplies(data.id);
+  await loadThreadPoll(data.id,session);
 }
 
 function closeThread(){
@@ -12337,6 +12846,10 @@ function closeThread(){
   threadOverlay.classList.remove('show');
   threadOverlay.setAttribute('aria-hidden','true');
   activeThread = null;
+  if(threadViewPoll){
+    threadViewPoll.innerHTML='';
+    threadViewPoll.classList.add('hidden');
+  }
   if(threadReplyInput) threadReplyInput.value = '';
   clearThreadReplyMediaSelection();
   clearThreadReplyTarget();
@@ -12461,6 +12974,7 @@ async function toggleThreadLock(){
 
   const session = await getChatSession();
   updateThreadReplyComposer(session);
+  await loadThreadPoll(activeThread.id,session);
   await loadThreads();
 }
 
@@ -12574,6 +13088,7 @@ if(cancelThreadBtn){
   cancelThreadBtn.addEventListener('click', () => {
     threadComposer.classList.add('hidden');
     clearThreadMediaSelection();
+    resetThreadPollComposer();
     setThreadStatus(threadComposerStatus,'');
   });
 }
