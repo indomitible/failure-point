@@ -15309,6 +15309,12 @@ const DM_MAX_FILE_BYTES = 10 * 1024 * 1024;
 let dmPendingFiles = [];
 let dmPendingPreviewUrls = [];
 
+// Keep already-loaded DM photos stable instead of generating a new signed
+// URL and rebuilding the whole conversation every 3-second poll.
+const dmSignedUrlCache = new Map();
+let dmLastRenderSignature = '';
+let dmLastRenderConversation = '';
+
 
 // ---- Private one-to-one DM calls ----
 // Call invitations use the database instead of a recipient Realtime "inbox".
@@ -16376,21 +16382,42 @@ async function dmLoadAttachmentMap(client,rows){
     const attachments = data || [];
     if(!attachments.length) return map;
 
-    const paths = [...new Set(attachments.map(item => item.storage_path).filter(Boolean))];
+    const now = Date.now();
+    const signedByPath = {};
+    const missingPaths = [];
 
-    let signedByPath = {};
+    for(const attachment of attachments){
+      const path = attachment.storage_path;
+      if(!path) continue;
 
-    if(paths.length){
+      const cached = dmSignedUrlCache.get(path);
+
+      // Reuse the same signed URL for almost a full day. This prevents photos
+      // from visually reloading every time DMs poll for new messages.
+      if(cached?.url && cached.expiresAt > now + 5 * 60 * 1000){
+        signedByPath[path] = cached.url;
+      }else{
+        missingPaths.push(path);
+      }
+    }
+
+    const uniqueMissingPaths = [...new Set(missingPaths)];
+
+    if(uniqueMissingPaths.length){
       const {data:signed,error:signedError} = await client
         .storage
         .from('dm-media')
-        .createSignedUrls(paths,60 * 60);
+        .createSignedUrls(uniqueMissingPaths,24 * 60 * 60);
 
       if(signedError) throw signedError;
 
       for(const item of signed || []){
         if(item?.path && item?.signedUrl){
           signedByPath[item.path] = item.signedUrl;
+          dmSignedUrlCache.set(item.path,{
+            url:item.signedUrl,
+            expiresAt:now + (23 * 60 * 60 * 1000)
+          });
         }
       }
     }
@@ -16615,14 +16642,56 @@ async function loadDmConversation(scrollBottom=false){
     const rows = (data || []).slice().reverse();
     const attachmentMap = await dmLoadAttachmentMap(client,rows);
 
+    const conversationKey = `${me}:${dmActiveUserId}`;
+    const renderSignature = JSON.stringify({
+      rows:rows.map(row => [
+        row.id,
+        row.sender_id,
+        row.recipient_id,
+        row.message,
+        row.created_at
+      ]),
+      attachments:Object.entries(attachmentMap).map(([messageId,items]) => [
+        messageId,
+        (items || []).map(item => [
+          item.id,
+          item.storage_path,
+          item.file_name,
+          item.file_size,
+          item.created_at
+        ])
+      ])
+    });
+
     if(!rows.length){
-      dmMessages.innerHTML = '<div class="dm-empty">No messages yet. Say something.</div>';
-      dmMessages.scrollTop = 0;
+      if(dmLastRenderConversation !== conversationKey || dmLastRenderSignature !== 'empty'){
+        dmMessages.innerHTML = '<div class="dm-empty">No messages yet. Say something.</div>';
+        dmMessages.scrollTop = 0;
+        dmLastRenderConversation = conversationKey;
+        dmLastRenderSignature = 'empty';
+      }
+
       updateDmScrollControls();
       return;
     }
 
-    const nearBottom = dmMessages.scrollHeight - dmMessages.scrollTop - dmMessages.clientHeight < 80;
+    const oldScrollTop = dmMessages.scrollTop;
+    const oldScrollHeight = dmMessages.scrollHeight;
+    const nearBottom = oldScrollHeight - oldScrollTop - dmMessages.clientHeight < 80;
+
+    // The 3-second poll used to replace all DM HTML every time even when
+    // nothing changed. That reloaded photos and could jump the scroll.
+    if(
+      dmLastRenderConversation === conversationKey &&
+      dmLastRenderSignature === renderSignature
+    ){
+      if(scrollBottom){
+        dmMessages.scrollTop = dmMessages.scrollHeight;
+      }
+
+      requestAnimationFrame(updateDmScrollControls);
+      return;
+    }
 
     dmMessages.innerHTML = rows.map(row => {
       const mine = row.sender_id === me;
@@ -16645,8 +16714,27 @@ async function loadDmConversation(scrollBottom=false){
       </div>`;
     }).join('');
 
+    dmLastRenderConversation = conversationKey;
+    dmLastRenderSignature = renderSignature;
+
     if(scrollBottom || nearBottom){
       dmMessages.scrollTop = dmMessages.scrollHeight;
+    }else{
+      // Stay exactly where the user was reading instead of jumping upward.
+      dmMessages.scrollTop = oldScrollTop;
+    }
+
+    // Images can finish decoding a moment after the HTML is inserted.
+    // If the user was already at the bottom, keep them at the bottom;
+    // otherwise do not move their reading position.
+    if(scrollBottom || nearBottom){
+      dmMessages.querySelectorAll('.dm-image-attachment img').forEach(img => {
+        if(img.complete) return;
+        img.addEventListener('load',() => {
+          dmMessages.scrollTop = dmMessages.scrollHeight;
+          updateDmScrollControls();
+        },{once:true});
+      });
     }
 
     requestAnimationFrame(updateDmScrollControls);
@@ -16669,9 +16757,16 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
     return;
   }
 
+  const changingConversation = dmActiveUserId !== userId;
+
   dmActiveUserId = userId;
   dmActiveName = displayName || 'Member';
   dmActiveAvatar = avatarUrl || '';
+
+  if(changingConversation){
+    dmLastRenderConversation = '';
+    dmLastRenderSignature = '';
+  }
 
   dmThreadName.textContent = dmActiveName;
   dmThreadState.textContent = 'Private conversation';
@@ -16939,6 +17034,8 @@ fpDb.auth.onAuthStateChange((_event, session) => {
   }else{
     clearInterval(dmPollTimer);
     dmActiveUserId = null;
+    dmLastRenderConversation = '';
+    dmLastRenderSignature = '';
     dmClearPendingFiles();
 
     if(dmInput) dmInput.disabled = true;
