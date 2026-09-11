@@ -4299,6 +4299,98 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* THREAD POLLS */
+.thread-poll-builder{margin-top:10px;padding:10px;border:1px solid #292f37;border-radius:10px;background:#0b0f13}
+.thread-poll-toggle{border:1px solid #343b45;border-radius:8px;background:#171c22;color:#e7ebf0;padding:8px 11px;font:inherit;font-size:9px;font-weight:900;cursor:pointer}
+.thread-poll-toggle.active{border-color:rgba(239,67,85,.45);background:rgba(239,67,85,.09);color:#ff9aa4}
+.thread-poll-fields{margin-top:10px}
+.thread-poll-builder-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.thread-poll-builder-head strong{display:block;color:#fff;font-size:10px}
+.thread-poll-builder-head span{display:block;margin-top:2px;color:#747e89;font-size:8px}
+.thread-poll-builder-head button{border:0;background:transparent;color:#ff8995;font:inherit;font-size:8px;font-weight:900;cursor:pointer}
+.thread-poll-question-field{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.thread-poll-question-field>span{color:#aeb6c0;font-size:8px;font-weight:900}
+.thread-poll-question-field input,.thread-poll-option-edit input{width:100%;box-sizing:border-box;border:1px solid #303741;border-radius:8px;background:#090c10;color:#fff;padding:9px 10px;font:inherit;font-size:10px;outline:none}
+.thread-poll-question-field input:focus,.thread-poll-option-edit input:focus{border-color:#ef4355}
+.thread-poll-options{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.thread-poll-option-edit{display:grid;grid-template-columns:24px minmax(0,1fr) 28px;align-items:center;gap:6px}
+.thread-poll-option-edit>span{display:grid;place-items:center;width:24px;height:24px;border:1px solid #2a3139;border-radius:999px;color:#8d97a2;font-size:8px;font-weight:900}
+.thread-poll-option-edit>button{width:28px;height:28px;border:0;border-radius:7px;background:#191f26;color:#ff8b97;cursor:pointer}
+.thread-poll-option-edit>button:disabled{opacity:.3;cursor:default}
+.thread-poll-add-option{margin-top:8px;border:1px dashed #343c46;border-radius:8px;background:transparent;color:#aab3bd;padding:7px 9px;font:inherit;font-size:8px;font-weight:900;cursor:pointer}
+.thread-poll-add-option:disabled{opacity:.35;cursor:default}
+.thread-poll-fields>small{display:block;margin-top:6px;color:#65707b;font-size:7px}
+
+.thread-poll-card{margin-top:10px;padding:12px;border:1px solid #2a323b;border-radius:12px;background:#0a0e12}
+.thread-poll-question{color:#fff;font-size:13px;font-weight:950;line-height:1.35}
+.thread-poll-options-live{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.thread-poll-option-live{position:relative;overflow:hidden;width:100%;min-height:42px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid #2b323b;border-radius:9px;background:#11161b;color:#dbe0e6;padding:9px 10px;text-align:left;font:inherit;cursor:pointer}
+.thread-poll-option-live:disabled{cursor:default}
+.thread-poll-option-live.selected{border-color:rgba(239,67,85,.48)}
+.thread-poll-option-fill{position:absolute;inset:0 auto 0 0;width:0;background:rgba(239,67,85,.10);pointer-events:none}
+.thread-poll-option-copy,.thread-poll-option-result{position:relative;z-index:1}
+.thread-poll-option-copy{font-size:9px;font-weight:850}
+.thread-poll-option-copy b{margin-left:5px;color:#ef4355}
+.thread-poll-option-result{color:#8d97a2;font-size:8px;font-weight:900;white-space:nowrap}
+.thread-poll-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;color:#68737e;font-size:7px}
+.thread-card-poll{color:#b9a6ff;font-size:8px}
+
+/* REPORT SYSTEM */
+.content-report-btn{border:1px solid #343b45;border-radius:8px;background:#171c22;color:#9aa4af;padding:6px 8px;font:inherit;font-size:8px;font-weight:900;cursor:pointer}
+.content-report-btn:hover{border-color:rgba(239,67,85,.45);color:#ff919d}
+.chat-message-actions .content-report-btn,.thread-reply-actions .content-report-btn{border:0;background:transparent;padding:0;color:#747e89;font-size:9px}
+.thread-reply-actions{gap:9px}
+.thread-view-social-actions{display:flex;gap:6px;flex:0 0 auto}
+
+.content-report-overlay{display:none;position:fixed;inset:0;z-index:22000;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.78)}
+.content-report-overlay.show{display:flex}
+.content-report-dialog{position:relative;width:min(480px,100%);border:1px solid #303741;border-radius:16px;background:#101419;padding:18px;box-shadow:0 24px 90px rgba(0,0,0,.58)}
+.content-report-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border:1px solid #303741;border-radius:8px;background:#171c22;color:#fff;font-size:17px;cursor:pointer}
+.content-report-kicker{color:#ef4355;font-size:7px;font-weight:950;text-transform:uppercase;letter-spacing:.08em}
+.content-report-dialog h3{margin:4px 40px 2px 0;color:#fff;font-size:19px}
+.content-report-target{color:#7e8894;font-size:9px;margin-bottom:12px}
+.content-report-dialog label{display:flex;flex-direction:column;gap:5px;margin-top:9px}
+.content-report-dialog label>span{color:#aeb6c0;font-size:8px;font-weight:900}
+.content-report-dialog label small{color:#66717c;font-weight:700}
+.content-report-dialog select,.content-report-dialog textarea{width:100%;box-sizing:border-box;border:1px solid #303741;border-radius:9px;background:#090c10;color:#fff;padding:10px;font:inherit;font-size:10px;outline:none}
+.content-report-dialog textarea{min-height:90px;resize:vertical}
+.content-report-note{margin-top:9px;color:#68737e;font-size:8px}
+.content-report-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}
+.content-report-actions button{border:1px solid #303741;border-radius:8px;background:#171c22;color:#d5dbe2;padding:8px 11px;font:inherit;font-size:8px;font-weight:900;cursor:pointer}
+.content-report-actions button.primary{border-color:#ef4355;background:#ef4355;color:#fff}
+.content-report-status{min-height:14px;margin-top:7px;color:#7f8995;font-size:8px}
+.content-report-status.success{color:#67e8a5}.content-report-status.error{color:#ff7c89}
+
+.moderation-reports-panel{margin:18px 0;padding:16px;border:1px solid #2b323b;border-radius:15px;background:linear-gradient(180deg,#101419,#0b0e12)}
+.moderation-reports-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.moderation-reports-kicker{color:#ef4355;font-size:8px;font-weight:950;text-transform:uppercase;letter-spacing:.1em}
+.moderation-reports-title{display:flex;align-items:center;gap:7px;margin-top:3px;color:#fff;font-size:18px;font-weight:950}
+.moderation-reports-count{display:inline-grid;place-items:center;min-width:21px;height:21px;padding:0 5px;border-radius:999px;background:#ef4355;color:#fff;font-size:8px}
+.moderation-reports-sub{margin-top:4px;color:#858f9b;font-size:9px}
+.moderation-reports-head>button{border:1px solid #303741;border-radius:9px;background:#1a2027;color:#fff;padding:8px 10px;font:inherit;font-size:8px;font-weight:900;cursor:pointer}
+.moderation-reports-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.moderation-report-card{padding:11px;border:1px solid #282f37;border-radius:10px;background:#0d1115}
+.moderation-report-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.moderation-report-type{color:#fff;font-size:10px;font-weight:950}.moderation-report-time{color:#68727e;font-size:7px}
+.moderation-report-meta{margin-top:3px;color:#7d8792;font-size:8px}
+.moderation-report-reason{display:inline-flex;margin-top:7px;padding:3px 6px;border:1px solid rgba(239,67,85,.3);border-radius:999px;background:rgba(239,67,85,.07);color:#ff929d;font-size:7px;font-weight:900}
+.moderation-report-preview{margin-top:7px;padding:8px;border:1px solid #242b33;border-radius:8px;background:#090c10;color:#aeb6c0;font-size:8px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.moderation-report-details{margin-top:6px;color:#8d97a2;font-size:8px}
+.moderation-report-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.moderation-report-actions button{border:1px solid #303741;border-radius:7px;background:#171c22;color:#d8dde3;padding:6px 8px;font:inherit;font-size:7px;font-weight:900;cursor:pointer}
+.moderation-report-actions button.resolve{border-color:rgba(103,232,165,.3);color:#83e8b2}
+.moderation-report-actions button.dismiss{color:#8c96a1}
+.moderation-report-empty{padding:16px 10px;border:1px dashed #2b323b;border-radius:9px;color:#717b86;text-align:center;font-size:9px}
+.moderation-reports-status{min-height:14px;margin-top:7px;color:#7f8995;font-size:8px}
+.moderation-reports-status.error{color:#ff7c89}.moderation-reports-status.success{color:#67e8a5}
+
+@media(max-width:600px){
+  .thread-poll-builder-head,.moderation-reports-head{flex-direction:column}
+  .thread-view-social-actions{width:100%}
+  .thread-view-social-actions button{flex:1}
+}
+
 </style>
 </head>
 <body>
@@ -4640,6 +4732,41 @@ section{background:rgba(8,9,11,.60)}
           <button id="threadMediaRemove" class="thread-media-clear" type="button">Clear photos</button>
         </div>
 
+        <div class="thread-poll-builder">
+          <button id="threadPollToggle" class="thread-poll-toggle" type="button">📊 Add poll</button>
+          <div id="threadPollFields" class="thread-poll-fields hidden">
+            <div class="thread-poll-builder-head">
+              <div>
+                <strong>Create a poll</strong>
+                <span>Members can vote once and change their vote later.</span>
+              </div>
+              <button id="threadPollRemove" type="button">Remove poll</button>
+            </div>
+
+            <label class="thread-poll-question-field">
+              <span>Question</span>
+              <input id="threadPollQuestion" type="text" maxlength="180"
+                     placeholder="What do you want the community to vote on?">
+            </label>
+
+            <div id="threadPollOptions" class="thread-poll-options">
+              <div class="thread-poll-option-edit" data-poll-option-row>
+                <span>1</span>
+                <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 1">
+                <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+              </div>
+              <div class="thread-poll-option-edit" data-poll-option-row>
+                <span>2</span>
+                <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 2">
+                <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+              </div>
+            </div>
+
+            <button id="threadPollAddOption" class="thread-poll-add-option" type="button">+ Add option</button>
+            <small>2–6 options. Poll results are visible to everyone.</small>
+          </div>
+        </div>
+
         <div class="thread-composer-actions">
           <button id="createThreadBtn" class="thread-primary-btn" type="button">Post Thread</button>
           <button id="cancelThreadBtn" class="thread-secondary-btn" type="button">Cancel</button>
@@ -4688,9 +4815,13 @@ section{background:rgba(8,9,11,.60)}
     </div>
     <div id="threadViewBody" class="thread-view-body"></div>
     <div id="threadViewMedia" class="thread-view-media hidden"></div>
+    <div id="threadViewPoll" class="thread-poll-card hidden"></div>
     <div class="thread-view-social-row">
       <div id="threadViewReactions" class="reaction-bar reaction-bar-thread"></div>
-      <button id="threadViewBookmarkBtn" class="thread-view-bookmark hidden" type="button">🔖 Save</button>
+      <div class="thread-view-social-actions">
+        <button id="threadViewBookmarkBtn" class="thread-view-bookmark hidden" type="button">🔖 Save</button>
+        <button id="threadViewReportBtn" class="content-report-btn hidden" type="button">⚑ Report</button>
+      </div>
     </div>
 
     <div id="threadOwnerActions" class="thread-owner-actions hidden">
@@ -5052,6 +5183,25 @@ section{background:rgba(8,9,11,.60)}
   </div>
 
   <div id="staffPanelStatus" class="staff-panel-status"></div>
+</div>
+
+
+<div id="moderationReportsPanel" class="moderation-reports-panel hidden">
+  <div class="moderation-reports-head">
+    <div>
+      <div class="moderation-reports-kicker">Staff inbox</div>
+      <div class="moderation-reports-title">
+        Moderation Reports
+        <span id="moderationReportsCount" class="moderation-reports-count">0</span>
+      </div>
+      <div class="moderation-reports-sub">Reports from members appear here for Admins and Moderators.</div>
+    </div>
+    <button id="moderationReportsRefresh" type="button">Refresh</button>
+  </div>
+  <div id="moderationReportsList" class="moderation-reports-list">
+    <div class="moderation-report-empty">No open reports.</div>
+  </div>
+  <div id="moderationReportsStatus" class="moderation-reports-status"></div>
 </div>
 
 <div id="dmSection" class="dm-shell" style="display:none">
@@ -5681,6 +5831,7 @@ section{background:rgba(8,9,11,.60)}
     <div id="chatFriendArea" class="chat-friend-area">
       <button id="chatFriendBtn" class="chat-friend-btn" type="button">Add Friend</button>
       <button id="chatDmBtn" class="dm-message-btn hidden" type="button">Message</button>
+      <button id="chatReportUserBtn" class="content-report-btn hidden" type="button">⚑ Report</button>
       <div id="chatFriendNote" class="chat-friend-note"></div>
     </div>
 
@@ -5715,6 +5866,40 @@ section{background:rgba(8,9,11,.60)}
   </div>
 </div>
 
+
+
+<div id="contentReportOverlay" class="content-report-overlay" aria-hidden="true">
+  <div class="content-report-dialog" role="dialog" aria-modal="true" aria-labelledby="contentReportTitle">
+    <button id="contentReportClose" class="content-report-close" type="button" aria-label="Close report">×</button>
+    <div class="content-report-kicker">Community safety</div>
+    <h3 id="contentReportTitle">Report content</h3>
+    <div id="contentReportTarget" class="content-report-target">Reporting content</div>
+
+    <label>
+      <span>Reason</span>
+      <select id="contentReportReason">
+        <option value="Spam">Spam</option>
+        <option value="Harassment">Harassment / bullying</option>
+        <option value="Inappropriate content">Inappropriate content or photo</option>
+        <option value="Scam">Scam / suspicious behavior</option>
+        <option value="Other">Other</option>
+      </select>
+    </label>
+
+    <label>
+      <span>Extra details <small>(optional)</small></span>
+      <textarea id="contentReportDetails" maxlength="500" placeholder="Tell the moderators what happened..."></textarea>
+    </label>
+
+    <div class="content-report-note">Reports are sent privately to Gymcels Admins and Moderators.</div>
+
+    <div class="content-report-actions">
+      <button id="contentReportCancel" type="button">Cancel</button>
+      <button id="contentReportSubmit" class="primary" type="button">Send report</button>
+    </div>
+    <div id="contentReportStatus" class="content-report-status"></div>
+  </div>
+</div>
 
 <div id="dmIncomingCallOverlay" class="dm-call-overlay" aria-hidden="true">
   <div class="dm-call-card incoming" role="dialog" aria-modal="true" aria-labelledby="dmIncomingCallName">
@@ -8445,6 +8630,26 @@ const chatMuteActionStatus = document.getElementById('chatMuteActionStatus');
 const chatUnmuteBtn = document.getElementById('chatUnmuteBtn');
 const chatPublicPostHistory = document.getElementById('chatPublicPostHistory');
 const chatPublicHistoryCount = document.getElementById('chatPublicHistoryCount');
+const chatReportUserBtn = document.getElementById('chatReportUserBtn');
+
+const moderationReportsPanel = document.getElementById('moderationReportsPanel');
+const moderationReportsCount = document.getElementById('moderationReportsCount');
+const moderationReportsRefresh = document.getElementById('moderationReportsRefresh');
+const moderationReportsList = document.getElementById('moderationReportsList');
+const moderationReportsStatus = document.getElementById('moderationReportsStatus');
+
+const contentReportOverlay = document.getElementById('contentReportOverlay');
+const contentReportClose = document.getElementById('contentReportClose');
+const contentReportCancel = document.getElementById('contentReportCancel');
+const contentReportTarget = document.getElementById('contentReportTarget');
+const contentReportReason = document.getElementById('contentReportReason');
+const contentReportDetails = document.getElementById('contentReportDetails');
+const contentReportSubmit = document.getElementById('contentReportSubmit');
+const contentReportStatus = document.getElementById('contentReportStatus');
+
+let moderationReportsTimer = null;
+let moderationReportRowsById = new Map();
+let reportDraft = null;
 let chatIsSiteAdmin = false;
 let currentStaffPermissions = {
   is_admin:false,
@@ -9731,6 +9936,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
     chatPublicPhysique.innerHTML = '<div class="chat-public-physique-empty">No physique photo added yet.</div>';
   }
   chatPublicAchievements.innerHTML = '';
+  chatReportUserBtn?.classList.add('hidden');
   if(chatPublicPostHistory){
     chatPublicPostHistory.innerHTML = '<div class="chat-public-history-empty">Loading activity...</div>';
   }
@@ -9748,6 +9954,13 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
 
     const viewerSession = await getChatSession();
     if(viewerSession?.user) await refreshChatAdminStatus(viewerSession);
+
+    if(chatReportUserBtn){
+      chatReportUserBtn.classList.toggle(
+        'hidden',
+        !viewerSession?.user || viewerSession.user.id === userId
+      );
+    }
 
     const [statRes, workoutRes, streakRes, presenceRes, isVip, staffRoles, historyStats] = await Promise.all([
       client
@@ -10847,6 +11060,13 @@ async function loadCommunityChat(scrollToBottom=false){
                 </div>
                 <div class="chat-message-actions">
                   ${signedIn ? `<button class="chat-reply-btn" type="button" data-chat-reply="${row.id}">Reply</button>` : ''}
+                  ${signedIn && !mine
+                    ? `<button class="content-report-btn" type="button"
+                               data-report-type="chat"
+                               data-report-id="${row.id}"
+                               data-report-user="${escapeChat(row.user_id || '')}"
+                               data-report-label="Chat message by ${escapeChat(row.display_name || 'Member')}">Report</button>`
+                    : ''}
                   ${canDeleteMessage
                     ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}"${!mine && canModerateChat() ? ' title="Moderator delete"' : ''}>Delete</button>`
                     : ''}
@@ -11453,6 +11673,311 @@ function startSiteUpdateBoard(){
 }
 
 
+
+function canReviewModerationReports(){
+  return !!(
+    chatIsSiteAdmin ||
+    currentStaffPermissions.is_admin ||
+    currentStaffPermissions.chat_moderation ||
+    currentStaffPermissions.thread_moderation ||
+    currentStaffPermissions.voice_moderation
+  );
+}
+
+function setModerationReportsStatus(text='',type=''){
+  if(!moderationReportsStatus) return;
+  moderationReportsStatus.textContent=text;
+  moderationReportsStatus.className=`moderation-reports-status ${type || ''}`;
+}
+
+function setContentReportStatus(text='',type=''){
+  if(!contentReportStatus) return;
+  contentReportStatus.textContent=text;
+  contentReportStatus.className=`content-report-status ${type || ''}`;
+}
+
+function openContentReportDialog({type,id=null,userId=null,label='Content'}){
+  reportDraft={
+    type:String(type || ''),
+    id:id ? Number(id) : null,
+    userId:userId || null,
+    label:String(label || 'Content')
+  };
+
+  if(contentReportTarget) contentReportTarget.textContent=reportDraft.label;
+  if(contentReportReason) contentReportReason.value='Spam';
+  if(contentReportDetails) contentReportDetails.value='';
+  setContentReportStatus('');
+
+  contentReportOverlay?.classList.add('show');
+  contentReportOverlay?.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+
+function closeContentReportDialog(){
+  reportDraft=null;
+  contentReportOverlay?.classList.remove('show');
+  contentReportOverlay?.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  setContentReportStatus('');
+}
+
+async function submitContentReport(){
+  if(!reportDraft) return;
+
+  const client=window.gymcelsLolDb;
+  const session=await getChatSession();
+
+  if(!session?.user){
+    setContentReportStatus('Log in to send a report.','error');
+    return;
+  }
+
+  contentReportSubmit.disabled=true;
+  setContentReportStatus('Sending report...');
+
+  try{
+    const {error}=await client.rpc('submit_content_report',{
+      report_target_type:reportDraft.type,
+      report_target_id:reportDraft.id,
+      report_target_user:reportDraft.userId,
+      report_reason:String(contentReportReason?.value || 'Other'),
+      report_details:String(contentReportDetails?.value || '').trim() || null
+    });
+
+    if(error) throw error;
+
+    setContentReportStatus('✓ Report sent to the moderation team.','success');
+    setTimeout(closeContentReportDialog,700);
+  }catch(err){
+    setContentReportStatus(err?.message || String(err),'error');
+  }finally{
+    contentReportSubmit.disabled=false;
+  }
+}
+
+contentReportClose?.addEventListener('click',closeContentReportDialog);
+contentReportCancel?.addEventListener('click',closeContentReportDialog);
+contentReportSubmit?.addEventListener('click',submitContentReport);
+
+contentReportOverlay?.addEventListener('click',(e)=>{
+  if(e.target===contentReportOverlay) closeContentReportDialog();
+});
+
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='Escape' && contentReportOverlay?.classList.contains('show')){
+    closeContentReportDialog();
+  }
+});
+
+document.addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-report-type]');
+  if(!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  openContentReportDialog({
+    type:btn.dataset.reportType,
+    id:btn.dataset.reportId || null,
+    userId:btn.dataset.reportUser || null,
+    label:btn.dataset.reportLabel || 'Content'
+  });
+});
+
+threadViewReportBtn?.addEventListener('click',()=>{
+  if(!activeThread) return;
+
+  openContentReportDialog({
+    type:'thread',
+    id:activeThread.id,
+    userId:activeThread.author_id,
+    label:`Thread: ${activeThread.title || 'Untitled'}`
+  });
+});
+
+chatReportUserBtn?.addEventListener('click',()=>{
+  if(!openedChatUserId) return;
+
+  openContentReportDialog({
+    type:'user',
+    userId:openedChatUserId,
+    label:`Member: ${openedChatDisplayName || 'Member'}`
+  });
+});
+
+function moderationReportTypeLabel(type){
+  return ({
+    chat:'Public chat message',
+    thread:'Thread',
+    thread_reply:'Thread reply',
+    user:'Member profile'
+  })[type] || 'Report';
+}
+
+async function loadModerationReports(){
+  if(!canReviewModerationReports() || !moderationReportsPanel) return;
+
+  const client=window.gymcelsLolDb;
+
+  try{
+    const {data,error}=await client.rpc('staff_get_content_reports');
+    if(error) throw error;
+
+    const rows=data || [];
+    moderationReportRowsById=new Map(rows.map(row=>[Number(row.id),row]));
+
+    if(moderationReportsCount) moderationReportsCount.textContent=String(rows.length);
+
+    if(!rows.length){
+      moderationReportsList.innerHTML=
+        '<div class="moderation-report-empty">No open reports. Everything is clear.</div>';
+      setModerationReportsStatus('');
+      return;
+    }
+
+    moderationReportsList.innerHTML=rows.map(row=>`
+      <div class="moderation-report-card" data-moderation-report="${Number(row.id)}">
+        <div class="moderation-report-top">
+          <div class="moderation-report-type">${escapeChat(moderationReportTypeLabel(row.target_type))}</div>
+          <div class="moderation-report-time">${escapeChat(threadTime(row.created_at))}</div>
+        </div>
+
+        <div class="moderation-report-meta">
+          Reported by <strong>${escapeChat(row.reporter_name || 'Member')}</strong>
+          · Target: <strong>${escapeChat(row.target_name || 'Member')}</strong>
+        </div>
+
+        <span class="moderation-report-reason">${escapeChat(row.reason || 'Other')}</span>
+
+        ${row.target_preview
+          ? `<div class="moderation-report-preview">${escapeChat(row.target_preview)}</div>`
+          : ''}
+
+        ${row.details
+          ? `<div class="moderation-report-details">Reporter note: ${escapeChat(row.details)}</div>`
+          : ''}
+
+        <div class="moderation-report-actions">
+          <button type="button" data-report-open="${Number(row.id)}">Open</button>
+          <button class="resolve" type="button" data-report-resolve="${Number(row.id)}">✓ Resolved</button>
+          <button class="dismiss" type="button" data-report-dismiss="${Number(row.id)}">Dismiss</button>
+        </div>
+      </div>
+    `).join('');
+
+    setModerationReportsStatus('');
+  }catch(err){
+    moderationReportsList.innerHTML=
+      '<div class="moderation-report-empty">Could not load reports.</div>';
+    setModerationReportsStatus(err?.message || String(err),'error');
+  }
+}
+
+async function openModerationReportTarget(report){
+  if(!report) return;
+
+  if(report.target_type==='chat'){
+    communityChat?.scrollIntoView({behavior:'smooth',block:'start'});
+    await loadCommunityChat(false);
+
+    setTimeout(()=>{
+      if(!jumpToChatMessage(report.target_id)){
+        setChatStatus('That reported message may have already been deleted.','error');
+      }
+    },120);
+    return;
+  }
+
+  if(report.target_type==='thread'){
+    threadsSection?.scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(()=>openThread(Number(report.thread_id || report.target_id)),120);
+    return;
+  }
+
+  if(report.target_type==='thread_reply'){
+    const threadId=Number(report.thread_id);
+    if(!threadId) return;
+
+    threadsSection?.scrollIntoView({behavior:'smooth',block:'start'});
+    await openThread(threadId);
+    setTimeout(()=>jumpToThreadReply(Number(report.target_id)),180);
+    return;
+  }
+
+  if(report.target_type==='user' && report.target_user_id){
+    openChatPublicProfile(report.target_user_id,report.target_name || 'Member','');
+  }
+}
+
+async function updateModerationReport(reportId,status){
+  if(!canReviewModerationReports()) return;
+
+  try{
+    setModerationReportsStatus('Updating report...');
+    const client=window.gymcelsLolDb;
+
+    const {error}=await client.rpc('staff_update_content_report',{
+      report_id:Number(reportId),
+      new_status:String(status)
+    });
+
+    if(error) throw error;
+
+    setModerationReportsStatus(
+      status==='resolved' ? '✓ Report marked resolved.' : 'Report dismissed.',
+      'success'
+    );
+
+    await loadModerationReports();
+  }catch(err){
+    setModerationReportsStatus(err?.message || String(err),'error');
+  }
+}
+
+moderationReportsRefresh?.addEventListener('click',loadModerationReports);
+
+moderationReportsList?.addEventListener('click',(e)=>{
+  const openBtn=e.target.closest('[data-report-open]');
+  if(openBtn){
+    const row=moderationReportRowsById.get(Number(openBtn.dataset.reportOpen));
+    if(row) openModerationReportTarget(row);
+    return;
+  }
+
+  const resolveBtn=e.target.closest('[data-report-resolve]');
+  if(resolveBtn){
+    updateModerationReport(Number(resolveBtn.dataset.reportResolve),'resolved');
+    return;
+  }
+
+  const dismissBtn=e.target.closest('[data-report-dismiss]');
+  if(dismissBtn){
+    updateModerationReport(Number(dismissBtn.dataset.reportDismiss),'dismissed');
+  }
+});
+
+async function startModerationReports(session){
+  clearInterval(moderationReportsTimer);
+
+  if(!session?.user){
+    moderationReportsPanel?.classList.add('hidden');
+    moderationReportRowsById=new Map();
+    return;
+  }
+
+  await refreshChatAdminStatus(session);
+
+  if(!canReviewModerationReports()){
+    moderationReportsPanel?.classList.add('hidden');
+    return;
+  }
+
+  moderationReportsPanel?.classList.remove('hidden');
+  await loadModerationReports();
+  moderationReportsTimer=setInterval(loadModerationReports,10000);
+}
+
 function startCommunityChat(session){
   clearInterval(chatPollTimer);
   setCommunityChatAuthState(session);
@@ -11460,6 +11985,7 @@ function startCommunityChat(session){
   startThreads(session);
   startVoiceSystem(session);
   startSiteUpdateBoard();
+  startModerationReports(session);
 
   if(session?.user){
     startPresenceHeartbeat();
@@ -11512,6 +12038,12 @@ const threadMediaInput = document.getElementById('threadMediaInput');
 const threadMediaPreview = document.getElementById('threadMediaPreview');
 const threadMediaPreviewList = document.getElementById('threadMediaPreviewList');
 const threadMediaRemove = document.getElementById('threadMediaRemove');
+const threadPollToggle = document.getElementById('threadPollToggle');
+const threadPollFields = document.getElementById('threadPollFields');
+const threadPollRemove = document.getElementById('threadPollRemove');
+const threadPollQuestion = document.getElementById('threadPollQuestion');
+const threadPollOptions = document.getElementById('threadPollOptions');
+const threadPollAddOption = document.getElementById('threadPollAddOption');
 const createThreadBtn = document.getElementById('createThreadBtn');
 const cancelThreadBtn = document.getElementById('cancelThreadBtn');
 const threadComposerStatus = document.getElementById('threadComposerStatus');
@@ -11531,8 +12063,10 @@ const threadViewAuthorStaff = document.getElementById('threadViewAuthorStaff');
 const threadViewTime = document.getElementById('threadViewTime');
 const threadViewBody = document.getElementById('threadViewBody');
 const threadViewMedia = document.getElementById('threadViewMedia');
+const threadViewPoll = document.getElementById('threadViewPoll');
 const threadViewReactions = document.getElementById('threadViewReactions');
 const threadViewBookmarkBtn = document.getElementById('threadViewBookmarkBtn');
+const threadViewReportBtn = document.getElementById('threadViewReportBtn');
 const threadOwnerActions = document.getElementById('threadOwnerActions');
 const threadLockBtn = document.getElementById('threadLockBtn');
 const threadDeleteBtn = document.getElementById('threadDeleteBtn');
@@ -11564,6 +12098,7 @@ let threadsPollTimer = null;
 let threadPosting = false;
 let threadReplyPosting = false;
 let threadReplyTarget = null;
+let threadPollEnabled = false;
 let threadSearchTerm = '';
 let threadSearchTimer = null;
 let threadBookmarksOnly = false;
@@ -11828,6 +12363,214 @@ function setThreadsAuthState(session){
 }
 
 
+
+function renumberThreadPollOptions(){
+  const rows=[...(threadPollOptions?.querySelectorAll('[data-poll-option-row]') || [])];
+
+  rows.forEach((row,index)=>{
+    const number=row.querySelector(':scope > span');
+    const input=row.querySelector('[data-thread-poll-option]');
+    const remove=row.querySelector('[data-remove-poll-option]');
+
+    if(number) number.textContent=String(index+1);
+    if(input) input.placeholder=`Option ${index+1}`;
+    if(remove) remove.disabled=rows.length<=2;
+  });
+
+  if(threadPollAddOption) threadPollAddOption.disabled=rows.length>=6;
+}
+
+function addThreadPollOption(value=''){
+  if(!threadPollOptions) return;
+  const current=threadPollOptions.querySelectorAll('[data-poll-option-row]').length;
+  if(current>=6) return;
+
+  const row=document.createElement('div');
+  row.className='thread-poll-option-edit';
+  row.setAttribute('data-poll-option-row','');
+  row.innerHTML=`
+    <span>${current+1}</span>
+    <input type="text" maxlength="100" data-thread-poll-option
+           placeholder="Option ${current+1}" value="${escapeChat(value)}">
+    <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+  `;
+  threadPollOptions.appendChild(row);
+  renumberThreadPollOptions();
+  row.querySelector('input')?.focus();
+}
+
+function setThreadPollEnabled(enabled){
+  threadPollEnabled=!!enabled;
+  threadPollFields?.classList.toggle('hidden',!threadPollEnabled);
+
+  if(threadPollToggle){
+    threadPollToggle.classList.toggle('active',threadPollEnabled);
+    threadPollToggle.textContent=threadPollEnabled ? '📊 Poll added' : '📊 Add poll';
+  }
+
+  if(threadPollEnabled) threadPollQuestion?.focus();
+}
+
+function resetThreadPollComposer(){
+  threadPollEnabled=false;
+  threadPollFields?.classList.add('hidden');
+
+  if(threadPollToggle){
+    threadPollToggle.classList.remove('active');
+    threadPollToggle.textContent='📊 Add poll';
+  }
+
+  if(threadPollQuestion) threadPollQuestion.value='';
+
+  if(threadPollOptions){
+    threadPollOptions.innerHTML=`
+      <div class="thread-poll-option-edit" data-poll-option-row>
+        <span>1</span>
+        <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 1">
+        <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+      </div>
+      <div class="thread-poll-option-edit" data-poll-option-row>
+        <span>2</span>
+        <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 2">
+        <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+      </div>
+    `;
+  }
+
+  renumberThreadPollOptions();
+}
+
+function collectThreadPollDraft(){
+  if(!threadPollEnabled) return {enabled:false,question:'',options:[],error:''};
+
+  const question=String(threadPollQuestion?.value || '').trim();
+  const options=[...(threadPollOptions?.querySelectorAll('[data-thread-poll-option]') || [])]
+    .map(input=>String(input.value || '').trim())
+    .filter(Boolean);
+
+  if(question.length<3) return {enabled:true,question,options,error:'Give your poll a question.'};
+  if(options.length<2) return {enabled:true,question,options,error:'Add at least 2 poll options.'};
+  if(options.length>6) return {enabled:true,question,options,error:'Polls can have up to 6 options.'};
+
+  const unique=new Set(options.map(x=>x.toLowerCase()));
+  if(unique.size!==options.length){
+    return {enabled:true,question,options,error:'Poll options must be different.'};
+  }
+
+  return {enabled:true,question,options,error:''};
+}
+
+async function loadThreadPoll(threadId,session=null){
+  if(!threadViewPoll) return;
+
+  const client=window.gymcelsLolDb;
+  const currentSession=session || await getChatSession();
+
+  try{
+    const {data,error}=await client.rpc('get_thread_poll',{
+      target_thread_id:Number(threadId)
+    });
+
+    if(error) throw error;
+    const rows=data || [];
+
+    if(!rows.length){
+      threadViewPoll.innerHTML='';
+      threadViewPoll.classList.add('hidden');
+      return;
+    }
+
+    const first=rows[0];
+    const totalVotes=Number(first.total_votes || 0);
+    const canVote=!!currentSession?.user && !activeThread?.is_locked;
+
+    threadViewPoll.innerHTML=`
+      <div class="thread-poll-question">${escapeChat(first.question || 'Poll')}</div>
+      <div class="thread-poll-options-live">
+        ${rows.map(row=>{
+          const count=Number(row.vote_count || 0);
+          const percent=totalVotes>0 ? Math.round((count/totalVotes)*100) : 0;
+          const selected=row.selected===true;
+
+          return `<button class="thread-poll-option-live ${selected ? 'selected' : ''}"
+                          type="button"
+                          data-thread-poll-vote="${Number(row.option_id)}"
+                          data-thread-poll-id="${Number(row.poll_id)}"
+                          ${canVote ? '' : 'disabled'}>
+            <span class="thread-poll-option-fill" style="width:${percent}%"></span>
+            <span class="thread-poll-option-copy">
+              ${escapeChat(row.option_text || 'Option')}
+              ${selected ? '<b>✓ Your vote</b>' : ''}
+            </span>
+            <span class="thread-poll-option-result">${percent}% · ${count}</span>
+          </button>`;
+        }).join('')}
+      </div>
+      <div class="thread-poll-footer">
+        <span>${totalVotes} vote${totalVotes===1?'':'s'}</span>
+        <span>${
+          !currentSession?.user
+            ? 'Log in to vote'
+            : (activeThread?.is_locked ? 'Poll closed while thread is locked' : 'Tap an option to vote · you can change it')
+        }</span>
+      </div>
+    `;
+
+    threadViewPoll.classList.remove('hidden');
+  }catch(err){
+    console.error('Thread poll load error:',err);
+    threadViewPoll.innerHTML='';
+    threadViewPoll.classList.add('hidden');
+  }
+}
+
+async function voteThreadPoll(pollId,optionId){
+  const client=window.gymcelsLolDb;
+  const session=await getChatSession();
+
+  if(!session?.user){
+    document.getElementById('login-card')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  try{
+    const {error}=await client.rpc('vote_in_thread_poll',{
+      target_poll_id:Number(pollId),
+      target_option_id:Number(optionId)
+    });
+
+    if(error) throw error;
+    if(activeThread) await loadThreadPoll(activeThread.id,session);
+  }catch(err){
+    setThreadStatus(threadReplyStatus,err?.message || String(err),'error');
+  }
+}
+
+threadPollToggle?.addEventListener('click',()=>setThreadPollEnabled(!threadPollEnabled));
+threadPollRemove?.addEventListener('click',resetThreadPollComposer);
+threadPollAddOption?.addEventListener('click',()=>addThreadPollOption());
+
+threadPollOptions?.addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-remove-poll-option]');
+  if(!btn) return;
+
+  const rows=threadPollOptions.querySelectorAll('[data-poll-option-row]');
+  if(rows.length<=2) return;
+
+  btn.closest('[data-poll-option-row]')?.remove();
+  renumberThreadPollOptions();
+});
+
+threadViewPoll?.addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-thread-poll-vote]');
+  if(!btn || btn.disabled) return;
+
+  voteThreadPoll(
+    Number(btn.dataset.threadPollId),
+    Number(btn.dataset.threadPollVote)
+  );
+});
+
 async function loadThreadBookmarks(session=null){
   const client=window.gymcelsLolDb;
   const currentSession=session || await getChatSession();
@@ -11950,6 +12693,7 @@ async function loadThreads(){
 
   const ids=threadRows.map(x=>x.id);
   let counts={};
+  let pollThreadIds=new Set();
 
   if(ids.length){
     const {data:replyRows,error:replyCountError}=await client
@@ -11961,6 +12705,17 @@ async function loadThreads(){
         return acc;
       },{});
     }
+
+    try{
+      const {data:pollRows,error:pollError}=await client
+        .from('forum_polls')
+        .select('thread_id')
+        .in('thread_id',ids);
+
+      if(!pollError){
+        pollThreadIds=new Set((pollRows || []).map(row=>Number(row.thread_id)));
+      }
+    }catch(_){}
   }
 
   const threadStaffRoleMap=await loadPublicStaffRoles(threadRows.map(row=>row.author_id));
@@ -11993,6 +12748,7 @@ async function loadThreads(){
           <span class="thread-card-author">by ${escapeChat(row.author_name || 'Member')}${staffBadgeMarkup(threadStaffRoleMap[row.author_id] || null)}</span>
           <span>${Number(counts[row.id] || 0)} ${Number(counts[row.id] || 0)===1 ? 'reply' : 'replies'}</span>
           ${media.length ? `<span class="thread-card-has-photo">📷 ${media.length} photo${media.length===1?'':'s'}</span>` : ''}
+          ${pollThreadIds.has(Number(row.id)) ? '<span class="thread-card-poll">📊 Poll</span>' : ''}
           ${row.is_locked ? '<span class="thread-card-locked">🔒 Locked</span>' : ''}
           ${threadSession?.user ? `
             <button class="thread-card-bookmark ${saved ? 'saved' : ''}" type="button"
@@ -12022,13 +12778,19 @@ async function createThread(){
   const title = String(threadTitle?.value || '').trim();
   const body = String(threadBody?.value || '').trim();
   const category = String(threadCategory?.value || 'General');
+  const pollDraft = collectThreadPollDraft();
 
   if(title.length < 3){
     setThreadStatus(threadComposerStatus,'Give your thread a title.','error');
     return;
   }
-  if(body.length < 2 && !threadMediaFiles.length){
-    setThreadStatus(threadComposerStatus,'Write something or add a photo.','error');
+  if(body.length < 2 && !threadMediaFiles.length && !pollDraft.enabled){
+    setThreadStatus(threadComposerStatus,'Write something, add a photo, or add a poll.','error');
+    return;
+  }
+
+  if(pollDraft.error){
+    setThreadStatus(threadComposerStatus,pollDraft.error,'error');
     return;
   }
 
@@ -12066,9 +12828,25 @@ async function createThread(){
       throw error;
     }
 
+    if(pollDraft.enabled){
+      const {error:pollError}=await client.rpc('create_thread_poll',{
+        target_thread_id:Number(data.id),
+        poll_question:pollDraft.question,
+        poll_options:pollDraft.options
+      });
+
+      if(pollError){
+        try{ await client.from('forum_threads').delete().eq('id',Number(data.id)); }catch(_){}
+        if(uploadedMedia.paths.length) await cleanupUploadedThreadMedia(uploadedMedia.paths);
+        uploadedMedia={urls:[],paths:[]};
+        throw pollError;
+      }
+    }
+
     if(threadTitle) threadTitle.value = '';
     if(threadBody) threadBody.value = '';
     clearThreadMediaSelection();
+    resetThreadPollComposer();
     if(threadComposer) threadComposer.classList.add('hidden');
     setThreadStatus(threadComposerStatus,'✓ THREAD POSTED','success');
 
@@ -12200,6 +12978,7 @@ async function loadThreadReplies(threadId){
 
   threadReplies.innerHTML = rows.map(row => {
     const canDelete = !!me && (row.author_id === me || canModerateThreads());
+    const canReport = !!me && row.author_id !== me;
     const quoted = row.reply_to_id ? rowMap.get(Number(row.reply_to_id)) : null;
     const quotedPreview = quoted
       ? String(quoted.body || '').replace(/\s+/g,' ').trim()
@@ -12235,12 +13014,19 @@ async function loadThreadReplies(threadId){
           threadReplyReactionMap[Number(row.id)] || {}
         )}
 
-        ${(canReply || canDelete) ? `
+        ${(canReply || canDelete || canReport) ? `
           <div class="thread-reply-actions">
             ${canReply ? `
               <button class="thread-reply-reply"
                       type="button"
                       data-reply-thread-user="${row.id}">Reply</button>` : ''}
+            ${canReport ? `
+              <button class="content-report-btn"
+                      type="button"
+                      data-report-type="thread_reply"
+                      data-report-id="${row.id}"
+                      data-report-user="${escapeChat(row.author_id || '')}"
+                      data-report-label="Reply by ${escapeChat(row.author_name || 'Member')}">Report</button>` : ''}
             ${canDelete ? `
               <button class="thread-reply-delete"
                       type="button"
@@ -12319,6 +13105,11 @@ async function openThread(threadId){
   await loadThreadBookmarks(session);
   updateThreadViewBookmark(session);
 
+  if(threadViewReportBtn){
+    const canReportThread=!!session?.user && data.author_id!==session.user.id;
+    threadViewReportBtn.classList.toggle('hidden',!canReportThread);
+  }
+
   if(threadLockBtn){
     threadLockBtn.textContent = data.is_locked ? 'Unlock Thread' : 'Lock Thread';
   }
@@ -12329,7 +13120,10 @@ async function openThread(threadId){
   threadOverlay.classList.add('show');
   threadOverlay.setAttribute('aria-hidden','false');
 
-  await loadThreadReplies(data.id);
+  await Promise.all([
+    loadThreadReplies(data.id),
+    loadThreadPoll(data.id,session)
+  ]);
 }
 
 function closeThread(){
@@ -12337,6 +13131,9 @@ function closeThread(){
   threadOverlay.classList.remove('show');
   threadOverlay.setAttribute('aria-hidden','true');
   activeThread = null;
+  threadViewPoll?.classList.add('hidden');
+  if(threadViewPoll) threadViewPoll.innerHTML='';
+  threadViewReportBtn?.classList.add('hidden');
   if(threadReplyInput) threadReplyInput.value = '';
   clearThreadReplyMediaSelection();
   clearThreadReplyTarget();
@@ -12461,6 +13258,7 @@ async function toggleThreadLock(){
 
   const session = await getChatSession();
   updateThreadReplyComposer(session);
+  if(activeThread) await loadThreadPoll(activeThread.id,session);
   await loadThreads();
 }
 
@@ -12574,6 +13372,7 @@ if(cancelThreadBtn){
   cancelThreadBtn.addEventListener('click', () => {
     threadComposer.classList.add('hidden');
     clearThreadMediaSelection();
+    resetThreadPollComposer();
     setThreadStatus(threadComposerStatus,'');
   });
 }
