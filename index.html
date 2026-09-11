@@ -1579,6 +1579,213 @@ section{background:rgba(8,9,11,.60)}
   .friend-search-row button{padding:11px}
 }
 
+
+/* GYMCEL VOICE */
+.voice-section{padding:0 0 58px}
+.voice-shell{
+  border:1px solid #292d34;
+  border-radius:20px;
+  background:rgba(13,15,19,.94);
+  padding:20px;
+  backdrop-filter:blur(10px);
+}
+.voice-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.voice-head h2{margin:4px 0 0}
+.voice-head p{
+  margin:7px 0 0;
+  max-width:650px;
+  color:#939ca8;
+  font-size:12px;
+}
+.voice-mic-state{
+  padding:7px 10px;
+  border:1px solid #2a3038;
+  border-radius:999px;
+  background:#0c0f13;
+  color:#7f8894;
+  font-size:9px;
+  font-weight:900;
+}
+.voice-mic-state.live{
+  border-color:rgba(103,232,165,.35);
+  color:#67e8a5;
+}
+.voice-guest-note{
+  margin-bottom:13px;
+  padding:10px 12px;
+  border:1px solid #252b32;
+  border-radius:10px;
+  background:#0a0d10;
+  color:#858e99;
+  font-size:10px;
+}
+.voice-channel-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px;
+}
+.voice-channel-card{
+  border:1px solid #282e36;
+  border-radius:15px;
+  background:#0b0e12;
+  padding:14px;
+  transition:.18s ease;
+}
+.voice-channel-card.active{
+  border-color:rgba(103,232,165,.42);
+  box-shadow:0 0 0 1px rgba(103,232,165,.08) inset;
+}
+.voice-channel-main{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.voice-channel-icon{
+  width:39px;
+  height:39px;
+  min-width:39px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:#171b21;
+  border:1px solid #29303a;
+  font-size:17px;
+}
+.voice-channel-name{
+  color:#fff;
+  font-size:15px;
+  font-weight:950;
+}
+.voice-channel-sub{
+  margin-top:2px;
+  color:#7f8894;
+  font-size:9px;
+}
+.voice-channel-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:13px;
+  padding-top:11px;
+  border-top:1px solid #222831;
+}
+.voice-count{
+  color:#8f98a4;
+  font-size:9px;
+}
+.voice-join-btn{
+  border:0;
+  border-radius:9px;
+  background:#ef4355;
+  color:#fff;
+  padding:8px 12px;
+  font-size:9px;
+  font-weight:950;
+  cursor:pointer;
+}
+.voice-join-btn:hover{filter:brightness(1.08)}
+.voice-join-btn:disabled{opacity:.55;cursor:not-allowed}
+.voice-members{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:10px;
+}
+.voice-member{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  max-width:100%;
+  padding:5px 7px;
+  border:1px solid #282f38;
+  border-radius:999px;
+  background:#11151a;
+  color:#cdd2d9;
+  font-size:8px;
+  font-weight:800;
+}
+.voice-member.you{
+  border-color:rgba(103,232,165,.32);
+  color:#67e8a5;
+}
+.voice-member.muted{opacity:.65}
+.voice-member-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#67e8a5;
+}
+.voice-member.muted .voice-member-dot{background:#6d7580}
+.voice-empty{color:#69727e;font-size:9px}
+.voice-controls{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:12px;
+  padding:11px 12px;
+  border:1px solid #293039;
+  border-radius:12px;
+  background:#0b0d10;
+}
+.voice-now{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.voice-live-dot{
+  width:9px;height:9px;border-radius:50%;background:#67e8a5;
+  box-shadow:0 0 0 4px rgba(103,232,165,.08);
+}
+.voice-now strong{
+  display:block;color:#fff;font-size:11px;
+}
+.voice-now span:not(.voice-live-dot){
+  display:block;margin-top:1px;color:#7c8590;font-size:8px;
+}
+.voice-control-actions{display:flex;gap:7px}
+.voice-control-btn{
+  border:1px solid #303640;
+  border-radius:9px;
+  background:#171b21;
+  color:#fff;
+  padding:8px 11px;
+  font-size:9px;
+  font-weight:900;
+  cursor:pointer;
+}
+.voice-control-btn.danger{
+  border-color:rgba(239,67,85,.35);
+  background:rgba(239,67,85,.12);
+  color:#ff8793;
+}
+.voice-status{
+  min-height:16px;
+  margin-top:8px;
+  color:#858e9a;
+  font-size:9px;
+}
+.voice-audio-mount{
+  position:fixed;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  pointer-events:none;
+  opacity:0;
+}
+@media(max-width:760px){
+  .voice-channel-grid{grid-template-columns:1fr}
+  .voice-controls{align-items:flex-start;flex-direction:column}
+}
+
 </style>
 </head>
 <body>
@@ -1599,6 +1806,7 @@ section{background:rgba(8,9,11,.60)}
       <a class="nav-link" id="navThreads" href="#threadsSection">Threads</a>
       <a class="nav-link" id="navFriends" href="#login-card">Friends</a>
       <a class="nav-link" id="navDms" href="#login-card">DMs</a>
+      <a class="nav-link" id="navVoice" href="#voiceSection">Voice</a>
       <a class="nav-link" id="navVip" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">VIP</a>
       <button class="nav-link hidden notification-nav-btn" id="navNotifications" type="button" aria-label="Notifications" title="Notifications">
         <span aria-hidden="true">🔔</span><span id="notificationBadge" class="notification-badge hidden">0</span>
@@ -1806,6 +2014,80 @@ section{background:rgba(8,9,11,.60)}
     <div id="threadReplyStatus" class="thread-status"></div>
   </div>
 </div>
+
+
+
+<section id="voiceSection" class="voice-section">
+  <div class="wrap">
+    <div class="voice-shell">
+      <div class="voice-head">
+        <div>
+          <div class="kicker">Live voice</div>
+          <h2>Gymcel Voice</h2>
+          <p>Join a room and talk live with other logged-in Gymcels.lol members.</p>
+        </div>
+        <div id="voiceMicState" class="voice-mic-state">Mic disconnected</div>
+      </div>
+
+      <div id="voiceGuestNote" class="voice-guest-note">
+        Log in to join voice channels.
+      </div>
+
+      <div class="voice-channel-grid">
+        <div class="voice-channel-card" data-voice-room-card="general">
+          <div class="voice-channel-main">
+            <div class="voice-channel-icon">🔊</div>
+            <div>
+              <div class="voice-channel-name">General</div>
+              <div class="voice-channel-sub">Hang out and talk about whatever.</div>
+            </div>
+          </div>
+          <div class="voice-channel-bottom">
+            <div class="voice-count"><span id="voiceCountGeneral">0</span> connected</div>
+            <button id="joinVoiceGeneral" class="voice-join-btn" type="button">Join</button>
+          </div>
+          <div id="voiceMembersGeneral" class="voice-members">
+            <div class="voice-empty">Nobody is in here yet.</div>
+          </div>
+        </div>
+
+        <div class="voice-channel-card" data-voice-room-card="gaming">
+          <div class="voice-channel-main">
+            <div class="voice-channel-icon">🎮</div>
+            <div>
+              <div class="voice-channel-name">Gaming</div>
+              <div class="voice-channel-sub">Games, parties, queues, and late-night sessions.</div>
+            </div>
+          </div>
+          <div class="voice-channel-bottom">
+            <div class="voice-count"><span id="voiceCountGaming">0</span> connected</div>
+            <button id="joinVoiceGaming" class="voice-join-btn" type="button">Join</button>
+          </div>
+          <div id="voiceMembersGaming" class="voice-members">
+            <div class="voice-empty">Nobody is in here yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="voiceControls" class="voice-controls hidden">
+        <div class="voice-now">
+          <span class="voice-live-dot"></span>
+          <div>
+            <strong id="voiceCurrentRoom">General</strong>
+            <span id="voiceConnectionText">Connected</span>
+          </div>
+        </div>
+        <div class="voice-control-actions">
+          <button id="voiceMuteBtn" class="voice-control-btn" type="button">Mute</button>
+          <button id="voiceLeaveBtn" class="voice-control-btn danger" type="button">Leave</button>
+        </div>
+      </div>
+
+      <div id="voiceStatus" class="voice-status"></div>
+      <div id="voiceAudioMount" class="voice-audio-mount" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
 
 
   <section><div class='wrap'><div class='section-head'><div><div class='kicker'>Creator progress</div><h2>5+ years still progressing rapidly</h2></div><p>These are my own physique progress photos. They show my experience with the training approach, not a guarantee that every buyer will get the same result.</p></div><div class='results'>
@@ -2350,6 +2632,7 @@ window.fpVerificationCallback = (() => {
   const navThreads = $('navThreads');
   const navFriends = $('navFriends');
   const navDms = $('navDms');
+  const navVoice = $('navVoice');
   const navVip = $('navVip');
   const navLogin = $('navLogin');
   const navEditProfile = $('navEditProfile');
@@ -2459,6 +2742,7 @@ window.fpVerificationCallback = (() => {
       if (navThreads) navThreads.setAttribute('href', '#threadsSection');
       if (navFriends) navFriends.setAttribute('href', '#friendsSection');
       if (navDms) navDms.setAttribute('href', '#dmSection');
+      if (navVoice) navVoice.setAttribute('href', '#voiceSection');
       await loadLogs();
       await refreshVipStatus();
     } else {
@@ -2472,6 +2756,7 @@ window.fpVerificationCallback = (() => {
       if (navChat) navChat.setAttribute('href', '#communityChat');
       if (navFriends) navFriends.setAttribute('href', '#login-card');
       if (navDms) navDms.setAttribute('href', '#login-card');
+      if (navVoice) navVoice.setAttribute('href', '#voiceSection');
       await refreshVipStatus();
     }
   }
@@ -4876,6 +5161,7 @@ function startCommunityChat(session){
   setCommunityChatAuthState(session);
   startNotifications(session);
   startThreads(session);
+  startVoiceSystem(session);
 
   if(session?.user){
     startPresenceHeartbeat();
@@ -5451,6 +5737,541 @@ function startThreads(session){
   loadThreads();
   threadsPollTimer = setInterval(loadThreads, 15000);
 }
+
+
+
+// ---- Gymcel Voice: General + Gaming ----
+const navVoiceOutside = document.getElementById('navVoice');
+const voiceSection = document.getElementById('voiceSection');
+const voiceGuestNote = document.getElementById('voiceGuestNote');
+const joinVoiceGeneral = document.getElementById('joinVoiceGeneral');
+const joinVoiceGaming = document.getElementById('joinVoiceGaming');
+const voiceCountGeneral = document.getElementById('voiceCountGeneral');
+const voiceCountGaming = document.getElementById('voiceCountGaming');
+const voiceMembersGeneral = document.getElementById('voiceMembersGeneral');
+const voiceMembersGaming = document.getElementById('voiceMembersGaming');
+const voiceControls = document.getElementById('voiceControls');
+const voiceCurrentRoom = document.getElementById('voiceCurrentRoom');
+const voiceConnectionText = document.getElementById('voiceConnectionText');
+const voiceMuteBtn = document.getElementById('voiceMuteBtn');
+const voiceLeaveBtn = document.getElementById('voiceLeaveBtn');
+const voiceStatus = document.getElementById('voiceStatus');
+const voiceMicState = document.getElementById('voiceMicState');
+const voiceAudioMount = document.getElementById('voiceAudioMount');
+
+const VOICE_ROOMS = {
+  general:{ topic:'voice:general', label:'General' },
+  gaming:{ topic:'voice:gaming', label:'Gaming' }
+};
+
+let voiceRoomKey = null;
+let voiceRealtimeChannel = null;
+let voiceLocalStream = null;
+let voiceMuted = false;
+let voiceSessionUser = null;
+let voicePeers = new Map();
+let voicePresence = {};
+let voiceRoomPreviewChannels = new Map();
+let voicePreviewState = {general:{},gaming:{}};
+
+const voiceIceServers = [
+  { urls:'stun:stun.l.google.com:19302' },
+  { urls:'stun:stun1.l.google.com:19302' }
+];
+
+function setVoiceStatus(text='', type='normal'){
+  if(!voiceStatus) return;
+  voiceStatus.textContent = text;
+  voiceStatus.style.color =
+    type === 'error' ? '#ff7c89' :
+    type === 'success' ? '#67e8a5' :
+    '#858e9a';
+  voiceStatus.style.fontWeight = type === 'error' || type === 'success' ? '800' : '';
+}
+
+function voiceSafeName(){
+  return voiceSessionUser?.user_metadata?.display_name ||
+    (voiceSessionUser?.email ? voiceSessionUser.email.split('@')[0] : 'Member');
+}
+
+function voiceMemberHtml(entry, myId){
+  const name = escapeChat(entry?.display_name || 'Member');
+  const muted = !!entry?.muted;
+  const mine = entry?.user_id === myId;
+  return `<span class="voice-member ${muted ? 'muted' : ''} ${mine ? 'you' : ''}">
+    <span class="voice-member-dot"></span>
+    ${name}${mine ? ' (You)' : ''}${muted ? ' · muted' : ''}
+  </span>`;
+}
+
+function flattenVoicePresence(state){
+  const rows = [];
+  Object.values(state || {}).forEach(entries => {
+    (entries || []).forEach(entry => {
+      if(entry?.user_id) rows.push(entry);
+    });
+  });
+
+  const byUser = new Map();
+  rows.forEach(row => byUser.set(row.user_id,row));
+  return [...byUser.values()];
+}
+
+function renderVoiceRoom(roomKey, state){
+  const people = flattenVoicePresence(state);
+  const countEl = roomKey === 'general' ? voiceCountGeneral : voiceCountGaming;
+  const membersEl = roomKey === 'general' ? voiceMembersGeneral : voiceMembersGaming;
+
+  if(countEl) countEl.textContent = String(people.length);
+  if(membersEl){
+    membersEl.innerHTML = people.length
+      ? people.map(p => voiceMemberHtml(p, voiceSessionUser?.id || null)).join('')
+      : '<div class="voice-empty">Nobody is in here yet.</div>';
+  }
+
+  const card = document.querySelector(`[data-voice-room-card="${roomKey}"]`);
+  if(card) card.classList.toggle('active', voiceRoomKey === roomKey);
+}
+
+function renderAllVoiceRooms(){
+  renderVoiceRoom('general', voiceRoomKey === 'general' ? voicePresence : voicePreviewState.general);
+  renderVoiceRoom('gaming', voiceRoomKey === 'gaming' ? voicePresence : voicePreviewState.gaming);
+}
+
+async function voiceSendSignal(to, signal){
+  if(!voiceRealtimeChannel || !voiceSessionUser || !to) return;
+
+  await voiceRealtimeChannel.send({
+    type:'broadcast',
+    event:'webrtc-signal',
+    payload:{
+      from:voiceSessionUser.id,
+      to,
+      signal
+    }
+  });
+}
+
+function destroyVoicePeer(userId){
+  const peer = voicePeers.get(userId);
+  if(!peer) return;
+
+  try{ peer.pc.ontrack = null; }catch(_){}
+  try{ peer.pc.onicecandidate = null; }catch(_){}
+  try{ peer.pc.close(); }catch(_){}
+
+  if(peer.audio){
+    try{ peer.audio.srcObject = null; }catch(_){}
+    peer.audio.remove();
+  }
+
+  voicePeers.delete(userId);
+}
+
+function destroyAllVoicePeers(){
+  [...voicePeers.keys()].forEach(destroyVoicePeer);
+}
+
+function ensureVoicePeer(userId){
+  if(!userId || userId === voiceSessionUser?.id) return null;
+  if(voicePeers.has(userId)) return voicePeers.get(userId);
+
+  const pc = new RTCPeerConnection({iceServers:voiceIceServers});
+  const audio = document.createElement('audio');
+  audio.autoplay = true;
+  audio.playsInline = true;
+  audio.dataset.voicePeer = userId;
+  if(voiceAudioMount) voiceAudioMount.appendChild(audio);
+
+  const peer = {pc,audio,pendingCandidates:[]};
+  voicePeers.set(userId,peer);
+
+  if(voiceLocalStream){
+    voiceLocalStream.getAudioTracks().forEach(track => {
+      pc.addTrack(track,voiceLocalStream);
+    });
+  }
+
+  pc.ontrack = (event) => {
+    const stream = event.streams?.[0] || new MediaStream([event.track]);
+    audio.srcObject = stream;
+    audio.play().catch(() => {});
+  };
+
+  pc.onicecandidate = (event) => {
+    if(event.candidate){
+      voiceSendSignal(userId,{
+        type:'ice',
+        candidate:event.candidate.toJSON ? event.candidate.toJSON() : event.candidate
+      });
+    }
+  };
+
+  pc.onconnectionstatechange = () => {
+    const state = pc.connectionState;
+    if(state === 'failed' || state === 'closed'){
+      destroyVoicePeer(userId);
+    }
+  };
+
+  return peer;
+}
+
+async function flushVoiceIce(peer){
+  if(!peer?.pc?.remoteDescription) return;
+
+  while(peer.pendingCandidates.length){
+    const candidate = peer.pendingCandidates.shift();
+    try{ await peer.pc.addIceCandidate(candidate); }catch(_){}
+  }
+}
+
+async function createVoiceOffer(userId){
+  const peer = ensureVoicePeer(userId);
+  if(!peer) return;
+
+  try{
+    const offer = await peer.pc.createOffer();
+    await peer.pc.setLocalDescription(offer);
+    await voiceSendSignal(userId,{
+      type:'offer',
+      sdp:peer.pc.localDescription
+    });
+  }catch(err){
+    console.error('Voice offer error:',err);
+  }
+}
+
+async function handleVoiceSignal(payload){
+  const from = payload?.from;
+  const to = payload?.to;
+  const signal = payload?.signal;
+
+  if(!voiceSessionUser || !from || to !== voiceSessionUser.id || !signal) return;
+  if(from === voiceSessionUser.id) return;
+
+  const peer = ensureVoicePeer(from);
+  if(!peer) return;
+
+  try{
+    if(signal.type === 'offer'){
+      await peer.pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+      await flushVoiceIce(peer);
+
+      const answer = await peer.pc.createAnswer();
+      await peer.pc.setLocalDescription(answer);
+
+      await voiceSendSignal(from,{
+        type:'answer',
+        sdp:peer.pc.localDescription
+      });
+      return;
+    }
+
+    if(signal.type === 'answer'){
+      await peer.pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+      await flushVoiceIce(peer);
+      return;
+    }
+
+    if(signal.type === 'ice' && signal.candidate){
+      if(peer.pc.remoteDescription){
+        await peer.pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+      }else{
+        peer.pendingCandidates.push(new RTCIceCandidate(signal.candidate));
+      }
+    }
+  }catch(err){
+    console.error('Voice signal error:',err);
+  }
+}
+
+async function syncVoicePeers(){
+  if(!voiceSessionUser) return;
+
+  const people = flattenVoicePresence(voicePresence);
+  const remoteIds = people
+    .map(p => p.user_id)
+    .filter(id => id && id !== voiceSessionUser.id);
+
+  // Remove connections for members who left.
+  [...voicePeers.keys()].forEach(id => {
+    if(!remoteIds.includes(id)) destroyVoicePeer(id);
+  });
+
+  // Deterministic initiator prevents both sides from constantly offering.
+  for(const remoteId of remoteIds){
+    if(!voicePeers.has(remoteId) && voiceSessionUser.id.localeCompare(remoteId) < 0){
+      await createVoiceOffer(remoteId);
+    }
+  }
+}
+
+async function publishVoicePresence(){
+  if(!voiceRealtimeChannel || !voiceSessionUser) return;
+
+  await voiceRealtimeChannel.track({
+    user_id:voiceSessionUser.id,
+    display_name:voiceSafeName(),
+    muted:voiceMuted,
+    joined_at:new Date().toISOString()
+  });
+}
+
+async function leaveVoiceChannel(showStatus=true){
+  const client = window.gymcelsLolDb;
+
+  destroyAllVoicePeers();
+
+  if(voiceRealtimeChannel){
+    try{ await voiceRealtimeChannel.untrack(); }catch(_){}
+    try{ if(client) await client.removeChannel(voiceRealtimeChannel); }catch(_){}
+  }
+
+  if(voiceLocalStream){
+    voiceLocalStream.getTracks().forEach(track => track.stop());
+  }
+
+  voiceRealtimeChannel = null;
+  voiceLocalStream = null;
+  voiceRoomKey = null;
+  voicePresence = {};
+  voiceMuted = false;
+
+  if(voiceControls) voiceControls.classList.add('hidden');
+  if(voiceMicState){
+    voiceMicState.textContent = 'Mic disconnected';
+    voiceMicState.classList.remove('live');
+  }
+  if(voiceMuteBtn) voiceMuteBtn.textContent = 'Mute';
+
+  renderAllVoiceRooms();
+
+  if(showStatus) setVoiceStatus('Left voice channel.');
+}
+
+async function joinVoiceChannel(roomKey){
+  const room = VOICE_ROOMS[roomKey];
+  if(!room) return;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client || !session?.user){
+    setVoiceStatus('Log in first to join voice.','error');
+    document.getElementById('login-card')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  if(!window.isSecureContext){
+    setVoiceStatus('Voice requires HTTPS.','error');
+    return;
+  }
+
+  if(!navigator.mediaDevices?.getUserMedia){
+    setVoiceStatus('This browser does not support microphone access.','error');
+    return;
+  }
+
+  if(voiceRoomKey === roomKey){
+    return;
+  }
+
+  if(voiceRoomKey){
+    await leaveVoiceChannel(false);
+  }
+
+  setVoiceStatus(`Joining ${room.label}...`);
+
+  try{
+    voiceSessionUser = session.user;
+
+    voiceLocalStream = await navigator.mediaDevices.getUserMedia({
+      audio:{
+        echoCancellation:true,
+        noiseSuppression:true,
+        autoGainControl:true
+      },
+      video:false
+    });
+
+    voiceMuted = false;
+
+    // Make sure Realtime authorization uses the signed-in JWT.
+    try{ client.realtime.setAuth(session.access_token); }catch(_){}
+
+    voiceRoomKey = roomKey;
+
+    const channel = client.channel(room.topic,{
+      config:{
+        private:true,
+        broadcast:{self:false,ack:false},
+        presence:{key:session.user.id}
+      }
+    });
+
+    voiceRealtimeChannel = channel;
+
+    channel
+      .on('broadcast',{event:'webrtc-signal'},({payload}) => {
+        handleVoiceSignal(payload);
+      })
+      .on('presence',{event:'sync'},async () => {
+        if(channel !== voiceRealtimeChannel) return;
+        voicePresence = channel.presenceState() || {};
+        renderAllVoiceRooms();
+        await syncVoicePeers();
+      })
+      .on('presence',{event:'leave'},({key}) => {
+        if(key) destroyVoicePeer(key);
+      });
+
+    channel.subscribe(async (status,err) => {
+      if(channel !== voiceRealtimeChannel) return;
+
+      if(status === 'SUBSCRIBED'){
+        await publishVoicePresence();
+
+        if(voiceControls) voiceControls.classList.remove('hidden');
+        if(voiceCurrentRoom) voiceCurrentRoom.textContent = room.label;
+        if(voiceConnectionText) voiceConnectionText.textContent = 'Connected';
+        if(voiceMicState){
+          voiceMicState.textContent = 'Mic live';
+          voiceMicState.classList.add('live');
+        }
+
+        setVoiceStatus(`✓ JOINED ${room.label.toUpperCase()}`,'success');
+        renderAllVoiceRooms();
+      }else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
+        console.error('Voice channel error:',err);
+        setVoiceStatus('Could not connect to voice. Check the Supabase voice setup.','error');
+      }
+    });
+
+  }catch(err){
+    console.error('Voice join error:',err);
+    await leaveVoiceChannel(false);
+
+    const name = err?.name || '';
+    if(name === 'NotAllowedError'){
+      setVoiceStatus('Microphone permission was blocked. Allow mic access and try again.','error');
+    }else{
+      setVoiceStatus(err?.message || String(err),'error');
+    }
+  }
+}
+
+async function toggleVoiceMute(){
+  if(!voiceLocalStream || !voiceRoomKey) return;
+
+  voiceMuted = !voiceMuted;
+  voiceLocalStream.getAudioTracks().forEach(track => {
+    track.enabled = !voiceMuted;
+  });
+
+  if(voiceMuteBtn) voiceMuteBtn.textContent = voiceMuted ? 'Unmute' : 'Mute';
+  if(voiceMicState){
+    voiceMicState.textContent = voiceMuted ? 'Mic muted' : 'Mic live';
+    voiceMicState.classList.toggle('live',!voiceMuted);
+  }
+
+  await publishVoicePresence();
+  renderAllVoiceRooms();
+}
+
+function setVoiceAuthState(session){
+  voiceSessionUser = session?.user || null;
+  const signedIn = !!session?.user;
+
+  if(voiceGuestNote){
+    voiceGuestNote.textContent = signedIn
+      ? 'Choose General or Gaming. Your browser will ask for microphone permission.'
+      : 'Log in to join voice channels.';
+  }
+
+  [joinVoiceGeneral,joinVoiceGaming].forEach(btn => {
+    if(!btn) return;
+    btn.disabled = !signedIn;
+    if(!signedIn) btn.textContent = 'Log in';
+  });
+
+  if(signedIn){
+    if(joinVoiceGeneral) joinVoiceGeneral.textContent = voiceRoomKey === 'general' ? 'Joined' : 'Join';
+    if(joinVoiceGaming) joinVoiceGaming.textContent = voiceRoomKey === 'gaming' ? 'Joined' : 'Join';
+  }
+
+  if(!signedIn && voiceRoomKey){
+    leaveVoiceChannel(false);
+  }
+}
+
+async function startVoiceRoomPreviews(session){
+  const client = window.gymcelsLolDb;
+
+  // Clean up old preview subscriptions.
+  for(const ch of voiceRoomPreviewChannels.values()){
+    try{ await client.removeChannel(ch); }catch(_){}
+  }
+  voiceRoomPreviewChannels.clear();
+  voicePreviewState = {general:{},gaming:{}};
+
+  if(!client || !session?.user){
+    renderAllVoiceRooms();
+    return;
+  }
+
+  try{ client.realtime.setAuth(session.access_token); }catch(_){}
+
+  for(const [roomKey,room] of Object.entries(VOICE_ROOMS)){
+    // Don't create a preview channel for the room we're actively in.
+    if(roomKey === voiceRoomKey) continue;
+
+    const preview = client.channel(room.topic,{
+      config:{
+        private:true,
+        presence:{key:`preview-${session.user.id}-${roomKey}`}
+      }
+    });
+
+    preview
+      .on('presence',{event:'sync'},() => {
+        voicePreviewState[roomKey] = preview.presenceState() || {};
+        renderVoiceRoom(roomKey,voicePreviewState[roomKey]);
+      });
+
+    preview.subscribe();
+    voiceRoomPreviewChannels.set(roomKey,preview);
+  }
+}
+
+async function startVoiceSystem(session){
+  setVoiceAuthState(session);
+  await startVoiceRoomPreviews(session);
+}
+
+if(joinVoiceGeneral){
+  joinVoiceGeneral.addEventListener('click',() => joinVoiceChannel('general'));
+}
+if(joinVoiceGaming){
+  joinVoiceGaming.addEventListener('click',() => joinVoiceChannel('gaming'));
+}
+if(voiceMuteBtn){
+  voiceMuteBtn.addEventListener('click',toggleVoiceMute);
+}
+if(voiceLeaveBtn){
+  voiceLeaveBtn.addEventListener('click',() => leaveVoiceChannel(true));
+}
+if(navVoiceOutside){
+  navVoiceOutside.addEventListener('click',() => {
+    setTimeout(() => voiceSection?.scrollIntoView({behavior:'smooth',block:'start'}),20);
+  });
+}
+
+window.addEventListener('beforeunload',() => {
+  try{
+    voiceLocalStream?.getTracks().forEach(track => track.stop());
+  }catch(_){}
+});
 
 
 // ---- Private Direct Messages ----
