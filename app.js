@@ -9013,6 +9013,7 @@ let dmTypingWriteTimer = null;
 let dmTypingClearTimer = null;
 let dmSending = false;
 let dmReplyTarget = null;
+let dmEditTarget = null;
 let dmRowsById = new Map();
 
 const DM_MAX_ATTACHMENTS = 4;
@@ -10280,6 +10281,99 @@ function dmReplyPreviewText(row){
   return clean.length > 110 ? clean.slice(0,110) + '…' : (clean || 'Attachment');
 }
 
+function ensureDmEditUi(){
+  if(!document.getElementById('gymcelsDmEditDeleteStyles')){
+    const style = document.createElement('style');
+    style.id = 'gymcelsDmEditDeleteStyles';
+    style.textContent = `
+      .dm-edit-bar{
+        margin:0 10px 8px;
+        padding:8px 10px;
+        border:1px solid rgba(239,67,85,.32);
+        border-left:3px solid #ef4355;
+        border-radius:9px;
+        background:#111319;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .dm-edit-bar.hidden{display:none}
+      .dm-edit-bar-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+      .dm-edit-bar-copy span{
+        color:#ef9ba4;
+        font-size:9px;
+        font-weight:900;
+        text-transform:uppercase;
+        letter-spacing:.05em;
+      }
+      .dm-edit-bar-copy small{
+        max-width:520px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        color:#aab1bb;
+        font-size:9px;
+      }
+      #dmEditCancel{
+        width:28px;
+        height:28px;
+        border:1px solid #30343c;
+        border-radius:7px;
+        background:#191c22;
+        color:#c8ced6;
+        cursor:pointer;
+        font-size:18px;
+        line-height:1;
+      }
+      .dm-edit-action,.dm-delete-action{
+        appearance:none;
+        border:0;
+        padding:0;
+        background:transparent;
+        color:#727b87;
+        font:inherit;
+        font-size:8px;
+        font-weight:800;
+        cursor:pointer;
+      }
+      .dm-edit-action:hover{color:#d7dce3}
+      .dm-delete-action:hover{color:#ff6b79}
+      .dm-row-footer{gap:8px;flex-wrap:wrap}
+      .dm-message-actions{display:flex;align-items:center;gap:7px}
+      .dm-row.mine .dm-message-actions{justify-content:flex-end}
+      @media (max-width:700px){
+        .dm-edit-bar{margin-left:8px;margin-right:8px}
+        .dm-message-actions{gap:6px}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  if(!dmReplyBar) return null;
+
+  let bar = document.getElementById('dmEditBar');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.id = 'dmEditBar';
+    bar.className = 'dm-edit-bar hidden';
+    bar.innerHTML = `
+      <div class="dm-edit-bar-copy">
+        <span>Editing message</span>
+        <small id="dmEditPreview"></small>
+      </div>
+      <button id="dmEditCancel" type="button" aria-label="Cancel edit">×</button>
+    `;
+    dmReplyBar.insertAdjacentElement('afterend',bar);
+  }
+
+  return bar;
+}
+
+const dmEditBar = ensureDmEditUi();
+const dmEditPreview = document.getElementById('dmEditPreview');
+const dmEditCancel = document.getElementById('dmEditCancel');
+
 function clearDmReply(){
   dmReplyTarget = null;
 
@@ -10288,9 +10382,191 @@ function clearDmReply(){
   if(dmReplyPreview) dmReplyPreview.textContent = '';
 }
 
+function syncDmEditComposer(){
+  const editing = !!dmEditTarget;
+
+  if(dmSendBtn){
+    dmSendBtn.textContent = editing ? 'Save' : 'Send';
+  }
+
+  if(dmPhotoBtn) dmPhotoBtn.disabled = editing || !dmActiveUserId || dmSending;
+  if(dmAttachBtn) dmAttachBtn.disabled = editing || !dmActiveUserId || dmSending;
+
+  if(dmInput && dmActiveUserId){
+    dmInput.placeholder = editing
+      ? 'Edit your message...'
+      : `Message ${dmActiveName || 'friend'}...`;
+  }
+}
+
+function clearDmEdit(options={}){
+  const keepInput = !!options.keepInput;
+  const wasEditing = !!dmEditTarget;
+
+  dmEditTarget = null;
+  dmEditBar?.classList.add('hidden');
+  if(dmEditPreview) dmEditPreview.textContent = '';
+
+  if(wasEditing && dmInput && !keepInput){
+    dmInput.value = '';
+  }
+
+  syncDmEditComposer();
+}
+
+async function beginDmEdit(row){
+  if(!row?.id || !dmActiveUserId) return;
+
+  const session = await getChatSession();
+  if(!session?.user) return;
+  if(String(row.sender_id || '') !== String(session.user.id)) return;
+
+  const text = String(row.message || '').trim();
+
+  // Attachment-only placeholder messages do not have useful text to edit.
+  if(!text || text === '📎 Attachment'){
+    setDmStatus('Attachment-only messages can be deleted, but there is no text to edit.','error');
+    return;
+  }
+
+  clearDmReply();
+  dmEditTarget = row;
+
+  if(dmEditPreview) dmEditPreview.textContent = dmReplyPreviewText(row);
+  dmEditBar?.classList.remove('hidden');
+
+  if(dmInput){
+    dmInput.value = text;
+  }
+
+  await clearOwnDmTyping();
+  syncDmEditComposer();
+
+  requestAnimationFrame(() => {
+    dmInput?.focus();
+    try{
+      const len = dmInput?.value?.length || 0;
+      dmInput?.setSelectionRange(len,len);
+    }catch(_){}
+  });
+}
+
+async function saveDmEdit(){
+  if(!dmEditTarget?.id || dmSending) return;
+
+  const text = dmInput?.value.trim() || '';
+  if(!text){
+    setDmStatus('A message cannot be empty.','error');
+    return;
+  }
+
+  dmSending = true;
+  if(dmSendBtn) dmSendBtn.disabled = true;
+  setDmStatus('Saving edit...');
+
+  try{
+    const client = window.gymcelsLolDb;
+    const session = await getChatSession();
+    if(!client || !session?.user) throw new Error('Log in first.');
+
+    const {error} = await client.rpc('edit_direct_message',{
+      target_message_id:Number(dmEditTarget.id),
+      new_message:text
+    });
+
+    if(error) throw error;
+
+    if(dmInput) dmInput.value = '';
+    clearDmEdit({keepInput:true});
+
+    dmLastRenderSignature = '';
+    setDmStatus('✓ Edited','success');
+    await loadDmConversation(false);
+
+    setTimeout(() => {
+      if(dmStatus?.textContent === '✓ Edited') setDmStatus('');
+    },1400);
+  }catch(err){
+    console.error('DM edit error:',err);
+    setDmStatus('Edit failed: ' + (err?.message || String(err)),'error');
+  }finally{
+    dmSending = false;
+    if(dmSendBtn) dmSendBtn.disabled = !dmActiveUserId;
+    syncDmEditComposer();
+  }
+}
+
+async function deleteDmMessage(row){
+  if(!row?.id || !dmActiveUserId || dmSending) return;
+
+  const session = await getChatSession();
+  if(!session?.user) return;
+  if(String(row.sender_id || '') !== String(session.user.id)) return;
+
+  const confirmed = window.confirm('Delete this message? This cannot be undone.');
+  if(!confirmed) return;
+
+  dmSending = true;
+  if(dmSendBtn) dmSendBtn.disabled = true;
+  setDmStatus('Deleting message...');
+
+  try{
+    const client = window.gymcelsLolDb;
+    if(!client) throw new Error('Database is unavailable.');
+
+    const {data:attachmentRows} = await client
+      .from('direct_message_attachments')
+      .select('storage_path')
+      .eq('message_id',Number(row.id));
+
+    const {error:deleteError} = await client
+      .from('direct_messages')
+      .delete()
+      .eq('id',Number(row.id))
+      .eq('sender_id',session.user.id);
+
+    if(deleteError) throw deleteError;
+
+    const storagePaths = (attachmentRows || [])
+      .map(item => item.storage_path)
+      .filter(Boolean);
+
+    if(storagePaths.length){
+      const {error:storageError} = await client.storage
+        .from('dm-media')
+        .remove(storagePaths);
+
+      if(storageError){
+        console.warn('Message deleted, but some stored attachment files could not be removed:',storageError);
+      }
+    }
+
+    if(dmReplyTarget?.id === row.id) clearDmReply();
+    if(dmEditTarget?.id === row.id) clearDmEdit();
+
+    dmRowsById.delete(Number(row.id));
+    dmLastRenderSignature = '';
+
+    setDmStatus('✓ Message deleted','success');
+    await loadDmConversation(false);
+
+    setTimeout(() => {
+      if(dmStatus?.textContent === '✓ Message deleted') setDmStatus('');
+    },1400);
+  }catch(err){
+    console.error('DM delete error:',err);
+    setDmStatus('Delete failed: ' + (err?.message || String(err)),'error');
+  }finally{
+    dmSending = false;
+    if(dmSendBtn) dmSendBtn.disabled = !dmActiveUserId;
+    syncDmEditComposer();
+  }
+}
+
 function beginDmReply(row){
   if(!row?.id || !dmActiveUserId) return;
 
+  if(dmEditTarget) clearDmEdit();
   dmReplyTarget = row;
 
   const sessionUserId = window.gymcelsLolLastSessionUserId || '';
@@ -10379,6 +10655,11 @@ async function writeOwnDmTyping(){
 }
 
 function scheduleOwnDmTyping(){
+  if(dmEditTarget){
+    clearOwnDmTyping();
+    return;
+  }
+
   if(!dmActiveUserId || !dmInput || !dmInput.value.trim()){
     clearOwnDmTyping();
     return;
@@ -10637,7 +10918,11 @@ async function loadDmConversation(scrollBottom=false){
         ${showText ? `<div class="dm-bubble">${escapeChat(text)}</div>` : ''}
         ${attachmentHtml}
         <div class="dm-row-footer">
-          <button class="dm-reply-action" type="button" data-dm-reply="${Number(row.id)}">Reply</button>
+          <div class="dm-message-actions">
+            <button class="dm-reply-action" type="button" data-dm-reply="${Number(row.id)}">Reply</button>
+            ${mine ? `<button class="dm-edit-action" type="button" data-dm-edit="${Number(row.id)}">Edit</button>` : ''}
+            ${mine ? `<button class="dm-delete-action" type="button" data-dm-delete="${Number(row.id)}">Delete</button>` : ''}
+          </div>
           <div class="dm-time">${escapeChat(when)}</div>
         </div>
       </div>`;
@@ -10708,6 +10993,7 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
     dmLastRenderSignature = '';
     dmRowsById = new Map();
     clearDmReply();
+    clearDmEdit();
     hideDmTypingIndicator();
   }
 
@@ -10740,6 +11026,10 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
 }
 
 async function sendDm(){
+  if(dmEditTarget){
+    return saveDmEdit();
+  }
+
   if(dmSending || !dmActiveUserId) return;
 
   const text = dmInput?.value.trim() || '';
@@ -10884,6 +11174,7 @@ async function sendDm(){
       if(dmSendBtn) dmSendBtn.disabled = false;
       if(dmPhotoBtn) dmPhotoBtn.disabled = false;
       if(dmAttachBtn) dmAttachBtn.disabled = false;
+      syncDmEditComposer();
     }
   }
 }
@@ -10956,7 +11247,32 @@ dmReplyCancel?.addEventListener('click',() => {
   dmInput?.focus();
 });
 
-dmMessages?.addEventListener('click',(e) => {
+dmEditCancel?.addEventListener('click',() => {
+  clearDmEdit();
+  dmInput?.focus();
+});
+
+dmMessages?.addEventListener('click',async (e) => {
+  const editBtn = e.target.closest('[data-dm-edit]');
+  if(editBtn){
+    e.preventDefault();
+    e.stopPropagation();
+
+    const row = dmRowsById.get(Number(editBtn.dataset.dmEdit));
+    if(row) await beginDmEdit(row);
+    return;
+  }
+
+  const deleteBtn = e.target.closest('[data-dm-delete]');
+  if(deleteBtn){
+    e.preventDefault();
+    e.stopPropagation();
+
+    const row = dmRowsById.get(Number(deleteBtn.dataset.dmDelete));
+    if(row) await deleteDmMessage(row);
+    return;
+  }
+
   const replyBtn = e.target.closest('[data-dm-reply]');
   if(replyBtn){
     e.preventDefault();
@@ -10985,6 +11301,12 @@ if(dmInput){
   });
 
   dmInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && dmEditTarget){
+      e.preventDefault();
+      clearDmEdit();
+      return;
+    }
+
     if(e.key === 'Escape' && dmReplyTarget){
       e.preventDefault();
       clearDmReply();
@@ -11027,6 +11349,7 @@ fpDb.auth.onAuthStateChange((_event, session) => {
     dmLastRenderSignature = '';
     dmRowsById = new Map();
     clearDmReply();
+    clearDmEdit();
     hideDmTypingIndicator();
     dmClearPendingFiles();
 
