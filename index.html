@@ -5560,6 +5560,65 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* ADMIN UPDATE EDITING */
+.site-update-compose-buttons{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.site-update-compose-actions .site-update-cancel-edit{
+  border:1px solid #343b45;
+  background:#171c22;
+  color:#aeb6c0;
+}
+.site-update-admin-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:8px;
+}
+.site-update-edit,
+.site-update-delete{
+  margin-top:0;
+  border:1px solid #343b45;
+  border-radius:7px;
+  background:#171c22;
+  padding:5px 7px;
+  font:inherit;
+  font-size:7px;
+  font-weight:900;
+  cursor:pointer;
+}
+.site-update-edit{color:#d8dde3}
+.site-update-edit:hover{border-color:#ef4355;color:#fff}
+.site-update-delete{color:#ff8995}
+
+/* BLOCK CONTROL LIVES ONLY INSIDE A MEMBER'S PROFILE */
+.chat-block-btn{
+  border:1px solid #343a43;
+  border-radius:10px;
+  padding:9px 12px;
+  background:#181c21;
+  color:#aeb6c0;
+  font:inherit;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+}
+.chat-block-btn:hover{border-color:#ef4355;color:#fff}
+.chat-block-btn.active{
+  border-color:rgba(239,67,85,.48);
+  background:rgba(239,67,85,.10);
+  color:#ff7c89;
+}
+.chat-block-btn:disabled{opacity:.55;cursor:default}
+
+@media(max-width:520px){
+  .site-update-compose-actions{align-items:flex-end}
+  .site-update-compose-buttons{flex-wrap:wrap;justify-content:flex-end}
+}
+
 </style>
 </head>
 <body>
@@ -5842,7 +5901,10 @@ section{background:rgba(8,9,11,.60)}
 
     <div class="site-update-compose-actions">
       <span id="siteUpdateCharCount">0 / 1000</span>
-      <button id="siteUpdatePostBtn" type="button">Post update</button>
+      <div class="site-update-compose-buttons">
+        <button id="siteUpdateCancelEditBtn" class="site-update-cancel-edit hidden" type="button">Cancel edit</button>
+        <button id="siteUpdatePostBtn" type="button">Post update</button>
+      </div>
     </div>
     <div id="siteUpdateAdminStatus" class="site-update-status"></div>
   </div>
@@ -7052,6 +7114,7 @@ section{background:rgba(8,9,11,.60)}
     <div id="chatFriendArea" class="chat-friend-area">
       <button id="chatFriendBtn" class="chat-friend-btn" type="button">Add Friend</button>
       <button id="chatDmBtn" class="dm-message-btn hidden" type="button">Message</button>
+      <button id="chatBlockBtn" class="chat-block-btn hidden" type="button">Block</button>
       <button id="chatReportUserBtn" class="content-report-btn hidden" type="button">⚑ Report</button>
       <div id="chatFriendNote" class="chat-friend-note"></div>
     </div>
@@ -9796,11 +9859,14 @@ const siteUpdateFontSize = document.getElementById('siteUpdateFontSize');
 const siteUpdateColor = document.getElementById('siteUpdateColor');
 const siteUpdatePreview = document.getElementById('siteUpdatePreview');
 const siteUpdatePostBtn = document.getElementById('siteUpdatePostBtn');
+const siteUpdateCancelEditBtn = document.getElementById('siteUpdateCancelEditBtn');
 const siteUpdateCharCount = document.getElementById('siteUpdateCharCount');
 const siteUpdateAdminStatus = document.getElementById('siteUpdateAdminStatus');
 const siteUpdatesList = document.getElementById('siteUpdatesList');
 let siteUpdatesPollTimer = null;
 let siteUpdatePosting = false;
+let siteUpdateEditingId = null;
+let siteUpdateRowsById = new Map();
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
@@ -9871,10 +9937,15 @@ const chatPublicStatus = document.getElementById('chatPublicStatus');
 const chatPublicStaffBadge = document.getElementById('chatPublicStaffBadge');
 const chatFriendArea = document.getElementById('chatFriendArea');
 const chatFriendBtn = document.getElementById('chatFriendBtn');
+const chatBlockBtn = document.getElementById('chatBlockBtn');
 const chatFriendNote = document.getElementById('chatFriendNote');
 
 let openedChatUserId = null;
 let openedFriendship = null;
+let openedBlockState = {blocked_by_me:false,blocked_me:false};
+
+let blockedUserIdsCache = new Set();
+let blockedUserIdsCacheAt = 0;
 
 const friendsSection = document.getElementById('friendsSection');
 const friendsList = document.getElementById('friendsList');
@@ -10228,6 +10299,66 @@ async function getChatSession(){
   return data?.session || null;
 }
 
+async function getMemberBlockState(targetUserId){
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client || !session?.user || !targetUserId || targetUserId === session.user.id){
+    return {blocked_by_me:false,blocked_me:false};
+  }
+
+  try{
+    const {data,error} = await client.rpc('member_block_state',{
+      target_user:targetUserId
+    });
+    if(error) throw error;
+
+    return {
+      blocked_by_me:data?.blocked_by_me === true,
+      blocked_me:data?.blocked_me === true
+    };
+  }catch(err){
+    console.error('Block state error:',err);
+    return {blocked_by_me:false,blocked_me:false};
+  }
+}
+
+async function getMyBlockedUserIds(force=false){
+  const now = Date.now();
+
+  if(!force && now - blockedUserIdsCacheAt < 12000){
+    return blockedUserIdsCache;
+  }
+
+  try{
+    const client = window.gymcelsLolDb;
+    const session = await getChatSession();
+
+    if(!client || !session?.user){
+      blockedUserIdsCache = new Set();
+      blockedUserIdsCacheAt = now;
+      return blockedUserIdsCache;
+    }
+
+    const {data,error} = await client.rpc('my_blocked_user_ids');
+    if(error) throw error;
+
+    blockedUserIdsCache = new Set(
+      (data || []).map(row => String(row.blocked_id || '')).filter(Boolean)
+    );
+    blockedUserIdsCacheAt = now;
+  }catch(err){
+    console.error('Blocked users load error:',err);
+  }
+
+  return blockedUserIdsCache;
+}
+
+function clearBlockedUserCache(){
+  blockedUserIdsCache = new Set();
+  blockedUserIdsCacheAt = 0;
+}
+
 
 const CHAT_LEVELS = [
   { level:1, min:0,   next:5 },
@@ -10576,7 +10707,10 @@ async function searchFriendsByUsername(){
 
     if(error) throw error;
 
-    const people = data || [];
+    const blockedIds = await getMyBlockedUserIds();
+    const people = (data || []).filter(
+      person => !blockedIds.has(String(person.user_id || ''))
+    );
 
     if(!people.length){
       friendSearchResults.innerHTML = '<div class="friend-search-empty">No members found with that username.</div>';
@@ -10901,9 +11035,12 @@ async function getFriendshipState(targetUserId){
 
 async function renderFriendButton(targetUserId){
   if(!chatFriendBtn || !chatFriendArea) return;
+
   if(chatDmBtn) chatDmBtn.classList.add('hidden');
+  if(chatBlockBtn) chatBlockBtn.classList.add('hidden');
 
   const session = await getChatSession();
+
   if(!session?.user){
     chatFriendArea.style.display = 'none';
     return;
@@ -10912,11 +11049,34 @@ async function renderFriendButton(targetUserId){
   if(targetUserId === session.user.id){
     chatFriendArea.style.display = 'none';
     openedFriendship = null;
+    openedBlockState = {blocked_by_me:false,blocked_me:false};
     return;
   }
 
   chatFriendArea.style.display = '';
   chatFriendNote.textContent = '';
+  chatFriendNote.style.color = '';
+
+  openedBlockState = await getMemberBlockState(targetUserId);
+
+  if(chatBlockBtn){
+    chatBlockBtn.classList.remove('hidden');
+    chatBlockBtn.textContent = openedBlockState.blocked_by_me ? 'Unblock' : 'Block';
+    chatBlockBtn.classList.toggle('active',openedBlockState.blocked_by_me);
+  }
+
+  if(openedBlockState.blocked_by_me || openedBlockState.blocked_me){
+    chatFriendBtn.classList.add('hidden');
+    if(chatDmBtn) chatDmBtn.classList.add('hidden');
+    openedFriendship = null;
+
+    chatFriendNote.textContent = openedBlockState.blocked_by_me
+      ? 'You blocked this member.'
+      : 'Friend and DM actions are unavailable.';
+    return;
+  }
+
+  chatFriendBtn.classList.remove('hidden');
   openedFriendship = await getFriendshipState(targetUserId);
 
   chatFriendBtn.disabled = false;
@@ -10991,6 +11151,76 @@ async function handleFriendAction(){
 if(chatFriendBtn){
   chatFriendBtn.addEventListener('click', handleFriendAction);
 }
+
+async function handleBlockAction(){
+  if(!openedChatUserId || !chatBlockBtn) return;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  if(!client || !session?.user || openedChatUserId === session.user.id) return;
+
+  const blocking = !openedBlockState.blocked_by_me;
+  const name = openedChatDisplayName || 'this member';
+
+  if(blocking && !confirm(
+    `Block ${name}? This removes any friendship and stops friend requests, DMs, and private calls between you.`
+  )){
+    return;
+  }
+
+  chatBlockBtn.disabled = true;
+  chatFriendNote.textContent = blocking ? 'Blocking...' : 'Unblocking...';
+
+  try{
+    const {error} = await client.rpc(
+      blocking ? 'block_member' : 'unblock_member',
+      {target_user:openedChatUserId}
+    );
+    if(error) throw error;
+
+    if(blocking){
+      try{ unpinFriend(session.user.id,openedChatUserId); }catch(_){}
+
+      if(typeof dmActiveUserId !== 'undefined' && dmActiveUserId === openedChatUserId){
+        clearInterval(dmPollTimer);
+        dmActiveUserId = null;
+        dmLastRenderConversation = '';
+        dmLastRenderSignature = '';
+        dmClearPendingFiles();
+
+        if(dmThreadName) dmThreadName.textContent = 'Select a friend';
+        if(dmThreadState) dmThreadState.textContent = 'Choose someone from your friends list.';
+        if(dmMessages) dmMessages.innerHTML = '<div class="dm-empty">This conversation is unavailable while the member is blocked.</div>';
+        if(dmInput) dmInput.disabled = true;
+        if(dmSendBtn) dmSendBtn.disabled = true;
+        if(dmPhotoBtn) dmPhotoBtn.disabled = true;
+        if(dmAttachBtn) dmAttachBtn.disabled = true;
+        if(dmCallBtn) dmCallBtn.classList.add('hidden');
+      }
+    }
+
+    clearBlockedUserCache();
+    openedFriendship = null;
+
+    await Promise.allSettled([
+      renderFriendButton(openedChatUserId),
+      loadFriendsSection(),
+      loadDmFriends(),
+      loadNotifications(),
+      loadCommunityChat(false)
+    ]);
+
+    chatFriendNote.textContent = blocking ? '✓ Member blocked.' : '✓ Member unblocked.';
+  }catch(err){
+    chatFriendNote.textContent = err?.message || String(err);
+    chatFriendNote.style.color = '#ff7c89';
+  }finally{
+    chatBlockBtn.disabled = false;
+  }
+}
+
+chatBlockBtn?.addEventListener('click',handleBlockAction);
+
 
 function renderPublicAchievements(count,extras={}){
   if(!chatPublicAchievements) return;
@@ -11235,6 +11465,8 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
   }
   chatPublicAchievements.innerHTML = '';
   document.getElementById('chatReportUserBtn')?.classList.add('hidden');
+  chatBlockBtn?.classList.add('hidden');
+  openedBlockState = {blocked_by_me:false,blocked_me:false};
   if(chatPublicPostHistory){
     chatPublicPostHistory.innerHTML = '<div class="chat-public-history-empty">Loading activity...</div>';
   }
@@ -11366,6 +11598,7 @@ function closeChatPublicProfile(){
   chatProfileOverlay.setAttribute('aria-hidden','true');
   openedChatUserId = null;
   openedFriendship = null;
+  openedBlockState = {blocked_by_me:false,blocked_me:false};
 }
 
 if(chatProfileClose){
@@ -11460,7 +11693,10 @@ async function loadMentionSuggestions(){
     return;
   }
 
-  mentionCandidates = (data || []).filter(x => x.user_id && x.display_name);
+  const blockedIds = await getMyBlockedUserIds();
+  mentionCandidates = (data || []).filter(
+    x => x.user_id && x.display_name && !blockedIds.has(String(x.user_id))
+  );
 
   if(!mentionCandidates.length){
     closeMentionSuggestions();
@@ -11859,7 +12095,10 @@ async function loadNotifications(){
     return;
   }
 
-  const rows = data || [];
+  let rows = data || [];
+  const blockedIds = await getMyBlockedUserIds();
+  rows = rows.filter(n => !blockedIds.has(String(n.actor_id || '')));
+
   setNotificationBadge(rows.filter(n => !n.is_read).length);
 
   if(!notificationList) return;
@@ -12266,7 +12505,13 @@ async function loadCommunityChat(scrollToBottom=false){
     if(error) throw error;
 
 
-    const rows = data || [];
+    let rows = data || [];
+
+    if(signedIn){
+      const blockedIds = await getMyBlockedUserIds();
+      rows = rows.filter(row => !blockedIds.has(String(row.user_id || '')));
+    }
+
     chatRowsById = new Map(rows.map(row => [Number(row.id), row]));
 
     // Load the original messages referenced by replies.
@@ -12835,6 +13080,7 @@ async function loadSiteUpdates(){
     if(updatesRes.error) throw updatesRes.error;
 
     const rows = updatesRes.data || [];
+    siteUpdateRowsById = new Map(rows.map(row => [Number(row.id),row]));
 
     if(!rows.length){
       siteUpdatesList.innerHTML =
@@ -12858,9 +13104,10 @@ async function loadSiteUpdates(){
         </div>
 
         ${isAdmin ? `
-          <button class="site-update-delete" type="button" data-delete-site-update="${Number(row.id)}">
-            Delete update
-          </button>` : ''}
+          <div class="site-update-admin-actions">
+            <button class="site-update-edit" type="button" data-edit-site-update="${Number(row.id)}">Edit</button>
+            <button class="site-update-delete" type="button" data-delete-site-update="${Number(row.id)}">Delete</button>
+          </div>` : ''}
       </div>
     `).join('');
   }catch(err){
@@ -12869,6 +13116,53 @@ async function loadSiteUpdates(){
       `<div class="site-update-empty">${escapeChat(err?.message || 'Could not load updates.')}</div>`;
   }
 }
+
+
+function resetSiteUpdateComposer(){
+  siteUpdateEditingId = null;
+
+  if(siteUpdateInput) siteUpdateInput.value = '';
+  if(siteUpdateFontSize) siteUpdateFontSize.value = '16';
+  if(siteUpdateColor) siteUpdateColor.value = '#d8dde3';
+  if(siteUpdateCharCount) siteUpdateCharCount.textContent = '0 / 1000';
+  if(siteUpdatePostBtn) siteUpdatePostBtn.textContent = 'Post update';
+
+  siteUpdateCancelEditBtn?.classList.add('hidden');
+
+  const label = siteUpdateAdminComposer?.querySelector('.site-update-admin-label>span');
+  if(label) label.textContent = 'Admin announcement';
+
+  updateSiteUpdatePreview();
+}
+
+function beginSiteUpdateEdit(id){
+  const row = siteUpdateRowsById.get(Number(id));
+  if(!row || !siteUpdateAdminComposer) return;
+
+  siteUpdateEditingId = Number(row.id);
+
+  if(siteUpdateInput) siteUpdateInput.value = row.message || '';
+  if(siteUpdateFontSize) siteUpdateFontSize.value = String(safeSiteUpdateFontSize(row.font_size));
+  if(siteUpdateColor) siteUpdateColor.value = safeSiteUpdateColor(row.text_color);
+  if(siteUpdateCharCount){
+    siteUpdateCharCount.textContent = `${String(row.message || '').length} / 1000`;
+  }
+
+  if(siteUpdatePostBtn) siteUpdatePostBtn.textContent = 'Save changes';
+  siteUpdateCancelEditBtn?.classList.remove('hidden');
+
+  const label = siteUpdateAdminComposer.querySelector('.site-update-admin-label>span');
+  if(label) label.textContent = 'Editing published update';
+
+  updateSiteUpdatePreview();
+  siteUpdateAdminComposer.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(() => siteUpdateInput?.focus(),250);
+}
+
+siteUpdateCancelEditBtn?.addEventListener('click',() => {
+  resetSiteUpdateComposer();
+  setSiteUpdateStatus('Edit canceled.');
+});
 
 async function postSiteUpdate(){
   if(siteUpdatePosting) return;
@@ -12892,29 +13186,42 @@ async function postSiteUpdate(){
 
   siteUpdatePosting = true;
   siteUpdatePostBtn.disabled = true;
-  setSiteUpdateStatus('Posting update...');
+  if(siteUpdateCancelEditBtn) siteUpdateCancelEditBtn.disabled = true;
+
+  const editing = Number(siteUpdateEditingId) > 0;
+  setSiteUpdateStatus(editing ? 'Saving changes...' : 'Posting update...');
 
   try{
-    const {error} = await client.rpc('post_site_update_styled',{
-      update_message:message,
-      update_color:textColor,
-      update_font_size:fontSize
-    });
+    if(editing){
+      const {error} = await client.rpc('update_site_update_styled',{
+        update_id:Number(siteUpdateEditingId),
+        update_message:message,
+        update_color:textColor,
+        update_font_size:fontSize
+      });
+      if(error) throw error;
 
-    if(error) throw error;
+      resetSiteUpdateComposer();
+      setSiteUpdateStatus('✓ Update edited.','success');
+    }else{
+      const {error} = await client.rpc('post_site_update_styled',{
+        update_message:message,
+        update_color:textColor,
+        update_font_size:fontSize
+      });
+      if(error) throw error;
 
-    siteUpdateInput.value = '';
-    if(siteUpdateFontSize) siteUpdateFontSize.value = '16';
-    if(siteUpdateColor) siteUpdateColor.value = '#d8dde3';
-    if(siteUpdateCharCount) siteUpdateCharCount.textContent = '0 / 1000';
-    updateSiteUpdatePreview();
-    setSiteUpdateStatus('✓ Update posted.','success');
+      resetSiteUpdateComposer();
+      setSiteUpdateStatus('✓ Update posted.','success');
+    }
+
     await loadSiteUpdates();
   }catch(err){
     setSiteUpdateStatus(err?.message || String(err),'error');
   }finally{
     siteUpdatePosting = false;
     siteUpdatePostBtn.disabled = false;
+    if(siteUpdateCancelEditBtn) siteUpdateCancelEditBtn.disabled = false;
   }
 }
 
@@ -12929,6 +13236,10 @@ async function deleteSiteUpdate(id){
       update_id:Number(id)
     });
     if(error) throw error;
+
+    if(Number(siteUpdateEditingId) === Number(id)){
+      resetSiteUpdateComposer();
+    }
 
     await loadSiteUpdates();
     setSiteUpdateStatus('✓ Update deleted.','success');
@@ -12969,8 +13280,16 @@ siteUpdateInput?.addEventListener('keydown',(e) => {
 siteUpdatePostBtn?.addEventListener('click',postSiteUpdate);
 
 siteUpdatesList?.addEventListener('click',(e) => {
-  const btn = e.target.closest('[data-delete-site-update]');
-  if(btn) deleteSiteUpdate(Number(btn.dataset.deleteSiteUpdate));
+  const editBtn = e.target.closest('[data-edit-site-update]');
+  if(editBtn){
+    beginSiteUpdateEdit(Number(editBtn.dataset.editSiteUpdate));
+    return;
+  }
+
+  const deleteBtn = e.target.closest('[data-delete-site-update]');
+  if(deleteBtn){
+    deleteSiteUpdate(Number(deleteBtn.dataset.deleteSiteUpdate));
+  }
 });
 
 function startSiteUpdateBoard(){
@@ -13009,6 +13328,7 @@ if(window.gymcelsLolDb){
     };
     chatAdminCheckedUserId = null;
     staffPanelLoadedForUser = null;
+    clearBlockedUserCache();
     staffAdminPanel?.classList.add('hidden');
     startCommunityChat(session);
   });
@@ -16749,6 +17069,12 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
   const session = await getChatSession();
   if(!session?.user) return;
   if(userId === session.user.id) return;
+
+  const blockState = await getMemberBlockState(userId);
+  if(blockState.blocked_by_me || blockState.blocked_me){
+    setDmStatus('This DM is unavailable while a block is active.','error');
+    return;
+  }
 
   // DMs are for accepted friends only.
   const friendship = await getFriendshipState(userId);
