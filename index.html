@@ -928,6 +928,31 @@ section{background:rgba(8,9,11,.60)}
   .anime-site-bg img{opacity:.34}
 }
 
+
+/* COMMUNITY CHAT HOMEPAGE PLACEMENT */
+.community-home-section{padding:48px 0 58px}
+.community-home-section .chat-shell{margin:0}
+.community-home-section .chat-messages{height:380px}
+@media(max-width:650px){
+  .community-home-section{padding:34px 0 42px}
+  .community-home-section .chat-messages{height:310px}
+}
+
+
+/* PUBLIC CHAT PREVIEW FOR LOGGED-OUT VISITORS */
+.chat-compose input:disabled{
+  opacity:.72;
+  cursor:not-allowed;
+  background:#0b0d10;
+}
+.chat-compose button:disabled{
+  opacity:.62;
+  cursor:not-allowed;
+}
+.chat-guest-note{
+  color:#a7aeb8!important;
+}
+
 </style>
 </head>
 <body>
@@ -984,37 +1009,48 @@ section{background:rgba(8,9,11,.60)}
 
   
 
-  <section>
-    <div class="wrap">
-      <div class="section-head">
-        <div><div class="kicker">Included</div><h2>Everything you need to run the plan.</h2></div>
-        <p>No app and no recurring membership. The program is delivered as a digital PDF you can keep on your phone or save offline.</p>
-      </div>
-      <div class="split">
-        <div class="list-card">
-          <h3>Inside the program</h3>
-          <ul>
-            <li>Push A, Pull, Legs, and Push B workouts</li>
-            <li>Exercise, set, rep, and effort targets</li>
-            <li>Progression rules for adding load</li>
-            <li>Workout performance tracking</li>
-            <li>Exercise substitutions</li>
-            <li>Deload guidance</li>
-          </ul>
-        </div>
-        <div class="list-card">
-          <h3>Best for</h3>
-          <ul>
-            <li>Lifters with some basic gym experience</li>
-            <li>People focused primarily on hypertrophy</li>
-            <li>People who prefer lower-volume, high-effort training</li>
-            <li>People willing to track reps and load consistently</li>
-            <li>People who want a straightforward plan without an app</li>
-          </ul>
-        </div>
-      </div>
+  <section id="communitySection" class="community-home-section">
+  <div class="wrap">
+<div id="communityChat" class="chat-shell">
+  <div class="chat-head">
+    <div>
+      <div class="chat-title">Gymcels.lol Community</div>
+      <div class="chat-sub">Public member chat — everyone logged in can see these messages.</div>
     </div>
-  </section>
+    <div class="chat-live">● Live</div>
+  </div>
+
+  <div id="chatLevelCard" class="chat-level-card">
+    <div class="chat-level-top">
+      <div class="chat-level-left">
+        <div id="chatLevelBadge" class="chat-level-badge">1</div>
+        <div>
+          <div id="chatLevelName" class="chat-level-name">Community Level 1</div>
+          <div id="chatMessageCount" class="chat-level-count">0 messages sent</div>
+        </div>
+      </div>
+      <div id="chatNextLevel" class="chat-level-next">Send 5 messages to reach Level 2</div>
+    </div>
+
+    <div class="chat-xp-track" aria-label="Chat level progress">
+      <div id="chatXpFill" class="chat-xp-fill"></div>
+    </div>
+
+    <div class="chat-achievements-title">Achievements</div>
+    <div id="chatAchievements" class="chat-achievements"></div>
+  </div>
+
+  <div id="chatMessages" class="chat-messages">
+    <div class="chat-empty">Loading chat...</div>
+  </div>
+  <div id="chatForm" class="chat-compose">
+    <input id="chatInput" type="text" maxlength="300" autocomplete="off" placeholder="Log in to join the conversation..." disabled required>
+    <button id="chatSendBtn" type="button" disabled>Log in to send</button>
+  </div>
+  <div id="chatStatus" class="chat-status"></div>
+</div>
+  </div>
+</section>
 
   <section><div class='wrap'><div class='section-head'><div><div class='kicker'>Creator progress</div><h2>5+ years still progressing rapidly</h2></div><p>These are my own physique progress photos. They show my experience with the training approach, not a guarantee that every buyer will get the same result.</p></div><div class='results'>
       <figure class="progress-card">
@@ -1233,44 +1269,7 @@ section{background:rgba(8,9,11,.60)}
   </div>
 </div>
 
-<div id="communityChat" class="chat-shell">
-  <div class="chat-head">
-    <div>
-      <div class="chat-title">Gymcels.lol Community</div>
-      <div class="chat-sub">Public member chat — everyone logged in can see these messages.</div>
-    </div>
-    <div class="chat-live">● Live</div>
-  </div>
 
-  <div id="chatLevelCard" class="chat-level-card">
-    <div class="chat-level-top">
-      <div class="chat-level-left">
-        <div id="chatLevelBadge" class="chat-level-badge">1</div>
-        <div>
-          <div id="chatLevelName" class="chat-level-name">Community Level 1</div>
-          <div id="chatMessageCount" class="chat-level-count">0 messages sent</div>
-        </div>
-      </div>
-      <div id="chatNextLevel" class="chat-level-next">Send 5 messages to reach Level 2</div>
-    </div>
-
-    <div class="chat-xp-track" aria-label="Chat level progress">
-      <div id="chatXpFill" class="chat-xp-fill"></div>
-    </div>
-
-    <div class="chat-achievements-title">Achievements</div>
-    <div id="chatAchievements" class="chat-achievements"></div>
-  </div>
-
-  <div id="chatMessages" class="chat-messages">
-    <div class="chat-empty">Loading chat...</div>
-  </div>
-  <div id="chatForm" class="chat-compose">
-    <input id="chatInput" type="text" maxlength="300" autocomplete="off" placeholder="Say something to the community..." required>
-    <button id="chatSendBtn" type="button">Send</button>
-  </div>
-  <div id="chatStatus" class="chat-status"></div>
-</div>
 
           <div class="dashboard-grid">
             <div class="member-card">
@@ -1672,7 +1671,7 @@ window.fpVerificationCallback = (() => {
       navLogin.classList.remove('hidden');
       navWorkouts.classList.add('hidden');
       navLogout.classList.add('hidden');
-      if (navChat) navChat.setAttribute('href', '#login-card');
+      if (navChat) navChat.setAttribute('href', '#communityChat');
       if (navFriends) navFriends.setAttribute('href', '#login-card');
       if (navDms) navDms.setAttribute('href', '#login-card');
       await refreshVipStatus();
@@ -2172,6 +2171,7 @@ if(document.getElementById('workoutForm')){
 
 // ---- Gymcels.lol Community Chat ----
 const communityChat = document.getElementById('communityChat');
+const communitySection = document.getElementById('communitySection');
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
@@ -2303,6 +2303,42 @@ function setChatStatus(message, type='normal'){
     type === 'error' ? '#ff5a6b' :
     type === 'success' ? '#67e8a5' :
     '#9aa1ad';
+}
+
+
+function setCommunityChatAuthState(session){
+  const signedIn = !!session?.user;
+
+  if(communitySection) communitySection.style.display = '';
+  if(communityChat) communityChat.style.display = '';
+
+  if(chatInput){
+    chatInput.disabled = !signedIn;
+    chatInput.placeholder = signedIn
+      ? 'Say something to the community...'
+      : 'Log in to join the conversation...';
+  }
+
+  if(chatSendBtn){
+    chatSendBtn.disabled = !signedIn;
+    chatSendBtn.textContent = signedIn ? 'Send' : 'Log in to send';
+  }
+
+  if(chatLevelCard){
+    chatLevelCard.style.display = signedIn ? '' : 'none';
+  }
+
+  if(!signedIn){
+    setChatStatus('You can read the public chat. Log in to send a message.');
+    if(chatStatus) chatStatus.classList.add('chat-guest-note');
+  }else{
+    if(chatStatus?.classList) chatStatus.classList.remove('chat-guest-note');
+    if(chatStatus?.textContent === 'You can read the public chat. Log in to send a message.'){
+      chatStatus.textContent = '';
+    }
+  }
+
+  return signedIn;
 }
 
 async function getChatSession(){
@@ -2910,13 +2946,11 @@ async function loadCommunityChat(scrollToBottom=false){
     if(!client) throw new Error('Chat database connection is not ready.');
 
     const session = await getChatSession();
-    if(!session?.user){
-      if(communityChat) communityChat.style.display = 'none';
-      if(friendsSection) friendsSection.style.display = 'none';
-      return;
-    }
+    const signedIn = setCommunityChatAuthState(session);
 
-    if(communityChat) communityChat.style.display = '';
+    if(!signedIn && friendsSection){
+      friendsSection.style.display = 'none';
+    }
 
     const { data, error } = await client
       .from('messages')
@@ -2933,7 +2967,7 @@ async function loadCommunityChat(scrollToBottom=false){
     const userIds = [...new Set(rows.map(row => row.user_id).filter(Boolean))];
     let presenceMap = {};
 
-    if(userIds.length){
+    if(userIds.length && signedIn){
       const { data: presenceRows, error: presenceError } = await client
         .from('member_presence')
         .select('user_id,last_seen')
@@ -2950,10 +2984,13 @@ async function loadCommunityChat(scrollToBottom=false){
       row.is_online = isPresenceOnline(presenceMap[row.user_id]);
     });
 
-    const vipEntries = await Promise.all(
-      userIds.map(async uid => [uid, await getPublicVipStatus(uid)])
-    );
-    const vipMap = Object.fromEntries(vipEntries);
+    let vipMap = {};
+    if(signedIn){
+      const vipEntries = await Promise.all(
+        userIds.map(async uid => [uid, await getPublicVipStatus(uid)])
+      );
+      vipMap = Object.fromEntries(vipEntries);
+    }
 
     rows.forEach(row => {
       row.is_vip = !!vipMap[row.user_id];
@@ -2966,7 +3003,7 @@ async function loadCommunityChat(scrollToBottom=false){
     }
 
     chatMessages.innerHTML = rows.map(row => {
-      const mine = row.user_id === session.user.id;
+      const mine = signedIn && row.user_id === session.user.id;
       const when = row.created_at
         ? new Date(row.created_at).toLocaleTimeString([], {
             hour:'numeric',
@@ -2998,7 +3035,7 @@ async function loadCommunityChat(scrollToBottom=false){
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    await refreshChatLevel();
+    if(signedIn) await refreshChatLevel();
   } catch(err){
     if(chatMessages){
       chatMessages.innerHTML =
@@ -3052,7 +3089,13 @@ async function sendCommunityMessage(){
     console.error('Gymcels.lol chat send error:', err);
   } finally{
     chatSending = false;
-    if(chatSendBtn) chatSendBtn.disabled = false;
+    try{
+      const latestSession = await getChatSession();
+      setCommunityChatAuthState(latestSession);
+    }catch(_err){
+      if(chatSendBtn) chatSendBtn.disabled = true;
+      if(chatInput) chatInput.disabled = true;
+    }
   }
 }
 
@@ -3117,29 +3160,29 @@ if(chatMessages){
   });
 }
 
-function startCommunityChat(){
-  startPresenceHeartbeat();
-  loadFriendsSection();
+function startCommunityChat(session){
   clearInterval(chatPollTimer);
-  refreshChatLevel();
+  setCommunityChatAuthState(session);
+
+  if(session?.user){
+    startPresenceHeartbeat();
+    loadFriendsSection();
+    refreshChatLevel();
+  }
+
   loadCommunityChat(true);
   chatPollTimer = setInterval(() => loadCommunityChat(false), 3000);
 }
 
 if(window.gymcelsLolDb){
   window.gymcelsLolDb.auth.onAuthStateChange((_event, session) => {
-    if(session?.user){
-      startCommunityChat();
-    } else {
-      clearInterval(chatPollTimer);
-      if(communityChat) communityChat.style.display = 'none';
-    }
+    startCommunityChat(session);
   });
 
   setTimeout(async () => {
     try{
       const session = await getChatSession();
-      if(session?.user) startCommunityChat();
+      startCommunityChat(session);
     } catch(err){
       setChatStatus('Chat error: ' + (err?.message || String(err)), 'error');
     }
