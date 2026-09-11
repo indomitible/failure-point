@@ -1,136 +1,117 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gymcels app.js code</title>
-<style>
-body{margin:0;background:#0b0d10;color:#e8eaed;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
-header{position:sticky;top:0;background:#11151a;border-bottom:1px solid #2a3038;padding:12px 16px;font-family:Arial,sans-serif}
-h1{font-size:16px;margin:0 0 4px}
-p{font-size:12px;color:#aab2bd;margin:0}
-pre{white-space:pre-wrap;word-break:break-word;padding:16px;margin:0;font-size:12px;line-height:1.45}
-</style>
-</head>
-<body>
-<header>
-<h1>Gymcels app.js code</h1>
-<p>Copy the code below into the real <strong>app.js</strong> file in GitHub.</p>
-</header>
-<pre>window.fpVerificationCallback = (() =&gt; {
-  const rawHash = window.location.hash.startsWith(&#x27;#&#x27;) ? window.location.hash.slice(1) : &#x27;&#x27;;
+window.fpVerificationCallback = (() => {
+  const rawHash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
   const params = new URLSearchParams(rawHash);
   return {
-    isSignup: params.get(&#x27;type&#x27;) === &#x27;signup&#x27;,
-    hasError: !!params.get(&#x27;error&#x27;),
-    errorDescription: params.get(&#x27;error_description&#x27;) || &#x27;&#x27;
+    isSignup: params.get('type') === 'signup',
+    hasError: !!params.get('error'),
+    errorDescription: params.get('error_description') || ''
   };
 })();
-(() =&gt; {
-  const SUPABASE_URL = &#x27;https://endazjmlwqcfvniyxpos.supabase.co&#x27;;
-  const SUPABASE_PUBLISHABLE_KEY = &#x27;sb_publishable_CDLjF7ILDgZFvrNqN1LZig_cxJdT9Y7&#x27;;
+(() => {
+  const SUPABASE_URL = 'https://endazjmlwqcfvniyxpos.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CDLjF7ILDgZFvrNqN1LZig_cxJdT9Y7';
   const { createClient } = window.supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   window.gymcelsLolDb = db;
 
-  const verificationSuccess = document.getElementById(&#x27;verificationSuccess&#x27;);
+  const verificationSuccess = document.getElementById('verificationSuccess');
   const verificationCallback = window.fpVerificationCallback || {};
 
   async function handleVerificationCallback() {
     if (!verificationCallback.isSignup || verificationCallback.hasError) return;
 
     // Give Supabase a moment to finish reading the confirmation tokens from the URL.
-    await new Promise(resolve =&gt; setTimeout(resolve, 350));
+    await new Promise(resolve => setTimeout(resolve, 350));
     const { data: { session } } = await db.auth.getSession();
 
     if (verificationSuccess) {
-      verificationSuccess.classList.add(&#x27;show&#x27;);
-      verificationSuccess.scrollIntoView({ behavior: &#x27;smooth&#x27;, block: &#x27;center&#x27; });
+      verificationSuccess.classList.add('show');
+      verificationSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     // Only remove the sensitive auth fragment after Supabase has had a chance to consume it.
     if (session) {
-      setTimeout(() =&gt; {
-        history.replaceState(null, &#x27;&#x27;, window.location.pathname + window.location.search + &#x27;#members&#x27;);
+      setTimeout(() => {
+        history.replaceState(null, '', window.location.pathname + window.location.search + '#members');
       }, 900);
     }
   }
 
 
-  const $ = (id) =&gt; document.getElementById(id);
-  const authView = $(&#x27;authView&#x27;);
-  const dashboardView = $(&#x27;dashboardView&#x27;);
-  const memberEmail = $(&#x27;memberEmail&#x27;);
-  const logList = $(&#x27;logList&#x27;);
-  const navSignup = $(&#x27;navSignup&#x27;);
-  const navChat = $(&#x27;navChat&#x27;);
-  const navThreads = $(&#x27;navThreads&#x27;);
-  const navFriends = $(&#x27;navFriends&#x27;);
-  const navDms = $(&#x27;navDms&#x27;);
-  const navVoice = $(&#x27;navVoice&#x27;);
-  const navVip = $(&#x27;navVip&#x27;);
-  const navLogin = $(&#x27;navLogin&#x27;);
-  const navEditProfile = $(&#x27;navEditProfile&#x27;);
-  const navWorkouts = $(&#x27;navWorkouts&#x27;);
-  const navNutrition = $(&#x27;navNutrition&#x27;);
-  const navLogout = $(&#x27;navLogout&#x27;);
-  const beatLast = $(&#x27;beatLast&#x27;);
+  const $ = (id) => document.getElementById(id);
+  const authView = $('authView');
+  const dashboardView = $('dashboardView');
+  const memberEmail = $('memberEmail');
+  const logList = $('logList');
+  const navSignup = $('navSignup');
+  const navChat = $('navChat');
+  const navThreads = $('navThreads');
+  const navFriends = $('navFriends');
+  const navDms = $('navDms');
+  const navVoice = $('navVoice');
+  const navVip = $('navVip');
+  const navLogin = $('navLogin');
+  const navEditProfile = $('navEditProfile');
+  const navWorkouts = $('navWorkouts');
+  const navNutrition = $('navNutrition');
+  const navLogout = $('navLogout');
+  const beatLast = $('beatLast');
 
-  const vipStatusPill = $(&#x27;vipStatusPill&#x27;);
-  const vipUnlocked = $(&#x27;vipUnlocked&#x27;);
-  const vipLocked = $(&#x27;vipLocked&#x27;);
-  const vipRefreshBtn = $(&#x27;vipRefreshBtn&#x27;);
-  const vipCheckMessage = $(&#x27;vipCheckMessage&#x27;);
-  const profileVipBadge = $(&#x27;profileVipBadge&#x27;);
+  const vipStatusPill = $('vipStatusPill');
+  const vipUnlocked = $('vipUnlocked');
+  const vipLocked = $('vipLocked');
+  const vipRefreshBtn = $('vipRefreshBtn');
+  const vipCheckMessage = $('vipCheckMessage');
+  const profileVipBadge = $('profileVipBadge');
 
 
-  function msg(el, text, type=&#x27;&#x27;) {
-    el.textContent = text || &#x27;&#x27;;
-    el.className = &#x27;member-message&#x27; + (type ? &#x27; &#x27; + type : &#x27;&#x27;);
+  function msg(el, text, type='') {
+    el.textContent = text || '';
+    el.className = 'member-message' + (type ? ' ' + type : '');
   }
   function today() { return new Date().toISOString().slice(0,10); }
-  $(&#x27;dateInput&#x27;).value = today();
+  $('dateInput').value = today();
 
 
-  function setVipUi(isVip, message=&#x27;&#x27;) {
+  function setVipUi(isVip, message='') {
     if (vipStatusPill) {
-      vipStatusPill.textContent = isVip ? &#x27;★ VIP ACTIVE&#x27; : &#x27;VIP LOCKED&#x27;;
-      vipStatusPill.classList.toggle(&#x27;active&#x27;, !!isVip);
+      vipStatusPill.textContent = isVip ? '★ VIP ACTIVE' : 'VIP LOCKED';
+      vipStatusPill.classList.toggle('active', !!isVip);
     }
-    if (vipUnlocked) vipUnlocked.classList.toggle(&#x27;hidden&#x27;, !isVip);
-    if (vipLocked) vipLocked.classList.toggle(&#x27;hidden&#x27;, !!isVip);
-    if (profileVipBadge) profileVipBadge.classList.toggle(&#x27;hidden&#x27;, !isVip);
+    if (vipUnlocked) vipUnlocked.classList.toggle('hidden', !isVip);
+    if (vipLocked) vipLocked.classList.toggle('hidden', !!isVip);
+    if (profileVipBadge) profileVipBadge.classList.toggle('hidden', !isVip);
     if (navVip) {
-      navVip.textContent = isVip ? &#x27;VIP ✓&#x27; : &#x27;VIP&#x27;;
-      navVip.setAttribute(&#x27;href&#x27;, &#x27;#vipSection&#x27;);
-      navVip.removeAttribute(&#x27;target&#x27;);
-      navVip.removeAttribute(&#x27;rel&#x27;);
+      navVip.textContent = isVip ? 'VIP ✓' : 'VIP';
+      navVip.setAttribute('href', '#vipSection');
+      navVip.removeAttribute('target');
+      navVip.removeAttribute('rel');
     }
-    if (vipCheckMessage) vipCheckMessage.textContent = message || &#x27;&#x27;;
+    if (vipCheckMessage) vipCheckMessage.textContent = message || '';
   }
 
   async function refreshVipStatus(showMessage=false) {
     const { data: { session } } = await db.auth.getSession();
 
     if (!session?.user) {
-      setVipUi(false, &#x27;Log in to connect VIP to your Gymcels.lol account.&#x27;);
+      setVipUi(false, 'Log in to connect VIP to your Gymcels.lol account.');
       if (navVip) {
-        navVip.textContent = &#x27;VIP&#x27;;
-        navVip.setAttribute(&#x27;href&#x27;, &#x27;#vipSection&#x27;);
-        navVip.removeAttribute(&#x27;target&#x27;);
-        navVip.removeAttribute(&#x27;rel&#x27;);
+        navVip.textContent = 'VIP';
+        navVip.setAttribute('href', '#vipSection');
+        navVip.removeAttribute('target');
+        navVip.removeAttribute('rel');
       }
       return false;
     }
 
-    if (vipStatusPill) vipStatusPill.textContent = &#x27;Checking VIP status…&#x27;;
-    if (vipCheckMessage &amp;&amp; showMessage) vipCheckMessage.textContent = &#x27;Checking your Payhip purchase…&#x27;;
+    if (vipStatusPill) vipStatusPill.textContent = 'Checking VIP status…';
+    if (vipCheckMessage && showMessage) vipCheckMessage.textContent = 'Checking your Payhip purchase…';
 
-    const { data, error } = await db.rpc(&#x27;my_vip_status&#x27;);
+    const { data, error } = await db.rpc('my_vip_status');
 
     if (error) {
-      setVipUi(false, &#x27;VIP check is not connected yet.&#x27;);
-      if (vipCheckMessage) vipCheckMessage.textContent = &#x27;VIP check error: &#x27; + error.message;
+      setVipUi(false, 'VIP check is not connected yet.');
+      if (vipCheckMessage) vipCheckMessage.textContent = 'VIP check error: ' + error.message;
       return false;
     }
 
@@ -139,181 +120,181 @@ pre{white-space:pre-wrap;word-break:break-word;padding:16px;margin:0;font-size:1
     setVipUi(
       isVip,
       isVip
-        ? &#x27;Your $5 Payhip purchase has been verified.&#x27;
-        : (showMessage ? &#x27;No verified VIP purchase found for &#x27; + (session.user.email || &#x27;this account&#x27;) + &#x27; yet.&#x27; : &#x27;&#x27;)
+        ? 'Your $5 Payhip purchase has been verified.'
+        : (showMessage ? 'No verified VIP purchase found for ' + (session.user.email || 'this account') + ' yet.' : '')
     );
 
     return isVip;
   }
 
   if (vipRefreshBtn) {
-    vipRefreshBtn.addEventListener(&#x27;click&#x27;, async () =&gt; {
+    vipRefreshBtn.addEventListener('click', async () => {
       vipRefreshBtn.disabled = true;
-      vipRefreshBtn.textContent = &#x27;Checking…&#x27;;
+      vipRefreshBtn.textContent = 'Checking…';
       await refreshVipStatus(true);
       vipRefreshBtn.disabled = false;
-      vipRefreshBtn.textContent = &#x27;Refresh VIP Status&#x27;;
+      vipRefreshBtn.textContent = 'Refresh VIP Status';
     });
   }
 
   async function refreshSession() {
     const { data: { session } } = await db.auth.getSession();
     if (session?.user) {
-      authView.classList.add(&#x27;hidden&#x27;);
-      dashboardView.classList.remove(&#x27;hidden&#x27;);
-      memberEmail.textContent = session.user.email || &#x27;&#x27;;
-      navSignup.classList.add(&#x27;hidden&#x27;);
-      navLogin.classList.add(&#x27;hidden&#x27;);
-      if (navEditProfile) navEditProfile.classList.remove(&#x27;hidden&#x27;);
-      navWorkouts.classList.remove(&#x27;hidden&#x27;);
-      if (navNutrition) navNutrition.classList.remove(&#x27;hidden&#x27;);
-      navLogout.classList.remove(&#x27;hidden&#x27;);
-      if (navChat) navChat.setAttribute(&#x27;href&#x27;, &#x27;#communityChat&#x27;);
-      if (navThreads) navThreads.setAttribute(&#x27;href&#x27;, &#x27;#threadsSection&#x27;);
-      if (navThreads) navThreads.setAttribute(&#x27;href&#x27;, &#x27;#threadsSection&#x27;);
-      if (navFriends) navFriends.setAttribute(&#x27;href&#x27;, &#x27;#friendsSection&#x27;);
-      if (navDms) navDms.setAttribute(&#x27;href&#x27;, &#x27;#dmSection&#x27;);
-      if (navVoice) navVoice.setAttribute(&#x27;href&#x27;, &#x27;#voiceSection&#x27;);
+      authView.classList.add('hidden');
+      dashboardView.classList.remove('hidden');
+      memberEmail.textContent = session.user.email || '';
+      navSignup.classList.add('hidden');
+      navLogin.classList.add('hidden');
+      if (navEditProfile) navEditProfile.classList.remove('hidden');
+      navWorkouts.classList.remove('hidden');
+      if (navNutrition) navNutrition.classList.remove('hidden');
+      navLogout.classList.remove('hidden');
+      if (navChat) navChat.setAttribute('href', '#communityChat');
+      if (navThreads) navThreads.setAttribute('href', '#threadsSection');
+      if (navThreads) navThreads.setAttribute('href', '#threadsSection');
+      if (navFriends) navFriends.setAttribute('href', '#friendsSection');
+      if (navDms) navDms.setAttribute('href', '#dmSection');
+      if (navVoice) navVoice.setAttribute('href', '#voiceSection');
       await loadLogs();
       await refreshVipStatus();
     } else {
-      dashboardView.classList.add(&#x27;hidden&#x27;);
-      authView.classList.remove(&#x27;hidden&#x27;);
-      navSignup.classList.remove(&#x27;hidden&#x27;);
-      navLogin.classList.remove(&#x27;hidden&#x27;);
-      if (navEditProfile) navEditProfile.classList.add(&#x27;hidden&#x27;);
-      navWorkouts.classList.add(&#x27;hidden&#x27;);
-      if (navNutrition) navNutrition.classList.add(&#x27;hidden&#x27;);
-      navLogout.classList.add(&#x27;hidden&#x27;);
-      if (navChat) navChat.setAttribute(&#x27;href&#x27;, &#x27;#communityChat&#x27;);
-      if (navFriends) navFriends.setAttribute(&#x27;href&#x27;, &#x27;#login-card&#x27;);
-      if (navDms) navDms.setAttribute(&#x27;href&#x27;, &#x27;#login-card&#x27;);
-      if (navVoice) navVoice.setAttribute(&#x27;href&#x27;, &#x27;#voiceSection&#x27;);
+      dashboardView.classList.add('hidden');
+      authView.classList.remove('hidden');
+      navSignup.classList.remove('hidden');
+      navLogin.classList.remove('hidden');
+      if (navEditProfile) navEditProfile.classList.add('hidden');
+      navWorkouts.classList.add('hidden');
+      if (navNutrition) navNutrition.classList.add('hidden');
+      navLogout.classList.add('hidden');
+      if (navChat) navChat.setAttribute('href', '#communityChat');
+      if (navFriends) navFriends.setAttribute('href', '#login-card');
+      if (navDms) navDms.setAttribute('href', '#login-card');
+      if (navVoice) navVoice.setAttribute('href', '#voiceSection');
       await refreshVipStatus();
     }
   }
 
-  $(&#x27;signupBtn&#x27;).addEventListener(&#x27;click&#x27;, async () =&gt; {
-    const email = $(&#x27;signupEmail&#x27;).value.trim();
-    const password = $(&#x27;signupPassword&#x27;).value;
-    msg($(&#x27;signupMsg&#x27;),&#x27;&#x27;);
-    if (!email || password.length &lt; 6) return msg($(&#x27;signupMsg&#x27;),&#x27;Enter a valid email and a password with at least 6 characters.&#x27;,&#x27;error&#x27;);
+  $('signupBtn').addEventListener('click', async () => {
+    const email = $('signupEmail').value.trim();
+    const password = $('signupPassword').value;
+    msg($('signupMsg'),'');
+    if (!email || password.length < 6) return msg($('signupMsg'),'Enter a valid email and a password with at least 6 characters.','error');
     const { data, error } = await db.auth.signUp({
       email, password,
-      options: { emailRedirectTo: &#x27;https://gymcels.lol/&#x27; }
+      options: { emailRedirectTo: 'https://gymcels.lol/' }
     });
-    if (error) return msg($(&#x27;signupMsg&#x27;), error.message, &#x27;error&#x27;);
-    if (data.session) { msg($(&#x27;signupMsg&#x27;),&#x27;Account created. You are signed in.&#x27;,&#x27;success&#x27;); await refreshSession(); }
-    else msg($(&#x27;signupMsg&#x27;),&#x27;Verification email sent! Check your inbox (and spam/junk folder), open the email from Gymcels.lol, and click the verification link. After verifying, come back here and log in.&#x27;,&#x27;success&#x27;);
+    if (error) return msg($('signupMsg'), error.message, 'error');
+    if (data.session) { msg($('signupMsg'),'Account created. You are signed in.','success'); await refreshSession(); }
+    else msg($('signupMsg'),'Verification email sent! Check your inbox (and spam/junk folder), open the email from Gymcels.lol, and click the verification link. After verifying, come back here and log in.','success');
   });
 
-  $(&#x27;loginBtn&#x27;).addEventListener(&#x27;click&#x27;, async () =&gt; {
-    const email = $(&#x27;loginEmail&#x27;).value.trim();
-    const password = $(&#x27;loginPassword&#x27;).value;
-    msg($(&#x27;loginMsg&#x27;),&#x27;&#x27;);
+  $('loginBtn').addEventListener('click', async () => {
+    const email = $('loginEmail').value.trim();
+    const password = $('loginPassword').value;
+    msg($('loginMsg'),'');
     const { error } = await db.auth.signInWithPassword({ email, password });
-    if (error) return msg($(&#x27;loginMsg&#x27;), error.message, &#x27;error&#x27;);
-    msg($(&#x27;loginMsg&#x27;),&#x27;Logged in.&#x27;,&#x27;success&#x27;);
+    if (error) return msg($('loginMsg'), error.message, 'error');
+    msg($('loginMsg'),'Logged in.','success');
     await refreshSession();
   });
 
   async function logout() { await db.auth.signOut(); await refreshSession(); }
-  $(&#x27;logoutBtn&#x27;).addEventListener(&#x27;click&#x27;, logout);
-  navLogout.addEventListener(&#x27;click&#x27;, logout);
+  $('logoutBtn').addEventListener('click', logout);
+  navLogout.addEventListener('click', logout);
 
-  function normalizeExercise(name) { return (name || &#x27;&#x27;).trim().toLowerCase(); }
+  function normalizeExercise(name) { return (name || '').trim().toLowerCase(); }
 
   async function updateBeatLast() {
-    const exercise = $(&#x27;exerciseInput&#x27;).value.trim();
+    const exercise = $('exerciseInput').value.trim();
     if (!exercise) {
-      beatLast.querySelector(&#x27;.beat-last-main&#x27;).textContent=&#x27;Enter an exercise to see your last performance.&#x27;;
-      beatLast.querySelector(&#x27;.beat-last-sub&#x27;).textContent=&#x27;Your previous set will appear here automatically.&#x27;;
+      beatLast.querySelector('.beat-last-main').textContent='Enter an exercise to see your last performance.';
+      beatLast.querySelector('.beat-last-sub').textContent='Your previous set will appear here automatically.';
       return;
     }
-    const { data, error } = await db.from(&#x27;workout_logs&#x27;).select(&#x27;*&#x27;).order(&#x27;workout_date&#x27;,{ascending:false}).order(&#x27;created_at&#x27;,{ascending:false});
+    const { data, error } = await db.from('workout_logs').select('*').order('workout_date',{ascending:false}).order('created_at',{ascending:false});
     if (error) return;
-    const editId = $(&#x27;editId&#x27;).value;
-    const previous = (data || []).find(r =&gt; String(r.id) !== String(editId) &amp;&amp; normalizeExercise(r.exercise) === normalizeExercise(exercise));
+    const editId = $('editId').value;
+    const previous = (data || []).find(r => String(r.id) !== String(editId) && normalizeExercise(r.exercise) === normalizeExercise(exercise));
     if (!previous) {
-      beatLast.querySelector(&#x27;.beat-last-main&#x27;).textContent=&#x27;No previous set yet — set the standard.&#x27;;
-      beatLast.querySelector(&#x27;.beat-last-sub&#x27;).textContent=&#x27;Save this set and Gymcels.lol will give you a target next time.&#x27;;
+      beatLast.querySelector('.beat-last-main').textContent='No previous set yet — set the standard.';
+      beatLast.querySelector('.beat-last-sub').textContent='Save this set and Gymcels.lol will give you a target next time.';
       return;
     }
-    const performance=[previous.weight != null ? `${previous.weight} lb` : &#x27;&#x27;, previous.reps != null ? `${previous.reps} reps` : &#x27;&#x27;].filter(Boolean).join(&#x27; × &#x27;);
-    beatLast.querySelector(&#x27;.beat-last-main&#x27;).textContent=`Last: ${performance || &#x27;logged set&#x27;}`;
-    let target=&#x27;Beat it with more weight or more reps while keeping good form.&#x27;;
-    if (previous.reps != null &amp;&amp; previous.weight != null) {
-      target = previous.reps &gt;= 12 ? `Target: increase the weight and stay in the 8–12 rep range.` : `Target: ${previous.weight} lb × ${previous.reps + 1} reps or better.`;
+    const performance=[previous.weight != null ? `${previous.weight} lb` : '', previous.reps != null ? `${previous.reps} reps` : ''].filter(Boolean).join(' × ');
+    beatLast.querySelector('.beat-last-main').textContent=`Last: ${performance || 'logged set'}`;
+    let target='Beat it with more weight or more reps while keeping good form.';
+    if (previous.reps != null && previous.weight != null) {
+      target = previous.reps >= 12 ? `Target: increase the weight and stay in the 8–12 rep range.` : `Target: ${previous.weight} lb × ${previous.reps + 1} reps or better.`;
     } else if (previous.reps != null) target=`Target: ${previous.reps + 1} reps or better.`;
-    beatLast.querySelector(&#x27;.beat-last-sub&#x27;).textContent=`${previous.workout_date || &#x27;Previous workout&#x27;} · ${target}`;
+    beatLast.querySelector('.beat-last-sub').textContent=`${previous.workout_date || 'Previous workout'} · ${target}`;
   }
 
   let beatTimer;
-  $(&#x27;exerciseInput&#x27;).addEventListener(&#x27;input&#x27;,()=&gt;{ clearTimeout(beatTimer); beatTimer=setTimeout(updateBeatLast,250); });
-  $(&#x27;exerciseInput&#x27;).addEventListener(&#x27;change&#x27;,updateBeatLast);
+  $('exerciseInput').addEventListener('input',()=>{ clearTimeout(beatTimer); beatTimer=setTimeout(updateBeatLast,250); });
+  $('exerciseInput').addEventListener('change',updateBeatLast);
 
   function clearForm() {
-    $(&#x27;editId&#x27;).value=&#x27;&#x27;; $(&#x27;exerciseInput&#x27;).value=&#x27;&#x27;; $(&#x27;weightInput&#x27;).value=&#x27;&#x27;; $(&#x27;repsInput&#x27;).value=&#x27;&#x27;; $(&#x27;setInput&#x27;).value=&#x27;&#x27;; $(&#x27;dateInput&#x27;).value=today(); $(&#x27;notesInput&#x27;).value=&#x27;&#x27;;
-    $(&#x27;formTitle&#x27;).textContent=&#x27;Log a set&#x27;; $(&#x27;saveLogBtn&#x27;).textContent=&#x27;Save log →&#x27;; $(&#x27;cancelEditBtn&#x27;).classList.add(&#x27;hidden&#x27;); msg($(&#x27;logMsg&#x27;),&#x27;&#x27;);
+    $('editId').value=''; $('exerciseInput').value=''; $('weightInput').value=''; $('repsInput').value=''; $('setInput').value=''; $('dateInput').value=today(); $('notesInput').value='';
+    $('formTitle').textContent='Log a set'; $('saveLogBtn').textContent='Save log →'; $('cancelEditBtn').classList.add('hidden'); msg($('logMsg'),'');
     updateBeatLast();
   }
-  $(&#x27;cancelEditBtn&#x27;).addEventListener(&#x27;click&#x27;, clearForm);
+  $('cancelEditBtn').addEventListener('click', clearForm);
 
-  $(&#x27;saveLogBtn&#x27;).addEventListener(&#x27;click&#x27;, async () =&gt; {
-    msg($(&#x27;logMsg&#x27;),&#x27;&#x27;);
+  $('saveLogBtn').addEventListener('click', async () => {
+    msg($('logMsg'),'');
     const { data: { user } } = await db.auth.getUser();
-    if (!user) return msg($(&#x27;logMsg&#x27;),&#x27;Please log in first.&#x27;,&#x27;error&#x27;);
-    const exercise = $(&#x27;exerciseInput&#x27;).value.trim();
-    const workout_date = $(&#x27;dateInput&#x27;).value || today();
-    if (!exercise) return msg($(&#x27;logMsg&#x27;),&#x27;Enter an exercise name.&#x27;,&#x27;error&#x27;);
+    if (!user) return msg($('logMsg'),'Please log in first.','error');
+    const exercise = $('exerciseInput').value.trim();
+    const workout_date = $('dateInput').value || today();
+    if (!exercise) return msg($('logMsg'),'Enter an exercise name.','error');
     const payload = {
       user_id: user.id, exercise,
-      weight: $(&#x27;weightInput&#x27;).value === &#x27;&#x27; ? null : Number($(&#x27;weightInput&#x27;).value),
-      reps: $(&#x27;repsInput&#x27;).value === &#x27;&#x27; ? null : Number($(&#x27;repsInput&#x27;).value),
-      set_number: $(&#x27;setInput&#x27;).value === &#x27;&#x27; ? null : Number($(&#x27;setInput&#x27;).value),
-      workout_date, notes: $(&#x27;notesInput&#x27;).value.trim() || null
+      weight: $('weightInput').value === '' ? null : Number($('weightInput').value),
+      reps: $('repsInput').value === '' ? null : Number($('repsInput').value),
+      set_number: $('setInput').value === '' ? null : Number($('setInput').value),
+      workout_date, notes: $('notesInput').value.trim() || null
     };
-    const editId = $(&#x27;editId&#x27;).value;
+    const editId = $('editId').value;
     let error;
-    if (editId) ({ error } = await db.from(&#x27;workout_logs&#x27;).update(payload).eq(&#x27;id&#x27;, editId));
-    else ({ error } = await db.from(&#x27;workout_logs&#x27;).insert(payload));
-    if (error) return msg($(&#x27;logMsg&#x27;), error.message, &#x27;error&#x27;);
-    msg($(&#x27;logMsg&#x27;), editId ? &#x27;Workout updated.&#x27; : &#x27;Workout saved.&#x27;, &#x27;success&#x27;);
+    if (editId) ({ error } = await db.from('workout_logs').update(payload).eq('id', editId));
+    else ({ error } = await db.from('workout_logs').insert(payload));
+    if (error) return msg($('logMsg'), error.message, 'error');
+    msg($('logMsg'), editId ? 'Workout updated.' : 'Workout saved.', 'success');
     await loadLogs();
-    window.dispatchEvent(new Event(&#x27;gymcelsWorkoutChanged&#x27;));
+    window.dispatchEvent(new Event('gymcelsWorkoutChanged'));
     setTimeout(clearForm, 600);
   });
 
   async function loadLogs() {
-    const { data, error } = await db.from(&#x27;workout_logs&#x27;).select(&#x27;*&#x27;).order(&#x27;workout_date&#x27;,{ascending:false}).order(&#x27;created_at&#x27;,{ascending:false});
-    if (error) { logList.innerHTML=&#x27;&lt;div class=&quot;empty-state&quot;&gt;&lt;/div&gt;&#x27;; logList.firstChild.textContent=error.message; return; }
-    if (!data?.length) { logList.innerHTML=&#x27;&lt;div class=&quot;empty-state&quot;&gt;No workout logs yet.&lt;/div&gt;&#x27;; return; }
-    logList.innerHTML=&#x27;&#x27;;
+    const { data, error } = await db.from('workout_logs').select('*').order('workout_date',{ascending:false}).order('created_at',{ascending:false});
+    if (error) { logList.innerHTML='<div class="empty-state"></div>'; logList.firstChild.textContent=error.message; return; }
+    if (!data?.length) { logList.innerHTML='<div class="empty-state">No workout logs yet.</div>'; return; }
+    logList.innerHTML='';
     for (const row of data) {
-      const item=document.createElement(&#x27;div&#x27;); item.className=&#x27;log-row&#x27;;
-      const main=document.createElement(&#x27;div&#x27;); main.className=&#x27;log-main&#x27;;
-      const title=document.createElement(&#x27;strong&#x27;); title.textContent=row.exercise || &#x27;Workout&#x27;;
-      const meta=document.createElement(&#x27;div&#x27;); meta.className=&#x27;log-meta&#x27;;
-      const parts=[row.workout_date || &#x27;&#x27;, row.set_number != null ? `Set ${row.set_number}` : &#x27;&#x27;, row.weight != null ? `${row.weight} lb` : &#x27;&#x27;, row.reps != null ? `${row.reps} reps` : &#x27;&#x27;].filter(Boolean);
-      meta.textContent=parts.join(&#x27; · &#x27;) + (row.notes ? ` — ${row.notes}` : &#x27;&#x27;);
+      const item=document.createElement('div'); item.className='log-row';
+      const main=document.createElement('div'); main.className='log-main';
+      const title=document.createElement('strong'); title.textContent=row.exercise || 'Workout';
+      const meta=document.createElement('div'); meta.className='log-meta';
+      const parts=[row.workout_date || '', row.set_number != null ? `Set ${row.set_number}` : '', row.weight != null ? `${row.weight} lb` : '', row.reps != null ? `${row.reps} reps` : ''].filter(Boolean);
+      meta.textContent=parts.join(' · ') + (row.notes ? ` — ${row.notes}` : '');
       main.append(title,meta);
-      const actions=document.createElement(&#x27;div&#x27;); actions.className=&#x27;log-actions&#x27;;
-      const edit=document.createElement(&#x27;button&#x27;); edit.className=&#x27;mini-btn&#x27;; edit.textContent=&#x27;Edit&#x27;;
-      edit.addEventListener(&#x27;click&#x27;,()=&gt;{
-        $(&#x27;editId&#x27;).value=row.id; $(&#x27;exerciseInput&#x27;).value=row.exercise || &#x27;&#x27;; $(&#x27;weightInput&#x27;).value=row.weight ?? &#x27;&#x27;; $(&#x27;repsInput&#x27;).value=row.reps ?? &#x27;&#x27;; $(&#x27;setInput&#x27;).value=row.set_number ?? &#x27;&#x27;; $(&#x27;dateInput&#x27;).value=row.workout_date || today(); $(&#x27;notesInput&#x27;).value=row.notes || &#x27;&#x27;;
-        $(&#x27;formTitle&#x27;).textContent=&#x27;Edit log&#x27;; $(&#x27;saveLogBtn&#x27;).textContent=&#x27;Update log →&#x27;; $(&#x27;cancelEditBtn&#x27;).classList.remove(&#x27;hidden&#x27;); updateBeatLast(); document.querySelector(&#x27;#members&#x27;).scrollIntoView({behavior:&#x27;smooth&#x27;});
+      const actions=document.createElement('div'); actions.className='log-actions';
+      const edit=document.createElement('button'); edit.className='mini-btn'; edit.textContent='Edit';
+      edit.addEventListener('click',()=>{
+        $('editId').value=row.id; $('exerciseInput').value=row.exercise || ''; $('weightInput').value=row.weight ?? ''; $('repsInput').value=row.reps ?? ''; $('setInput').value=row.set_number ?? ''; $('dateInput').value=row.workout_date || today(); $('notesInput').value=row.notes || '';
+        $('formTitle').textContent='Edit log'; $('saveLogBtn').textContent='Update log →'; $('cancelEditBtn').classList.remove('hidden'); updateBeatLast(); document.querySelector('#members').scrollIntoView({behavior:'smooth'});
       });
-      const del=document.createElement(&#x27;button&#x27;); del.className=&#x27;mini-btn danger&#x27;; del.textContent=&#x27;Delete&#x27;;
-      del.addEventListener(&#x27;click&#x27;,async()=&gt;{
-        if(!confirm(&#x27;Delete this workout log?&#x27;)) return;
-        const { error }=await db.from(&#x27;workout_logs&#x27;).delete().eq(&#x27;id&#x27;,row.id);
-        if(error) return msg($(&#x27;logMsg&#x27;),error.message,&#x27;error&#x27;); await loadLogs(); window.dispatchEvent(new Event(&#x27;gymcelsWorkoutChanged&#x27;));
+      const del=document.createElement('button'); del.className='mini-btn danger'; del.textContent='Delete';
+      del.addEventListener('click',async()=>{
+        if(!confirm('Delete this workout log?')) return;
+        const { error }=await db.from('workout_logs').delete().eq('id',row.id);
+        if(error) return msg($('logMsg'),error.message,'error'); await loadLogs(); window.dispatchEvent(new Event('gymcelsWorkoutChanged'));
       });
       actions.append(edit,del); item.append(main,actions); logList.appendChild(item);
     }
   }
 
-  db.auth.onAuthStateChange(() =&gt; refreshSession());
+  db.auth.onAuthStateChange(() => refreshSession());
   refreshSession();
   handleVerificationCallback();
 })();
@@ -322,92 +303,92 @@ pre{white-space:pre-wrap;word-break:break-word;padding:16px;margin:0;font-size:1
 
 // ---- Gymcels Nutrition: private per-account macro tracker ----
 const nutritionDb = window.gymcelsLolDb;
-const nutritionSection = document.getElementById(&#x27;nutritionSection&#x27;);
-const nutritionDate = document.getElementById(&#x27;nutritionDate&#x27;);
-const nutritionDateLabel = document.getElementById(&#x27;nutritionDateLabel&#x27;);
-const nutritionMealsDateLabel = document.getElementById(&#x27;nutritionMealsDateLabel&#x27;);
-const nutritionPrevDay = document.getElementById(&#x27;nutritionPrevDay&#x27;);
-const nutritionNextDay = document.getElementById(&#x27;nutritionNextDay&#x27;);
-const nutritionTodayBtn = document.getElementById(&#x27;nutritionTodayBtn&#x27;);
+const nutritionSection = document.getElementById('nutritionSection');
+const nutritionDate = document.getElementById('nutritionDate');
+const nutritionDateLabel = document.getElementById('nutritionDateLabel');
+const nutritionMealsDateLabel = document.getElementById('nutritionMealsDateLabel');
+const nutritionPrevDay = document.getElementById('nutritionPrevDay');
+const nutritionNextDay = document.getElementById('nutritionNextDay');
+const nutritionTodayBtn = document.getElementById('nutritionTodayBtn');
 
-const nutritionEditTargetsBtn = document.getElementById(&#x27;nutritionEditTargetsBtn&#x27;);
-const nutritionTargetsForm = document.getElementById(&#x27;nutritionTargetsForm&#x27;);
-const nutritionTargetCalories = document.getElementById(&#x27;nutritionTargetCalories&#x27;);
-const nutritionTargetProtein = document.getElementById(&#x27;nutritionTargetProtein&#x27;);
-const nutritionTargetCarbs = document.getElementById(&#x27;nutritionTargetCarbs&#x27;);
-const nutritionTargetFat = document.getElementById(&#x27;nutritionTargetFat&#x27;);
-const nutritionSaveTargetsBtn = document.getElementById(&#x27;nutritionSaveTargetsBtn&#x27;);
-const nutritionCancelTargetsBtn = document.getElementById(&#x27;nutritionCancelTargetsBtn&#x27;);
+const nutritionEditTargetsBtn = document.getElementById('nutritionEditTargetsBtn');
+const nutritionTargetsForm = document.getElementById('nutritionTargetsForm');
+const nutritionTargetCalories = document.getElementById('nutritionTargetCalories');
+const nutritionTargetProtein = document.getElementById('nutritionTargetProtein');
+const nutritionTargetCarbs = document.getElementById('nutritionTargetCarbs');
+const nutritionTargetFat = document.getElementById('nutritionTargetFat');
+const nutritionSaveTargetsBtn = document.getElementById('nutritionSaveTargetsBtn');
+const nutritionCancelTargetsBtn = document.getElementById('nutritionCancelTargetsBtn');
 
-const nutritionCaloriesTotal = document.getElementById(&#x27;nutritionCaloriesTotal&#x27;);
-const nutritionProteinTotal = document.getElementById(&#x27;nutritionProteinTotal&#x27;);
-const nutritionCarbsTotal = document.getElementById(&#x27;nutritionCarbsTotal&#x27;);
-const nutritionFatTotal = document.getElementById(&#x27;nutritionFatTotal&#x27;);
+const nutritionCaloriesTotal = document.getElementById('nutritionCaloriesTotal');
+const nutritionProteinTotal = document.getElementById('nutritionProteinTotal');
+const nutritionCarbsTotal = document.getElementById('nutritionCarbsTotal');
+const nutritionFatTotal = document.getElementById('nutritionFatTotal');
 
-const nutritionCaloriesTarget = document.getElementById(&#x27;nutritionCaloriesTarget&#x27;);
-const nutritionProteinTarget = document.getElementById(&#x27;nutritionProteinTarget&#x27;);
-const nutritionCarbsTarget = document.getElementById(&#x27;nutritionCarbsTarget&#x27;);
-const nutritionFatTarget = document.getElementById(&#x27;nutritionFatTarget&#x27;);
+const nutritionCaloriesTarget = document.getElementById('nutritionCaloriesTarget');
+const nutritionProteinTarget = document.getElementById('nutritionProteinTarget');
+const nutritionCarbsTarget = document.getElementById('nutritionCarbsTarget');
+const nutritionFatTarget = document.getElementById('nutritionFatTarget');
 
-const nutritionCaloriesProgress = document.getElementById(&#x27;nutritionCaloriesProgress&#x27;);
-const nutritionProteinProgress = document.getElementById(&#x27;nutritionProteinProgress&#x27;);
-const nutritionCarbsProgress = document.getElementById(&#x27;nutritionCarbsProgress&#x27;);
-const nutritionFatProgress = document.getElementById(&#x27;nutritionFatProgress&#x27;);
+const nutritionCaloriesProgress = document.getElementById('nutritionCaloriesProgress');
+const nutritionProteinProgress = document.getElementById('nutritionProteinProgress');
+const nutritionCarbsProgress = document.getElementById('nutritionCarbsProgress');
+const nutritionFatProgress = document.getElementById('nutritionFatProgress');
 
-const nutritionCaloriesRemaining = document.getElementById(&#x27;nutritionCaloriesRemaining&#x27;);
-const nutritionProteinRemaining = document.getElementById(&#x27;nutritionProteinRemaining&#x27;);
-const nutritionCarbsRemaining = document.getElementById(&#x27;nutritionCarbsRemaining&#x27;);
-const nutritionFatRemaining = document.getElementById(&#x27;nutritionFatRemaining&#x27;);
+const nutritionCaloriesRemaining = document.getElementById('nutritionCaloriesRemaining');
+const nutritionProteinRemaining = document.getElementById('nutritionProteinRemaining');
+const nutritionCarbsRemaining = document.getElementById('nutritionCarbsRemaining');
+const nutritionFatRemaining = document.getElementById('nutritionFatRemaining');
 
-const nutritionMealFormTitle = document.getElementById(&#x27;nutritionMealFormTitle&#x27;);
-const nutritionFoodName = document.getElementById(&#x27;nutritionFoodName&#x27;);
-const nutritionMealType = document.getElementById(&#x27;nutritionMealType&#x27;);
-const nutritionCalories = document.getElementById(&#x27;nutritionCalories&#x27;);
-const nutritionProtein = document.getElementById(&#x27;nutritionProtein&#x27;);
-const nutritionCarbs = document.getElementById(&#x27;nutritionCarbs&#x27;);
-const nutritionFat = document.getElementById(&#x27;nutritionFat&#x27;);
-const nutritionNotes = document.getElementById(&#x27;nutritionNotes&#x27;);
-const nutritionServingCount = document.getElementById(&#x27;nutritionServingCount&#x27;);
-const nutritionServingMinus = document.getElementById(&#x27;nutritionServingMinus&#x27;);
-const nutritionServingPlus = document.getElementById(&#x27;nutritionServingPlus&#x27;);
-const nutritionServingPreview = document.getElementById(&#x27;nutritionServingPreview&#x27;);
-const nutritionSaveMealBtn = document.getElementById(&#x27;nutritionSaveMealBtn&#x27;);
-const nutritionCancelEditBtn = document.getElementById(&#x27;nutritionCancelEditBtn&#x27;);
-const nutritionFormStatus = document.getElementById(&#x27;nutritionFormStatus&#x27;);
-const nutritionMealsList = document.getElementById(&#x27;nutritionMealsList&#x27;);
-const nutritionMealCount = document.getElementById(&#x27;nutritionMealCount&#x27;);
-const nutritionFavoritesList = document.getElementById(&#x27;nutritionFavoritesList&#x27;);
-const nutritionFavoriteCount = document.getElementById(&#x27;nutritionFavoriteCount&#x27;);
+const nutritionMealFormTitle = document.getElementById('nutritionMealFormTitle');
+const nutritionFoodName = document.getElementById('nutritionFoodName');
+const nutritionMealType = document.getElementById('nutritionMealType');
+const nutritionCalories = document.getElementById('nutritionCalories');
+const nutritionProtein = document.getElementById('nutritionProtein');
+const nutritionCarbs = document.getElementById('nutritionCarbs');
+const nutritionFat = document.getElementById('nutritionFat');
+const nutritionNotes = document.getElementById('nutritionNotes');
+const nutritionServingCount = document.getElementById('nutritionServingCount');
+const nutritionServingMinus = document.getElementById('nutritionServingMinus');
+const nutritionServingPlus = document.getElementById('nutritionServingPlus');
+const nutritionServingPreview = document.getElementById('nutritionServingPreview');
+const nutritionSaveMealBtn = document.getElementById('nutritionSaveMealBtn');
+const nutritionCancelEditBtn = document.getElementById('nutritionCancelEditBtn');
+const nutritionFormStatus = document.getElementById('nutritionFormStatus');
+const nutritionMealsList = document.getElementById('nutritionMealsList');
+const nutritionMealCount = document.getElementById('nutritionMealCount');
+const nutritionFavoritesList = document.getElementById('nutritionFavoritesList');
+const nutritionFavoriteCount = document.getElementById('nutritionFavoriteCount');
 
-const bodyweightDate = document.getElementById(&#x27;bodyweightDate&#x27;);
-const bodyweightInput = document.getElementById(&#x27;bodyweightInput&#x27;);
-const bodyweightInputLabel = document.getElementById(&#x27;bodyweightInputLabel&#x27;);
-const bodyweightUnitLb = document.getElementById(&#x27;bodyweightUnitLb&#x27;);
-const bodyweightUnitKg = document.getElementById(&#x27;bodyweightUnitKg&#x27;);
-const bodyweightChartUnit = document.getElementById(&#x27;bodyweightChartUnit&#x27;);
-const bodyweightSaveBtn = document.getElementById(&#x27;bodyweightSaveBtn&#x27;);
-const bodyweightStatus = document.getElementById(&#x27;bodyweightStatus&#x27;);
-const bodyweightLatest = document.getElementById(&#x27;bodyweightLatest&#x27;);
-const bodyweightAverage = document.getElementById(&#x27;bodyweightAverage&#x27;);
-const bodyweightTrend = document.getElementById(&#x27;bodyweightTrend&#x27;);
-const bodyweightEntryCount = document.getElementById(&#x27;bodyweightEntryCount&#x27;);
-const bodyweightChart = document.getElementById(&#x27;bodyweightChart&#x27;);
-const bodyweightHistory = document.getElementById(&#x27;bodyweightHistory&#x27;);
+const bodyweightDate = document.getElementById('bodyweightDate');
+const bodyweightInput = document.getElementById('bodyweightInput');
+const bodyweightInputLabel = document.getElementById('bodyweightInputLabel');
+const bodyweightUnitLb = document.getElementById('bodyweightUnitLb');
+const bodyweightUnitKg = document.getElementById('bodyweightUnitKg');
+const bodyweightChartUnit = document.getElementById('bodyweightChartUnit');
+const bodyweightSaveBtn = document.getElementById('bodyweightSaveBtn');
+const bodyweightStatus = document.getElementById('bodyweightStatus');
+const bodyweightLatest = document.getElementById('bodyweightLatest');
+const bodyweightAverage = document.getElementById('bodyweightAverage');
+const bodyweightTrend = document.getElementById('bodyweightTrend');
+const bodyweightEntryCount = document.getElementById('bodyweightEntryCount');
+const bodyweightChart = document.getElementById('bodyweightChart');
+const bodyweightHistory = document.getElementById('bodyweightHistory');
 
-const nutritionMealSearchInput = document.getElementById(&#x27;nutritionMealSearchInput&#x27;);
-const nutritionMealSearchBtn = document.getElementById(&#x27;nutritionMealSearchBtn&#x27;);
-const nutritionMealSearchResults = document.getElementById(&#x27;nutritionMealSearchResults&#x27;);
+const nutritionMealSearchInput = document.getElementById('nutritionMealSearchInput');
+const nutritionMealSearchBtn = document.getElementById('nutritionMealSearchBtn');
+const nutritionMealSearchResults = document.getElementById('nutritionMealSearchResults');
 
-const nutritionBarcodeBtn = document.getElementById(&#x27;nutritionBarcodeBtn&#x27;);
-const nutritionScannerOverlay = document.getElementById(&#x27;nutritionScannerOverlay&#x27;);
-const nutritionScannerClose = document.getElementById(&#x27;nutritionScannerClose&#x27;);
-const nutritionBarcodeInput = document.getElementById(&#x27;nutritionBarcodeInput&#x27;);
-const nutritionBarcodeLookupBtn = document.getElementById(&#x27;nutritionBarcodeLookupBtn&#x27;);
-const nutritionScannerStatus = document.getElementById(&#x27;nutritionScannerStatus&#x27;);
-const nutritionCameraLabel = document.getElementById(&#x27;nutritionCameraLabel&#x27;);
-const nutritionScanServingCount = document.getElementById(&#x27;nutritionScanServingCount&#x27;);
-const nutritionScanServingMinus = document.getElementById(&#x27;nutritionScanServingMinus&#x27;);
-const nutritionScanServingPlus = document.getElementById(&#x27;nutritionScanServingPlus&#x27;);
+const nutritionBarcodeBtn = document.getElementById('nutritionBarcodeBtn');
+const nutritionScannerOverlay = document.getElementById('nutritionScannerOverlay');
+const nutritionScannerClose = document.getElementById('nutritionScannerClose');
+const nutritionBarcodeInput = document.getElementById('nutritionBarcodeInput');
+const nutritionBarcodeLookupBtn = document.getElementById('nutritionBarcodeLookupBtn');
+const nutritionScannerStatus = document.getElementById('nutritionScannerStatus');
+const nutritionCameraLabel = document.getElementById('nutritionCameraLabel');
+const nutritionScanServingCount = document.getElementById('nutritionScanServingCount');
+const nutritionScanServingMinus = document.getElementById('nutritionScanServingMinus');
+const nutritionScanServingPlus = document.getElementById('nutritionScanServingPlus');
 
 let nutritionSavedSearchRows = [];
 let nutritionSearchTimer = null;
@@ -426,11 +407,11 @@ let nutritionRows = [];
 let nutritionFavorites = [];
 let bodyweightRows = [];
 
-let bodyweightUnit = (() =&gt; {
+let bodyweightUnit = (() => {
   try{
-    return localStorage.getItem(&#x27;gymcels_bodyweight_unit&#x27;) === &#x27;kg&#x27; ? &#x27;kg&#x27; : &#x27;lb&#x27;;
+    return localStorage.getItem('gymcels_bodyweight_unit') === 'kg' ? 'kg' : 'lb';
   }catch(_){
-    return &#x27;lb&#x27;;
+    return 'lb';
   }
 })();
 
@@ -438,14 +419,14 @@ let nutritionMealEditId = null;
 
 function nutritionLocalDateString(date=new Date()){
   const year = date.getFullYear();
-  const month = String(date.getMonth()+1).padStart(2,&#x27;0&#x27;);
-  const day = String(date.getDate()).padStart(2,&#x27;0&#x27;);
+  const month = String(date.getMonth()+1).padStart(2,'0');
+  const day = String(date.getDate()).padStart(2,'0');
   return `${year}-${month}-${day}`;
 }
 
 function nutritionDateFromIso(iso){
-  const parts = String(iso || &#x27;&#x27;).split(&#x27;-&#x27;).map(Number);
-  if(parts.length !== 3 || parts.some(x =&gt; !Number.isFinite(x))) return new Date();
+  const parts = String(iso || '').split('-').map(Number);
+  if(parts.length !== 3 || parts.some(x => !Number.isFinite(x))) return new Date();
   return new Date(parts[0],parts[1]-1,parts[2],12,0,0);
 }
 
@@ -457,7 +438,7 @@ function nutritionShiftDate(iso,days){
 
 function nutritionNumber(value){
   const n = Number(value);
-  return Number.isFinite(n) &amp;&amp; n &gt;= 0 ? n : 0;
+  return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
 function nutritionServingValue(input){
@@ -476,7 +457,7 @@ function setNutritionServingInput(input,value){
 
 function nutritionServingText(value){
   const n = nutritionServingValue(value);
-  return `${nutritionFormat(n)} serving${n === 1 ? &#x27;&#x27; : &#x27;s&#x27;}`;
+  return `${nutritionFormat(n)} serving${n === 1 ? '' : 's'}`;
 }
 
 function updateNutritionServingPreview(){
@@ -498,9 +479,9 @@ function updateNutritionServingPreview(){
 function updateScanServingButtons(){
   const value = nutritionServingValue(nutritionScanServingCount);
 
-  document.querySelectorAll(&#x27;[data-scan-servings]&#x27;).forEach(btn =&gt; {
+  document.querySelectorAll('[data-scan-servings]').forEach(btn => {
     btn.classList.toggle(
-      &#x27;active&#x27;,
+      'active',
       Number(btn.dataset.scanServings) === value
     );
   });
@@ -508,23 +489,23 @@ function updateScanServingButtons(){
 
 function nutritionFormat(value,maxDecimals=1){
   const n = nutritionNumber(value);
-  if(Math.abs(n-Math.round(n)) &lt; 0.00001) return String(Math.round(n));
-  return n.toFixed(maxDecimals).replace(/\.0$/,&#x27;&#x27;);
+  if(Math.abs(n-Math.round(n)) < 0.00001) return String(Math.round(n));
+  return n.toFixed(maxDecimals).replace(/\.0$/,'');
 }
 
 function nutritionEscape(value){
-  return String(value ?? &#x27;&#x27;)
-    .replaceAll(&#x27;&amp;&#x27;,&#x27;&amp;amp;&#x27;)
-    .replaceAll(&#x27;&lt;&#x27;,&#x27;&amp;lt;&#x27;)
-    .replaceAll(&#x27;&gt;&#x27;,&#x27;&amp;gt;&#x27;)
-    .replaceAll(&#x27;&quot;&#x27;,&#x27;&amp;quot;&#x27;)
-    .replaceAll(&quot;&#x27;&quot;,&#x27;&amp;#039;&#x27;);
+  return String(value ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#039;');
 }
 
-function setNutritionStatus(text=&#x27;&#x27;,type=&#x27;&#x27;){
+function setNutritionStatus(text='',type=''){
   if(!nutritionFormStatus) return;
   nutritionFormStatus.textContent = text;
-  nutritionFormStatus.className = `nutrition-status ${type || &#x27;&#x27;}`;
+  nutritionFormStatus.className = `nutrition-status ${type || ''}`;
 }
 
 function updateNutritionDateLabels(){
@@ -535,32 +516,32 @@ function updateNutritionDateLabels(){
   const selectedDate = nutritionDateFromIso(selected);
 
   const pretty = selectedDate.toLocaleDateString([],{
-    weekday:&#x27;short&#x27;,month:&#x27;short&#x27;,day:&#x27;numeric&#x27;,year:selectedDate.getFullYear() !== new Date().getFullYear() ? &#x27;numeric&#x27; : undefined
+    weekday:'short',month:'short',day:'numeric',year:selectedDate.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
   });
 
   if(nutritionDateLabel){
-    nutritionDateLabel.textContent = selected === today ? &#x27;Today&#x27; : pretty;
+    nutritionDateLabel.textContent = selected === today ? 'Today' : pretty;
   }
   if(nutritionMealsDateLabel){
-    nutritionMealsDateLabel.textContent = selected === today ? &#x27;today&#x27; : pretty;
+    nutritionMealsDateLabel.textContent = selected === today ? 'today' : pretty;
   }
 }
 
 function resetNutritionMealForm(){
   nutritionMealEditId = null;
-  if(nutritionMealFormTitle) nutritionMealFormTitle.textContent = &#x27;Add Meal&#x27;;
-  if(nutritionFoodName) nutritionFoodName.value = &#x27;&#x27;;
-  if(nutritionMealType) nutritionMealType.value = &#x27;breakfast&#x27;;
-  if(nutritionCalories) nutritionCalories.value = &#x27;&#x27;;
-  if(nutritionProtein) nutritionProtein.value = &#x27;&#x27;;
-  if(nutritionCarbs) nutritionCarbs.value = &#x27;&#x27;;
-  if(nutritionFat) nutritionFat.value = &#x27;&#x27;;
-  if(nutritionNotes) nutritionNotes.value = &#x27;&#x27;;
+  if(nutritionMealFormTitle) nutritionMealFormTitle.textContent = 'Add Meal';
+  if(nutritionFoodName) nutritionFoodName.value = '';
+  if(nutritionMealType) nutritionMealType.value = 'breakfast';
+  if(nutritionCalories) nutritionCalories.value = '';
+  if(nutritionProtein) nutritionProtein.value = '';
+  if(nutritionCarbs) nutritionCarbs.value = '';
+  if(nutritionFat) nutritionFat.value = '';
+  if(nutritionNotes) nutritionNotes.value = '';
   setNutritionServingInput(nutritionServingCount,1);
   updateNutritionServingPreview();
-  if(nutritionSaveMealBtn) nutritionSaveMealBtn.textContent = &#x27;Add meal&#x27;;
-  nutritionCancelEditBtn?.classList.add(&#x27;hidden&#x27;);
-  setNutritionStatus(&#x27;&#x27;);
+  if(nutritionSaveMealBtn) nutritionSaveMealBtn.textContent = 'Add meal';
+  nutritionCancelEditBtn?.classList.add('hidden');
+  setNutritionStatus('');
 }
 
 function renderNutritionTargets(){
@@ -569,46 +550,46 @@ function renderNutritionTargets(){
   const carbs = nutritionNumber(nutritionTargets.carbs_target);
   const fat = nutritionNumber(nutritionTargets.fat_target);
 
-  if(nutritionCaloriesTarget) nutritionCaloriesTarget.textContent = calories ? nutritionFormat(calories,0) : &#x27;—&#x27;;
-  if(nutritionProteinTarget) nutritionProteinTarget.textContent = protein ? nutritionFormat(protein) : &#x27;—&#x27;;
-  if(nutritionCarbsTarget) nutritionCarbsTarget.textContent = carbs ? nutritionFormat(carbs) : &#x27;—&#x27;;
-  if(nutritionFatTarget) nutritionFatTarget.textContent = fat ? nutritionFormat(fat) : &#x27;—&#x27;;
+  if(nutritionCaloriesTarget) nutritionCaloriesTarget.textContent = calories ? nutritionFormat(calories,0) : '—';
+  if(nutritionProteinTarget) nutritionProteinTarget.textContent = protein ? nutritionFormat(protein) : '—';
+  if(nutritionCarbsTarget) nutritionCarbsTarget.textContent = carbs ? nutritionFormat(carbs) : '—';
+  if(nutritionFatTarget) nutritionFatTarget.textContent = fat ? nutritionFormat(fat) : '—';
 
-  if(nutritionTargetCalories) nutritionTargetCalories.value = calories || &#x27;&#x27;;
-  if(nutritionTargetProtein) nutritionTargetProtein.value = protein || &#x27;&#x27;;
-  if(nutritionTargetCarbs) nutritionTargetCarbs.value = carbs || &#x27;&#x27;;
-  if(nutritionTargetFat) nutritionTargetFat.value = fat || &#x27;&#x27;;
+  if(nutritionTargetCalories) nutritionTargetCalories.value = calories || '';
+  if(nutritionTargetProtein) nutritionTargetProtein.value = protein || '';
+  if(nutritionTargetCarbs) nutritionTargetCarbs.value = carbs || '';
+  if(nutritionTargetFat) nutritionTargetFat.value = fat || '';
 }
 
 function updateNutritionMacroCard(key,total,target,totalEl,progressEl,remainingEl){
-  if(totalEl) totalEl.textContent = nutritionFormat(total,key === &#x27;calories&#x27; ? 0 : 1);
+  if(totalEl) totalEl.textContent = nutritionFormat(total,key === 'calories' ? 0 : 1);
 
-  const card = progressEl?.closest(&#x27;.nutrition-summary-card&#x27;);
-  const hasTarget = target &gt; 0;
+  const card = progressEl?.closest('.nutrition-summary-card');
+  const hasTarget = target > 0;
   const percent = hasTarget ? Math.min(100,(total/target)*100) : 0;
   if(progressEl) progressEl.style.width = `${Math.max(0,percent)}%`;
 
-  card?.classList.toggle(&#x27;over&#x27;,hasTarget &amp;&amp; total &gt; target);
+  card?.classList.toggle('over',hasTarget && total > target);
 
   if(!remainingEl) return;
 
   if(!hasTarget){
-    remainingEl.textContent = &#x27;Set a target&#x27;;
+    remainingEl.textContent = 'Set a target';
     return;
   }
 
   const difference = target-total;
-  if(difference &gt;= 0){
+  if(difference >= 0){
     remainingEl.textContent =
-      `${nutritionFormat(difference,key === &#x27;calories&#x27; ? 0 : 1)}${key === &#x27;calories&#x27; ? &#x27;&#x27; : &#x27;g&#x27;} remaining`;
+      `${nutritionFormat(difference,key === 'calories' ? 0 : 1)}${key === 'calories' ? '' : 'g'} remaining`;
   }else{
     remainingEl.textContent =
-      `${nutritionFormat(Math.abs(difference),key === &#x27;calories&#x27; ? 0 : 1)}${key === &#x27;calories&#x27; ? &#x27;&#x27; : &#x27;g&#x27;} over target`;
+      `${nutritionFormat(Math.abs(difference),key === 'calories' ? 0 : 1)}${key === 'calories' ? '' : 'g'} over target`;
   }
 }
 
 function renderNutritionSummary(){
-  const totals = nutritionRows.reduce((sum,row) =&gt; {
+  const totals = nutritionRows.reduce((sum,row) => {
     sum.calories += nutritionNumber(row.calories);
     sum.protein += nutritionNumber(row.protein_g);
     sum.carbs += nutritionNumber(row.carbs_g);
@@ -617,7 +598,7 @@ function renderNutritionSummary(){
   },{calories:0,protein:0,carbs:0,fat:0});
 
   updateNutritionMacroCard(
-    &#x27;calories&#x27;,
+    'calories',
     totals.calories,
     nutritionNumber(nutritionTargets.calorie_target),
     nutritionCaloriesTotal,
@@ -625,7 +606,7 @@ function renderNutritionSummary(){
     nutritionCaloriesRemaining
   );
   updateNutritionMacroCard(
-    &#x27;protein&#x27;,
+    'protein',
     totals.protein,
     nutritionNumber(nutritionTargets.protein_target),
     nutritionProteinTotal,
@@ -633,7 +614,7 @@ function renderNutritionSummary(){
     nutritionProteinRemaining
   );
   updateNutritionMacroCard(
-    &#x27;carbs&#x27;,
+    'carbs',
     totals.carbs,
     nutritionNumber(nutritionTargets.carbs_target),
     nutritionCarbsTotal,
@@ -641,7 +622,7 @@ function renderNutritionSummary(){
     nutritionCarbsRemaining
   );
   updateNutritionMacroCard(
-    &#x27;fat&#x27;,
+    'fat',
     totals.fat,
     nutritionNumber(nutritionTargets.fat_target),
     nutritionFatTotal,
@@ -651,26 +632,26 @@ function renderNutritionSummary(){
 }
 
 const NUTRITION_MEAL_GROUPS = [
-  [&#x27;breakfast&#x27;,&#x27;Breakfast&#x27;],
-  [&#x27;lunch&#x27;,&#x27;Lunch&#x27;],
-  [&#x27;dinner&#x27;,&#x27;Dinner&#x27;],
-  [&#x27;snack&#x27;,&#x27;Snacks&#x27;]
+  ['breakfast','Breakfast'],
+  ['lunch','Lunch'],
+  ['dinner','Dinner'],
+  ['snack','Snacks']
 ];
 
 
 function nutritionFavoriteKey(row){
   return [
-    String(row?.food_name || row?.product_name || &#x27;&#x27;).trim().toLowerCase(),
+    String(row?.food_name || row?.product_name || '').trim().toLowerCase(),
     nutritionFormat(row?.calories || 0,1),
     nutritionFormat(row?.protein_g || 0,1),
     nutritionFormat(row?.carbs_g || 0,1),
     nutritionFormat(row?.fat_g || 0,1)
-  ].join(&#x27;|&#x27;);
+  ].join('|');
 }
 
 function isNutritionFavorite(row){
   const key = nutritionFavoriteKey(row);
-  return nutritionFavorites.some(fav =&gt; nutritionFavoriteKey(fav) === key);
+  return nutritionFavorites.some(fav => nutritionFavoriteKey(fav) === key);
 }
 
 function renderNutritionFavorites(){
@@ -683,42 +664,42 @@ function renderNutritionFavorites(){
 
   if(!nutritionFavorites.length){
     nutritionFavoritesList.innerHTML =
-      &#x27;&lt;div class=&quot;nutrition-empty&quot;&gt;Tap ☆ Favorite on a logged meal to save it here.&lt;/div&gt;&#x27;;
+      '<div class="nutrition-empty">Tap ☆ Favorite on a logged meal to save it here.</div>';
     return;
   }
 
-  nutritionFavoritesList.innerHTML = nutritionFavorites.map(fav =&gt; `
-    &lt;div class=&quot;nutrition-favorite-item&quot; data-favorite-id=&quot;${Number(fav.id)}&quot;&gt;
-      &lt;div&gt;
-        &lt;div class=&quot;nutrition-favorite-name&quot;&gt;${nutritionEscape(fav.food_name || &#x27;Favorite food&#x27;)}&lt;/div&gt;
-        &lt;div class=&quot;nutrition-favorite-meta&quot;&gt;
-          &lt;span&gt;${nutritionFormat(fav.calories,0)} cal&lt;/span&gt;
-          &lt;span&gt;${nutritionFormat(fav.protein_g)}g P&lt;/span&gt;
-          &lt;span&gt;${nutritionFormat(fav.carbs_g)}g C&lt;/span&gt;
-          &lt;span&gt;${nutritionFormat(fav.fat_g)}g F&lt;/span&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+  nutritionFavoritesList.innerHTML = nutritionFavorites.map(fav => `
+    <div class="nutrition-favorite-item" data-favorite-id="${Number(fav.id)}">
+      <div>
+        <div class="nutrition-favorite-name">${nutritionEscape(fav.food_name || 'Favorite food')}</div>
+        <div class="nutrition-favorite-meta">
+          <span>${nutritionFormat(fav.calories,0)} cal</span>
+          <span>${nutritionFormat(fav.protein_g)}g P</span>
+          <span>${nutritionFormat(fav.carbs_g)}g C</span>
+          <span>${nutritionFormat(fav.fat_g)}g F</span>
+        </div>
+      </div>
 
-      &lt;div class=&quot;nutrition-favorite-actions&quot;&gt;
-        &lt;button type=&quot;button&quot; data-favorite-log=&quot;${Number(fav.id)}&quot;&gt;Log&lt;/button&gt;
-        &lt;button type=&quot;button&quot; data-favorite-use=&quot;${Number(fav.id)}&quot;&gt;Use&lt;/button&gt;
-        &lt;button type=&quot;button&quot; data-favorite-delete=&quot;${Number(fav.id)}&quot;&gt;Remove&lt;/button&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  `).join(&#x27;&#x27;);
+      <div class="nutrition-favorite-actions">
+        <button type="button" data-favorite-log="${Number(fav.id)}">Log</button>
+        <button type="button" data-favorite-use="${Number(fav.id)}">Use</button>
+        <button type="button" data-favorite-delete="${Number(fav.id)}">Remove</button>
+      </div>
+    </div>
+  `).join('');
 }
 
 async function loadNutritionFavorites(){
   if(!nutritionDb || !nutritionSession?.user) return;
 
   const {data,error} = await nutritionDb
-    .from(&#x27;favorite_foods&#x27;)
-    .select(&#x27;id,user_id,food_name,meal_type,calories,protein_g,carbs_g,fat_g,notes,created_at&#x27;)
-    .eq(&#x27;user_id&#x27;,nutritionSession.user.id)
-    .order(&#x27;created_at&#x27;,{ascending:false});
+    .from('favorite_foods')
+    .select('id,user_id,food_name,meal_type,calories,protein_g,carbs_g,fat_g,notes,created_at')
+    .eq('user_id',nutritionSession.user.id)
+    .order('created_at',{ascending:false});
 
   if(error){
-    console.error(&#x27;Favorite foods load error:&#x27;,error);
+    console.error('Favorite foods load error:',error);
     return;
   }
 
@@ -730,49 +711,49 @@ async function saveNutritionFavoriteFromMeal(row){
   if(!nutritionDb || !nutritionSession?.user || !row) return;
 
   const existing = nutritionFavorites.find(
-    fav =&gt; nutritionFavoriteKey(fav) === nutritionFavoriteKey(row)
+    fav => nutritionFavoriteKey(fav) === nutritionFavoriteKey(row)
   );
 
   if(existing){
-    setNutritionStatus(&#x27;That food is already in your favorites.&#x27;,&#x27;success&#x27;);
+    setNutritionStatus('That food is already in your favorites.','success');
     return;
   }
 
   const {error} = await nutritionDb
-    .from(&#x27;favorite_foods&#x27;)
+    .from('favorite_foods')
     .insert({
       user_id:nutritionSession.user.id,
-      food_name:String(row.food_name || &#x27;Favorite food&#x27;).slice(0,120),
-      meal_type:row.meal_type || &#x27;snack&#x27;,
+      food_name:String(row.food_name || 'Favorite food').slice(0,120),
+      meal_type:row.meal_type || 'snack',
       calories:nutritionNumber(row.calories),
       protein_g:nutritionNumber(row.protein_g),
       carbs_g:nutritionNumber(row.carbs_g),
       fat_g:nutritionNumber(row.fat_g),
-      notes:String(row.notes || &#x27;&#x27;).slice(0,160) || null,
+      notes:String(row.notes || '').slice(0,160) || null,
       updated_at:new Date().toISOString()
     });
 
   if(error){
-    setNutritionStatus(error.message,&#x27;error&#x27;);
+    setNutritionStatus(error.message,'error');
     return;
   }
 
   await loadNutritionFavorites();
   renderNutritionMeals();
-  setNutritionStatus(&#x27;★ Added to Favorite Foods.&#x27;,&#x27;success&#x27;);
+  setNutritionStatus('★ Added to Favorite Foods.','success');
 }
 
 async function deleteNutritionFavorite(id){
   if(!nutritionDb || !nutritionSession?.user || !id) return;
 
   const {error} = await nutritionDb
-    .from(&#x27;favorite_foods&#x27;)
+    .from('favorite_foods')
     .delete()
-    .eq(&#x27;id&#x27;,Number(id))
-    .eq(&#x27;user_id&#x27;,nutritionSession.user.id);
+    .eq('id',Number(id))
+    .eq('user_id',nutritionSession.user.id);
 
   if(error){
-    setNutritionStatus(error.message,&#x27;error&#x27;);
+    setNutritionStatus(error.message,'error');
     return;
   }
 
@@ -784,7 +765,7 @@ async function logNutritionFavorite(fav){
   if(!nutritionDb || !nutritionSession?.user || !fav) return;
 
   const {error} = await nutritionDb
-    .from(&#x27;meal_logs&#x27;)
+    .from('meal_logs')
     .insert({
       user_id:nutritionSession.user.id,
       meal_date:nutritionDate.value || nutritionLocalDateString(),
@@ -799,12 +780,12 @@ async function logNutritionFavorite(fav){
     });
 
   if(error){
-    setNutritionStatus(error.message,&#x27;error&#x27;);
+    setNutritionStatus(error.message,'error');
     return;
   }
 
   await loadNutritionMeals();
-  setNutritionStatus(`✓ Logged ${fav.food_name}.`,&#x27;success&#x27;);
+  setNutritionStatus(`✓ Logged ${fav.food_name}.`,'success');
 }
 
 function renderNutritionMeals(){
@@ -812,54 +793,54 @@ function renderNutritionMeals(){
 
   if(nutritionMealCount){
     nutritionMealCount.textContent =
-      `${nutritionRows.length} meal${nutritionRows.length === 1 ? &#x27;&#x27; : &#x27;s&#x27;} logged`;
+      `${nutritionRows.length} meal${nutritionRows.length === 1 ? '' : 's'} logged`;
   }
 
   if(!nutritionRows.length){
     nutritionMealsList.innerHTML =
-      &#x27;&lt;div class=&quot;nutrition-empty&quot;&gt;No meals logged for this day yet.&lt;/div&gt;&#x27;;
+      '<div class="nutrition-empty">No meals logged for this day yet.</div>';
     renderNutritionSummary();
     return;
   }
 
-  nutritionMealsList.innerHTML = NUTRITION_MEAL_GROUPS.map(([key,label]) =&gt; {
-    const rows = nutritionRows.filter(row =&gt; row.meal_type === key);
-    if(!rows.length) return &#x27;&#x27;;
+  nutritionMealsList.innerHTML = NUTRITION_MEAL_GROUPS.map(([key,label]) => {
+    const rows = nutritionRows.filter(row => row.meal_type === key);
+    if(!rows.length) return '';
 
-    const groupCalories = rows.reduce((sum,row) =&gt; sum + nutritionNumber(row.calories),0);
+    const groupCalories = rows.reduce((sum,row) => sum + nutritionNumber(row.calories),0);
 
-    return `&lt;div class=&quot;nutrition-meal-group&quot;&gt;
-      &lt;div class=&quot;nutrition-meal-group-title&quot;&gt;
-        &lt;span&gt;${label}&lt;/span&gt;
-        &lt;span&gt;${nutritionFormat(groupCalories,0)} cal&lt;/span&gt;
-      &lt;/div&gt;
+    return `<div class="nutrition-meal-group">
+      <div class="nutrition-meal-group-title">
+        <span>${label}</span>
+        <span>${nutritionFormat(groupCalories,0)} cal</span>
+      </div>
 
-      ${rows.map(row =&gt; `
-        &lt;div class=&quot;nutrition-meal-item&quot; data-nutrition-meal-id=&quot;${Number(row.id)}&quot;&gt;
-          &lt;div&gt;
-            &lt;div class=&quot;nutrition-meal-name&quot;&gt;${nutritionEscape(row.food_name || &#x27;Meal&#x27;)}&lt;/div&gt;
-            ${row.notes ? `&lt;div class=&quot;nutrition-meal-note&quot;&gt;${nutritionEscape(row.notes)}&lt;/div&gt;` : &#x27;&#x27;}
-            &lt;div class=&quot;nutrition-meal-macros&quot;&gt;
-              &lt;span&gt;${nutritionFormat(row.calories,0)} cal&lt;/span&gt;
-              &lt;span&gt;${nutritionFormat(row.protein_g)}g protein&lt;/span&gt;
-              &lt;span&gt;${nutritionFormat(row.carbs_g)}g carbs&lt;/span&gt;
-              &lt;span&gt;${nutritionFormat(row.fat_g)}g fat&lt;/span&gt;
-            &lt;/div&gt;
-          &lt;/div&gt;
+      ${rows.map(row => `
+        <div class="nutrition-meal-item" data-nutrition-meal-id="${Number(row.id)}">
+          <div>
+            <div class="nutrition-meal-name">${nutritionEscape(row.food_name || 'Meal')}</div>
+            ${row.notes ? `<div class="nutrition-meal-note">${nutritionEscape(row.notes)}</div>` : ''}
+            <div class="nutrition-meal-macros">
+              <span>${nutritionFormat(row.calories,0)} cal</span>
+              <span>${nutritionFormat(row.protein_g)}g protein</span>
+              <span>${nutritionFormat(row.carbs_g)}g carbs</span>
+              <span>${nutritionFormat(row.fat_g)}g fat</span>
+            </div>
+          </div>
 
-          &lt;div class=&quot;nutrition-meal-actions&quot;&gt;
-            &lt;button type=&quot;button&quot;
-              class=&quot;${isNutritionFavorite(row) ? &#x27;nutrition-favorite-active&#x27; : &#x27;&#x27;}&quot;
-              data-nutrition-favorite=&quot;${Number(row.id)}&quot;&gt;
-              ${isNutritionFavorite(row) ? &#x27;★ Saved&#x27; : &#x27;☆ Favorite&#x27;}
-            &lt;/button&gt;
-            &lt;button type=&quot;button&quot; data-nutrition-edit=&quot;${Number(row.id)}&quot;&gt;Edit&lt;/button&gt;
-            &lt;button type=&quot;button&quot; data-nutrition-delete=&quot;${Number(row.id)}&quot;&gt;Delete&lt;/button&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
-      `).join(&#x27;&#x27;)}
-    &lt;/div&gt;`;
-  }).join(&#x27;&#x27;);
+          <div class="nutrition-meal-actions">
+            <button type="button"
+              class="${isNutritionFavorite(row) ? 'nutrition-favorite-active' : ''}"
+              data-nutrition-favorite="${Number(row.id)}">
+              ${isNutritionFavorite(row) ? '★ Saved' : '☆ Favorite'}
+            </button>
+            <button type="button" data-nutrition-edit="${Number(row.id)}">Edit</button>
+            <button type="button" data-nutrition-delete="${Number(row.id)}">Delete</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
 
   renderNutritionSummary();
 }
@@ -868,13 +849,13 @@ async function loadNutritionTargets(){
   if(!nutritionDb || !nutritionSession?.user) return;
 
   const {data,error} = await nutritionDb
-    .from(&#x27;nutrition_targets&#x27;)
-    .select(&#x27;calorie_target,protein_target,carbs_target,fat_target&#x27;)
-    .eq(&#x27;user_id&#x27;,nutritionSession.user.id)
+    .from('nutrition_targets')
+    .select('calorie_target,protein_target,carbs_target,fat_target')
+    .eq('user_id',nutritionSession.user.id)
     .maybeSingle();
 
   if(error){
-    console.error(&#x27;Nutrition targets load error:&#x27;,error);
+    console.error('Nutrition targets load error:',error);
     return;
   }
 
@@ -894,16 +875,16 @@ async function loadNutritionMeals(){
   updateNutritionDateLabels();
 
   const {data,error} = await nutritionDb
-    .from(&#x27;meal_logs&#x27;)
-    .select(&#x27;id,user_id,meal_date,meal_type,food_name,calories,protein_g,carbs_g,fat_g,notes,created_at&#x27;)
-    .eq(&#x27;user_id&#x27;,nutritionSession.user.id)
-    .eq(&#x27;meal_date&#x27;,nutritionDate.value)
-    .order(&#x27;created_at&#x27;,{ascending:true});
+    .from('meal_logs')
+    .select('id,user_id,meal_date,meal_type,food_name,calories,protein_g,carbs_g,fat_g,notes,created_at')
+    .eq('user_id',nutritionSession.user.id)
+    .eq('meal_date',nutritionDate.value)
+    .order('created_at',{ascending:true});
 
   if(error){
-    console.error(&#x27;Meal load error:&#x27;,error);
+    console.error('Meal load error:',error);
     if(nutritionMealsList){
-      nutritionMealsList.innerHTML = `&lt;div class=&quot;nutrition-empty&quot;&gt;${nutritionEscape(error.message)}&lt;/div&gt;`;
+      nutritionMealsList.innerHTML = `<div class="nutrition-empty">${nutritionEscape(error.message)}</div>`;
     }
     return;
   }
@@ -913,10 +894,10 @@ async function loadNutritionMeals(){
 }
 
 
-function setBodyweightStatus(text=&#x27;&#x27;,type=&#x27;&#x27;){
+function setBodyweightStatus(text='',type=''){
   if(!bodyweightStatus) return;
   bodyweightStatus.textContent = text;
-  bodyweightStatus.className = `bodyweight-status ${type || &#x27;&#x27;}`;
+  bodyweightStatus.className = `bodyweight-status ${type || ''}`;
 }
 
 const LB_PER_KG = 2.2046226218;
@@ -932,58 +913,58 @@ function bodyweightKgToLb(valueKg){
 function bodyweightDisplayNumber(valueLb){
   const n = Number(valueLb);
   if(!Number.isFinite(n)) return NaN;
-  return bodyweightUnit === &#x27;kg&#x27; ? bodyweightLbToKg(n) : n;
+  return bodyweightUnit === 'kg' ? bodyweightLbToKg(n) : n;
 }
 
 function bodyweightInputToLb(value){
   const n = Number(value);
   if(!Number.isFinite(n)) return NaN;
-  return bodyweightUnit === &#x27;kg&#x27; ? bodyweightKgToLb(n) : n;
+  return bodyweightUnit === 'kg' ? bodyweightKgToLb(n) : n;
 }
 
 function bodyweightFormat(valueLb){
   const n = bodyweightDisplayNumber(valueLb);
-  if(!Number.isFinite(n)) return &#x27;—&#x27;;
+  if(!Number.isFinite(n)) return '—';
 
-  const unit = bodyweightUnit === &#x27;kg&#x27; ? &#x27;kg&#x27; : &#x27;lb&#x27;;
-  return `${n.toFixed(1).replace(/\.0$/,&#x27;&#x27;)} ${unit}`;
+  const unit = bodyweightUnit === 'kg' ? 'kg' : 'lb';
+  return `${n.toFixed(1).replace(/\.0$/,'')} ${unit}`;
 }
 
 function bodyweightFormatDelta(deltaLb){
-  const displayDelta = bodyweightUnit === &#x27;kg&#x27;
+  const displayDelta = bodyweightUnit === 'kg'
     ? bodyweightLbToKg(deltaLb)
     : Number(deltaLb);
 
-  if(!Number.isFinite(displayDelta)) return &#x27;—&#x27;;
+  if(!Number.isFinite(displayDelta)) return '—';
 
-  const unit = bodyweightUnit === &#x27;kg&#x27; ? &#x27;kg&#x27; : &#x27;lb&#x27;;
-  const value = displayDelta.toFixed(1).replace(/\.0$/,&#x27;&#x27;);
-  return `${displayDelta &gt; 0 ? &#x27;+&#x27; : &#x27;&#x27;}${value} ${unit}`;
+  const unit = bodyweightUnit === 'kg' ? 'kg' : 'lb';
+  const value = displayDelta.toFixed(1).replace(/\.0$/,'');
+  return `${displayDelta > 0 ? '+' : ''}${value} ${unit}`;
 }
 
 function updateBodyweightUnitUi(){
-  const isKg = bodyweightUnit === &#x27;kg&#x27;;
+  const isKg = bodyweightUnit === 'kg';
 
-  bodyweightUnitLb?.classList.toggle(&#x27;active&#x27;,!isKg);
-  bodyweightUnitKg?.classList.toggle(&#x27;active&#x27;,isKg);
+  bodyweightUnitLb?.classList.toggle('active',!isKg);
+  bodyweightUnitKg?.classList.toggle('active',isKg);
 
   if(bodyweightInputLabel){
-    bodyweightInputLabel.textContent = `Bodyweight (${isKg ? &#x27;kg&#x27; : &#x27;lb&#x27;})`;
+    bodyweightInputLabel.textContent = `Bodyweight (${isKg ? 'kg' : 'lb'})`;
   }
 
   if(bodyweightInput){
-    bodyweightInput.min = isKg ? &#x27;18&#x27; : &#x27;40&#x27;;
-    bodyweightInput.max = isKg ? &#x27;680&#x27; : &#x27;1500&#x27;;
-    bodyweightInput.step = &#x27;0.1&#x27;;
-    bodyweightInput.placeholder = isKg ? &#x27;81.6&#x27; : &#x27;180.0&#x27;;
+    bodyweightInput.min = isKg ? '18' : '40';
+    bodyweightInput.max = isKg ? '680' : '1500';
+    bodyweightInput.step = '0.1';
+    bodyweightInput.placeholder = isKg ? '81.6' : '180.0';
   }
 
   if(bodyweightChartUnit){
-    bodyweightChartUnit.textContent = `Last 30 entries · ${isKg ? &#x27;kg&#x27; : &#x27;lb&#x27;}`;
+    bodyweightChartUnit.textContent = `Last 30 entries · ${isKg ? 'kg' : 'lb'}`;
   }
 
   try{
-    localStorage.setItem(&#x27;gymcels_bodyweight_unit&#x27;,bodyweightUnit);
+    localStorage.setItem('gymcels_bodyweight_unit',bodyweightUnit);
   }catch(_){}
 
   renderBodyweight();
@@ -993,18 +974,18 @@ function renderBodyweightChart(){
   if(!bodyweightChart) return;
 
   const rows = [...bodyweightRows]
-    .sort((a,b) =&gt; String(a.log_date).localeCompare(String(b.log_date)))
+    .sort((a,b) => String(a.log_date).localeCompare(String(b.log_date)))
     .slice(-30);
 
   if(!rows.length){
     bodyweightChart.innerHTML =
-      &#x27;&lt;div class=&quot;bodyweight-empty&quot;&gt;Log your first bodyweight to start the chart.&lt;/div&gt;&#x27;;
+      '<div class="bodyweight-empty">Log your first bodyweight to start the chart.</div>';
     return;
   }
 
   if(rows.length === 1){
     bodyweightChart.innerHTML =
-      `&lt;div class=&quot;bodyweight-empty&quot;&gt;First entry: &lt;strong&gt;${bodyweightFormat(rows[0].weight_lb)}&lt;/strong&gt;. Add more weigh-ins to build the trend.&lt;/div&gt;`;
+      `<div class="bodyweight-empty">First entry: <strong>${bodyweightFormat(rows[0].weight_lb)}</strong>. Add more weigh-ins to build the trend.</div>`;
     return;
   }
 
@@ -1018,7 +999,7 @@ function renderBodyweightChart(){
   const chartH = height-top-bottom;
 
   const weights = rows
-    .map(r =&gt; bodyweightDisplayNumber(r.weight_lb))
+    .map(r => bodyweightDisplayNumber(r.weight_lb))
     .filter(Number.isFinite);
 
   let min = Math.min(...weights);
@@ -1027,78 +1008,78 @@ function renderBodyweightChart(){
   min -= spread * .18;
   max += spread * .18;
 
-  const xFor = index =&gt;
+  const xFor = index =>
     left + (rows.length === 1 ? chartW/2 : (index/(rows.length-1))*chartW);
-  const yFor = value =&gt;
+  const yFor = value =>
     top + ((max-value)/(max-min || 1))*chartH;
 
-  const points = rows.map((row,index) =&gt;
+  const points = rows.map((row,index) =>
     `${xFor(index).toFixed(1)},${yFor(bodyweightDisplayNumber(row.weight_lb)).toFixed(1)}`
-  ).join(&#x27; &#x27;);
+  ).join(' ');
 
-  const horizontalLines = [0,.25,.5,.75,1].map(step =&gt; {
+  const horizontalLines = [0,.25,.5,.75,1].map(step => {
     const y = top + chartH*step;
     const labelValue = max-(max-min)*step;
 
     return `
-      &lt;line class=&quot;bodyweight-chart-grid&quot; x1=&quot;${left}&quot; y1=&quot;${y}&quot; x2=&quot;${width-right}&quot; y2=&quot;${y}&quot;&gt;&lt;/line&gt;
-      &lt;text class=&quot;bodyweight-chart-label&quot; x=&quot;2&quot; y=&quot;${y+3}&quot;&gt;${nutritionFormat(labelValue,1)}&lt;/text&gt;
+      <line class="bodyweight-chart-grid" x1="${left}" y1="${y}" x2="${width-right}" y2="${y}"></line>
+      <text class="bodyweight-chart-label" x="2" y="${y+3}">${nutritionFormat(labelValue,1)}</text>
     `;
-  }).join(&#x27;&#x27;);
+  }).join('');
 
-  const pointDots = rows.map((row,index) =&gt; `
-    &lt;circle class=&quot;bodyweight-chart-point&quot;
-      cx=&quot;${xFor(index).toFixed(1)}&quot;
-      cy=&quot;${yFor(Number(row.weight_lb)).toFixed(1)}&quot;
-      r=&quot;3.2&quot;&gt;
-      &lt;title&gt;${row.log_date}: ${bodyweightFormat(row.weight_lb)}&lt;/title&gt;
-    &lt;/circle&gt;
-  `).join(&#x27;&#x27;);
+  const pointDots = rows.map((row,index) => `
+    <circle class="bodyweight-chart-point"
+      cx="${xFor(index).toFixed(1)}"
+      cy="${yFor(Number(row.weight_lb)).toFixed(1)}"
+      r="3.2">
+      <title>${row.log_date}: ${bodyweightFormat(row.weight_lb)}</title>
+    </circle>
+  `).join('');
 
   const firstDate = nutritionDateFromIso(rows[0].log_date)
-    .toLocaleDateString([],{month:&#x27;short&#x27;,day:&#x27;numeric&#x27;});
+    .toLocaleDateString([],{month:'short',day:'numeric'});
   const lastDate = nutritionDateFromIso(rows[rows.length-1].log_date)
-    .toLocaleDateString([],{month:&#x27;short&#x27;,day:&#x27;numeric&#x27;});
+    .toLocaleDateString([],{month:'short',day:'numeric'});
 
   bodyweightChart.innerHTML = `
-    &lt;svg viewBox=&quot;0 0 ${width} ${height}&quot; role=&quot;img&quot; aria-label=&quot;Bodyweight trend&quot;&gt;
+    <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Bodyweight trend">
       ${horizontalLines}
-      &lt;polyline class=&quot;bodyweight-chart-line&quot; points=&quot;${points}&quot;&gt;&lt;/polyline&gt;
+      <polyline class="bodyweight-chart-line" points="${points}"></polyline>
       ${pointDots}
-      &lt;text class=&quot;bodyweight-chart-label&quot; x=&quot;${left}&quot; y=&quot;${height-5}&quot;&gt;${nutritionEscape(firstDate)}&lt;/text&gt;
-      &lt;text class=&quot;bodyweight-chart-label&quot; x=&quot;${width-right-42}&quot; y=&quot;${height-5}&quot;&gt;${nutritionEscape(lastDate)}&lt;/text&gt;
-    &lt;/svg&gt;
+      <text class="bodyweight-chart-label" x="${left}" y="${height-5}">${nutritionEscape(firstDate)}</text>
+      <text class="bodyweight-chart-label" x="${width-right-42}" y="${height-5}">${nutritionEscape(lastDate)}</text>
+    </svg>
   `;
 }
 
 function renderBodyweight(){
   const rows = [...bodyweightRows]
-    .sort((a,b) =&gt; String(b.log_date).localeCompare(String(a.log_date)));
+    .sort((a,b) => String(b.log_date).localeCompare(String(a.log_date)));
 
   if(bodyweightEntryCount) bodyweightEntryCount.textContent = String(rows.length);
 
   const latest = rows[0];
   if(bodyweightLatest){
-    bodyweightLatest.textContent = latest ? bodyweightFormat(latest.weight_lb) : &#x27;—&#x27;;
+    bodyweightLatest.textContent = latest ? bodyweightFormat(latest.weight_lb) : '—';
   }
 
   const now = new Date();
   const sevenDaysAgo = new Date(now.getFullYear(),now.getMonth(),now.getDate()-6,0,0,0);
-  const weekRows = rows.filter(row =&gt; nutritionDateFromIso(row.log_date) &gt;= sevenDaysAgo);
+  const weekRows = rows.filter(row => nutritionDateFromIso(row.log_date) >= sevenDaysAgo);
   const weekAvg = weekRows.length
-    ? weekRows.reduce((sum,row) =&gt; sum + Number(row.weight_lb),0) / weekRows.length
+    ? weekRows.reduce((sum,row) => sum + Number(row.weight_lb),0) / weekRows.length
     : null;
 
   if(bodyweightAverage){
-    bodyweightAverage.textContent = weekAvg !== null ? bodyweightFormat(weekAvg) : &#x27;—&#x27;;
+    bodyweightAverage.textContent = weekAvg !== null ? bodyweightFormat(weekAvg) : '—';
   }
 
   if(bodyweightTrend){
-    bodyweightTrend.classList.remove(&#x27;up&#x27;,&#x27;down&#x27;);
+    bodyweightTrend.classList.remove('up','down');
 
-    if(rows.length &gt;= 2){
+    if(rows.length >= 2){
       const chronological = [...rows].sort(
-        (a,b) =&gt; String(a.log_date).localeCompare(String(b.log_date))
+        (a,b) => String(a.log_date).localeCompare(String(b.log_date))
       );
       const first = Number(chronological[0].weight_lb);
       const last = Number(chronological[chronological.length-1].weight_lb);
@@ -1106,29 +1087,29 @@ function renderBodyweight(){
 
       bodyweightTrend.textContent = bodyweightFormatDelta(delta);
 
-      if(delta &gt; .05) bodyweightTrend.classList.add(&#x27;up&#x27;);
-      if(delta &lt; -.05) bodyweightTrend.classList.add(&#x27;down&#x27;);
+      if(delta > .05) bodyweightTrend.classList.add('up');
+      if(delta < -.05) bodyweightTrend.classList.add('down');
     }else{
-      bodyweightTrend.textContent = &#x27;—&#x27;;
+      bodyweightTrend.textContent = '—';
     }
   }
 
   if(bodyweightHistory){
     bodyweightHistory.innerHTML = rows.length
-      ? rows.slice(0,8).map(row =&gt; `
-          &lt;div class=&quot;bodyweight-history-row&quot;&gt;
-            &lt;span class=&quot;bodyweight-history-date&quot;&gt;
+      ? rows.slice(0,8).map(row => `
+          <div class="bodyweight-history-row">
+            <span class="bodyweight-history-date">
               ${nutritionEscape(
                 nutritionDateFromIso(row.log_date).toLocaleDateString([],{
-                  weekday:&#x27;short&#x27;,month:&#x27;short&#x27;,day:&#x27;numeric&#x27;
+                  weekday:'short',month:'short',day:'numeric'
                 })
               )}
-            &lt;/span&gt;
-            &lt;strong class=&quot;bodyweight-history-weight&quot;&gt;${bodyweightFormat(row.weight_lb)}&lt;/strong&gt;
-            &lt;button type=&quot;button&quot; data-bodyweight-delete=&quot;${Number(row.id)}&quot;&gt;Delete&lt;/button&gt;
-          &lt;/div&gt;
-        `).join(&#x27;&#x27;)
-      : &#x27;&lt;div class=&quot;bodyweight-empty&quot;&gt;No bodyweight entries yet.&lt;/div&gt;&#x27;;
+            </span>
+            <strong class="bodyweight-history-weight">${bodyweightFormat(row.weight_lb)}</strong>
+            <button type="button" data-bodyweight-delete="${Number(row.id)}">Delete</button>
+          </div>
+        `).join('')
+      : '<div class="bodyweight-empty">No bodyweight entries yet.</div>';
   }
 
   renderBodyweightChart();
@@ -1138,15 +1119,15 @@ async function loadBodyweight(){
   if(!nutritionDb || !nutritionSession?.user) return;
 
   const {data,error} = await nutritionDb
-    .from(&#x27;bodyweight_logs&#x27;)
-    .select(&#x27;id,user_id,log_date,weight_lb,created_at,updated_at&#x27;)
-    .eq(&#x27;user_id&#x27;,nutritionSession.user.id)
-    .order(&#x27;log_date&#x27;,{ascending:false})
+    .from('bodyweight_logs')
+    .select('id,user_id,log_date,weight_lb,created_at,updated_at')
+    .eq('user_id',nutritionSession.user.id)
+    .order('log_date',{ascending:false})
     .limit(90);
 
   if(error){
-    console.error(&#x27;Bodyweight load error:&#x27;,error);
-    setBodyweightStatus(error.message,&#x27;error&#x27;);
+    console.error('Bodyweight load error:',error);
+    setBodyweightStatus(error.message,'error');
     return;
   }
 
@@ -1161,20 +1142,20 @@ async function saveBodyweight(){
   const enteredWeight = Number(bodyweightInput?.value);
   const weightLb = bodyweightInputToLb(enteredWeight);
 
-  if(!Number.isFinite(weightLb) || weightLb &lt; 40 || weightLb &gt; 1500){
+  if(!Number.isFinite(weightLb) || weightLb < 40 || weightLb > 1500){
     setBodyweightStatus(
-      `Enter a valid bodyweight in ${bodyweightUnit === &#x27;kg&#x27; ? &#x27;kilograms&#x27; : &#x27;pounds&#x27;}.`,
-      &#x27;error&#x27;
+      `Enter a valid bodyweight in ${bodyweightUnit === 'kg' ? 'kilograms' : 'pounds'}.`,
+      'error'
     );
     bodyweightInput?.focus();
     return;
   }
 
   bodyweightSaveBtn.disabled = true;
-  setBodyweightStatus(&#x27;Saving...&#x27;);
+  setBodyweightStatus('Saving...');
 
   const {error} = await nutritionDb
-    .from(&#x27;bodyweight_logs&#x27;)
+    .from('bodyweight_logs')
     .upsert({
       user_id:nutritionSession.user.id,
       log_date:date,
@@ -1182,36 +1163,36 @@ async function saveBodyweight(){
       weight_lb:Number(weightLb.toFixed(2)),
       updated_at:new Date().toISOString()
     },{
-      onConflict:&#x27;user_id,log_date&#x27;
+      onConflict:'user_id,log_date'
     });
 
   bodyweightSaveBtn.disabled = false;
 
   if(error){
-    setBodyweightStatus(error.message,&#x27;error&#x27;);
+    setBodyweightStatus(error.message,'error');
     return;
   }
 
-  bodyweightInput.value = &#x27;&#x27;;
+  bodyweightInput.value = '';
   setBodyweightStatus(
-    `✓ Bodyweight saved in ${bodyweightUnit === &#x27;kg&#x27; ? &#x27;kg&#x27; : &#x27;lb&#x27;}.`,
-    &#x27;success&#x27;
+    `✓ Bodyweight saved in ${bodyweightUnit === 'kg' ? 'kg' : 'lb'}.`,
+    'success'
   );
   await loadBodyweight();
 }
 
 async function deleteBodyweight(id){
   if(!nutritionDb || !nutritionSession?.user || !id) return;
-  if(!confirm(&#x27;Delete this bodyweight entry?&#x27;)) return;
+  if(!confirm('Delete this bodyweight entry?')) return;
 
   const {error} = await nutritionDb
-    .from(&#x27;bodyweight_logs&#x27;)
+    .from('bodyweight_logs')
     .delete()
-    .eq(&#x27;id&#x27;,Number(id))
-    .eq(&#x27;user_id&#x27;,nutritionSession.user.id);
+    .eq('id',Number(id))
+    .eq('user_id',nutritionSession.user.id);
 
   if(error){
-    setBodyweightStatus(error.message,&#x27;error&#x27;);
+    setBodyweightStatus(error.message,'error');
     return;
   }
 
@@ -1234,20 +1215,20 @@ async function setNutritionSession(session){
   if(!nutritionSection) return;
 
   if(!nutritionSession?.user){
-    nutritionSection.classList.add(&#x27;hidden&#x27;);
+    nutritionSection.classList.add('hidden');
     nutritionRows = [];
     nutritionFavorites = [];
     bodyweightRows = [];
     renderNutritionFavorites();
     renderBodyweight();
     resetNutritionMealForm();
-    nutritionMealSearchResults?.classList.add(&#x27;hidden&#x27;);
-    if(nutritionMealSearchInput) nutritionMealSearchInput.value = &#x27;&#x27;;
+    nutritionMealSearchResults?.classList.add('hidden');
+    if(nutritionMealSearchInput) nutritionMealSearchInput.value = '';
     closeNutritionScanner();
     return;
   }
 
-  nutritionSection.classList.remove(&#x27;hidden&#x27;);
+  nutritionSection.classList.remove('hidden');
 
   if(!nutritionDate.value){
     nutritionDate.value = nutritionLocalDateString();
@@ -1271,23 +1252,23 @@ async function saveNutritionTargets(){
   nutritionSaveTargetsBtn.disabled = true;
 
   const {error} = await nutritionDb
-    .from(&#x27;nutrition_targets&#x27;)
-    .upsert(values,{onConflict:&#x27;user_id&#x27;});
+    .from('nutrition_targets')
+    .upsert(values,{onConflict:'user_id'});
 
   nutritionSaveTargetsBtn.disabled = false;
 
   if(error){
-    setNutritionStatus(&#x27;Could not save targets: &#x27; + error.message,&#x27;error&#x27;);
+    setNutritionStatus('Could not save targets: ' + error.message,'error');
     return;
   }
 
   nutritionTargets = values;
   renderNutritionTargets();
   renderNutritionSummary();
-  nutritionTargetsForm?.classList.add(&#x27;hidden&#x27;);
-  setNutritionStatus(&#x27;✓ Daily targets saved.&#x27;,&#x27;success&#x27;);
-  setTimeout(() =&gt; {
-    if(nutritionFormStatus?.textContent === &#x27;✓ Daily targets saved.&#x27;) setNutritionStatus(&#x27;&#x27;);
+  nutritionTargetsForm?.classList.add('hidden');
+  setNutritionStatus('✓ Daily targets saved.','success');
+  setTimeout(() => {
+    if(nutritionFormStatus?.textContent === '✓ Daily targets saved.') setNutritionStatus('');
   },2200);
 }
 
@@ -1295,101 +1276,101 @@ function beginNutritionEdit(row){
   if(!row) return;
 
   nutritionMealEditId = Number(row.id);
-  nutritionMealFormTitle.textContent = &#x27;Edit Meal&#x27;;
-  nutritionFoodName.value = row.food_name || &#x27;&#x27;;
-  nutritionMealType.value = row.meal_type || &#x27;snack&#x27;;
+  nutritionMealFormTitle.textContent = 'Edit Meal';
+  nutritionFoodName.value = row.food_name || '';
+  nutritionMealType.value = row.meal_type || 'snack';
   nutritionCalories.value = nutritionNumber(row.calories);
   nutritionProtein.value = nutritionNumber(row.protein_g);
   nutritionCarbs.value = nutritionNumber(row.carbs_g);
   nutritionFat.value = nutritionNumber(row.fat_g);
-  nutritionNotes.value = row.notes || &#x27;&#x27;;
+  nutritionNotes.value = row.notes || '';
   // Existing meal rows already store their total macros, so edit them as 1 serving.
   setNutritionServingInput(nutritionServingCount,1);
   updateNutritionServingPreview();
-  nutritionSaveMealBtn.textContent = &#x27;Update meal&#x27;;
-  nutritionCancelEditBtn.classList.remove(&#x27;hidden&#x27;);
-  setNutritionStatus(&#x27;&#x27;);
+  nutritionSaveMealBtn.textContent = 'Update meal';
+  nutritionCancelEditBtn.classList.remove('hidden');
+  setNutritionStatus('');
 
-  document.querySelector(&#x27;.nutrition-add-card&#x27;)?.scrollIntoView({
-    behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;
+  document.querySelector('.nutrition-add-card')?.scrollIntoView({
+    behavior:'smooth',block:'center'
   });
 }
 
 async function saveNutritionMeal(){
   if(!nutritionSession?.user || !nutritionDb) return;
 
-  const foodName = String(nutritionFoodName?.value || &#x27;&#x27;).trim();
+  const foodName = String(nutritionFoodName?.value || '').trim();
   if(!foodName){
-    setNutritionStatus(&#x27;Add a food or meal name first.&#x27;,&#x27;error&#x27;);
+    setNutritionStatus('Add a food or meal name first.','error');
     nutritionFoodName?.focus();
     return;
   }
 
   const servings = nutritionServingValue(nutritionServingCount);
-  const userNotes = String(nutritionNotes?.value || &#x27;&#x27;).trim();
+  const userNotes = String(nutritionNotes?.value || '').trim();
 
   const row = {
     user_id:nutritionSession.user.id,
     meal_date:nutritionDate.value || nutritionLocalDateString(),
-    meal_type:nutritionMealType.value || &#x27;snack&#x27;,
+    meal_type:nutritionMealType.value || 'snack',
     food_name:foodName,
     calories:nutritionNumber(nutritionCalories.value) * servings,
     protein_g:nutritionNumber(nutritionProtein.value) * servings,
     carbs_g:nutritionNumber(nutritionCarbs.value) * servings,
     fat_g:nutritionNumber(nutritionFat.value) * servings,
     notes:[
-      servings !== 1 ? nutritionServingText(servings) : &#x27;&#x27;,
+      servings !== 1 ? nutritionServingText(servings) : '',
       userNotes
-    ].filter(Boolean).join(&#x27; · &#x27;) || null,
+    ].filter(Boolean).join(' · ') || null,
     updated_at:new Date().toISOString()
   };
 
   nutritionSaveMealBtn.disabled = true;
-  setNutritionStatus(nutritionMealEditId ? &#x27;Updating meal...&#x27; : &#x27;Adding meal...&#x27;);
+  setNutritionStatus(nutritionMealEditId ? 'Updating meal...' : 'Adding meal...');
 
   let result;
 
   if(nutritionMealEditId){
     result = await nutritionDb
-      .from(&#x27;meal_logs&#x27;)
+      .from('meal_logs')
       .update(row)
-      .eq(&#x27;id&#x27;,nutritionMealEditId)
-      .eq(&#x27;user_id&#x27;,nutritionSession.user.id);
+      .eq('id',nutritionMealEditId)
+      .eq('user_id',nutritionSession.user.id);
   }else{
     result = await nutritionDb
-      .from(&#x27;meal_logs&#x27;)
+      .from('meal_logs')
       .insert(row);
   }
 
   nutritionSaveMealBtn.disabled = false;
 
   if(result.error){
-    setNutritionStatus(result.error.message,&#x27;error&#x27;);
+    setNutritionStatus(result.error.message,'error');
     return;
   }
 
   const wasEditing = !!nutritionMealEditId;
   resetNutritionMealForm();
-  setNutritionStatus(wasEditing ? &#x27;✓ Meal updated.&#x27; : &#x27;✓ Meal added.&#x27;,&#x27;success&#x27;);
+  setNutritionStatus(wasEditing ? '✓ Meal updated.' : '✓ Meal added.','success');
   await loadNutritionMeals();
 
-  setTimeout(() =&gt; {
-    if(nutritionFormStatus?.classList.contains(&#x27;success&#x27;)) setNutritionStatus(&#x27;&#x27;);
+  setTimeout(() => {
+    if(nutritionFormStatus?.classList.contains('success')) setNutritionStatus('');
   },1800);
 }
 
 async function deleteNutritionMeal(id){
   if(!nutritionSession?.user || !nutritionDb || !id) return;
-  if(!confirm(&#x27;Delete this meal from your nutrition log?&#x27;)) return;
+  if(!confirm('Delete this meal from your nutrition log?')) return;
 
   const {error} = await nutritionDb
-    .from(&#x27;meal_logs&#x27;)
+    .from('meal_logs')
     .delete()
-    .eq(&#x27;id&#x27;,Number(id))
-    .eq(&#x27;user_id&#x27;,nutritionSession.user.id);
+    .eq('id',Number(id))
+    .eq('user_id',nutritionSession.user.id);
 
   if(error){
-    setNutritionStatus(error.message,&#x27;error&#x27;);
+    setNutritionStatus(error.message,'error');
     return;
   }
 
@@ -1397,82 +1378,82 @@ async function deleteNutritionMeal(id){
   await loadNutritionMeals();
 }
 
-nutritionEditTargetsBtn?.addEventListener(&#x27;click&#x27;,() =&gt; {
+nutritionEditTargetsBtn?.addEventListener('click',() => {
   renderNutritionTargets();
-  nutritionTargetsForm?.classList.toggle(&#x27;hidden&#x27;);
+  nutritionTargetsForm?.classList.toggle('hidden');
 });
-nutritionCancelTargetsBtn?.addEventListener(&#x27;click&#x27;,() =&gt; {
-  nutritionTargetsForm?.classList.add(&#x27;hidden&#x27;);
+nutritionCancelTargetsBtn?.addEventListener('click',() => {
+  nutritionTargetsForm?.classList.add('hidden');
   renderNutritionTargets();
 });
-nutritionSaveTargetsBtn?.addEventListener(&#x27;click&#x27;,saveNutritionTargets);
+nutritionSaveTargetsBtn?.addEventListener('click',saveNutritionTargets);
 
-nutritionSaveMealBtn?.addEventListener(&#x27;click&#x27;,saveNutritionMeal);
-nutritionCancelEditBtn?.addEventListener(&#x27;click&#x27;,resetNutritionMealForm);
+nutritionSaveMealBtn?.addEventListener('click',saveNutritionMeal);
+nutritionCancelEditBtn?.addEventListener('click',resetNutritionMealForm);
 
-nutritionMealsList?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
-  const favorite = e.target.closest(&#x27;[data-nutrition-favorite]&#x27;);
+nutritionMealsList?.addEventListener('click',(e) => {
+  const favorite = e.target.closest('[data-nutrition-favorite]');
   if(favorite){
     const row = nutritionRows.find(
-      x =&gt; Number(x.id) === Number(favorite.dataset.nutritionFavorite)
+      x => Number(x.id) === Number(favorite.dataset.nutritionFavorite)
     );
     if(row) saveNutritionFavoriteFromMeal(row);
     return;
   }
 
-  const edit = e.target.closest(&#x27;[data-nutrition-edit]&#x27;);
+  const edit = e.target.closest('[data-nutrition-edit]');
   if(edit){
-    const row = nutritionRows.find(x =&gt; Number(x.id) === Number(edit.dataset.nutritionEdit));
+    const row = nutritionRows.find(x => Number(x.id) === Number(edit.dataset.nutritionEdit));
     if(row) beginNutritionEdit(row);
     return;
   }
 
-  const del = e.target.closest(&#x27;[data-nutrition-delete]&#x27;);
+  const del = e.target.closest('[data-nutrition-delete]');
   if(del) deleteNutritionMeal(Number(del.dataset.nutritionDelete));
 });
 
-nutritionDate?.addEventListener(&#x27;change&#x27;,async () =&gt; {
+nutritionDate?.addEventListener('change',async () => {
   resetNutritionMealForm();
   await loadNutritionMeals();
 });
-nutritionPrevDay?.addEventListener(&#x27;click&#x27;,async () =&gt; {
+nutritionPrevDay?.addEventListener('click',async () => {
   nutritionDate.value = nutritionShiftDate(nutritionDate.value || nutritionLocalDateString(),-1);
   resetNutritionMealForm();
   await loadNutritionMeals();
 });
-nutritionNextDay?.addEventListener(&#x27;click&#x27;,async () =&gt; {
+nutritionNextDay?.addEventListener('click',async () => {
   nutritionDate.value = nutritionShiftDate(nutritionDate.value || nutritionLocalDateString(),1);
   resetNutritionMealForm();
   await loadNutritionMeals();
 });
-nutritionTodayBtn?.addEventListener(&#x27;click&#x27;,async () =&gt; {
+nutritionTodayBtn?.addEventListener('click',async () => {
   nutritionDate.value = nutritionLocalDateString();
   resetNutritionMealForm();
   await loadNutritionMeals();
 });
 
 
-function fillNutritionFormFromMeal(row, sourceLabel=&#x27;Saved meal&#x27;){
+function fillNutritionFormFromMeal(row, sourceLabel='Saved meal'){
   if(!row) return;
 
   nutritionMealEditId = null;
-  if(nutritionMealFormTitle) nutritionMealFormTitle.textContent = &#x27;Add Meal&#x27;;
-  nutritionFoodName.value = row.food_name || row.product_name || &#x27;&#x27;;
-  nutritionMealType.value = row.meal_type || &#x27;snack&#x27;;
+  if(nutritionMealFormTitle) nutritionMealFormTitle.textContent = 'Add Meal';
+  nutritionFoodName.value = row.food_name || row.product_name || '';
+  nutritionMealType.value = row.meal_type || 'snack';
   nutritionCalories.value = nutritionNumber(row.calories);
   nutritionProtein.value = nutritionNumber(row.protein_g);
   nutritionCarbs.value = nutritionNumber(row.carbs_g);
   nutritionFat.value = nutritionNumber(row.fat_g);
-  nutritionNotes.value = row.notes || &#x27;&#x27;;
+  nutritionNotes.value = row.notes || '';
   setNutritionServingInput(nutritionServingCount,1);
   updateNutritionServingPreview();
-  nutritionSaveMealBtn.textContent = &#x27;Add meal&#x27;;
-  nutritionCancelEditBtn.classList.add(&#x27;hidden&#x27;);
+  nutritionSaveMealBtn.textContent = 'Add meal';
+  nutritionCancelEditBtn.classList.add('hidden');
 
-  setNutritionStatus(`✓ ${sourceLabel} loaded. Check the serving and macros, then tap Add meal.`,&#x27;success&#x27;);
-  document.querySelector(&#x27;.nutrition-meal-form&#x27;)?.scrollIntoView({
-    behavior:&#x27;smooth&#x27;,
-    block:&#x27;center&#x27;
+  setNutritionStatus(`✓ ${sourceLabel} loaded. Check the serving and macros, then tap Add meal.`,'success');
+  document.querySelector('.nutrition-meal-form')?.scrollIntoView({
+    behavior:'smooth',
+    block:'center'
   });
 }
 
@@ -1483,56 +1464,56 @@ function renderNutritionMealSearchResults(rows){
 
   if(!nutritionSavedSearchRows.length){
     nutritionMealSearchResults.innerHTML =
-      &#x27;&lt;div class=&quot;nutrition-search-empty&quot;&gt;No matching meals found in your history.&lt;/div&gt;&#x27;;
-    nutritionMealSearchResults.classList.remove(&#x27;hidden&#x27;);
+      '<div class="nutrition-search-empty">No matching meals found in your history.</div>';
+    nutritionMealSearchResults.classList.remove('hidden');
     return;
   }
 
-  nutritionMealSearchResults.innerHTML = nutritionSavedSearchRows.map((row,index) =&gt; `
-    &lt;div class=&quot;nutrition-search-result&quot;&gt;
-      &lt;div&gt;
-        &lt;div class=&quot;nutrition-search-result-name&quot;&gt;${nutritionEscape(row.food_name || &#x27;Meal&#x27;)}&lt;/div&gt;
-        &lt;div class=&quot;nutrition-search-result-meta&quot;&gt;
-          &lt;span&gt;${nutritionFormat(row.calories,0)} cal&lt;/span&gt;
-          &lt;span&gt;${nutritionFormat(row.protein_g)}g P&lt;/span&gt;
-          &lt;span&gt;${nutritionFormat(row.carbs_g)}g C&lt;/span&gt;
-          &lt;span&gt;${nutritionFormat(row.fat_g)}g F&lt;/span&gt;
-        &lt;/div&gt;
-        ${row.notes ? `&lt;div class=&quot;nutrition-search-result-note&quot;&gt;${nutritionEscape(row.notes)}&lt;/div&gt;` : &#x27;&#x27;}
-      &lt;/div&gt;
-      &lt;button class=&quot;nutrition-search-use&quot; type=&quot;button&quot; data-use-saved-meal=&quot;${index}&quot;&gt;Use&lt;/button&gt;
-    &lt;/div&gt;
-  `).join(&#x27;&#x27;);
+  nutritionMealSearchResults.innerHTML = nutritionSavedSearchRows.map((row,index) => `
+    <div class="nutrition-search-result">
+      <div>
+        <div class="nutrition-search-result-name">${nutritionEscape(row.food_name || 'Meal')}</div>
+        <div class="nutrition-search-result-meta">
+          <span>${nutritionFormat(row.calories,0)} cal</span>
+          <span>${nutritionFormat(row.protein_g)}g P</span>
+          <span>${nutritionFormat(row.carbs_g)}g C</span>
+          <span>${nutritionFormat(row.fat_g)}g F</span>
+        </div>
+        ${row.notes ? `<div class="nutrition-search-result-note">${nutritionEscape(row.notes)}</div>` : ''}
+      </div>
+      <button class="nutrition-search-use" type="button" data-use-saved-meal="${index}">Use</button>
+    </div>
+  `).join('');
 
-  nutritionMealSearchResults.classList.remove(&#x27;hidden&#x27;);
+  nutritionMealSearchResults.classList.remove('hidden');
 }
 
 async function searchNutritionMealHistory(){
   if(!nutritionSession?.user || !nutritionDb) return;
 
-  const query = String(nutritionMealSearchInput?.value || &#x27;&#x27;).trim();
+  const query = String(nutritionMealSearchInput?.value || '').trim();
 
   if(!query){
-    nutritionMealSearchResults?.classList.add(&#x27;hidden&#x27;);
-    if(nutritionMealSearchResults) nutritionMealSearchResults.innerHTML = &#x27;&#x27;;
+    nutritionMealSearchResults?.classList.add('hidden');
+    if(nutritionMealSearchResults) nutritionMealSearchResults.innerHTML = '';
     return;
   }
 
-  nutritionMealSearchResults.classList.remove(&#x27;hidden&#x27;);
+  nutritionMealSearchResults.classList.remove('hidden');
   nutritionMealSearchResults.innerHTML =
-    &#x27;&lt;div class=&quot;nutrition-search-empty&quot;&gt;Searching your meal history...&lt;/div&gt;&#x27;;
+    '<div class="nutrition-search-empty">Searching your meal history...</div>';
 
   const {data,error} = await nutritionDb
-    .from(&#x27;meal_logs&#x27;)
-    .select(&#x27;id,meal_date,meal_type,food_name,calories,protein_g,carbs_g,fat_g,notes,created_at&#x27;)
-    .eq(&#x27;user_id&#x27;,nutritionSession.user.id)
-    .ilike(&#x27;food_name&#x27;,`%${query}%`)
-    .order(&#x27;created_at&#x27;,{ascending:false})
+    .from('meal_logs')
+    .select('id,meal_date,meal_type,food_name,calories,protein_g,carbs_g,fat_g,notes,created_at')
+    .eq('user_id',nutritionSession.user.id)
+    .ilike('food_name',`%${query}%`)
+    .order('created_at',{ascending:false})
     .limit(40);
 
   if(error){
     nutritionMealSearchResults.innerHTML =
-      `&lt;div class=&quot;nutrition-search-empty&quot;&gt;${nutritionEscape(error.message)}&lt;/div&gt;`;
+      `<div class="nutrition-search-empty">${nutritionEscape(error.message)}</div>`;
     return;
   }
 
@@ -1542,51 +1523,51 @@ async function searchNutritionMealHistory(){
 
   for(const row of (data || [])){
     const key = [
-      String(row.food_name || &#x27;&#x27;).trim().toLowerCase(),
+      String(row.food_name || '').trim().toLowerCase(),
       nutritionNumber(row.calories),
       nutritionNumber(row.protein_g),
       nutritionNumber(row.carbs_g),
       nutritionNumber(row.fat_g)
-    ].join(&#x27;|&#x27;);
+    ].join('|');
 
     if(seen.has(key)) continue;
     seen.add(key);
     unique.push(row);
-    if(unique.length &gt;= 12) break;
+    if(unique.length >= 12) break;
   }
 
   renderNutritionMealSearchResults(unique);
 }
 
-nutritionMealSearchBtn?.addEventListener(&#x27;click&#x27;,searchNutritionMealHistory);
+nutritionMealSearchBtn?.addEventListener('click',searchNutritionMealHistory);
 
-nutritionMealSearchInput?.addEventListener(&#x27;input&#x27;,() =&gt; {
+nutritionMealSearchInput?.addEventListener('input',() => {
   clearTimeout(nutritionSearchTimer);
   nutritionSearchTimer = setTimeout(searchNutritionMealHistory,220);
 });
 
-nutritionMealSearchInput?.addEventListener(&#x27;keydown&#x27;,(e) =&gt; {
-  if(e.key === &#x27;Enter&#x27;){
+nutritionMealSearchInput?.addEventListener('keydown',(e) => {
+  if(e.key === 'Enter'){
     e.preventDefault();
     searchNutritionMealHistory();
   }
 });
 
-nutritionMealSearchResults?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
-  const btn = e.target.closest(&#x27;[data-use-saved-meal]&#x27;);
+nutritionMealSearchResults?.addEventListener('click',(e) => {
+  const btn = e.target.closest('[data-use-saved-meal]');
   if(!btn) return;
 
   const row = nutritionSavedSearchRows[Number(btn.dataset.useSavedMeal)];
   if(!row) return;
 
-  fillNutritionFormFromMeal(row,&#x27;Saved meal&#x27;);
-  nutritionMealSearchResults.classList.add(&#x27;hidden&#x27;);
+  fillNutritionFormFromMeal(row,'Saved meal');
+  nutritionMealSearchResults.classList.add('hidden');
 });
 
-function setNutritionScannerStatus(text=&#x27;&#x27;,type=&#x27;&#x27;){
+function setNutritionScannerStatus(text='',type=''){
   if(!nutritionScannerStatus) return;
   nutritionScannerStatus.textContent = text;
-  nutritionScannerStatus.className = `nutrition-scanner-status ${type || &#x27;&#x27;}`;
+  nutritionScannerStatus.className = `nutrition-scanner-status ${type || ''}`;
 }
 
 
@@ -1595,40 +1576,40 @@ function adjustNutritionServing(input,delta){
   setNutritionServingInput(input,next);
 }
 
-nutritionServingMinus?.addEventListener(&#x27;click&#x27;,() =&gt; {
+nutritionServingMinus?.addEventListener('click',() => {
   adjustNutritionServing(nutritionServingCount,-0.5);
   updateNutritionServingPreview();
 });
-nutritionServingPlus?.addEventListener(&#x27;click&#x27;,() =&gt; {
+nutritionServingPlus?.addEventListener('click',() => {
   adjustNutritionServing(nutritionServingCount,0.5);
   updateNutritionServingPreview();
 });
-nutritionServingCount?.addEventListener(&#x27;input&#x27;,updateNutritionServingPreview);
-nutritionServingCount?.addEventListener(&#x27;change&#x27;,() =&gt; {
+nutritionServingCount?.addEventListener('input',updateNutritionServingPreview);
+nutritionServingCount?.addEventListener('change',() => {
   setNutritionServingInput(nutritionServingCount,nutritionServingCount.value);
   updateNutritionServingPreview();
 });
 
-[nutritionCalories,nutritionProtein,nutritionCarbs,nutritionFat].forEach(input =&gt; {
-  input?.addEventListener(&#x27;input&#x27;,updateNutritionServingPreview);
+[nutritionCalories,nutritionProtein,nutritionCarbs,nutritionFat].forEach(input => {
+  input?.addEventListener('input',updateNutritionServingPreview);
 });
 
-nutritionScanServingMinus?.addEventListener(&#x27;click&#x27;,() =&gt; {
+nutritionScanServingMinus?.addEventListener('click',() => {
   adjustNutritionServing(nutritionScanServingCount,-0.5);
   updateScanServingButtons();
 });
-nutritionScanServingPlus?.addEventListener(&#x27;click&#x27;,() =&gt; {
+nutritionScanServingPlus?.addEventListener('click',() => {
   adjustNutritionServing(nutritionScanServingCount,0.5);
   updateScanServingButtons();
 });
-nutritionScanServingCount?.addEventListener(&#x27;input&#x27;,updateScanServingButtons);
-nutritionScanServingCount?.addEventListener(&#x27;change&#x27;,() =&gt; {
+nutritionScanServingCount?.addEventListener('input',updateScanServingButtons);
+nutritionScanServingCount?.addEventListener('change',() => {
   setNutritionServingInput(nutritionScanServingCount,nutritionScanServingCount.value);
   updateScanServingButtons();
 });
 
-document.querySelectorAll(&#x27;[data-scan-servings]&#x27;).forEach(btn =&gt; {
-  btn.addEventListener(&#x27;click&#x27;,() =&gt; {
+document.querySelectorAll('[data-scan-servings]').forEach(btn => {
+  btn.addEventListener('click',() => {
     setNutritionServingInput(nutritionScanServingCount,btn.dataset.scanServings);
     updateScanServingButtons();
   });
@@ -1641,19 +1622,19 @@ updateScanServingButtons();
 
 function nutritionAutoMealType(){
   const hour = new Date().getHours();
-  if(hour &gt;= 5 &amp;&amp; hour &lt; 11) return &#x27;breakfast&#x27;;
-  if(hour &gt;= 11 &amp;&amp; hour &lt; 16) return &#x27;lunch&#x27;;
-  if(hour &gt;= 16 &amp;&amp; hour &lt; 22) return &#x27;dinner&#x27;;
-  return &#x27;snack&#x27;;
+  if(hour >= 5 && hour < 11) return 'breakfast';
+  if(hour >= 11 && hour < 16) return 'lunch';
+  if(hour >= 16 && hour < 22) return 'dinner';
+  return 'snack';
 }
 
 function nutritionMealTypeLabel(type){
   return ({
-    breakfast:&#x27;Breakfast&#x27;,
-    lunch:&#x27;Lunch&#x27;,
-    dinner:&#x27;Dinner&#x27;,
-    snack:&#x27;Snacks&#x27;
-  })[type] || &#x27;Snacks&#x27;;
+    breakfast:'Breakfast',
+    lunch:'Lunch',
+    dinner:'Dinner',
+    snack:'Snacks'
+  })[type] || 'Snacks';
 }
 
 async function stopNutritionScanner(){
@@ -1672,12 +1653,12 @@ async function stopNutritionScanner(){
   }
 
   nutritionScanner = null;
-  const reader = document.getElementById(&#x27;nutritionBarcodeReader&#x27;);
-  if(reader) reader.innerHTML = &#x27;&#x27;;
+  const reader = document.getElementById('nutritionBarcodeReader');
+  if(reader) reader.innerHTML = '';
 }
 
 function extractNutritionBarcode(raw){
-  const value = String(raw || &#x27;&#x27;).trim();
+  const value = String(raw || '').trim();
   if(!value) return null;
 
   // Normal UPC / EAN / GTIN scan.
@@ -1700,9 +1681,9 @@ function extractNutritionBarcode(raw){
   // QR URLs sometimes put the GTIN in a named query parameter.
   try{
     const url = new URL(value);
-    const keys = [&#x27;gtin&#x27;,&#x27;ean&#x27;,&#x27;upc&#x27;,&#x27;barcode&#x27;,&#x27;code&#x27;];
+    const keys = ['gtin','ean','upc','barcode','code'];
     for(const key of keys){
-      const candidate = String(url.searchParams.get(key) || &#x27;&#x27;).replace(/\D/g,&#x27;&#x27;);
+      const candidate = String(url.searchParams.get(key) || '').replace(/\D/g,'');
       if(/^\d{8,14}$/.test(candidate)) return candidate;
     }
   }catch(_err){
@@ -1719,29 +1700,29 @@ function extractNutritionBarcode(raw){
 function scannedNutritionMeal(product,barcode){
   const n = product?.nutriments || {};
 
-  const numberOrNull = value =&gt; {
+  const numberOrNull = value => {
     const num = Number(value);
-    return Number.isFinite(num) &amp;&amp; num &gt;= 0 ? num : null;
+    return Number.isFinite(num) && num >= 0 ? num : null;
   };
 
   const per100 = {
-    calories:numberOrNull(n[&#x27;energy-kcal_100g&#x27;]),
+    calories:numberOrNull(n['energy-kcal_100g']),
     protein:numberOrNull(n.proteins_100g),
     carbs:numberOrNull(n.carbohydrates_100g),
     fat:numberOrNull(n.fat_100g)
   };
 
   const perServing = {
-    calories:numberOrNull(n[&#x27;energy-kcal_serving&#x27;]),
+    calories:numberOrNull(n['energy-kcal_serving']),
     protein:numberOrNull(n.proteins_serving),
     carbs:numberOrNull(n.carbohydrates_serving),
     fat:numberOrNull(n.fat_serving)
   };
 
-  const hasDirectServing = Object.values(perServing).some(v =&gt; v !== null);
+  const hasDirectServing = Object.values(perServing).some(v => v !== null);
   const servingQty = numberOrNull(product?.serving_quantity);
-  const canCalculateServing = !hasDirectServing &amp;&amp; servingQty &amp;&amp; servingQty &gt; 0 &amp;&amp;
-    Object.values(per100).some(v =&gt; v !== null);
+  const canCalculateServing = !hasDirectServing && servingQty && servingQty > 0 &&
+    Object.values(per100).some(v => v !== null);
 
   let values;
   let servingNote;
@@ -1755,7 +1736,7 @@ function scannedNutritionMeal(product,barcode){
     };
     servingNote = product?.serving_size
       ? `serving: ${product.serving_size}`
-      : &#x27;per serving&#x27;;
+      : 'per serving';
   }else if(canCalculateServing){
     const factor = servingQty / 100;
     values = {
@@ -1774,16 +1755,16 @@ function scannedNutritionMeal(product,barcode){
       carbs:per100.carbs ?? 0,
       fat:per100.fat ?? 0
     };
-    servingNote = &#x27;nutrition per 100g&#x27;;
+    servingNote = 'nutrition per 100g';
   }
 
-  const hasAnyNutrition = Object.values(values).some(v =&gt; Number(v) &gt; 0);
+  const hasAnyNutrition = Object.values(values).some(v => Number(v) > 0);
 
   return {
     food_name:[
-      product?.product_name || product?.generic_name || &#x27;Scanned food&#x27;,
-      product?.brands ? `— ${product.brands}` : &#x27;&#x27;
-    ].filter(Boolean).join(&#x27; &#x27;),
+      product?.product_name || product?.generic_name || 'Scanned food',
+      product?.brands ? `— ${product.brands}` : ''
+    ].filter(Boolean).join(' '),
     calories:values.calories,
     protein_g:values.protein,
     carbs_g:values.carbs,
@@ -1795,7 +1776,7 @@ function scannedNutritionMeal(product,barcode){
 
 async function autoLogScannedFood(product,barcode){
   if(!nutritionDb || !nutritionSession?.user){
-    throw new Error(&#x27;Log in before scanning food.&#x27;);
+    throw new Error('Log in before scanning food.');
   }
 
   const meal = scannedNutritionMeal(product,barcode);
@@ -1810,9 +1791,9 @@ async function autoLogScannedFood(product,barcode){
       carbs_g:0,
       fat_g:0,
       notes:meal.notes
-    },&#x27;Scanned product&#x27;);
+    },'Scanned product');
 
-    throw new Error(&#x27;Product found, but its nutrition data is missing. I loaded the name into the form so you can enter the label manually.&#x27;);
+    throw new Error('Product found, but its nutrition data is missing. I loaded the name into the form so you can enter the label manually.');
   }
 
   const mealType = nutritionAutoMealType();
@@ -1820,7 +1801,7 @@ async function autoLogScannedFood(product,barcode){
   const servings = nutritionServingValue(nutritionScanServingCount);
 
   const {error} = await nutritionDb
-    .from(&#x27;meal_logs&#x27;)
+    .from('meal_logs')
     .insert({
       user_id:nutritionSession.user.id,
       meal_date:mealDate,
@@ -1833,7 +1814,7 @@ async function autoLogScannedFood(product,barcode){
       notes:[
         nutritionServingText(servings),
         meal.notes
-      ].filter(Boolean).join(&#x27; · &#x27;),
+      ].filter(Boolean).join(' · '),
       updated_at:new Date().toISOString()
     });
 
@@ -1859,19 +1840,19 @@ async function lookupAndAutoLogNutritionCode(rawCode){
 
   if(!barcode){
     throw new Error(
-      &#x27;QR code detected, but it does not contain a UPC/EAN/GTIN food code. Try the line-style barcode on the package.&#x27;
+      'QR code detected, but it does not contain a UPC/EAN/GTIN food code. Try the line-style barcode on the package.'
     );
   }
 
   if(nutritionBarcodeInput) nutritionBarcodeInput.value = barcode;
 
-  setNutritionScannerStatus(&#x27;Product code found — looking up food…&#x27;);
+  setNutritionScannerStatus('Product code found — looking up food…');
   if(nutritionCameraLabel) nutritionCameraLabel.textContent = `Code ${barcode}`;
 
   const fields = [
-    &#x27;code&#x27;,&#x27;product_name&#x27;,&#x27;generic_name&#x27;,&#x27;brands&#x27;,&#x27;serving_size&#x27;,&#x27;serving_quantity&#x27;,
-    &#x27;categories_tags&#x27;,&#x27;nutriments&#x27;
-  ].join(&#x27;,&#x27;);
+    'code','product_name','generic_name','brands','serving_size','serving_quantity',
+    'categories_tags','nutriments'
+  ].join(',');
 
   const response = await fetch(
     `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=${encodeURIComponent(fields)}`
@@ -1885,11 +1866,11 @@ async function lookupAndAutoLogNutritionCode(rawCode){
 
   if(payload?.status !== 1 || !payload?.product){
     throw new Error(
-      &#x27;Barcode scanned successfully, but that product is not in the food database yet.&#x27;
+      'Barcode scanned successfully, but that product is not in the food database yet.'
     );
   }
 
-  setNutritionScannerStatus(&#x27;Food found — logging it automatically…&#x27;);
+  setNutritionScannerStatus('Food found — logging it automatically…');
 
   return await autoLogScannedFood(payload.product,barcode);
 }
@@ -1899,33 +1880,33 @@ async function handleNutritionScan(decodedText){
   nutritionScanHandled = true;
 
   try{
-    setNutritionScannerStatus(&#x27;Code detected…&#x27;);
+    setNutritionScannerStatus('Code detected…');
     await stopNutritionScanner();
 
     const logged = await lookupAndAutoLogNutritionCode(decodedText);
 
     setNutritionScannerStatus(
       `✓ Logged ${nutritionServingText(logged.servings)} of ${logged.name} · ${nutritionFormat(logged.calories,0)} cal · ${nutritionMealTypeLabel(logged.mealType)}`,
-      &#x27;success&#x27;
+      'success'
     );
 
-    if(nutritionCameraLabel) nutritionCameraLabel.textContent = &#x27;Food logged ✓&#x27;;
+    if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Food logged ✓';
 
     setNutritionStatus(
       `✓ ${nutritionServingText(logged.servings)} of ${logged.name} was added to ${nutritionMealTypeLabel(logged.mealType)}.`,
-      &#x27;success&#x27;
+      'success'
     );
 
     setTimeout(closeNutritionScanner,950);
   }catch(err){
-    console.error(&#x27;Nutrition scan error:&#x27;,err);
-    setNutritionScannerStatus(err?.message || String(err),&#x27;error&#x27;);
-    if(nutritionCameraLabel) nutritionCameraLabel.textContent = &#x27;Try another code&#x27;;
+    console.error('Nutrition scan error:',err);
+    setNutritionScannerStatus(err?.message || String(err),'error');
+    if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Try another code';
 
     // Restart the rear camera so the user can immediately try again.
     nutritionScanHandled = false;
-    setTimeout(() =&gt; {
-      if(nutritionScannerOverlay?.classList.contains(&#x27;show&#x27;) &amp;&amp; !nutritionScanner){
+    setTimeout(() => {
+      if(nutritionScannerOverlay?.classList.contains('show') && !nutritionScanner){
         startNutritionRearCamera();
       }
     },850);
@@ -1933,22 +1914,22 @@ async function handleNutritionScan(decodedText){
 }
 
 async function startNutritionRearCamera(){
-  if(typeof Html5Qrcode === &#x27;undefined&#x27;){
+  if(typeof Html5Qrcode === 'undefined'){
     setNutritionScannerStatus(
-      &#x27;Camera scanner could not load. You can still enter the barcode manually.&#x27;,
-      &#x27;error&#x27;
+      'Camera scanner could not load. You can still enter the barcode manually.',
+      'error'
     );
     return;
   }
 
   await stopNutritionScanner();
 
-  const readerId = &#x27;nutritionBarcodeReader&#x27;;
+  const readerId = 'nutritionBarcodeReader';
   nutritionScanner = new Html5Qrcode(readerId,false);
 
   const scanConfig = {
     fps:12,
-    qrbox:(viewWidth,viewHeight) =&gt; {
+    qrbox:(viewWidth,viewHeight) => {
       const width = Math.floor(Math.min(viewWidth * .78,360));
       const height = Math.floor(Math.min(viewHeight * .34,170));
       return {width,height};
@@ -1956,57 +1937,57 @@ async function startNutritionRearCamera(){
     aspectRatio:1.333333
   };
 
-  let cameraChoice = {facingMode:{exact:&#x27;environment&#x27;}};
-  let cameraName = &#x27;Back camera&#x27;;
+  let cameraChoice = {facingMode:{exact:'environment'}};
+  let cameraName = 'Back camera';
 
   try{
     const cameras = await Html5Qrcode.getCameras();
 
     if(cameras?.length){
       const rear =
-        cameras.find(cam =&gt; /back|rear|environment|world/i.test(cam.label || &#x27;&#x27;)) ||
+        cameras.find(cam => /back|rear|environment|world/i.test(cam.label || '')) ||
         cameras[cameras.length - 1];
 
       if(rear?.id){
         cameraChoice = rear.id;
-        cameraName = rear.label || &#x27;Back camera&#x27;;
+        cameraName = rear.label || 'Back camera';
       }
     }
   }catch(err){
-    console.debug(&#x27;Camera enumeration fallback:&#x27;,err);
+    console.debug('Camera enumeration fallback:',err);
   }
 
   try{
     if(nutritionCameraLabel) nutritionCameraLabel.textContent = cameraName;
-    setNutritionScannerStatus(&#x27;Scanning… hold the package steady inside the frame.&#x27;);
+    setNutritionScannerStatus('Scanning… hold the package steady inside the frame.');
 
     await nutritionScanner.start(
       cameraChoice,
       scanConfig,
       handleNutritionScan,
-      () =&gt; {}
+      () => {}
     );
   }catch(firstErr){
-    console.debug(&#x27;Exact rear camera start failed, trying environment mode:&#x27;,firstErr);
+    console.debug('Exact rear camera start failed, trying environment mode:',firstErr);
 
     try{
       await stopNutritionScanner();
       nutritionScanner = new Html5Qrcode(readerId,false);
-      if(nutritionCameraLabel) nutritionCameraLabel.textContent = &#x27;Back camera&#x27;;
+      if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Back camera';
 
       await nutritionScanner.start(
-        {facingMode:&#x27;environment&#x27;},
+        {facingMode:'environment'},
         scanConfig,
         handleNutritionScan,
-        () =&gt; {}
+        () => {}
       );
     }catch(secondErr){
-      console.error(&#x27;Rear camera start failed:&#x27;,secondErr);
+      console.error('Rear camera start failed:',secondErr);
       await stopNutritionScanner();
-      if(nutritionCameraLabel) nutritionCameraLabel.textContent = &#x27;Camera unavailable&#x27;;
+      if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Camera unavailable';
       setNutritionScannerStatus(
-        &#x27;Could not open the back camera. Check camera permission, or enter the barcode manually.&#x27;,
-        &#x27;error&#x27;
+        'Could not open the back camera. Check camera permission, or enter the barcode manually.',
+        'error'
       );
     }
   }
@@ -2014,97 +1995,97 @@ async function startNutritionRearCamera(){
 
 async function openNutritionScanner(){
   if(!nutritionSession?.user){
-    document.getElementById(&#x27;login-card&#x27;)?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+    document.getElementById('login-card')?.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
 
-  nutritionScannerOverlay?.classList.add(&#x27;show&#x27;);
-  nutritionScannerOverlay?.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
+  nutritionScannerOverlay?.classList.add('show');
+  nutritionScannerOverlay?.setAttribute('aria-hidden','false');
   nutritionScanHandled = false;
 
-  if(nutritionCameraLabel) nutritionCameraLabel.textContent = &#x27;Starting back camera…&#x27;;
-  setNutritionScannerStatus(&#x27;Starting back camera…&#x27;);
+  if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Starting back camera…';
+  setNutritionScannerStatus('Starting back camera…');
 
   await startNutritionRearCamera();
 }
 
 async function closeNutritionScanner(){
   await stopNutritionScanner();
-  nutritionScannerOverlay?.classList.remove(&#x27;show&#x27;);
-  nutritionScannerOverlay?.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+  nutritionScannerOverlay?.classList.remove('show');
+  nutritionScannerOverlay?.setAttribute('aria-hidden','true');
   nutritionScanHandled = false;
 }
 
-nutritionBarcodeBtn?.addEventListener(&#x27;click&#x27;,openNutritionScanner);
-nutritionScannerClose?.addEventListener(&#x27;click&#x27;,closeNutritionScanner);
+nutritionBarcodeBtn?.addEventListener('click',openNutritionScanner);
+nutritionScannerClose?.addEventListener('click',closeNutritionScanner);
 
-nutritionScannerOverlay?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
+nutritionScannerOverlay?.addEventListener('click',(e) => {
   if(e.target === nutritionScannerOverlay) closeNutritionScanner();
 });
 
-nutritionBarcodeLookupBtn?.addEventListener(&#x27;click&#x27;,async () =&gt; {
+nutritionBarcodeLookupBtn?.addEventListener('click',async () => {
   if(nutritionScanHandled) return;
   nutritionScanHandled = true;
 
   try{
-    const logged = await lookupAndAutoLogNutritionCode(nutritionBarcodeInput?.value || &#x27;&#x27;);
+    const logged = await lookupAndAutoLogNutritionCode(nutritionBarcodeInput?.value || '');
 
     setNutritionScannerStatus(
       `✓ Logged ${nutritionServingText(logged.servings)} of ${logged.name} · ${nutritionFormat(logged.calories,0)} cal · ${nutritionMealTypeLabel(logged.mealType)}`,
-      &#x27;success&#x27;
+      'success'
     );
     setNutritionStatus(
       `✓ ${nutritionServingText(logged.servings)} of ${logged.name} was added to ${nutritionMealTypeLabel(logged.mealType)}.`,
-      &#x27;success&#x27;
+      'success'
     );
     setTimeout(closeNutritionScanner,850);
   }catch(err){
-    setNutritionScannerStatus(err?.message || String(err),&#x27;error&#x27;);
+    setNutritionScannerStatus(err?.message || String(err),'error');
     nutritionScanHandled = false;
   }
 });
 
-nutritionBarcodeInput?.addEventListener(&#x27;keydown&#x27;,(e) =&gt; {
-  if(e.key === &#x27;Enter&#x27;){
+nutritionBarcodeInput?.addEventListener('keydown',(e) => {
+  if(e.key === 'Enter'){
     e.preventDefault();
     nutritionBarcodeLookupBtn?.click();
   }
 });
 
-document.addEventListener(&#x27;keydown&#x27;,(e) =&gt; {
-  if(e.key === &#x27;Escape&#x27; &amp;&amp; nutritionScannerOverlay?.classList.contains(&#x27;show&#x27;)){
+document.addEventListener('keydown',(e) => {
+  if(e.key === 'Escape' && nutritionScannerOverlay?.classList.contains('show')){
     closeNutritionScanner();
   }
 });
 
 
 
-nutritionFavoritesList?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
-  const logBtn = e.target.closest(&#x27;[data-favorite-log]&#x27;);
+nutritionFavoritesList?.addEventListener('click',(e) => {
+  const logBtn = e.target.closest('[data-favorite-log]');
   if(logBtn){
     const fav = nutritionFavorites.find(
-      x =&gt; Number(x.id) === Number(logBtn.dataset.favoriteLog)
+      x => Number(x.id) === Number(logBtn.dataset.favoriteLog)
     );
     if(fav) logNutritionFavorite(fav);
     return;
   }
 
-  const useBtn = e.target.closest(&#x27;[data-favorite-use]&#x27;);
+  const useBtn = e.target.closest('[data-favorite-use]');
   if(useBtn){
     const fav = nutritionFavorites.find(
-      x =&gt; Number(x.id) === Number(useBtn.dataset.favoriteUse)
+      x => Number(x.id) === Number(useBtn.dataset.favoriteUse)
     );
 
     if(fav){
-      fillNutritionFormFromMeal(fav,&#x27;Favorite food&#x27;);
-      document.querySelector(&#x27;.nutrition-add-card&#x27;)?.scrollIntoView({
-        behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;
+      fillNutritionFormFromMeal(fav,'Favorite food');
+      document.querySelector('.nutrition-add-card')?.scrollIntoView({
+        behavior:'smooth',block:'center'
       });
     }
     return;
   }
 
-  const deleteBtn = e.target.closest(&#x27;[data-favorite-delete]&#x27;);
+  const deleteBtn = e.target.closest('[data-favorite-delete]');
   if(deleteBtn){
     deleteNutritionFavorite(Number(deleteBtn.dataset.favoriteDelete));
   }
@@ -2112,22 +2093,22 @@ nutritionFavoritesList?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
 
 
 function setBodyweightUnit(unit){
-  bodyweightUnit = unit === &#x27;kg&#x27; ? &#x27;kg&#x27; : &#x27;lb&#x27;;
+  bodyweightUnit = unit === 'kg' ? 'kg' : 'lb';
   updateBodyweightUnitUi();
 }
 
-bodyweightUnitLb?.addEventListener(&#x27;click&#x27;,() =&gt; setBodyweightUnit(&#x27;lb&#x27;));
-bodyweightUnitKg?.addEventListener(&#x27;click&#x27;,() =&gt; setBodyweightUnit(&#x27;kg&#x27;));
+bodyweightUnitLb?.addEventListener('click',() => setBodyweightUnit('lb'));
+bodyweightUnitKg?.addEventListener('click',() => setBodyweightUnit('kg'));
 
-bodyweightSaveBtn?.addEventListener(&#x27;click&#x27;,saveBodyweight);
-bodyweightInput?.addEventListener(&#x27;keydown&#x27;,(e) =&gt; {
-  if(e.key === &#x27;Enter&#x27;){
+bodyweightSaveBtn?.addEventListener('click',saveBodyweight);
+bodyweightInput?.addEventListener('keydown',(e) => {
+  if(e.key === 'Enter'){
     e.preventDefault();
     saveBodyweight();
   }
 });
-bodyweightHistory?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
-  const btn = e.target.closest(&#x27;[data-bodyweight-delete]&#x27;);
+bodyweightHistory?.addEventListener('click',(e) => {
+  const btn = e.target.closest('[data-bodyweight-delete]');
   if(btn) deleteBodyweight(Number(btn.dataset.bodyweightDelete));
 });
 
@@ -2137,11 +2118,11 @@ updateBodyweightUnitUi();
 if(nutritionDate) nutritionDate.value = nutritionLocalDateString();
 
 if(nutritionDb){
-  nutritionDb.auth.onAuthStateChange((_event,session) =&gt; {
+  nutritionDb.auth.onAuthStateChange((_event,session) => {
     setNutritionSession(session);
   });
 
-  setTimeout(async () =&gt; {
+  setTimeout(async () => {
     const {data} = await nutritionDb.auth.getSession();
     await setNutritionSession(data?.session || null);
   },300);
@@ -2152,44 +2133,44 @@ if(nutritionDb){
 const fpDb = window.gymcelsLolDb;
 
 // ---- Gymcels.lol member profile (stored in Supabase Auth user metadata) ----
-const profileBox = document.getElementById(&#x27;memberProfile&#x27;);
-const profileAvatar = document.getElementById(&#x27;profileAvatar&#x27;);
-const profileDisplayName = document.getElementById(&#x27;profileDisplayName&#x27;);
-const profileEmail = document.getElementById(&#x27;profileEmail&#x27;);
-const profileMemberSince = document.getElementById(&#x27;profileMemberSince&#x27;);
-const profileProgramWeek = document.getElementById(&#x27;profileProgramWeek&#x27;);
-const profileWorkoutCount = document.getElementById(&#x27;profileWorkoutCount&#x27;);
-const profileSetCount = document.getElementById(&#x27;profileSetCount&#x27;);
+const profileBox = document.getElementById('memberProfile');
+const profileAvatar = document.getElementById('profileAvatar');
+const profileDisplayName = document.getElementById('profileDisplayName');
+const profileEmail = document.getElementById('profileEmail');
+const profileMemberSince = document.getElementById('profileMemberSince');
+const profileProgramWeek = document.getElementById('profileProgramWeek');
+const profileWorkoutCount = document.getElementById('profileWorkoutCount');
+const profileSetCount = document.getElementById('profileSetCount');
 
-const profileCurrentStreak = document.getElementById(&#x27;profileCurrentStreak&#x27;);
-const profileBestStreak = document.getElementById(&#x27;profileBestStreak&#x27;);
-const profileBioText = document.getElementById(&#x27;profileBioText&#x27;);
-const profileBioInput = document.getElementById(&#x27;profileBioInput&#x27;);
-const profilePhotoNote = document.getElementById(&#x27;profilePhotoNote&#x27;);
-const profilePhysiqueCard = document.getElementById(&#x27;profilePhysiqueCard&#x27;);
-const profilePhysiqueInput = document.getElementById(&#x27;profilePhysiqueInput&#x27;);
-const profilePhysiqueNote = document.getElementById(&#x27;profilePhysiqueNote&#x27;);
-const removePhysiqueBtn = document.getElementById(&#x27;removePhysiqueBtn&#x27;);
+const profileCurrentStreak = document.getElementById('profileCurrentStreak');
+const profileBestStreak = document.getElementById('profileBestStreak');
+const profileBioText = document.getElementById('profileBioText');
+const profileBioInput = document.getElementById('profileBioInput');
+const profilePhotoNote = document.getElementById('profilePhotoNote');
+const profilePhysiqueCard = document.getElementById('profilePhysiqueCard');
+const profilePhysiqueInput = document.getElementById('profilePhysiqueInput');
+const profilePhysiqueNote = document.getElementById('profilePhysiqueNote');
+const removePhysiqueBtn = document.getElementById('removePhysiqueBtn');
 let pendingProfilePreviewUrl = null;
 let pendingPhysiquePreviewUrl = null;
 
-const profileForm = document.getElementById(&#x27;profileForm&#x27;);
-const profileNameInput = document.getElementById(&#x27;profileNameInput&#x27;);
-const profileStartInput = document.getElementById(&#x27;profileStartInput&#x27;);
-const profileMessage = document.getElementById(&#x27;profileMessage&#x27;);
+const profileForm = document.getElementById('profileForm');
+const profileNameInput = document.getElementById('profileNameInput');
+const profileStartInput = document.getElementById('profileStartInput');
+const profileMessage = document.getElementById('profileMessage');
 
-const profilePhotoInput = document.getElementById(&#x27;profilePhotoInput&#x27;);
-const uploadProfilePhotoBtn = document.getElementById(&#x27;uploadProfilePhotoBtn&#x27;);
-const removeProfilePhotoBtn = document.getElementById(&#x27;removeProfilePhotoBtn&#x27;);
+const profilePhotoInput = document.getElementById('profilePhotoInput');
+const uploadProfilePhotoBtn = document.getElementById('uploadProfilePhotoBtn');
+const removeProfilePhotoBtn = document.getElementById('removeProfilePhotoBtn');
 
-const editProfileBtn = document.getElementById(&#x27;editProfileBtn&#x27;);
-const saveProfileBtn = document.getElementById(&#x27;saveProfileBtn&#x27;);
-const cancelProfileBtn = document.getElementById(&#x27;cancelProfileBtn&#x27;);
+const editProfileBtn = document.getElementById('editProfileBtn');
+const saveProfileBtn = document.getElementById('saveProfileBtn');
+const cancelProfileBtn = document.getElementById('cancelProfileBtn');
 
 function fpInitials(name, email){
-  const source = (name || email || &#x27;GL&#x27;).trim();
+  const source = (name || email || 'GL').trim();
   const parts = source.split(/\s+/).filter(Boolean);
-  if(parts.length &gt;= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return source.slice(0,2).toUpperCase();
 }
 
@@ -2197,7 +2178,7 @@ function fpInitials(name, email){
 function renderProfileAvatar(name, email, photoUrl){
   if(!profileAvatar) return;
   if(photoUrl){
-    profileAvatar.innerHTML = `&lt;img src=&quot;${photoUrl}&quot; alt=&quot;Profile photo&quot;&gt;`;
+    profileAvatar.innerHTML = `<img src="${photoUrl}" alt="Profile photo">`;
   } else {
     profileAvatar.textContent = fpInitials(name, email);
   }
@@ -2206,17 +2187,17 @@ function renderProfileAvatar(name, email, photoUrl){
 function renderOwnPhysique(photoUrl){
   if(!profilePhysiqueCard) return;
   if(photoUrl){
-    profilePhysiqueCard.innerHTML = `&lt;img src=&quot;${photoUrl}&quot; alt=&quot;Physique photo&quot;&gt;`;
+    profilePhysiqueCard.innerHTML = `<img src="${photoUrl}" alt="Physique photo">`;
   }else{
-    profilePhysiqueCard.innerHTML = &#x27;&lt;div class=&quot;profile-physique-empty&quot;&gt;No physique photo added yet.&lt;/div&gt;&#x27;;
+    profilePhysiqueCard.innerHTML = '<div class="profile-physique-empty">No physique photo added yet.</div>';
   }
 }
 
 function fpProgramWeek(startDate){
-  if(!startDate) return &#x27;—&#x27;;
-  const start = new Date(startDate + &#x27;T00:00:00&#x27;);
+  if(!startDate) return '—';
+  const start = new Date(startDate + 'T00:00:00');
   const now = new Date();
-  if(Number.isNaN(start.getTime()) || start &gt; now) return &#x27;—&#x27;;
+  if(Number.isNaN(start.getTime()) || start > now) return '—';
   const days = Math.floor((now - start) / 86400000);
   return Math.min(12, Math.floor(days / 7) + 1);
 }
@@ -2224,8 +2205,8 @@ function fpProgramWeek(startDate){
 
 function localDateKey(d){
   const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,&#x27;0&#x27;);
-  const day = String(d.getDate()).padStart(2,&#x27;0&#x27;);
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
 
@@ -2252,7 +2233,7 @@ function shiftWeekKey(key, weeks){
 function computeWorkoutWeekStreak(logs){
   const weeks = new Set(
     (logs || [])
-      .map(row =&gt; weekStartKeyFromIso(row.workout_date))
+      .map(row => weekStartKeyFromIso(row.workout_date))
       .filter(Boolean)
   );
 
@@ -2261,7 +2242,7 @@ function computeWorkoutWeekStreak(logs){
   const thisWeek = weekStartKeyFromDate(new Date());
   const previousWeek = shiftWeekKey(thisWeek, -1);
 
-  // Rest days do not break the streak. During a new week, last week&#x27;s streak
+  // Rest days do not break the streak. During a new week, last week's streak
   // remains alive until the week ends.
   let anchor = null;
   if(weeks.has(thisWeek)) anchor = thisWeek;
@@ -2277,17 +2258,17 @@ function computeWorkoutWeekStreak(logs){
   }
 
   const sorted = [...weeks]
-    .map(key =&gt; new Date(`${key}T12:00:00`).getTime())
-    .sort((a,b) =&gt; a-b);
+    .map(key => new Date(`${key}T12:00:00`).getTime())
+    .sort((a,b) => a-b);
 
   let best = 0;
   let run = 0;
   let last = null;
 
   for(const ts of sorted){
-    if(last !== null &amp;&amp; ts - last === 7 * 86400000) run += 1;
+    if(last !== null && ts - last === 7 * 86400000) run += 1;
     else run = 1;
-    if(run &gt; best) best = run;
+    if(run > best) best = run;
     last = ts;
   }
 
@@ -2299,104 +2280,104 @@ async function refreshMemberProfile(){
 
   const { data: { session } } = await fpDb.auth.getSession();
   if(!session?.user){
-    profileBox.classList.add(&#x27;hidden&#x27;);
+    profileBox.classList.add('hidden');
     return;
   }
 
   const user = session.user;
   const meta = user.user_metadata || {};
-  const displayName = meta.display_name || &#x27;Gymcels.lol Member&#x27;;
-  const startDate = meta.fp_start_date || &#x27;&#x27;;
-  const bio = String(meta.bio || &#x27;&#x27;).slice(0,160);
+  const displayName = meta.display_name || 'Gymcels.lol Member';
+  const startDate = meta.fp_start_date || '';
+  const bio = String(meta.bio || '').slice(0,160);
 
-  profileBox.classList.remove(&#x27;hidden&#x27;);
+  profileBox.classList.remove('hidden');
   profileDisplayName.textContent = displayName;
-  profileEmail.textContent = user.email || &#x27;&#x27;;
-  renderProfileAvatar(displayName, user.email, meta.avatar_url || &#x27;&#x27;);
-  renderOwnPhysique(meta.physique_url || &#x27;&#x27;);
+  profileEmail.textContent = user.email || '';
+  renderProfileAvatar(displayName, user.email, meta.avatar_url || '');
+  renderOwnPhysique(meta.physique_url || '');
 
   if(profileBioText){
-    profileBioText.textContent = bio || &#x27;No bio yet.&#x27;;
-    profileBioText.classList.toggle(&#x27;empty&#x27;, !bio);
+    profileBioText.textContent = bio || 'No bio yet.';
+    profileBioText.classList.toggle('empty', !bio);
   }
 
   profileMemberSince.textContent = user.created_at
-    ? new Date(user.created_at).toLocaleDateString(undefined,{month:&#x27;short&#x27;,year:&#x27;numeric&#x27;})
-    : &#x27;—&#x27;;
+    ? new Date(user.created_at).toLocaleDateString(undefined,{month:'short',year:'numeric'})
+    : '—';
 
   profileProgramWeek.textContent = fpProgramWeek(startDate);
-  profileNameInput.value = meta.display_name || &#x27;&#x27;;
+  profileNameInput.value = meta.display_name || '';
   profileStartInput.value = startDate;
   if(profileBioInput) profileBioInput.value = bio;
 
   const { data: logs, error } = await fpDb
-    .from(&#x27;workout_logs&#x27;)
-    .select(&#x27;workout_date&#x27;);
+    .from('workout_logs')
+    .select('workout_date');
 
-  if(!error &amp;&amp; Array.isArray(logs)){
+  if(!error && Array.isArray(logs)){
     profileSetCount.textContent = logs.length;
-    const uniqueDays = new Set(logs.map(x =&gt; x.workout_date).filter(Boolean));
+    const uniqueDays = new Set(logs.map(x => x.workout_date).filter(Boolean));
     profileWorkoutCount.textContent = uniqueDays.size;
 
     const streak = computeWorkoutWeekStreak(logs);
-    if(profileCurrentStreak) profileCurrentStreak.innerHTML = `&lt;span class=&quot;streak-flame&quot;&gt;🔥&lt;/span&gt; ${streak.current} wk`;
+    if(profileCurrentStreak) profileCurrentStreak.innerHTML = `<span class="streak-flame">🔥</span> ${streak.current} wk`;
     if(profileBestStreak) profileBestStreak.textContent = `${streak.best} wk`;
   }
 }
 
 if(navEditProfile){
-  navEditProfile.addEventListener(&#x27;click&#x27;, (e) =&gt; {
+  navEditProfile.addEventListener('click', (e) => {
     e.preventDefault();
 
     if(profileBox){
-      profileBox.scrollIntoView({ behavior:&#x27;smooth&#x27;, block:&#x27;center&#x27; });
+      profileBox.scrollIntoView({ behavior:'smooth', block:'center' });
     }
 
     if(profileForm){
-      profileForm.classList.add(&#x27;show&#x27;);
+      profileForm.classList.add('show');
     }
 
     if(profileMessage){
-      profileMessage.textContent = &#x27;&#x27;;
-      profileMessage.style.fontWeight = &#x27;&#x27;;
+      profileMessage.textContent = '';
+      profileMessage.style.fontWeight = '';
     }
 
-    setTimeout(() =&gt; {
+    setTimeout(() => {
       if(profileNameInput) profileNameInput.focus();
     }, 400);
   });
 }
 
 if(editProfileBtn){
-  editProfileBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
-    profileForm.classList.add(&#x27;show&#x27;);
-    profileMessage.textContent = &#x27;&#x27;;
-    profileMessage.style.fontWeight = &#x27;&#x27;;
+  editProfileBtn.addEventListener('click', () => {
+    profileForm.classList.add('show');
+    profileMessage.textContent = '';
+    profileMessage.style.fontWeight = '';
   });
 }
 if(cancelProfileBtn){
-  cancelProfileBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
-    profileForm.classList.remove(&#x27;show&#x27;);
-    profileMessage.textContent = &#x27;&#x27;;
+  cancelProfileBtn.addEventListener('click', () => {
+    profileForm.classList.remove('show');
+    profileMessage.textContent = '';
   });
 }
 if(saveProfileBtn){
-  saveProfileBtn.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
+  saveProfileBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     const { data: { session } } = await fpDb.auth.getSession();
     if(!session?.user){
-      profileMessage.textContent = &#x27;Log in first.&#x27;;
-      profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+      profileMessage.textContent = 'Log in first.';
+      profileMessage.style.color = '#ff5a6b';
       return;
     }
 
     const user = session.user;
     const oldMeta = user.user_metadata || {};
-    const display_name = profileNameInput.value.trim() || &#x27;Gymcels.lol Member&#x27;;
+    const display_name = profileNameInput.value.trim() || 'Gymcels.lol Member';
     const fp_start_date = profileStartInput.value || null;
-    const bio = String(profileBioInput?.value || &#x27;&#x27;).trim().slice(0,160);
+    const bio = String(profileBioInput?.value || '').trim().slice(0,160);
 
     let avatar_url = oldMeta.avatar_url || null;
     let avatar_path = oldMeta.avatar_path || null;
@@ -2409,37 +2390,37 @@ if(saveProfileBtn){
     const physiqueFile = profilePhysiqueInput?.files?.[0] || null;
 
     if(file){
-      if(file.size &gt; 5 * 1024 * 1024){
-        profileMessage.textContent = &#x27;Photo must be under 5 MB.&#x27;;
-        profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+      if(file.size > 5 * 1024 * 1024){
+        profileMessage.textContent = 'Photo must be under 5 MB.';
+        profileMessage.style.color = '#ff5a6b';
         return;
       }
 
-      const allowed = [&#x27;image/jpeg&#x27;,&#x27;image/png&#x27;,&#x27;image/webp&#x27;];
+      const allowed = ['image/jpeg','image/png','image/webp'];
       if(!allowed.includes(file.type)){
-        profileMessage.textContent = &#x27;Use a JPG, PNG, or WebP image.&#x27;;
-        profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+        profileMessage.textContent = 'Use a JPG, PNG, or WebP image.';
+        profileMessage.style.color = '#ff5a6b';
         return;
       }
 
-      profileMessage.textContent = &#x27;Uploading profile photo...&#x27;;
-      profileMessage.style.color = &#x27;#9aa1ad&#x27;;
+      profileMessage.textContent = 'Uploading profile photo...';
+      profileMessage.style.color = '#9aa1ad';
 
-      const ext = (file.name.split(&#x27;.&#x27;).pop() || &#x27;jpg&#x27;).toLowerCase();
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
       newlyUploadedPath = `${user.id}/avatar-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await fpDb.storage
-        .from(&#x27;avatars&#x27;)
+        .from('avatars')
         .upload(newlyUploadedPath, file, { contentType:file.type });
 
       if(uploadError){
         profileMessage.textContent = uploadError.message;
-        profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+        profileMessage.style.color = '#ff5a6b';
         return;
       }
 
       const { data: publicData } = fpDb.storage
-        .from(&#x27;avatars&#x27;)
+        .from('avatars')
         .getPublicUrl(newlyUploadedPath);
 
       avatar_url = publicData.publicUrl;
@@ -2447,48 +2428,48 @@ if(saveProfileBtn){
     }
 
     if(physiqueFile){
-      if(physiqueFile.size &gt; 8 * 1024 * 1024){
-        if(newlyUploadedPath) await fpDb.storage.from(&#x27;avatars&#x27;).remove([newlyUploadedPath]);
-        profileMessage.textContent = &#x27;Physique photo must be under 8 MB.&#x27;;
-        profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+      if(physiqueFile.size > 8 * 1024 * 1024){
+        if(newlyUploadedPath) await fpDb.storage.from('avatars').remove([newlyUploadedPath]);
+        profileMessage.textContent = 'Physique photo must be under 8 MB.';
+        profileMessage.style.color = '#ff5a6b';
         return;
       }
 
-      const allowedPhysique = [&#x27;image/jpeg&#x27;,&#x27;image/png&#x27;,&#x27;image/webp&#x27;];
+      const allowedPhysique = ['image/jpeg','image/png','image/webp'];
       if(!allowedPhysique.includes(physiqueFile.type)){
-        if(newlyUploadedPath) await fpDb.storage.from(&#x27;avatars&#x27;).remove([newlyUploadedPath]);
-        profileMessage.textContent = &#x27;Use a JPG, PNG, or WebP physique photo.&#x27;;
-        profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+        if(newlyUploadedPath) await fpDb.storage.from('avatars').remove([newlyUploadedPath]);
+        profileMessage.textContent = 'Use a JPG, PNG, or WebP physique photo.';
+        profileMessage.style.color = '#ff5a6b';
         return;
       }
 
-      profileMessage.textContent = &#x27;Uploading physique photo...&#x27;;
-      profileMessage.style.color = &#x27;#9aa1ad&#x27;;
+      profileMessage.textContent = 'Uploading physique photo...';
+      profileMessage.style.color = '#9aa1ad';
 
-      const physiqueExt = (physiqueFile.name.split(&#x27;.&#x27;).pop() || &#x27;jpg&#x27;).toLowerCase();
+      const physiqueExt = (physiqueFile.name.split('.').pop() || 'jpg').toLowerCase();
       newlyUploadedPhysiquePath = `${user.id}/physique-${Date.now()}.${physiqueExt}`;
 
       const { error: physiqueUploadError } = await fpDb.storage
-        .from(&#x27;physiques&#x27;)
+        .from('physiques')
         .upload(newlyUploadedPhysiquePath, physiqueFile, { contentType:physiqueFile.type });
 
       if(physiqueUploadError){
-        if(newlyUploadedPath) await fpDb.storage.from(&#x27;avatars&#x27;).remove([newlyUploadedPath]);
+        if(newlyUploadedPath) await fpDb.storage.from('avatars').remove([newlyUploadedPath]);
         profileMessage.textContent = physiqueUploadError.message;
-        profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+        profileMessage.style.color = '#ff5a6b';
         return;
       }
 
       const { data: physiquePublicData } = fpDb.storage
-        .from(&#x27;physiques&#x27;)
+        .from('physiques')
         .getPublicUrl(newlyUploadedPhysiquePath);
 
       physique_url = physiquePublicData.publicUrl;
       physique_path = newlyUploadedPhysiquePath;
     }
 
-    profileMessage.textContent = &#x27;Saving profile...&#x27;;
-    profileMessage.style.color = &#x27;#9aa1ad&#x27;;
+    profileMessage.textContent = 'Saving profile...';
+    profileMessage.style.color = '#9aa1ad';
 
     const { data, error } = await fpDb.auth.updateUser({
       data: {
@@ -2504,27 +2485,27 @@ if(saveProfileBtn){
 
     if(error){
       if(newlyUploadedPath){
-        await fpDb.storage.from(&#x27;avatars&#x27;).remove([newlyUploadedPath]);
+        await fpDb.storage.from('avatars').remove([newlyUploadedPath]);
       }
       if(newlyUploadedPhysiquePath){
-        await fpDb.storage.from(&#x27;physiques&#x27;).remove([newlyUploadedPhysiquePath]);
+        await fpDb.storage.from('physiques').remove([newlyUploadedPhysiquePath]);
       }
       profileMessage.textContent = error.message;
-      profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+      profileMessage.style.color = '#ff5a6b';
       return;
     }
 
     // Remove the old avatar only after the new profile data saved successfully.
-    if(newlyUploadedPath &amp;&amp; oldMeta.avatar_path &amp;&amp; oldMeta.avatar_path !== newlyUploadedPath){
-      await fpDb.storage.from(&#x27;avatars&#x27;).remove([oldMeta.avatar_path]);
+    if(newlyUploadedPath && oldMeta.avatar_path && oldMeta.avatar_path !== newlyUploadedPath){
+      await fpDb.storage.from('avatars').remove([oldMeta.avatar_path]);
     }
 
-    if(newlyUploadedPhysiquePath &amp;&amp; oldMeta.physique_path &amp;&amp; oldMeta.physique_path !== newlyUploadedPhysiquePath){
-      await fpDb.storage.from(&#x27;physiques&#x27;).remove([oldMeta.physique_path]);
+    if(newlyUploadedPhysiquePath && oldMeta.physique_path && oldMeta.physique_path !== newlyUploadedPhysiquePath){
+      await fpDb.storage.from('physiques').remove([oldMeta.physique_path]);
     }
 
     await fpDb
-      .from(&#x27;member_presence&#x27;)
+      .from('member_presence')
       .upsert({
         user_id: user.id,
         display_name,
@@ -2532,44 +2513,44 @@ if(saveProfileBtn){
         bio,
         physique_url,
         last_seen: new Date().toISOString()
-      }, { onConflict:&#x27;user_id&#x27; });
+      }, { onConflict:'user_id' });
 
     // Keep existing public chat messages visually synced with the member profile.
     await fpDb
-      .from(&#x27;messages&#x27;)
+      .from('messages')
       .update({ display_name, avatar_url })
-      .eq(&#x27;user_id&#x27;, user.id);
+      .eq('user_id', user.id);
 
-    if(profilePhotoInput) profilePhotoInput.value = &#x27;&#x27;;
-    if(profilePhysiqueInput) profilePhysiqueInput.value = &#x27;&#x27;;
+    if(profilePhotoInput) profilePhotoInput.value = '';
+    if(profilePhysiqueInput) profilePhysiqueInput.value = '';
     if(pendingPhysiquePreviewUrl){
       URL.revokeObjectURL(pendingPhysiquePreviewUrl);
       pendingPhysiquePreviewUrl = null;
     }
     if(profilePhysiqueNote){
-      profilePhysiqueNote.textContent = &#x27;Optional public physique photo. JPG, PNG, or WebP under 8 MB. Click Save Profile to apply it.&#x27;;
-      profilePhysiqueNote.classList.remove(&#x27;ready&#x27;);
+      profilePhysiqueNote.textContent = 'Optional public physique photo. JPG, PNG, or WebP under 8 MB. Click Save Profile to apply it.';
+      profilePhysiqueNote.classList.remove('ready');
     }
     if(pendingProfilePreviewUrl){
       URL.revokeObjectURL(pendingProfilePreviewUrl);
       pendingProfilePreviewUrl = null;
     }
     if(profilePhotoNote){
-      profilePhotoNote.textContent = &#x27;Choose a JPG, PNG, or WebP under 5 MB, then click Save Profile.&#x27;;
-      profilePhotoNote.classList.remove(&#x27;ready&#x27;);
+      profilePhotoNote.textContent = 'Choose a JPG, PNG, or WebP under 5 MB, then click Save Profile.';
+      profilePhotoNote.classList.remove('ready');
     }
 
-    profileMessage.textContent = &#x27;✓ PROFILE UPDATED&#x27;;
-    profileMessage.style.color = &#x27;#67e8a5&#x27;;
-    profileMessage.style.fontWeight = &#x27;900&#x27;;
+    profileMessage.textContent = '✓ PROFILE UPDATED';
+    profileMessage.style.color = '#67e8a5';
+    profileMessage.style.fontWeight = '900';
 
     await refreshMemberProfile();
-    setTimeout(() =&gt; profileForm.classList.remove(&#x27;show&#x27;), 900);
+    setTimeout(() => profileForm.classList.remove('show'), 900);
   });
 }
 
 if(profilePhotoInput){
-  profilePhotoInput.addEventListener(&#x27;change&#x27;, () =&gt; {
+  profilePhotoInput.addEventListener('change', () => {
     const file = profilePhotoInput.files?.[0];
 
     if(pendingProfilePreviewUrl){
@@ -2584,25 +2565,25 @@ if(profilePhotoInput){
 
     pendingProfilePreviewUrl = URL.createObjectURL(file);
 
-    fpDb.auth.getSession().then(({ data }) =&gt; {
+    fpDb.auth.getSession().then(({ data }) => {
       const user = data?.session?.user;
       const meta = user?.user_metadata || {};
       renderProfileAvatar(
-        profileNameInput?.value.trim() || meta.display_name || &#x27;Gymcels.lol Member&#x27;,
-        user?.email || &#x27;&#x27;,
+        profileNameInput?.value.trim() || meta.display_name || 'Gymcels.lol Member',
+        user?.email || '',
         pendingProfilePreviewUrl
       );
     });
 
     if(profilePhotoNote){
-      profilePhotoNote.textContent = &#x27;✓ Photo selected — click Save Profile to apply it.&#x27;;
-      profilePhotoNote.classList.add(&#x27;ready&#x27;);
+      profilePhotoNote.textContent = '✓ Photo selected — click Save Profile to apply it.';
+      profilePhotoNote.classList.add('ready');
     }
   });
 }
 
 if(profilePhysiqueInput){
-  profilePhysiqueInput.addEventListener(&#x27;change&#x27;, () =&gt; {
+  profilePhysiqueInput.addEventListener('change', () => {
     const file = profilePhysiqueInput.files?.[0] || null;
 
     if(pendingPhysiquePreviewUrl){
@@ -2619,21 +2600,21 @@ if(profilePhysiqueInput){
     renderOwnPhysique(pendingPhysiquePreviewUrl);
 
     if(profilePhysiqueNote){
-      profilePhysiqueNote.textContent = &#x27;✓ Physique selected — click Save Profile to publish it.&#x27;;
-      profilePhysiqueNote.classList.add(&#x27;ready&#x27;);
+      profilePhysiqueNote.textContent = '✓ Physique selected — click Save Profile to publish it.';
+      profilePhysiqueNote.classList.add('ready');
     }
   });
 }
 
 // Keep profile synced with login/logout and workout log changes.
-fpDb.auth.onAuthStateChange(() =&gt; {
+fpDb.auth.onAuthStateChange(() => {
   setTimeout(refreshMemberProfile, 0);
-window.addEventListener(&#x27;gymcelsWorkoutChanged&#x27;, () =&gt; setTimeout(refreshMemberProfile, 100));
+window.addEventListener('gymcelsWorkoutChanged', () => setTimeout(refreshMemberProfile, 100));
 });
 setTimeout(refreshMemberProfile, 0);
 
-if(document.getElementById(&#x27;workoutForm&#x27;)){
-  document.getElementById(&#x27;workoutForm&#x27;).addEventListener(&#x27;submit&#x27;, () =&gt; {
+if(document.getElementById('workoutForm')){
+  document.getElementById('workoutForm').addEventListener('submit', () => {
     setTimeout(refreshMemberProfile, 700);
   });
 }
@@ -2642,73 +2623,73 @@ if(document.getElementById(&#x27;workoutForm&#x27;)){
 
 
 // ---- Gymcels.lol Community Chat ----
-const communityChat = document.getElementById(&#x27;communityChat&#x27;);
-const communitySection = document.getElementById(&#x27;communitySection&#x27;);
+const communityChat = document.getElementById('communityChat');
+const communitySection = document.getElementById('communitySection');
 
-const siteUpdateBoard = document.getElementById(&#x27;siteUpdateBoard&#x27;);
-const siteUpdateAdminComposer = document.getElementById(&#x27;siteUpdateAdminComposer&#x27;);
-const siteUpdateInput = document.getElementById(&#x27;siteUpdateInput&#x27;);
-const siteUpdateFontSize = document.getElementById(&#x27;siteUpdateFontSize&#x27;);
-const siteUpdateColor = document.getElementById(&#x27;siteUpdateColor&#x27;);
-const siteUpdatePreview = document.getElementById(&#x27;siteUpdatePreview&#x27;);
-const siteUpdatePostBtn = document.getElementById(&#x27;siteUpdatePostBtn&#x27;);
-const siteUpdateCancelEditBtn = document.getElementById(&#x27;siteUpdateCancelEditBtn&#x27;);
-const siteUpdateCharCount = document.getElementById(&#x27;siteUpdateCharCount&#x27;);
-const siteUpdateAdminStatus = document.getElementById(&#x27;siteUpdateAdminStatus&#x27;);
-const siteUpdatesList = document.getElementById(&#x27;siteUpdatesList&#x27;);
+const siteUpdateBoard = document.getElementById('siteUpdateBoard');
+const siteUpdateAdminComposer = document.getElementById('siteUpdateAdminComposer');
+const siteUpdateInput = document.getElementById('siteUpdateInput');
+const siteUpdateFontSize = document.getElementById('siteUpdateFontSize');
+const siteUpdateColor = document.getElementById('siteUpdateColor');
+const siteUpdatePreview = document.getElementById('siteUpdatePreview');
+const siteUpdatePostBtn = document.getElementById('siteUpdatePostBtn');
+const siteUpdateCancelEditBtn = document.getElementById('siteUpdateCancelEditBtn');
+const siteUpdateCharCount = document.getElementById('siteUpdateCharCount');
+const siteUpdateAdminStatus = document.getElementById('siteUpdateAdminStatus');
+const siteUpdatesList = document.getElementById('siteUpdatesList');
 let siteUpdatesPollTimer = null;
 let siteUpdatePosting = false;
 let siteUpdateEditingId = null;
 let siteUpdateRowsById = new Map();
-const chatMessages = document.getElementById(&#x27;chatMessages&#x27;);
-const chatInput = document.getElementById(&#x27;chatInput&#x27;);
-const chatSendBtn = document.getElementById(&#x27;chatSendBtn&#x27;);
-const chatStatus = document.getElementById(&#x27;chatStatus&#x27;);
-const chatReplyBar = document.getElementById(&#x27;chatReplyBar&#x27;);
-const chatReplyName = document.getElementById(&#x27;chatReplyName&#x27;);
-const chatReplyPreview = document.getElementById(&#x27;chatReplyPreview&#x27;);
-const chatReplyCancel = document.getElementById(&#x27;chatReplyCancel&#x27;);
-const mentionSuggestions = document.getElementById(&#x27;mentionSuggestions&#x27;);
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const chatSendBtn = document.getElementById('chatSendBtn');
+const chatStatus = document.getElementById('chatStatus');
+const chatReplyBar = document.getElementById('chatReplyBar');
+const chatReplyName = document.getElementById('chatReplyName');
+const chatReplyPreview = document.getElementById('chatReplyPreview');
+const chatReplyCancel = document.getElementById('chatReplyCancel');
+const mentionSuggestions = document.getElementById('mentionSuggestions');
 
-const navNotifications = document.getElementById(&#x27;navNotifications&#x27;);
-const notificationBadge = document.getElementById(&#x27;notificationBadge&#x27;);
-const notificationPanel = document.getElementById(&#x27;notificationPanel&#x27;);
-const notificationList = document.getElementById(&#x27;notificationList&#x27;);
-const notificationMarkAll = document.getElementById(&#x27;notificationMarkAll&#x27;);
-const pushAlertBtn = document.getElementById(&#x27;pushAlertBtn&#x27;);
-const pushAlertState = document.getElementById(&#x27;pushAlertState&#x27;);
-const pushInstallHelp = document.getElementById(&#x27;pushInstallHelp&#x27;);
+const navNotifications = document.getElementById('navNotifications');
+const notificationBadge = document.getElementById('notificationBadge');
+const notificationPanel = document.getElementById('notificationPanel');
+const notificationList = document.getElementById('notificationList');
+const notificationMarkAll = document.getElementById('notificationMarkAll');
+const pushAlertBtn = document.getElementById('pushAlertBtn');
+const pushAlertState = document.getElementById('pushAlertState');
+const pushInstallHelp = document.getElementById('pushInstallHelp');
 
-const chatLevelBadge = document.getElementById(&#x27;chatLevelBadge&#x27;);
-const chatLevelName = document.getElementById(&#x27;chatLevelName&#x27;);
-const chatMessageCount = document.getElementById(&#x27;chatMessageCount&#x27;);
-const chatNextLevel = document.getElementById(&#x27;chatNextLevel&#x27;);
-const chatXpFill = document.getElementById(&#x27;chatXpFill&#x27;);
-const chatAchievements = document.getElementById(&#x27;chatAchievements&#x27;);
+const chatLevelBadge = document.getElementById('chatLevelBadge');
+const chatLevelName = document.getElementById('chatLevelName');
+const chatMessageCount = document.getElementById('chatMessageCount');
+const chatNextLevel = document.getElementById('chatNextLevel');
+const chatXpFill = document.getElementById('chatXpFill');
+const chatAchievements = document.getElementById('chatAchievements');
 
-const chatProfileOverlay = document.getElementById(&#x27;chatProfileOverlay&#x27;);
-const chatProfileClose = document.getElementById(&#x27;chatProfileClose&#x27;);
-const chatPublicAvatar = document.getElementById(&#x27;chatPublicAvatar&#x27;);
-const chatPublicName = document.getElementById(&#x27;chatPublicName&#x27;);
-const chatPublicVipBadge = document.getElementById(&#x27;chatPublicVipBadge&#x27;);
-const chatPublicSub = document.getElementById(&#x27;chatPublicSub&#x27;);
-const chatPublicLevel = document.getElementById(&#x27;chatPublicLevel&#x27;);
-const chatPublicMessages = document.getElementById(&#x27;chatPublicMessages&#x27;);
+const chatProfileOverlay = document.getElementById('chatProfileOverlay');
+const chatProfileClose = document.getElementById('chatProfileClose');
+const chatPublicAvatar = document.getElementById('chatPublicAvatar');
+const chatPublicName = document.getElementById('chatPublicName');
+const chatPublicVipBadge = document.getElementById('chatPublicVipBadge');
+const chatPublicSub = document.getElementById('chatPublicSub');
+const chatPublicLevel = document.getElementById('chatPublicLevel');
+const chatPublicMessages = document.getElementById('chatPublicMessages');
 
-const chatPublicWorkouts = document.getElementById(&#x27;chatPublicWorkouts&#x27;);
-const chatPublicSets = document.getElementById(&#x27;chatPublicSets&#x27;);
+const chatPublicWorkouts = document.getElementById('chatPublicWorkouts');
+const chatPublicSets = document.getElementById('chatPublicSets');
 
-const chatPublicCurrentStreak = document.getElementById(&#x27;chatPublicCurrentStreak&#x27;);
-const chatPublicBestStreak = document.getElementById(&#x27;chatPublicBestStreak&#x27;);
-const chatPublicBio = document.getElementById(&#x27;chatPublicBio&#x27;);
-const chatPublicPhysique = document.getElementById(&#x27;chatPublicPhysique&#x27;);
-const chatDmBtn = document.getElementById(&#x27;chatDmBtn&#x27;);
-const chatModerationArea = document.getElementById(&#x27;chatModerationArea&#x27;);
-const chatMuteState = document.getElementById(&#x27;chatMuteState&#x27;);
-const chatMuteActionStatus = document.getElementById(&#x27;chatMuteActionStatus&#x27;);
-const chatUnmuteBtn = document.getElementById(&#x27;chatUnmuteBtn&#x27;);
-const chatPublicPostHistory = document.getElementById(&#x27;chatPublicPostHistory&#x27;);
-const chatPublicHistoryCount = document.getElementById(&#x27;chatPublicHistoryCount&#x27;);
+const chatPublicCurrentStreak = document.getElementById('chatPublicCurrentStreak');
+const chatPublicBestStreak = document.getElementById('chatPublicBestStreak');
+const chatPublicBio = document.getElementById('chatPublicBio');
+const chatPublicPhysique = document.getElementById('chatPublicPhysique');
+const chatDmBtn = document.getElementById('chatDmBtn');
+const chatModerationArea = document.getElementById('chatModerationArea');
+const chatMuteState = document.getElementById('chatMuteState');
+const chatMuteActionStatus = document.getElementById('chatMuteActionStatus');
+const chatUnmuteBtn = document.getElementById('chatUnmuteBtn');
+const chatPublicPostHistory = document.getElementById('chatPublicPostHistory');
+const chatPublicHistoryCount = document.getElementById('chatPublicHistoryCount');
 let chatIsSiteAdmin = false;
 let currentStaffPermissions = {
   is_admin:false,
@@ -2723,15 +2704,15 @@ let mentionSearchTimer = null;
 let mentionCandidates = [];
 let selectedMentions = new Map();
 let chatAdminCheckedUserId = null;
-let openedChatDisplayName = &#x27;Member&#x27;;
-let openedChatAvatarUrl = &#x27;&#x27;;
+let openedChatDisplayName = 'Member';
+let openedChatAvatarUrl = '';
 
-const chatPublicStatus = document.getElementById(&#x27;chatPublicStatus&#x27;);
-const chatPublicStaffBadge = document.getElementById(&#x27;chatPublicStaffBadge&#x27;);
-const chatFriendArea = document.getElementById(&#x27;chatFriendArea&#x27;);
-const chatFriendBtn = document.getElementById(&#x27;chatFriendBtn&#x27;);
-const chatBlockBtn = document.getElementById(&#x27;chatBlockBtn&#x27;);
-const chatFriendNote = document.getElementById(&#x27;chatFriendNote&#x27;);
+const chatPublicStatus = document.getElementById('chatPublicStatus');
+const chatPublicStaffBadge = document.getElementById('chatPublicStaffBadge');
+const chatFriendArea = document.getElementById('chatFriendArea');
+const chatFriendBtn = document.getElementById('chatFriendBtn');
+const chatBlockBtn = document.getElementById('chatBlockBtn');
+const chatFriendNote = document.getElementById('chatFriendNote');
 
 let openedChatUserId = null;
 let openedFriendship = null;
@@ -2740,29 +2721,29 @@ let openedBlockState = {blocked_by_me:false,blocked_me:false};
 let blockedUserIdsCache = new Set();
 let blockedUserIdsCacheAt = 0;
 
-const friendsSection = document.getElementById(&#x27;friendsSection&#x27;);
-const friendsList = document.getElementById(&#x27;friendsList&#x27;);
-const incomingFriendsList = document.getElementById(&#x27;incomingFriendsList&#x27;);
-const sentFriendsList = document.getElementById(&#x27;sentFriendsList&#x27;);
-const friendsCount = document.getElementById(&#x27;friendsCount&#x27;);
-const incomingCount = document.getElementById(&#x27;incomingCount&#x27;);
-const sentCount = document.getElementById(&#x27;sentCount&#x27;);
-const friendsRefreshBtn = document.getElementById(&#x27;friendsRefreshBtn&#x27;);
-const friendsStatus = document.getElementById(&#x27;friendsStatus&#x27;);
-const friendSearchInput = document.getElementById(&#x27;friendSearchInput&#x27;);
-const friendSearchBtn = document.getElementById(&#x27;friendSearchBtn&#x27;);
-const friendSearchResults = document.getElementById(&#x27;friendSearchResults&#x27;);
-const friendSearchStatus = document.getElementById(&#x27;friendSearchStatus&#x27;);
+const friendsSection = document.getElementById('friendsSection');
+const friendsList = document.getElementById('friendsList');
+const incomingFriendsList = document.getElementById('incomingFriendsList');
+const sentFriendsList = document.getElementById('sentFriendsList');
+const friendsCount = document.getElementById('friendsCount');
+const incomingCount = document.getElementById('incomingCount');
+const sentCount = document.getElementById('sentCount');
+const friendsRefreshBtn = document.getElementById('friendsRefreshBtn');
+const friendsStatus = document.getElementById('friendsStatus');
+const friendSearchInput = document.getElementById('friendSearchInput');
+const friendSearchBtn = document.getElementById('friendSearchBtn');
+const friendSearchResults = document.getElementById('friendSearchResults');
+const friendSearchStatus = document.getElementById('friendSearchStatus');
 
 
-const chatPublicAchievements = document.getElementById(&#x27;chatPublicAchievements&#x27;);
-const staffAdminPanel = document.getElementById(&#x27;staffAdminPanel&#x27;);
-const staffSearchInput = document.getElementById(&#x27;staffSearchInput&#x27;);
-const staffSearchBtn = document.getElementById(&#x27;staffSearchBtn&#x27;);
-const staffSearchResults = document.getElementById(&#x27;staffSearchResults&#x27;);
-const staffMembersList = document.getElementById(&#x27;staffMembersList&#x27;);
-const staffRefreshBtn = document.getElementById(&#x27;staffRefreshBtn&#x27;);
-const staffPanelStatus = document.getElementById(&#x27;staffPanelStatus&#x27;);
+const chatPublicAchievements = document.getElementById('chatPublicAchievements');
+const staffAdminPanel = document.getElementById('staffAdminPanel');
+const staffSearchInput = document.getElementById('staffSearchInput');
+const staffSearchBtn = document.getElementById('staffSearchBtn');
+const staffSearchResults = document.getElementById('staffSearchResults');
+const staffMembersList = document.getElementById('staffMembersList');
+const staffRefreshBtn = document.getElementById('staffRefreshBtn');
+const staffPanelStatus = document.getElementById('staffPanelStatus');
 let staffPanelLoadedForUser = null;
 
 
@@ -2772,12 +2753,12 @@ let chatPollTimer = null;
 let chatSending = false;
 
 function escapeChat(text){
-  return String(text ?? &#x27;&#x27;)
-    .replaceAll(&#x27;&amp;&#x27;,&#x27;&amp;amp;&#x27;)
-    .replaceAll(&#x27;&lt;&#x27;,&#x27;&amp;lt;&#x27;)
-    .replaceAll(&#x27;&gt;&#x27;,&#x27;&amp;gt;&#x27;)
-    .replaceAll(&#x27;&quot;&#x27;,&#x27;&amp;quot;&#x27;)
-    .replaceAll(&quot;&#x27;&quot;,&#x27;&amp;#039;&#x27;);
+  return String(text ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#039;');
 }
 
 
@@ -2785,13 +2766,13 @@ const publicVipCache = new Map();
 
 async function getPublicVipStatus(userId, force=false){
   if(!userId) return false;
-  if(!force &amp;&amp; publicVipCache.has(userId)) return publicVipCache.get(userId);
+  if(!force && publicVipCache.has(userId)) return publicVipCache.get(userId);
 
   try{
     const client = window.gymcelsLolDb;
     if(!client) return false;
 
-    const { data, error } = await client.rpc(&#x27;public_member_vip_status&#x27;, {
+    const { data, error } = await client.rpc('public_member_vip_status', {
       target_user: userId
     });
 
@@ -2801,20 +2782,20 @@ async function getPublicVipStatus(userId, force=false){
     publicVipCache.set(userId, isVip);
     return isVip;
   }catch(err){
-    console.error(&#x27;Public VIP status error:&#x27;, err);
+    console.error('Public VIP status error:', err);
     return false;
   }
 }
 
 function vipBadgeMarkup(isVip){
-  return isVip ? &#x27;&lt;span class=&quot;chat-vip-badge&quot;&gt;Gymcel VIP 🔱&lt;/span&gt;&#x27; : &#x27;&#x27;;
+  return isVip ? '<span class="chat-vip-badge">Gymcel VIP 🔱</span>' : '';
 }
 
 
 function staffBadgeMarkup(role){
-  if(role === &#x27;admin&#x27;) return &#x27;&lt;span class=&quot;staff-badge admin&quot;&gt;Admin&lt;/span&gt;&#x27;;
-  if(role === &#x27;moderator&#x27;) return &#x27;&lt;span class=&quot;staff-badge moderator&quot;&gt;Moderator&lt;/span&gt;&#x27;;
-  return &#x27;&#x27;;
+  if(role === 'admin') return '<span class="staff-badge admin">Admin</span>';
+  if(role === 'moderator') return '<span class="staff-badge moderator">Moderator</span>';
+  return '';
 }
 
 async function loadPublicStaffRoles(userIds){
@@ -2825,12 +2806,12 @@ async function loadPublicStaffRoles(userIds){
     const client = window.gymcelsLolDb;
     if(!client) return {};
 
-    const {data,error} = await client.rpc(&#x27;public_staff_roles&#x27;,{target_users:ids});
+    const {data,error} = await client.rpc('public_staff_roles',{target_users:ids});
     if(error) throw error;
 
-    return Object.fromEntries((data || []).map(row =&gt; [row.user_id,row.role]));
+    return Object.fromEntries((data || []).map(row => [row.user_id,row.role]));
   }catch(err){
-    console.error(&#x27;Staff badge load error:&#x27;,err);
+    console.error('Staff badge load error:',err);
     return {};
   }
 }
@@ -2845,98 +2826,98 @@ function canModerateVoice(){
   return !!(chatIsSiteAdmin || currentStaffPermissions.voice_moderation);
 }
 
-function setStaffPanelStatus(text=&#x27;&#x27;,type=&#x27;&#x27;){
+function setStaffPanelStatus(text='',type=''){
   if(!staffPanelStatus) return;
   staffPanelStatus.textContent = text;
-  staffPanelStatus.className = `staff-panel-status ${type || &#x27;&#x27;}`;
+  staffPanelStatus.className = `staff-panel-status ${type || ''}`;
 }
 
 function staffEditorCard(row){
-  const isAdmin = row.role === &#x27;admin&#x27;;
-  const roleText = isAdmin ? &#x27;Administrator · all permissions&#x27;
-    : (row.role === &#x27;moderator&#x27; ? &#x27;Moderator&#x27; : &#x27;Member&#x27;);
-  const disabled = isAdmin ? &#x27; disabled&#x27; : &#x27;&#x27;;
+  const isAdmin = row.role === 'admin';
+  const roleText = isAdmin ? 'Administrator · all permissions'
+    : (row.role === 'moderator' ? 'Moderator' : 'Member');
+  const disabled = isAdmin ? ' disabled' : '';
 
-  return `&lt;div class=&quot;staff-admin-card&quot; data-staff-user=&quot;${escapeChat(row.user_id || &#x27;&#x27;)}&quot;&gt;
-    &lt;div class=&quot;staff-admin-name&quot;&gt;
-      ${escapeChat(row.display_name || &#x27;Member&#x27;)}${staffBadgeMarkup(row.role)}
-    &lt;/div&gt;
-    &lt;div class=&quot;staff-admin-role&quot;&gt;${escapeChat(roleText)}&lt;/div&gt;
+  return `<div class="staff-admin-card" data-staff-user="${escapeChat(row.user_id || '')}">
+    <div class="staff-admin-name">
+      ${escapeChat(row.display_name || 'Member')}${staffBadgeMarkup(row.role)}
+    </div>
+    <div class="staff-admin-role">${escapeChat(roleText)}</div>
 
-    &lt;div class=&quot;staff-permission-grid&quot;&gt;
-      &lt;label class=&quot;staff-permission-option&quot;&gt;
-        &lt;input type=&quot;checkbox&quot; data-staff-permission=&quot;chat_moderation&quot;
-          ${row.chat_moderation || isAdmin ? &#x27;checked&#x27; : &#x27;&#x27;}${disabled}&gt;
-        &lt;span&gt;&lt;strong&gt;Public Chat&lt;/strong&gt;&lt;span&gt;Delete messages and mute members from public chat.&lt;/span&gt;&lt;/span&gt;
-      &lt;/label&gt;
+    <div class="staff-permission-grid">
+      <label class="staff-permission-option">
+        <input type="checkbox" data-staff-permission="chat_moderation"
+          ${row.chat_moderation || isAdmin ? 'checked' : ''}${disabled}>
+        <span><strong>Public Chat</strong><span>Delete messages and mute members from public chat.</span></span>
+      </label>
 
-      &lt;label class=&quot;staff-permission-option&quot;&gt;
-        &lt;input type=&quot;checkbox&quot; data-staff-permission=&quot;thread_moderation&quot;
-          ${row.thread_moderation || isAdmin ? &#x27;checked&#x27; : &#x27;&#x27;}${disabled}&gt;
-        &lt;span&gt;&lt;strong&gt;Threads&lt;/strong&gt;&lt;span&gt;Delete threads/replies and lock or unlock threads.&lt;/span&gt;&lt;/span&gt;
-      &lt;/label&gt;
+      <label class="staff-permission-option">
+        <input type="checkbox" data-staff-permission="thread_moderation"
+          ${row.thread_moderation || isAdmin ? 'checked' : ''}${disabled}>
+        <span><strong>Threads</strong><span>Delete threads/replies and lock or unlock threads.</span></span>
+      </label>
 
-      &lt;label class=&quot;staff-permission-option&quot;&gt;
-        &lt;input type=&quot;checkbox&quot; data-staff-permission=&quot;voice_moderation&quot;
-          ${row.voice_moderation || isAdmin ? &#x27;checked&#x27; : &#x27;&#x27;}${disabled}&gt;
-        &lt;span&gt;&lt;strong&gt;Voice&lt;/strong&gt;&lt;span&gt;Kick members from Gymcel Crew voice rooms.&lt;/span&gt;&lt;/span&gt;
-      &lt;/label&gt;
-    &lt;/div&gt;
+      <label class="staff-permission-option">
+        <input type="checkbox" data-staff-permission="voice_moderation"
+          ${row.voice_moderation || isAdmin ? 'checked' : ''}${disabled}>
+        <span><strong>Voice</strong><span>Kick members from Gymcel Crew voice rooms.</span></span>
+      </label>
+    </div>
 
-    &lt;div class=&quot;staff-admin-actions&quot;&gt;
-      &lt;span class=&quot;staff-admin-note&quot;&gt;
-        ${isAdmin ? &#x27;Admin permissions cannot be changed here.&#x27; : &#x27;Uncheck everything and save to remove Moderator.&#x27;}
-      &lt;/span&gt;
-      ${isAdmin ? &#x27;&#x27; : &#x27;&lt;button class=&quot;staff-admin-save&quot; type=&quot;button&quot; data-save-staff-permissions&gt;Save permissions&lt;/button&gt;&#x27;}
-    &lt;/div&gt;
-  &lt;/div&gt;`;
+    <div class="staff-admin-actions">
+      <span class="staff-admin-note">
+        ${isAdmin ? 'Admin permissions cannot be changed here.' : 'Uncheck everything and save to remove Moderator.'}
+      </span>
+      ${isAdmin ? '' : '<button class="staff-admin-save" type="button" data-save-staff-permissions>Save permissions</button>'}
+    </div>
+  </div>`;
 }
 
 async function loadCurrentStaffMembers(){
   if(!chatIsSiteAdmin || !staffMembersList) return;
 
-  setStaffPanelStatus(&#x27;Loading moderators...&#x27;);
+  setStaffPanelStatus('Loading moderators...');
 
   try{
     const client = window.gymcelsLolDb;
-    const {data,error} = await client.rpc(&#x27;admin_list_staff_members&#x27;);
+    const {data,error} = await client.rpc('admin_list_staff_members');
     if(error) throw error;
 
     const rows = data || [];
     staffMembersList.innerHTML = rows.length
-      ? rows.map(staffEditorCard).join(&#x27;&#x27;)
-      : &#x27;&lt;div class=&quot;staff-admin-empty&quot;&gt;No moderators yet.&lt;/div&gt;&#x27;;
+      ? rows.map(staffEditorCard).join('')
+      : '<div class="staff-admin-empty">No moderators yet.</div>';
 
-    setStaffPanelStatus(&#x27;&#x27;);
+    setStaffPanelStatus('');
   }catch(err){
-    staffMembersList.innerHTML = &#x27;&lt;div class=&quot;staff-admin-empty&quot;&gt;Could not load moderators.&lt;/div&gt;&#x27;;
-    setStaffPanelStatus(err?.message || String(err),&#x27;error&#x27;);
+    staffMembersList.innerHTML = '<div class="staff-admin-empty">Could not load moderators.</div>';
+    setStaffPanelStatus(err?.message || String(err),'error');
   }
 }
 
 async function searchStaffMembers(){
   if(!chatIsSiteAdmin || !staffSearchResults) return;
 
-  const query = String(staffSearchInput?.value || &#x27;&#x27;).trim();
+  const query = String(staffSearchInput?.value || '').trim();
   if(!query){
-    staffSearchResults.innerHTML = &#x27;&lt;div class=&quot;staff-admin-empty&quot;&gt;Type a username first.&lt;/div&gt;&#x27;;
+    staffSearchResults.innerHTML = '<div class="staff-admin-empty">Type a username first.</div>';
     return;
   }
 
-  staffSearchResults.innerHTML = &#x27;&lt;div class=&quot;staff-admin-empty&quot;&gt;Searching...&lt;/div&gt;&#x27;;
+  staffSearchResults.innerHTML = '<div class="staff-admin-empty">Searching...</div>';
 
   try{
     const client = window.gymcelsLolDb;
-    const {data,error} = await client.rpc(&#x27;admin_search_staff_members&#x27;,{search_text:query});
+    const {data,error} = await client.rpc('admin_search_staff_members',{search_text:query});
     if(error) throw error;
 
     const rows = data || [];
     staffSearchResults.innerHTML = rows.length
-      ? rows.map(staffEditorCard).join(&#x27;&#x27;)
-      : &#x27;&lt;div class=&quot;staff-admin-empty&quot;&gt;No member found with that username.&lt;/div&gt;&#x27;;
+      ? rows.map(staffEditorCard).join('')
+      : '<div class="staff-admin-empty">No member found with that username.</div>';
   }catch(err){
-    staffSearchResults.innerHTML = &#x27;&lt;div class=&quot;staff-admin-empty&quot;&gt;Search failed.&lt;/div&gt;&#x27;;
-    setStaffPanelStatus(err?.message || String(err),&#x27;error&#x27;);
+    staffSearchResults.innerHTML = '<div class="staff-admin-empty">Search failed.</div>';
+    setStaffPanelStatus(err?.message || String(err),'error');
   }
 }
 
@@ -2944,25 +2925,25 @@ async function saveStaffPermissions(card){
   if(!chatIsSiteAdmin || !card) return;
 
   const userId = card.dataset.staffUser;
-  const saveBtn = card.querySelector(&#x27;[data-save-staff-permissions]&#x27;);
+  const saveBtn = card.querySelector('[data-save-staff-permissions]');
   if(!userId || !saveBtn) return;
 
-  const checked = name =&gt; !!card.querySelector(`[data-staff-permission=&quot;${name}&quot;]`)?.checked;
+  const checked = name => !!card.querySelector(`[data-staff-permission="${name}"]`)?.checked;
 
   saveBtn.disabled = true;
-  saveBtn.textContent = &#x27;Saving...&#x27;;
+  saveBtn.textContent = 'Saving...';
 
   try{
     const client = window.gymcelsLolDb;
-    const {error} = await client.rpc(&#x27;set_member_moderator_permissions&#x27;,{
+    const {error} = await client.rpc('set_member_moderator_permissions',{
       target_user:userId,
-      allow_chat:checked(&#x27;chat_moderation&#x27;),
-      allow_threads:checked(&#x27;thread_moderation&#x27;),
-      allow_voice:checked(&#x27;voice_moderation&#x27;)
+      allow_chat:checked('chat_moderation'),
+      allow_threads:checked('thread_moderation'),
+      allow_voice:checked('voice_moderation')
     });
     if(error) throw error;
 
-    setStaffPanelStatus(&#x27;✓ Moderator permissions updated.&#x27;,&#x27;success&#x27;);
+    setStaffPanelStatus('✓ Moderator permissions updated.','success');
     await loadCurrentStaffMembers();
     if(staffSearchInput?.value.trim()) await searchStaffMembers();
 
@@ -2970,10 +2951,10 @@ async function saveStaffPermissions(card){
     await loadThreads();
     if(activeThread) await openThread(activeThread.id);
   }catch(err){
-    setStaffPanelStatus(err?.message || String(err),&#x27;error&#x27;);
+    setStaffPanelStatus(err?.message || String(err),'error');
   }finally{
     saveBtn.disabled = false;
-    saveBtn.textContent = &#x27;Save permissions&#x27;;
+    saveBtn.textContent = 'Save permissions';
   }
 }
 
@@ -2981,11 +2962,11 @@ async function refreshStaffPanel(){
   if(!staffAdminPanel) return;
 
   if(!chatIsSiteAdmin){
-    staffAdminPanel.classList.add(&#x27;hidden&#x27;);
+    staffAdminPanel.classList.add('hidden');
     return;
   }
 
-  staffAdminPanel.classList.remove(&#x27;hidden&#x27;);
+  staffAdminPanel.classList.remove('hidden');
 
   const session = await getChatSession();
   if(staffPanelLoadedForUser !== session?.user?.id){
@@ -2994,90 +2975,90 @@ async function refreshStaffPanel(){
   }
 }
 
-staffSearchBtn?.addEventListener(&#x27;click&#x27;,searchStaffMembers);
-staffSearchInput?.addEventListener(&#x27;keydown&#x27;,(e) =&gt; {
-  if(e.key === &#x27;Enter&#x27;){
+staffSearchBtn?.addEventListener('click',searchStaffMembers);
+staffSearchInput?.addEventListener('keydown',(e) => {
+  if(e.key === 'Enter'){
     e.preventDefault();
     searchStaffMembers();
   }
 });
-staffRefreshBtn?.addEventListener(&#x27;click&#x27;,loadCurrentStaffMembers);
+staffRefreshBtn?.addEventListener('click',loadCurrentStaffMembers);
 
-[staffSearchResults,staffMembersList].forEach(container =&gt; {
-  container?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
-    const btn = e.target.closest(&#x27;[data-save-staff-permissions]&#x27;);
-    if(btn) saveStaffPermissions(btn.closest(&#x27;[data-staff-user]&#x27;));
+[staffSearchResults,staffMembersList].forEach(container => {
+  container?.addEventListener('click',(e) => {
+    const btn = e.target.closest('[data-save-staff-permissions]');
+    if(btn) saveStaffPermissions(btn.closest('[data-staff-user]'));
   });
 });
 
 
 function chatDisplayName(user){
   return user?.user_metadata?.display_name ||
-    (user?.email ? user.email.split(&#x27;@&#x27;)[0] : &#x27;Member&#x27;);
+    (user?.email ? user.email.split('@')[0] : 'Member');
 }
 
 
 function chatInitials(name){
-  const source = String(name || &#x27;GL&#x27;).trim();
+  const source = String(name || 'GL').trim();
   const parts = source.split(/\s+/).filter(Boolean);
-  if(parts.length &gt;= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return source.slice(0,2).toUpperCase();
 }
 
 function chatAvatarMarkup(row){
-  const name = row.display_name || &#x27;Member&#x27;;
-  const uid = escapeChat(row.user_id || &#x27;&#x27;);
+  const name = row.display_name || 'Member';
+  const uid = escapeChat(row.user_id || '');
   const safeName = escapeChat(name);
-  const safeAvatar = escapeChat(row.avatar_url || &#x27;&#x27;);
-  const onlineClass = row.is_online ? &#x27;online&#x27; : &#x27;&#x27;;
+  const safeAvatar = escapeChat(row.avatar_url || '');
+  const onlineClass = row.is_online ? 'online' : '';
 
   const avatar = row.avatar_url
-    ? `&lt;div class=&quot;chat-avatar&quot; data-chat-user=&quot;${uid}&quot; data-chat-name=&quot;${safeName}&quot; data-chat-avatar=&quot;${safeAvatar}&quot;&gt;&lt;img src=&quot;${safeAvatar}&quot; alt=&quot;${safeName} profile photo&quot;&gt;&lt;/div&gt;`
-    : `&lt;div class=&quot;chat-avatar&quot; data-chat-user=&quot;${uid}&quot; data-chat-name=&quot;${safeName}&quot; data-chat-avatar=&quot;&quot;&gt;${escapeChat(chatInitials(name))}&lt;/div&gt;`;
+    ? `<div class="chat-avatar" data-chat-user="${uid}" data-chat-name="${safeName}" data-chat-avatar="${safeAvatar}"><img src="${safeAvatar}" alt="${safeName} profile photo"></div>`
+    : `<div class="chat-avatar" data-chat-user="${uid}" data-chat-name="${safeName}" data-chat-avatar="">${escapeChat(chatInitials(name))}</div>`;
 
-  return `&lt;div class=&quot;chat-avatar-wrap&quot;&gt;${avatar}&lt;span class=&quot;chat-presence-dot ${onlineClass}&quot; title=&quot;${row.is_online ? &#x27;Online&#x27; : &#x27;Offline&#x27;}&quot;&gt;&lt;/span&gt;&lt;/div&gt;`;
+  return `<div class="chat-avatar-wrap">${avatar}<span class="chat-presence-dot ${onlineClass}" title="${row.is_online ? 'Online' : 'Offline'}"></span></div>`;
 }
 
-function setChatStatus(message, type=&#x27;normal&#x27;){
+function setChatStatus(message, type='normal'){
   if(!chatStatus) return;
   chatStatus.textContent = message;
-  chatStatus.style.fontWeight = type === &#x27;success&#x27; ? &#x27;900&#x27; : &#x27;700&#x27;;
+  chatStatus.style.fontWeight = type === 'success' ? '900' : '700';
   chatStatus.style.color =
-    type === &#x27;error&#x27; ? &#x27;#ff5a6b&#x27; :
-    type === &#x27;success&#x27; ? &#x27;#67e8a5&#x27; :
-    &#x27;#9aa1ad&#x27;;
+    type === 'error' ? '#ff5a6b' :
+    type === 'success' ? '#67e8a5' :
+    '#9aa1ad';
 }
 
 
 function setCommunityChatAuthState(session){
   const signedIn = !!session?.user;
 
-  if(communitySection) communitySection.style.display = &#x27;&#x27;;
-  if(communityChat) communityChat.style.display = &#x27;&#x27;;
+  if(communitySection) communitySection.style.display = '';
+  if(communityChat) communityChat.style.display = '';
 
   if(chatInput){
     chatInput.disabled = !signedIn;
     chatInput.placeholder = signedIn
-      ? (chatReplyTarget ? `Reply to ${chatReplyTarget.display_name || &#x27;Member&#x27;}...` : &#x27;Say something to the community...&#x27;)
-      : &#x27;Log in to join the conversation...&#x27;;
+      ? (chatReplyTarget ? `Reply to ${chatReplyTarget.display_name || 'Member'}...` : 'Say something to the community...')
+      : 'Log in to join the conversation...';
   }
 
   if(chatSendBtn){
     chatSendBtn.disabled = !signedIn;
-    chatSendBtn.textContent = signedIn ? &#x27;Send&#x27; : &#x27;Log in to send&#x27;;
+    chatSendBtn.textContent = signedIn ? 'Send' : 'Log in to send';
   }
 
   if(chatLevelCard){
-    chatLevelCard.style.display = signedIn ? &#x27;&#x27; : &#x27;none&#x27;;
+    chatLevelCard.style.display = signedIn ? '' : 'none';
   }
 
   if(!signedIn){
-    setChatStatus(&#x27;You can read the public chat. Log in to send a message.&#x27;);
-    if(chatStatus) chatStatus.classList.add(&#x27;chat-guest-note&#x27;);
+    setChatStatus('You can read the public chat. Log in to send a message.');
+    if(chatStatus) chatStatus.classList.add('chat-guest-note');
   }else{
-    if(chatStatus?.classList) chatStatus.classList.remove(&#x27;chat-guest-note&#x27;);
-    if(chatStatus?.textContent === &#x27;You can read the public chat. Log in to send a message.&#x27;){
-      chatStatus.textContent = &#x27;&#x27;;
+    if(chatStatus?.classList) chatStatus.classList.remove('chat-guest-note');
+    if(chatStatus?.textContent === 'You can read the public chat. Log in to send a message.'){
+      chatStatus.textContent = '';
     }
   }
 
@@ -3086,7 +3067,7 @@ function setCommunityChatAuthState(session){
 
 async function getChatSession(){
   const client = window.gymcelsLolDb;
-  if(!client) throw new Error(&#x27;Chat database connection is not ready.&#x27;);
+  if(!client) throw new Error('Chat database connection is not ready.');
   const { data, error } = await client.auth.getSession();
   if(error) throw error;
   return data?.session || null;
@@ -3101,7 +3082,7 @@ async function getMemberBlockState(targetUserId){
   }
 
   try{
-    const {data,error} = await client.rpc(&#x27;member_block_state&#x27;,{
+    const {data,error} = await client.rpc('member_block_state',{
       target_user:targetUserId
     });
     if(error) throw error;
@@ -3111,7 +3092,7 @@ async function getMemberBlockState(targetUserId){
       blocked_me:data?.blocked_me === true
     };
   }catch(err){
-    console.error(&#x27;Block state error:&#x27;,err);
+    console.error('Block state error:',err);
     return {blocked_by_me:false,blocked_me:false};
   }
 }
@@ -3119,7 +3100,7 @@ async function getMemberBlockState(targetUserId){
 async function getMyBlockedUserIds(force=false){
   const now = Date.now();
 
-  if(!force &amp;&amp; now - blockedUserIdsCacheAt &lt; 12000){
+  if(!force && now - blockedUserIdsCacheAt < 12000){
     return blockedUserIdsCache;
   }
 
@@ -3133,15 +3114,15 @@ async function getMyBlockedUserIds(force=false){
       return blockedUserIdsCache;
     }
 
-    const {data,error} = await client.rpc(&#x27;my_blocked_user_ids&#x27;);
+    const {data,error} = await client.rpc('my_blocked_user_ids');
     if(error) throw error;
 
     blockedUserIdsCache = new Set(
-      (data || []).map(row =&gt; String(row.blocked_id || &#x27;&#x27;)).filter(Boolean)
+      (data || []).map(row => String(row.blocked_id || '')).filter(Boolean)
     );
     blockedUserIdsCacheAt = now;
   }catch(err){
-    console.error(&#x27;Blocked users load error:&#x27;,err);
+    console.error('Blocked users load error:',err);
   }
 
   return blockedUserIdsCache;
@@ -3167,25 +3148,25 @@ const CHAT_LEVELS = [
 ];
 
 const CHAT_ACHIEVEMENTS = [
-  { name:&#x27;First Message&#x27;, icon:&#x27;💬&#x27;, test:s =&gt; s.messages &gt;= 1, hint:&#x27;Send 1 public message&#x27; },
-  { name:&#x27;Regular&#x27;, icon:&#x27;🔥&#x27;, test:s =&gt; s.messages &gt;= 10, hint:&#x27;Send 10 public messages&#x27; },
-  { name:&#x27;Century Club&#x27;, icon:&#x27;💯&#x27;, test:s =&gt; s.messages &gt;= 100, hint:&#x27;Send 100 public messages&#x27; },
-  { name:&#x27;Chat Veteran&#x27;, icon:&#x27;🏆&#x27;, test:s =&gt; s.messages &gt;= 250, hint:&#x27;Send 250 public messages&#x27; },
-  { name:&#x27;Gymcels Legend&#x27;, icon:&#x27;👑&#x27;, test:s =&gt; s.messages &gt;= 500, hint:&#x27;Send 500 public messages&#x27; },
+  { name:'First Message', icon:'💬', test:s => s.messages >= 1, hint:'Send 1 public message' },
+  { name:'Regular', icon:'🔥', test:s => s.messages >= 10, hint:'Send 10 public messages' },
+  { name:'Century Club', icon:'💯', test:s => s.messages >= 100, hint:'Send 100 public messages' },
+  { name:'Chat Veteran', icon:'🏆', test:s => s.messages >= 250, hint:'Send 250 public messages' },
+  { name:'Gymcels Legend', icon:'👑', test:s => s.messages >= 500, hint:'Send 500 public messages' },
 
-  { name:&#x27;Thread Starter&#x27;, icon:&#x27;🧵&#x27;, test:s =&gt; s.threads &gt;= 1, hint:&#x27;Create your first thread&#x27; },
-  { name:&#x27;Discussion Leader&#x27;, icon:&#x27;📌&#x27;, test:s =&gt; s.threads &gt;= 10, hint:&#x27;Create 10 threads&#x27; },
-  { name:&#x27;Helpful Gymcel&#x27;, icon:&#x27;🤝&#x27;, test:s =&gt; s.replies &gt;= 10, hint:&#x27;Post 10 thread replies&#x27; },
-  { name:&#x27;Reply Machine&#x27;, icon:&#x27;⚡&#x27;, test:s =&gt; s.replies &gt;= 50, hint:&#x27;Post 50 thread replies&#x27; },
+  { name:'Thread Starter', icon:'🧵', test:s => s.threads >= 1, hint:'Create your first thread' },
+  { name:'Discussion Leader', icon:'📌', test:s => s.threads >= 10, hint:'Create 10 threads' },
+  { name:'Helpful Gymcel', icon:'🤝', test:s => s.replies >= 10, hint:'Post 10 thread replies' },
+  { name:'Reply Machine', icon:'⚡', test:s => s.replies >= 50, hint:'Post 50 thread replies' },
 
-  { name:&#x27;First Workout&#x27;, icon:&#x27;🏋️&#x27;, test:s =&gt; s.workouts &gt;= 1, hint:&#x27;Log your first workout&#x27; },
-  { name:&#x27;Gym Regular&#x27;, icon:&#x27;💪&#x27;, test:s =&gt; s.workouts &gt;= 10, hint:&#x27;Log 10 workouts&#x27; },
-  { name:&#x27;Iron Addict&#x27;, icon:&#x27;🦾&#x27;, test:s =&gt; s.workouts &gt;= 50, hint:&#x27;Log 50 workouts&#x27; },
-  { name:&#x27;100 Sets&#x27;, icon:&#x27;📈&#x27;, test:s =&gt; s.sets &gt;= 100, hint:&#x27;Log 100 workout sets&#x27; },
-  { name:&#x27;500 Sets&#x27;, icon:&#x27;🚀&#x27;, test:s =&gt; s.sets &gt;= 500, hint:&#x27;Log 500 workout sets&#x27; },
+  { name:'First Workout', icon:'🏋️', test:s => s.workouts >= 1, hint:'Log your first workout' },
+  { name:'Gym Regular', icon:'💪', test:s => s.workouts >= 10, hint:'Log 10 workouts' },
+  { name:'Iron Addict', icon:'🦾', test:s => s.workouts >= 50, hint:'Log 50 workouts' },
+  { name:'100 Sets', icon:'📈', test:s => s.sets >= 100, hint:'Log 100 workout sets' },
+  { name:'500 Sets', icon:'🚀', test:s => s.sets >= 500, hint:'Log 500 workout sets' },
 
-  { name:&#x27;4 Week Streak&#x27;, icon:&#x27;🔥&#x27;, test:s =&gt; s.bestStreak &gt;= 4, hint:&#x27;Reach a 4-week workout streak&#x27; },
-  { name:&#x27;12 Week Streak&#x27;, icon:&#x27;🏅&#x27;, test:s =&gt; s.bestStreak &gt;= 12, hint:&#x27;Reach a 12-week workout streak&#x27; }
+  { name:'4 Week Streak', icon:'🔥', test:s => s.bestStreak >= 4, hint:'Reach a 4-week workout streak' },
+  { name:'12 Week Streak', icon:'🏅', test:s => s.bestStreak >= 12, hint:'Reach a 12-week workout streak' }
 ];
 
 function normalizedAchievementStats(stats={}){
@@ -3202,7 +3183,7 @@ function normalizedAchievementStats(stats={}){
 function getChatLevelInfo(count){
   let current = CHAT_LEVELS[0];
   for(const level of CHAT_LEVELS){
-    if(count &gt;= level.min) current = level;
+    if(count >= level.min) current = level;
   }
   return current;
 }
@@ -3211,13 +3192,13 @@ function renderChatAchievements(count,extras={}){
   if(!chatAchievements) return;
   const stats = normalizedAchievementStats({...extras,messages:Number(count || 0)});
 
-  chatAchievements.innerHTML = CHAT_ACHIEVEMENTS.map(a =&gt; {
+  chatAchievements.innerHTML = CHAT_ACHIEVEMENTS.map(a => {
     const unlocked = !!a.test(stats);
-    return `&lt;div class=&quot;chat-achievement ${unlocked ? &#x27;unlocked&#x27; : &#x27;&#x27;}&quot;
-                 title=&quot;${escapeChat(unlocked ? &#x27;Unlocked&#x27; : a.hint)}&quot;&gt;
-      &lt;span class=&quot;lock&quot;&gt;${unlocked ? a.icon : &#x27;🔒&#x27;}&lt;/span&gt;${escapeChat(a.name)}
-    &lt;/div&gt;`;
-  }).join(&#x27;&#x27;);
+    return `<div class="chat-achievement ${unlocked ? 'unlocked' : ''}"
+                 title="${escapeChat(unlocked ? 'Unlocked' : a.hint)}">
+      <span class="lock">${unlocked ? a.icon : '🔒'}</span>${escapeChat(a.name)}
+    </div>`;
+  }).join('');
 }
 
 async function refreshChatLevel(){
@@ -3229,9 +3210,9 @@ async function refreshChatLevel(){
     if(!session?.user) return;
 
     const { data: stat, error } = await client
-      .from(&#x27;chat_stats&#x27;)
-      .select(&#x27;lifetime_messages&#x27;)
-      .eq(&#x27;user_id&#x27;, session.user.id)
+      .from('chat_stats')
+      .select('lifetime_messages')
+      .eq('user_id', session.user.id)
       .maybeSingle();
 
     if(error) throw error;
@@ -3241,26 +3222,26 @@ async function refreshChatLevel(){
 
     if(chatLevelBadge) chatLevelBadge.textContent = info.level;
     if(chatLevelName) chatLevelName.textContent = `Community Level ${info.level}`;
-    if(chatMessageCount) chatMessageCount.textContent = `${total} message${total === 1 ? &#x27;&#x27; : &#x27;s&#x27;} sent`;
+    if(chatMessageCount) chatMessageCount.textContent = `${total} message${total === 1 ? '' : 's'} sent`;
 
     if(info.next === null){
-      if(chatNextLevel) chatNextLevel.textContent = &#x27;MAX LEVEL — Gymcels.lol Legend&#x27;;
-      if(chatXpFill) chatXpFill.style.width = &#x27;100%&#x27;;
+      if(chatNextLevel) chatNextLevel.textContent = 'MAX LEVEL — Gymcels.lol Legend';
+      if(chatXpFill) chatXpFill.style.width = '100%';
     }else{
       const needed = Math.max(0, info.next - total);
       if(chatNextLevel) chatNextLevel.textContent =
-        `Send ${needed} more message${needed === 1 ? &#x27;&#x27; : &#x27;s&#x27;} to reach Level ${info.level + 1}`;
+        `Send ${needed} more message${needed === 1 ? '' : 's'} to reach Level ${info.level + 1}`;
 
       const span = info.next - info.min;
-      const progress = span &gt; 0 ? ((total - info.min) / span) * 100 : 100;
+      const progress = span > 0 ? ((total - info.min) / span) * 100 : 100;
       if(chatXpFill) chatXpFill.style.width = `${Math.max(0, Math.min(100, progress))}%`;
     }
 
     const [threadCountRes,replyCountRes,workoutRes,streakRes] = await Promise.all([
-      client.from(&#x27;forum_threads&#x27;).select(&#x27;id&#x27;,{count:&#x27;exact&#x27;,head:true}).eq(&#x27;author_id&#x27;,session.user.id),
-      client.from(&#x27;forum_replies&#x27;).select(&#x27;id&#x27;,{count:&#x27;exact&#x27;,head:true}).eq(&#x27;author_id&#x27;,session.user.id),
-      client.rpc(&#x27;get_public_member_stats&#x27;,{target_user:session.user.id}),
-      client.rpc(&#x27;get_public_member_streaks&#x27;,{target_user:session.user.id})
+      client.from('forum_threads').select('id',{count:'exact',head:true}).eq('author_id',session.user.id),
+      client.from('forum_replies').select('id',{count:'exact',head:true}).eq('author_id',session.user.id),
+      client.rpc('get_public_member_stats',{target_user:session.user.id}),
+      client.rpc('get_public_member_streaks',{target_user:session.user.id})
     ]);
 
     const workoutStats = Array.isArray(workoutRes.data) ? workoutRes.data[0] : workoutRes.data;
@@ -3274,7 +3255,7 @@ async function refreshChatLevel(){
       bestStreak:Number(streakStats?.best_streak || 0)
     });
   } catch(err){
-    console.error(&#x27;Chat level error:&#x27;, err);
+    console.error('Chat level error:', err);
   }
 }
 
@@ -3285,14 +3266,14 @@ let presenceTimer = null;
 
 function isPresenceOnline(lastSeen){
   if(!lastSeen) return false;
-  return (Date.now() - new Date(lastSeen).getTime()) &lt;= ONLINE_WINDOW_MS;
+  return (Date.now() - new Date(lastSeen).getTime()) <= ONLINE_WINDOW_MS;
 }
 
 function renderPublicPresence(lastSeen){
   if(!chatPublicStatus) return;
   const online = isPresenceOnline(lastSeen);
-  chatPublicStatus.className = `chat-public-status ${online ? &#x27;online&#x27; : &#x27;offline&#x27;}`;
-  chatPublicStatus.innerHTML = `&lt;span class=&quot;status-dot&quot;&gt;&lt;/span&gt;&lt;span&gt;${online ? &#x27;Online&#x27; : &#x27;Offline&#x27;}&lt;/span&gt;`;
+  chatPublicStatus.className = `chat-public-status ${online ? 'online' : 'offline'}`;
+  chatPublicStatus.innerHTML = `<span class="status-dot"></span><span>${online ? 'Online' : 'Offline'}</span>`;
 }
 
 async function updateOwnPresence(){
@@ -3307,16 +3288,16 @@ async function updateOwnPresence(){
     const meta = user.user_metadata || {};
 
     await client
-      .from(&#x27;member_presence&#x27;)
+      .from('member_presence')
       .upsert({
         user_id: user.id,
-        display_name: meta.display_name || (user.email ? user.email.split(&#x27;@&#x27;)[0] : &#x27;Member&#x27;),
+        display_name: meta.display_name || (user.email ? user.email.split('@')[0] : 'Member'),
         avatar_url: meta.avatar_url || null,
-        bio: String(meta.bio || &#x27;&#x27;).slice(0,160),
+        bio: String(meta.bio || '').slice(0,160),
         last_seen: new Date().toISOString()
-      }, { onConflict:&#x27;user_id&#x27; });
+      }, { onConflict:'user_id' });
   }catch(err){
-    console.error(&#x27;Presence heartbeat error:&#x27;, err);
+    console.error('Presence heartbeat error:', err);
   }
 }
 
@@ -3326,13 +3307,13 @@ function startPresenceHeartbeat(){
   presenceTimer = setInterval(updateOwnPresence, 30000);
 }
 
-document.addEventListener(&#x27;visibilitychange&#x27;, () =&gt; {
-  if(document.visibilityState === &#x27;visible&#x27;) updateOwnPresence();
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') updateOwnPresence();
 });
 
 
 function pinnedFriendStorageKey(ownerUserId){
-  return `gymcels_pinned_friends:${ownerUserId || &#x27;guest&#x27;}`;
+  return `gymcels_pinned_friends:${ownerUserId || 'guest'}`;
 }
 
 function getPinnedFriendIds(ownerUserId){
@@ -3355,11 +3336,11 @@ function savePinnedFriendIds(ownerUserId, ids){
 }
 
 function isFriendPinned(ownerUserId, friendUserId){
-  return getPinnedFriendIds(ownerUserId).has(String(friendUserId || &#x27;&#x27;));
+  return getPinnedFriendIds(ownerUserId).has(String(friendUserId || ''));
 }
 
 function togglePinnedFriend(ownerUserId, friendUserId){
-  const friendId = String(friendUserId || &#x27;&#x27;);
+  const friendId = String(friendUserId || '');
   if(!ownerUserId || !friendId) return false;
 
   const ids = getPinnedFriendIds(ownerUserId);
@@ -3377,21 +3358,21 @@ function togglePinnedFriend(ownerUserId, friendUserId){
 
 function unpinFriend(ownerUserId, friendUserId){
   const ids = getPinnedFriendIds(ownerUserId);
-  const removed = ids.delete(String(friendUserId || &#x27;&#x27;));
+  const removed = ids.delete(String(friendUserId || ''));
   if(removed) savePinnedFriendIds(ownerUserId, ids);
 }
 
 function friendOtherUserId(row, me){
-  if(!row) return &#x27;&#x27;;
+  if(!row) return '';
   return row.requester_id === me ? row.addressee_id : row.requester_id;
 }
 
 function sortPinnedFirst(items, ownerUserId, idGetter){
   const pins = getPinnedFriendIds(ownerUserId);
 
-  return [...items].sort((a,b) =&gt; {
-    const aId = String(idGetter(a) || &#x27;&#x27;);
-    const bId = String(idGetter(b) || &#x27;&#x27;);
+  return [...items].sort((a,b) => {
+    const aId = String(idGetter(a) || '');
+    const bId = String(idGetter(b) || '');
     const aPinned = pins.has(aId) ? 1 : 0;
     const bPinned = pins.has(bId) ? 1 : 0;
 
@@ -3402,16 +3383,16 @@ function sortPinnedFirst(items, ownerUserId, idGetter){
 
 
 function friendAvatarMarkup(person, online){
-  const name = person?.display_name || &#x27;Member&#x27;;
-  const avatar = person?.avatar_url || &#x27;&#x27;;
+  const name = person?.display_name || 'Member';
+  const avatar = person?.avatar_url || '';
   const avatarInner = avatar
-    ? `&lt;div class=&quot;friend-mini-avatar&quot;&gt;&lt;img src=&quot;${escapeChat(avatar)}&quot; alt=&quot;${escapeChat(name)} profile photo&quot;&gt;&lt;/div&gt;`
-    : `&lt;div class=&quot;friend-mini-avatar&quot;&gt;${escapeChat(chatInitials(name))}&lt;/div&gt;`;
+    ? `<div class="friend-mini-avatar"><img src="${escapeChat(avatar)}" alt="${escapeChat(name)} profile photo"></div>`
+    : `<div class="friend-mini-avatar">${escapeChat(chatInitials(name))}</div>`;
 
-  return `&lt;div class=&quot;friend-mini-avatar-wrap&quot;&gt;
+  return `<div class="friend-mini-avatar-wrap">
     ${avatarInner}
-    &lt;span class=&quot;friend-mini-dot ${online ? &#x27;online&#x27; : &#x27;&#x27;}&quot;&gt;&lt;/span&gt;
-  &lt;/div&gt;`;
+    <span class="friend-mini-dot ${online ? 'online' : ''}"></span>
+  </div>`;
 }
 
 async function getPresenceMapForUsers(userIds){
@@ -3419,53 +3400,53 @@ async function getPresenceMapForUsers(userIds){
   if(!client || !userIds.length) return {};
 
   const { data, error } = await client
-    .from(&#x27;member_presence&#x27;)
-    .select(&#x27;user_id,display_name,avatar_url,last_seen&#x27;)
-    .in(&#x27;user_id&#x27;, userIds);
+    .from('member_presence')
+    .select('user_id,display_name,avatar_url,last_seen')
+    .in('user_id', userIds);
 
   if(error) throw error;
 
-  const map = Object.fromEntries((data || []).map(row =&gt; [row.user_id, row]));
+  const map = Object.fromEntries((data || []).map(row => [row.user_id, row]));
 
   const vipEntries = await Promise.all(
-    userIds.map(async uid =&gt; [uid, await getPublicVipStatus(uid)])
+    userIds.map(async uid => [uid, await getPublicVipStatus(uid)])
   );
 
   for(const [uid, isVip] of vipEntries){
-    if(!map[uid]) map[uid] = { user_id:uid, display_name:&#x27;Member&#x27;, avatar_url:null, last_seen:null };
+    if(!map[uid]) map[uid] = { user_id:uid, display_name:'Member', avatar_url:null, last_seen:null };
     map[uid].is_vip = !!isVip;
   }
 
   return map;
 }
 
-function renderFriendPersonRow(person, extraHtml=&#x27;&#x27;){
+function renderFriendPersonRow(person, extraHtml=''){
   const online = isPresenceOnline(person?.last_seen);
-  const userId = escapeChat(person?.user_id || &#x27;&#x27;);
-  const name = escapeChat(person?.display_name || &#x27;Member&#x27;);
-  const avatar = escapeChat(person?.avatar_url || &#x27;&#x27;);
+  const userId = escapeChat(person?.user_id || '');
+  const name = escapeChat(person?.display_name || 'Member');
+  const avatar = escapeChat(person?.avatar_url || '');
 
-  return `&lt;div class=&quot;friend-row&quot;&gt;
-    &lt;div class=&quot;friend-row-click&quot; data-chat-user=&quot;${userId}&quot; data-chat-name=&quot;${name}&quot; data-chat-avatar=&quot;${avatar}&quot; style=&quot;display:flex;align-items:center;gap:9px;flex:1;min-width:0&quot;&gt;
+  return `<div class="friend-row">
+    <div class="friend-row-click" data-chat-user="${userId}" data-chat-name="${name}" data-chat-avatar="${avatar}" style="display:flex;align-items:center;gap:9px;flex:1;min-width:0">
       ${friendAvatarMarkup(person, online)}
-      &lt;div class=&quot;friend-main&quot;&gt;
-        &lt;div class=&quot;friend-name&quot;&gt;${name}${person?.is_vip ? &#x27;&lt;span class=&quot;friend-vip-badge&quot;&gt;VIP 🔱&lt;/span&gt;&#x27; : &#x27;&#x27;}&lt;/div&gt;
-        &lt;div class=&quot;friend-state ${online ? &#x27;online&#x27; : &#x27;&#x27;}&quot;&gt;${online ? &#x27;Online&#x27; : &#x27;Offline&#x27;}&lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
+      <div class="friend-main">
+        <div class="friend-name">${name}${person?.is_vip ? '<span class="friend-vip-badge">VIP 🔱</span>' : ''}</div>
+        <div class="friend-state ${online ? 'online' : ''}">${online ? 'Online' : 'Offline'}</div>
+      </div>
+    </div>
     ${extraHtml}
-  &lt;/div&gt;`;
+  </div>`;
 }
 
 
-function setFriendSearchStatus(text=&#x27;&#x27;, type=&#x27;normal&#x27;){
+function setFriendSearchStatus(text='', type='normal'){
   if(!friendSearchStatus) return;
   friendSearchStatus.textContent = text;
   friendSearchStatus.style.color =
-    type === &#x27;error&#x27; ? &#x27;#ff7c89&#x27; :
-    type === &#x27;success&#x27; ? &#x27;#67e8a5&#x27; :
-    &#x27;#8e96a3&#x27;;
-  friendSearchStatus.style.fontWeight = type === &#x27;error&#x27; || type === &#x27;success&#x27; ? &#x27;800&#x27; : &#x27;&#x27;;
+    type === 'error' ? '#ff7c89' :
+    type === 'success' ? '#67e8a5' :
+    '#8e96a3';
+  friendSearchStatus.style.fontWeight = type === 'error' || type === 'success' ? '800' : '';
 }
 
 async function searchFriendsByUsername(){
@@ -3475,44 +3456,44 @@ async function searchFriendsByUsername(){
   const session = await getChatSession();
 
   if(!client || !session?.user){
-    setFriendSearchStatus(&#x27;Log in to search for friends.&#x27;,&#x27;error&#x27;);
+    setFriendSearchStatus('Log in to search for friends.','error');
     return;
   }
 
-  const query = String(friendSearchInput?.value || &#x27;&#x27;).trim();
-  if(query.length &lt; 1){
-    friendSearchResults.innerHTML = &#x27;&lt;div class=&quot;friend-search-empty&quot;&gt;Type a username first.&lt;/div&gt;&#x27;;
-    setFriendSearchStatus(&#x27;&#x27;);
+  const query = String(friendSearchInput?.value || '').trim();
+  if(query.length < 1){
+    friendSearchResults.innerHTML = '<div class="friend-search-empty">Type a username first.</div>';
+    setFriendSearchStatus('');
     return;
   }
 
   if(friendSearchBtn) friendSearchBtn.disabled = true;
-  setFriendSearchStatus(&#x27;Searching...&#x27;);
+  setFriendSearchStatus('Searching...');
 
   try{
     const { data, error } = await client
-      .from(&#x27;member_presence&#x27;)
-      .select(&#x27;user_id,display_name,avatar_url,last_seen&#x27;)
-      .ilike(&#x27;display_name&#x27;, `%${query}%`)
-      .neq(&#x27;user_id&#x27;, session.user.id)
-      .order(&#x27;display_name&#x27;, { ascending:true })
+      .from('member_presence')
+      .select('user_id,display_name,avatar_url,last_seen')
+      .ilike('display_name', `%${query}%`)
+      .neq('user_id', session.user.id)
+      .order('display_name', { ascending:true })
       .limit(10);
 
     if(error) throw error;
 
     const blockedIds = await getMyBlockedUserIds();
     const people = (data || []).filter(
-      person =&gt; !blockedIds.has(String(person.user_id || &#x27;&#x27;))
+      person => !blockedIds.has(String(person.user_id || ''))
     );
 
     if(!people.length){
-      friendSearchResults.innerHTML = &#x27;&lt;div class=&quot;friend-search-empty&quot;&gt;No members found with that username.&lt;/div&gt;&#x27;;
-      setFriendSearchStatus(&#x27;&#x27;);
+      friendSearchResults.innerHTML = '<div class="friend-search-empty">No members found with that username.</div>';
+      setFriendSearchStatus('');
       return;
     }
 
     const enriched = await Promise.all(
-      people.map(async person =&gt; {
+      people.map(async person => {
         let friendship = null;
         let isVip = false;
 
@@ -3523,63 +3504,63 @@ async function searchFriendsByUsername(){
       })
     );
 
-    friendSearchResults.innerHTML = enriched.map(person =&gt; {
+    friendSearchResults.innerHTML = enriched.map(person => {
       const online = isPresenceOnline(person.last_seen);
       const safeId = escapeChat(person.user_id);
-      const safeName = escapeChat(person.display_name || &#x27;Member&#x27;);
-      const safeAvatar = escapeChat(person.avatar_url || &#x27;&#x27;);
+      const safeName = escapeChat(person.display_name || 'Member');
+      const safeAvatar = escapeChat(person.avatar_url || '');
 
-      let actionLabel = &#x27;Add Friend&#x27;;
-      let actionClass = &#x27;&#x27;;
-      let action = &#x27;add&#x27;;
-      let disabled = &#x27;&#x27;;
+      let actionLabel = 'Add Friend';
+      let actionClass = '';
+      let action = 'add';
+      let disabled = '';
 
-      if(person.friendship?.status === &#x27;accepted&#x27;){
-        actionLabel = &#x27;Friends ✓&#x27;;
-        actionClass = &#x27; secondary&#x27;;
-        action = &#x27;none&#x27;;
-        disabled = &#x27; disabled&#x27;;
-      }else if(person.friendship?.status === &#x27;pending&#x27; &amp;&amp; person.friendship.requester_id === session.user.id){
-        actionLabel = &#x27;Request Sent&#x27;;
-        actionClass = &#x27; secondary&#x27;;
-        action = &#x27;none&#x27;;
-        disabled = &#x27; disabled&#x27;;
-      }else if(person.friendship?.status === &#x27;pending&#x27; &amp;&amp; person.friendship.addressee_id === session.user.id){
-        actionLabel = &#x27;Accept&#x27;;
-        action = &#x27;accept&#x27;;
+      if(person.friendship?.status === 'accepted'){
+        actionLabel = 'Friends ✓';
+        actionClass = ' secondary';
+        action = 'none';
+        disabled = ' disabled';
+      }else if(person.friendship?.status === 'pending' && person.friendship.requester_id === session.user.id){
+        actionLabel = 'Request Sent';
+        actionClass = ' secondary';
+        action = 'none';
+        disabled = ' disabled';
+      }else if(person.friendship?.status === 'pending' && person.friendship.addressee_id === session.user.id){
+        actionLabel = 'Accept';
+        action = 'accept';
       }
 
       return `
-        &lt;div class=&quot;friend-search-result&quot;&gt;
-          &lt;div class=&quot;friend-search-result-main&quot;
-               data-chat-user=&quot;${safeId}&quot;
-               data-chat-name=&quot;${safeName}&quot;
-               data-chat-avatar=&quot;${safeAvatar}&quot;&gt;
+        <div class="friend-search-result">
+          <div class="friend-search-result-main"
+               data-chat-user="${safeId}"
+               data-chat-name="${safeName}"
+               data-chat-avatar="${safeAvatar}">
             ${friendAvatarMarkup(person, online)}
-            &lt;div style=&quot;min-width:0;flex:1&quot;&gt;
-              &lt;div class=&quot;friend-search-result-name&quot;&gt;${safeName}${person.is_vip ? &#x27;&lt;span class=&quot;friend-vip-badge&quot;&gt;VIP 🔱&lt;/span&gt;&#x27; : &#x27;&#x27;}&lt;/div&gt;
-              &lt;div class=&quot;friend-search-result-state&quot;&gt;${online ? &#x27;Online&#x27; : &#x27;Offline&#x27;}&lt;/div&gt;
-            &lt;/div&gt;
-          &lt;/div&gt;
-          &lt;button class=&quot;friend-search-action${actionClass}&quot;
-                  type=&quot;button&quot;
-                  data-search-friend-action=&quot;${action}&quot;
-                  data-search-friend-user=&quot;${safeId}&quot;
-                  data-search-friendship-id=&quot;${person.friendship?.id || &#x27;&#x27;}&quot;${disabled}&gt;${actionLabel}&lt;/button&gt;
-        &lt;/div&gt;`;
-    }).join(&#x27;&#x27;);
+            <div style="min-width:0;flex:1">
+              <div class="friend-search-result-name">${safeName}${person.is_vip ? '<span class="friend-vip-badge">VIP 🔱</span>' : ''}</div>
+              <div class="friend-search-result-state">${online ? 'Online' : 'Offline'}</div>
+            </div>
+          </div>
+          <button class="friend-search-action${actionClass}"
+                  type="button"
+                  data-search-friend-action="${action}"
+                  data-search-friend-user="${safeId}"
+                  data-search-friendship-id="${person.friendship?.id || ''}"${disabled}>${actionLabel}</button>
+        </div>`;
+    }).join('');
 
-    setFriendSearchStatus(`${enriched.length} member${enriched.length === 1 ? &#x27;&#x27; : &#x27;s&#x27;} found.`);
+    setFriendSearchStatus(`${enriched.length} member${enriched.length === 1 ? '' : 's'} found.`);
   }catch(err){
-    friendSearchResults.innerHTML = &#x27;&lt;div class=&quot;friend-search-empty&quot;&gt;Could not search members.&lt;/div&gt;&#x27;;
-    setFriendSearchStatus(err?.message || String(err),&#x27;error&#x27;);
+    friendSearchResults.innerHTML = '<div class="friend-search-empty">Could not search members.</div>';
+    setFriendSearchStatus(err?.message || String(err),'error');
   }finally{
     if(friendSearchBtn) friendSearchBtn.disabled = false;
   }
 }
 
 async function handleFriendSearchAction(e){
-  const btn = e.target.closest(&#x27;[data-search-friend-action]&#x27;);
+  const btn = e.target.closest('[data-search-friend-action]');
   if(!btn) return;
 
   e.preventDefault();
@@ -3589,47 +3570,47 @@ async function handleFriendSearchAction(e){
   const targetUser = btn.dataset.searchFriendUser;
   const friendshipId = Number(btn.dataset.searchFriendshipId);
 
-  if(!targetUser || action === &#x27;none&#x27;) return;
+  if(!targetUser || action === 'none') return;
 
   const client = window.gymcelsLolDb;
   if(!client) return;
 
   btn.disabled = true;
-  setFriendSearchStatus(action === &#x27;accept&#x27; ? &#x27;Accepting request...&#x27; : &#x27;Sending request...&#x27;);
+  setFriendSearchStatus(action === 'accept' ? 'Accepting request...' : 'Sending request...');
 
   try{
-    if(action === &#x27;accept&#x27;){
-      const { error } = await client.rpc(&#x27;accept_friend_request&#x27;, {
+    if(action === 'accept'){
+      const { error } = await client.rpc('accept_friend_request', {
         friendship_id: friendshipId
       });
       if(error) throw error;
 
-      setFriendSearchStatus(&#x27;✓ FRIEND REQUEST ACCEPTED&#x27;,&#x27;success&#x27;);
+      setFriendSearchStatus('✓ FRIEND REQUEST ACCEPTED','success');
     }else{
-      const { error } = await client.rpc(&#x27;send_friend_request&#x27;, {
+      const { error } = await client.rpc('send_friend_request', {
         target_user: targetUser
       });
       if(error) throw error;
 
-      setFriendSearchStatus(&#x27;✓ FRIEND REQUEST SENT&#x27;,&#x27;success&#x27;);
+      setFriendSearchStatus('✓ FRIEND REQUEST SENT','success');
     }
 
     await loadFriendsSection();
     await searchFriendsByUsername();
     await loadNotifications();
   }catch(err){
-    setFriendSearchStatus(err?.message || String(err),&#x27;error&#x27;);
+    setFriendSearchStatus(err?.message || String(err),'error');
     btn.disabled = false;
   }
 }
 
 if(friendSearchBtn){
-  friendSearchBtn.addEventListener(&#x27;click&#x27;, searchFriendsByUsername);
+  friendSearchBtn.addEventListener('click', searchFriendsByUsername);
 }
 
 if(friendSearchInput){
-  friendSearchInput.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
-    if(e.key === &#x27;Enter&#x27;){
+  friendSearchInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
       e.preventDefault();
       searchFriendsByUsername();
     }
@@ -3637,7 +3618,7 @@ if(friendSearchInput){
 }
 
 if(friendSearchResults){
-  friendSearchResults.addEventListener(&#x27;click&#x27;, handleFriendSearchAction);
+  friendSearchResults.addEventListener('click', handleFriendSearchAction);
 }
 
 
@@ -3646,118 +3627,118 @@ async function loadFriendsSection(){
 
   try{
     const client = window.gymcelsLolDb;
-    if(!client) throw new Error(&#x27;Friends database connection is not ready.&#x27;);
+    if(!client) throw new Error('Friends database connection is not ready.');
 
     const session = await getChatSession();
     if(!session?.user){
-      friendsSection.style.display = &#x27;none&#x27;;
+      friendsSection.style.display = 'none';
       return;
     }
 
-    friendsSection.style.display = &#x27;&#x27;;
-    if(friendsStatus) friendsStatus.textContent = &#x27;Loading...&#x27;;
+    friendsSection.style.display = '';
+    if(friendsStatus) friendsStatus.textContent = 'Loading...';
 
     const me = session.user.id;
 
     const { data: rows, error } = await client
-      .from(&#x27;friendships&#x27;)
-      .select(&#x27;id,requester_id,addressee_id,status,created_at&#x27;)
+      .from('friendships')
+      .select('id,requester_id,addressee_id,status,created_at')
       .or(`requester_id.eq.${me},addressee_id.eq.${me}`)
-      .order(&#x27;created_at&#x27;, { ascending:false });
+      .order('created_at', { ascending:false });
 
     if(error) throw error;
 
     const friendships = rows || [];
-    const otherIds = [...new Set(friendships.map(row =&gt;
+    const otherIds = [...new Set(friendships.map(row =>
       row.requester_id === me ? row.addressee_id : row.requester_id
     ).filter(Boolean))];
 
     const presenceMap = await getPresenceMapForUsers(otherIds);
 
     const accepted = sortPinnedFirst(
-      friendships.filter(row =&gt; row.status === &#x27;accepted&#x27;),
+      friendships.filter(row => row.status === 'accepted'),
       me,
-      row =&gt; friendOtherUserId(row,me)
+      row => friendOtherUserId(row,me)
     );
-    const incoming = friendships.filter(row =&gt; row.status === &#x27;pending&#x27; &amp;&amp; row.addressee_id === me);
-    const sent = friendships.filter(row =&gt; row.status === &#x27;pending&#x27; &amp;&amp; row.requester_id === me);
+    const incoming = friendships.filter(row => row.status === 'pending' && row.addressee_id === me);
+    const sent = friendships.filter(row => row.status === 'pending' && row.requester_id === me);
 
     friendsCount.textContent = accepted.length;
     incomingCount.textContent = incoming.length;
     sentCount.textContent = sent.length;
 
     friendsList.innerHTML = accepted.length
-      ? accepted.map(row =&gt; {
+      ? accepted.map(row => {
           const otherId = row.requester_id === me ? row.addressee_id : row.requester_id;
-          const person = presenceMap[otherId] || {user_id:otherId,display_name:&#x27;Member&#x27;,avatar_url:null,last_seen:null};
+          const person = presenceMap[otherId] || {user_id:otherId,display_name:'Member',avatar_url:null,last_seen:null};
           const pinned = isFriendPinned(me,otherId);
 
           return renderFriendPersonRow(
             person,
-            `&lt;div class=&quot;friend-actions&quot;&gt;
-              &lt;button class=&quot;friend-action pin ${pinned ? &#x27;pinned&#x27; : &#x27;&#x27;}&quot; type=&quot;button&quot;
-                data-friend-pin-user=&quot;${escapeChat(otherId)}&quot;
-                title=&quot;${pinned ? &#x27;Unpin friend&#x27; : &#x27;Pin friend&#x27;}&quot;&gt;${pinned ? &#x27;📌 Pinned&#x27; : &#x27;📌 Pin&#x27;}&lt;/button&gt;
-              &lt;button class=&quot;friend-action&quot; type=&quot;button&quot;
-                data-dm-user=&quot;${escapeChat(otherId)}&quot;
-                data-dm-name=&quot;${escapeChat(person.display_name || &#x27;Member&#x27;)}&quot;
-                data-dm-avatar=&quot;${escapeChat(person.avatar_url || &#x27;&#x27;)}&quot;&gt;Message&lt;/button&gt;
-              &lt;button class=&quot;friend-action secondary&quot; type=&quot;button&quot;
-                data-friend-remove=&quot;${row.id}&quot;
-                data-friend-remove-user=&quot;${escapeChat(otherId)}&quot;&gt;Remove&lt;/button&gt;
-            &lt;/div&gt;`
+            `<div class="friend-actions">
+              <button class="friend-action pin ${pinned ? 'pinned' : ''}" type="button"
+                data-friend-pin-user="${escapeChat(otherId)}"
+                title="${pinned ? 'Unpin friend' : 'Pin friend'}">${pinned ? '📌 Pinned' : '📌 Pin'}</button>
+              <button class="friend-action" type="button"
+                data-dm-user="${escapeChat(otherId)}"
+                data-dm-name="${escapeChat(person.display_name || 'Member')}"
+                data-dm-avatar="${escapeChat(person.avatar_url || '')}">Message</button>
+              <button class="friend-action secondary" type="button"
+                data-friend-remove="${row.id}"
+                data-friend-remove-user="${escapeChat(otherId)}">Remove</button>
+            </div>`
           );
-        }).join(&#x27;&#x27;)
-      : &#x27;&lt;div class=&quot;friend-empty&quot;&gt;No friends yet. Search a username above or click someone in chat.&lt;/div&gt;&#x27;;
+        }).join('')
+      : '<div class="friend-empty">No friends yet. Search a username above or click someone in chat.</div>';
 
     incomingFriendsList.innerHTML = incoming.length
-      ? incoming.map(row =&gt; {
-          const person = presenceMap[row.requester_id] || {user_id:row.requester_id,display_name:&#x27;Member&#x27;,avatar_url:null,last_seen:null};
+      ? incoming.map(row => {
+          const person = presenceMap[row.requester_id] || {user_id:row.requester_id,display_name:'Member',avatar_url:null,last_seen:null};
           return renderFriendPersonRow(
             person,
-            `&lt;div class=&quot;friend-actions&quot;&gt;
-              &lt;button class=&quot;friend-action&quot; type=&quot;button&quot; data-friend-accept=&quot;${row.id}&quot;&gt;Accept&lt;/button&gt;
-              &lt;button class=&quot;friend-action secondary&quot; type=&quot;button&quot; data-friend-remove=&quot;${row.id}&quot;&gt;Decline&lt;/button&gt;
-            &lt;/div&gt;`
+            `<div class="friend-actions">
+              <button class="friend-action" type="button" data-friend-accept="${row.id}">Accept</button>
+              <button class="friend-action secondary" type="button" data-friend-remove="${row.id}">Decline</button>
+            </div>`
           );
-        }).join(&#x27;&#x27;)
-      : &#x27;&lt;div class=&quot;friend-empty&quot;&gt;No incoming requests.&lt;/div&gt;&#x27;;
+        }).join('')
+      : '<div class="friend-empty">No incoming requests.</div>';
 
     sentFriendsList.innerHTML = sent.length
-      ? sent.map(row =&gt; {
-          const person = presenceMap[row.addressee_id] || {user_id:row.addressee_id,display_name:&#x27;Member&#x27;,avatar_url:null,last_seen:null};
+      ? sent.map(row => {
+          const person = presenceMap[row.addressee_id] || {user_id:row.addressee_id,display_name:'Member',avatar_url:null,last_seen:null};
           return renderFriendPersonRow(
             person,
-            `&lt;div class=&quot;friend-actions&quot;&gt;&lt;button class=&quot;friend-action secondary&quot; type=&quot;button&quot; data-friend-remove=&quot;${row.id}&quot;&gt;Cancel&lt;/button&gt;&lt;/div&gt;`
+            `<div class="friend-actions"><button class="friend-action secondary" type="button" data-friend-remove="${row.id}">Cancel</button></div>`
           );
-        }).join(&#x27;&#x27;)
-      : &#x27;&lt;div class=&quot;friend-empty&quot;&gt;No pending requests.&lt;/div&gt;&#x27;;
+        }).join('')
+      : '<div class="friend-empty">No pending requests.</div>';
 
-    if(friendsStatus) friendsStatus.textContent = &#x27;&#x27;;
+    if(friendsStatus) friendsStatus.textContent = '';
   }catch(err){
     if(friendsStatus){
-      friendsStatus.textContent = &#x27;Friends error: &#x27; + (err?.message || String(err));
-      friendsStatus.style.color = &#x27;#ff5a6b&#x27;;
+      friendsStatus.textContent = 'Friends error: ' + (err?.message || String(err));
+      friendsStatus.style.color = '#ff5a6b';
     }
-    console.error(&#x27;Friends section error:&#x27;, err);
+    console.error('Friends section error:', err);
   }
 }
 
 async function handleFriendsSectionAction(e){
-  const pinBtn = e.target.closest(&#x27;[data-friend-pin-user]&#x27;);
-  const acceptBtn = e.target.closest(&#x27;[data-friend-accept]&#x27;);
-  const removeBtn = e.target.closest(&#x27;[data-friend-remove]&#x27;);
-  if(!pinBtn &amp;&amp; !acceptBtn &amp;&amp; !removeBtn) return;
+  const pinBtn = e.target.closest('[data-friend-pin-user]');
+  const acceptBtn = e.target.closest('[data-friend-accept]');
+  const removeBtn = e.target.closest('[data-friend-remove]');
+  if(!pinBtn && !acceptBtn && !removeBtn) return;
 
   e.preventDefault();
   e.stopPropagation();
 
   try{
     const client = window.gymcelsLolDb;
-    if(!client) throw new Error(&#x27;Friends database connection is not ready.&#x27;);
+    if(!client) throw new Error('Friends database connection is not ready.');
 
     const session = await getChatSession();
-    if(!session?.user) throw new Error(&#x27;Log in first.&#x27;);
+    if(!session?.user) throw new Error('Log in first.');
 
     if(pinBtn){
       togglePinnedFriend(session.user.id,pinBtn.dataset.friendPinUser);
@@ -3768,14 +3749,14 @@ async function handleFriendsSectionAction(e){
 
     if(acceptBtn){
       const friendshipId = Number(acceptBtn.dataset.friendAccept);
-      const { error } = await client.rpc(&#x27;accept_friend_request&#x27;, { friendship_id: friendshipId });
+      const { error } = await client.rpc('accept_friend_request', { friendship_id: friendshipId });
       if(error) throw error;
     }
 
     if(removeBtn){
       const friendshipId = Number(removeBtn.dataset.friendRemove);
-      const removedUserId = removeBtn.dataset.friendRemoveUser || &#x27;&#x27;;
-      const { error } = await client.rpc(&#x27;remove_friendship&#x27;, { friendship_id: friendshipId });
+      const removedUserId = removeBtn.dataset.friendRemoveUser || '';
+      const { error } = await client.rpc('remove_friendship', { friendship_id: friendshipId });
       if(error) throw error;
 
       if(removedUserId){
@@ -3788,21 +3769,21 @@ async function handleFriendsSectionAction(e){
   }catch(err){
     if(friendsStatus){
       friendsStatus.textContent = err?.message || String(err);
-      friendsStatus.style.color = &#x27;#ff5a6b&#x27;;
+      friendsStatus.style.color = '#ff5a6b';
     }
   }
 }
 
-[friendsList, incomingFriendsList, sentFriendsList].forEach(list =&gt; {
-  if(list) list.addEventListener(&#x27;click&#x27;, handleFriendsSectionAction);
+[friendsList, incomingFriendsList, sentFriendsList].forEach(list => {
+  if(list) list.addEventListener('click', handleFriendsSectionAction);
 });
 
 if(friendsRefreshBtn){
-  friendsRefreshBtn.addEventListener(&#x27;click&#x27;, () =&gt; loadFriendsSection());
+  friendsRefreshBtn.addEventListener('click', () => loadFriendsSection());
 }
 
 if(navFriends){
-  navFriends.addEventListener(&#x27;click&#x27;, () =&gt; {
+  navFriends.addEventListener('click', () => {
     setTimeout(loadFriendsSection, 50);
   });
 }
@@ -3813,89 +3794,89 @@ async function getFriendshipState(targetUserId){
   if(!client || !session?.user || !targetUserId) return null;
 
   const { data, error } = await client
-    .from(&#x27;friendships&#x27;)
-    .select(&#x27;id,requester_id,addressee_id,status,created_at&#x27;)
+    .from('friendships')
+    .select('id,requester_id,addressee_id,status,created_at')
     .or(`requester_id.eq.${targetUserId},addressee_id.eq.${targetUserId}`)
     .limit(10);
 
   if(error) throw error;
 
-  return (data || []).find(row =&gt;
-    (row.requester_id === session.user.id &amp;&amp; row.addressee_id === targetUserId) ||
-    (row.requester_id === targetUserId &amp;&amp; row.addressee_id === session.user.id)
+  return (data || []).find(row =>
+    (row.requester_id === session.user.id && row.addressee_id === targetUserId) ||
+    (row.requester_id === targetUserId && row.addressee_id === session.user.id)
   ) || null;
 }
 
 async function renderFriendButton(targetUserId){
   if(!chatFriendBtn || !chatFriendArea) return;
 
-  if(chatDmBtn) chatDmBtn.classList.add(&#x27;hidden&#x27;);
-  if(chatBlockBtn) chatBlockBtn.classList.add(&#x27;hidden&#x27;);
+  if(chatDmBtn) chatDmBtn.classList.add('hidden');
+  if(chatBlockBtn) chatBlockBtn.classList.add('hidden');
 
   const session = await getChatSession();
 
   if(!session?.user){
-    chatFriendArea.style.display = &#x27;none&#x27;;
+    chatFriendArea.style.display = 'none';
     return;
   }
 
   if(targetUserId === session.user.id){
-    chatFriendArea.style.display = &#x27;none&#x27;;
+    chatFriendArea.style.display = 'none';
     openedFriendship = null;
     openedBlockState = {blocked_by_me:false,blocked_me:false};
     return;
   }
 
-  chatFriendArea.style.display = &#x27;&#x27;;
-  chatFriendNote.textContent = &#x27;&#x27;;
-  chatFriendNote.style.color = &#x27;&#x27;;
+  chatFriendArea.style.display = '';
+  chatFriendNote.textContent = '';
+  chatFriendNote.style.color = '';
 
   openedBlockState = await getMemberBlockState(targetUserId);
 
   if(chatBlockBtn){
-    chatBlockBtn.classList.remove(&#x27;hidden&#x27;);
-    chatBlockBtn.textContent = openedBlockState.blocked_by_me ? &#x27;Unblock&#x27; : &#x27;Block&#x27;;
-    chatBlockBtn.classList.toggle(&#x27;active&#x27;,openedBlockState.blocked_by_me);
+    chatBlockBtn.classList.remove('hidden');
+    chatBlockBtn.textContent = openedBlockState.blocked_by_me ? 'Unblock' : 'Block';
+    chatBlockBtn.classList.toggle('active',openedBlockState.blocked_by_me);
   }
 
   if(openedBlockState.blocked_by_me || openedBlockState.blocked_me){
-    chatFriendBtn.classList.add(&#x27;hidden&#x27;);
-    if(chatDmBtn) chatDmBtn.classList.add(&#x27;hidden&#x27;);
+    chatFriendBtn.classList.add('hidden');
+    if(chatDmBtn) chatDmBtn.classList.add('hidden');
     openedFriendship = null;
 
     chatFriendNote.textContent = openedBlockState.blocked_by_me
-      ? &#x27;You blocked this member.&#x27;
-      : &#x27;Friend and DM actions are unavailable.&#x27;;
+      ? 'You blocked this member.'
+      : 'Friend and DM actions are unavailable.';
     return;
   }
 
-  chatFriendBtn.classList.remove(&#x27;hidden&#x27;);
+  chatFriendBtn.classList.remove('hidden');
   openedFriendship = await getFriendshipState(targetUserId);
 
   chatFriendBtn.disabled = false;
-  chatFriendBtn.classList.remove(&#x27;secondary&#x27;);
+  chatFriendBtn.classList.remove('secondary');
 
   if(!openedFriendship){
-    chatFriendBtn.textContent = &#x27;Add Friend&#x27;;
-    chatFriendNote.textContent = &#x27;Send a friend request.&#x27;;
+    chatFriendBtn.textContent = 'Add Friend';
+    chatFriendNote.textContent = 'Send a friend request.';
     return;
   }
 
-  if(openedFriendship.status === &#x27;accepted&#x27;){
-    chatFriendBtn.textContent = &#x27;Friends ✓&#x27;;
-    chatFriendBtn.classList.add(&#x27;secondary&#x27;);
-    chatFriendNote.textContent = &#x27;Click to remove friend.&#x27;;
-    if(chatDmBtn) chatDmBtn.classList.remove(&#x27;hidden&#x27;);
+  if(openedFriendship.status === 'accepted'){
+    chatFriendBtn.textContent = 'Friends ✓';
+    chatFriendBtn.classList.add('secondary');
+    chatFriendNote.textContent = 'Click to remove friend.';
+    if(chatDmBtn) chatDmBtn.classList.remove('hidden');
     return;
   }
 
   if(openedFriendship.requester_id === session.user.id){
-    chatFriendBtn.textContent = &#x27;Request Sent&#x27;;
-    chatFriendBtn.classList.add(&#x27;secondary&#x27;);
-    chatFriendNote.textContent = &#x27;Click to cancel request.&#x27;;
+    chatFriendBtn.textContent = 'Request Sent';
+    chatFriendBtn.classList.add('secondary');
+    chatFriendNote.textContent = 'Click to cancel request.';
   }else{
-    chatFriendBtn.textContent = &#x27;Accept Friend&#x27;;
-    chatFriendNote.textContent = &#x27;This member sent you a request.&#x27;;
+    chatFriendBtn.textContent = 'Accept Friend';
+    chatFriendNote.textContent = 'This member sent you a request.';
   }
 }
 
@@ -3907,26 +3888,26 @@ async function handleFriendAction(){
   if(!client || !session?.user) return;
 
   chatFriendBtn.disabled = true;
-  chatFriendNote.textContent = &#x27;Updating...&#x27;;
+  chatFriendNote.textContent = 'Updating...';
 
   try{
     if(!openedFriendship){
-      const { error } = await client.rpc(&#x27;send_friend_request&#x27;, {
+      const { error } = await client.rpc('send_friend_request', {
         target_user: openedChatUserId
       });
       if(error) throw error;
-    }else if(openedFriendship.status === &#x27;accepted&#x27;){
-      const { error } = await client.rpc(&#x27;remove_friendship&#x27;, {
+    }else if(openedFriendship.status === 'accepted'){
+      const { error } = await client.rpc('remove_friendship', {
         friendship_id: openedFriendship.id
       });
       if(error) throw error;
     }else if(openedFriendship.addressee_id === session.user.id){
-      const { error } = await client.rpc(&#x27;accept_friend_request&#x27;, {
+      const { error } = await client.rpc('accept_friend_request', {
         friendship_id: openedFriendship.id
       });
       if(error) throw error;
     }else{
-      const { error } = await client.rpc(&#x27;remove_friendship&#x27;, {
+      const { error } = await client.rpc('remove_friendship', {
         friendship_id: openedFriendship.id
       });
       if(error) throw error;
@@ -3936,13 +3917,13 @@ async function handleFriendAction(){
     await loadFriendsSection();
   }catch(err){
     chatFriendNote.textContent = err?.message || String(err);
-    chatFriendNote.style.color = &#x27;#ff5a6b&#x27;;
+    chatFriendNote.style.color = '#ff5a6b';
     chatFriendBtn.disabled = false;
   }
 }
 
 if(chatFriendBtn){
-  chatFriendBtn.addEventListener(&#x27;click&#x27;, handleFriendAction);
+  chatFriendBtn.addEventListener('click', handleFriendAction);
 }
 
 async function handleBlockAction(){
@@ -3953,20 +3934,20 @@ async function handleBlockAction(){
   if(!client || !session?.user || openedChatUserId === session.user.id) return;
 
   const blocking = !openedBlockState.blocked_by_me;
-  const name = openedChatDisplayName || &#x27;this member&#x27;;
+  const name = openedChatDisplayName || 'this member';
 
-  if(blocking &amp;&amp; !confirm(
+  if(blocking && !confirm(
     `Block ${name}? This removes any friendship and stops friend requests, DMs, and private calls between you.`
   )){
     return;
   }
 
   chatBlockBtn.disabled = true;
-  chatFriendNote.textContent = blocking ? &#x27;Blocking...&#x27; : &#x27;Unblocking...&#x27;;
+  chatFriendNote.textContent = blocking ? 'Blocking...' : 'Unblocking...';
 
   try{
     const {error} = await client.rpc(
-      blocking ? &#x27;block_member&#x27; : &#x27;unblock_member&#x27;,
+      blocking ? 'block_member' : 'unblock_member',
       {target_user:openedChatUserId}
     );
     if(error) throw error;
@@ -3974,27 +3955,26 @@ async function handleBlockAction(){
     if(blocking){
       try{ unpinFriend(session.user.id,openedChatUserId); }catch(_){}
 
-      if(typeof dmActiveUserId !== &#x27;undefined&#x27; &amp;&amp; dmActiveUserId === openedChatUserId){
+      if(typeof dmActiveUserId !== 'undefined' && dmActiveUserId === openedChatUserId){
         clearInterval(dmPollTimer);
         clearInterval(dmTypingPollTimer);
         clearOwnDmTyping(dmActiveUserId);
         dmActiveUserId = null;
-        dmLastRenderConversation = &#x27;&#x27;;
-        dmLastRenderSignature = &#x27;&#x27;;
+        dmLastRenderConversation = '';
+        dmLastRenderSignature = '';
         dmRowsById = new Map();
         clearDmReply();
-        clearDmEdit();
         hideDmTypingIndicator();
         dmClearPendingFiles();
 
-        if(dmThreadName) dmThreadName.textContent = &#x27;Select a friend&#x27;;
-        if(dmThreadState) dmThreadState.textContent = &#x27;Choose someone from your friends list.&#x27;;
-        if(dmMessages) dmMessages.innerHTML = &#x27;&lt;div class=&quot;dm-empty&quot;&gt;This conversation is unavailable while the member is blocked.&lt;/div&gt;&#x27;;
+        if(dmThreadName) dmThreadName.textContent = 'Select a friend';
+        if(dmThreadState) dmThreadState.textContent = 'Choose someone from your friends list.';
+        if(dmMessages) dmMessages.innerHTML = '<div class="dm-empty">This conversation is unavailable while the member is blocked.</div>';
         if(dmInput) dmInput.disabled = true;
         if(dmSendBtn) dmSendBtn.disabled = true;
         if(dmPhotoBtn) dmPhotoBtn.disabled = true;
         if(dmAttachBtn) dmAttachBtn.disabled = true;
-        if(dmCallBtn) dmCallBtn.classList.add(&#x27;hidden&#x27;);
+        if(dmCallBtn) dmCallBtn.classList.add('hidden');
       }
     }
 
@@ -4009,42 +3989,42 @@ async function handleBlockAction(){
       loadCommunityChat(false)
     ]);
 
-    chatFriendNote.textContent = blocking ? &#x27;✓ Member blocked.&#x27; : &#x27;✓ Member unblocked.&#x27;;
+    chatFriendNote.textContent = blocking ? '✓ Member blocked.' : '✓ Member unblocked.';
   }catch(err){
     chatFriendNote.textContent = err?.message || String(err);
-    chatFriendNote.style.color = &#x27;#ff7c89&#x27;;
+    chatFriendNote.style.color = '#ff7c89';
   }finally{
     chatBlockBtn.disabled = false;
   }
 }
 
-chatBlockBtn?.addEventListener(&#x27;click&#x27;,handleBlockAction);
+chatBlockBtn?.addEventListener('click',handleBlockAction);
 
 
 function renderPublicAchievements(count,extras={}){
   if(!chatPublicAchievements) return;
   const stats = normalizedAchievementStats({...extras,messages:Number(count || 0)});
 
-  chatPublicAchievements.innerHTML = CHAT_ACHIEVEMENTS.map(a =&gt; {
+  chatPublicAchievements.innerHTML = CHAT_ACHIEVEMENTS.map(a => {
     const unlocked = !!a.test(stats);
-    return `&lt;div class=&quot;chat-achievement ${unlocked ? &#x27;unlocked&#x27; : &#x27;&#x27;}&quot;
-                 title=&quot;${escapeChat(unlocked ? &#x27;Unlocked&#x27; : a.hint)}&quot;&gt;
-      &lt;span class=&quot;lock&quot;&gt;${unlocked ? a.icon : &#x27;🔒&#x27;}&lt;/span&gt;${escapeChat(a.name)}
-    &lt;/div&gt;`;
-  }).join(&#x27;&#x27;);
+    return `<div class="chat-achievement ${unlocked ? 'unlocked' : ''}"
+                 title="${escapeChat(unlocked ? 'Unlocked' : a.hint)}">
+      <span class="lock">${unlocked ? a.icon : '🔒'}</span>${escapeChat(a.name)}
+    </div>`;
+  }).join('');
 }
 
 
-function setChatMuteActionStatus(text=&#x27;&#x27;,type=&#x27;&#x27;){
+function setChatMuteActionStatus(text='',type=''){
   if(!chatMuteActionStatus) return;
   chatMuteActionStatus.textContent = text;
-  chatMuteActionStatus.className = `chat-mute-action-status ${type || &#x27;&#x27;}`;
+  chatMuteActionStatus.className = `chat-mute-action-status ${type || ''}`;
 }
 
 function formatMuteUntil(value){
-  if(!value) return &#x27;&#x27;;
+  if(!value) return '';
   return new Date(value).toLocaleString([],{
-    month:&#x27;short&#x27;,day:&#x27;numeric&#x27;,hour:&#x27;numeric&#x27;,minute:&#x27;2-digit&#x27;
+    month:'short',day:'numeric',hour:'numeric',minute:'2-digit'
   });
 }
 
@@ -4052,22 +4032,22 @@ async function loadProfileMuteControls(targetUserId){
   if(!chatModerationArea) return;
 
   const session = await getChatSession();
-  const mayModerate = !!session?.user &amp;&amp;
-    targetUserId !== session.user.id &amp;&amp;
+  const mayModerate = !!session?.user &&
+    targetUserId !== session.user.id &&
     canModerateChat();
 
-  chatModerationArea.classList.toggle(&#x27;hidden&#x27;,!mayModerate);
+  chatModerationArea.classList.toggle('hidden',!mayModerate);
   if(!mayModerate) return;
 
   if(chatMuteState){
-    chatMuteState.textContent = &#x27;Checking mute status...&#x27;;
-    chatMuteState.classList.remove(&#x27;active&#x27;);
+    chatMuteState.textContent = 'Checking mute status...';
+    chatMuteState.classList.remove('active');
   }
-  setChatMuteActionStatus(&#x27;&#x27;);
+  setChatMuteActionStatus('');
 
   try{
     const client = window.gymcelsLolDb;
-    const {data,error} = await client.rpc(&#x27;get_chat_mute_status&#x27;,{
+    const {data,error} = await client.rpc('get_chat_mute_status',{
       target_user:targetUserId
     });
     if(error) throw error;
@@ -4075,39 +4055,39 @@ async function loadProfileMuteControls(targetUserId){
     const status = Array.isArray(data) ? data[0] : data;
     if(status?.is_muted){
       chatMuteState.textContent =
-        `Muted until ${formatMuteUntil(status.muted_until)}${status.reason ? ` · ${status.reason}` : &#x27;&#x27;}`;
-      chatMuteState.classList.add(&#x27;active&#x27;);
+        `Muted until ${formatMuteUntil(status.muted_until)}${status.reason ? ` · ${status.reason}` : ''}`;
+      chatMuteState.classList.add('active');
     }else{
-      chatMuteState.textContent = &#x27;Not muted.&#x27;;
-      chatMuteState.classList.remove(&#x27;active&#x27;);
+      chatMuteState.textContent = 'Not muted.';
+      chatMuteState.classList.remove('active');
     }
   }catch(err){
-    chatMuteState.textContent = err?.message || &#x27;Could not load mute status.&#x27;;
+    chatMuteState.textContent = err?.message || 'Could not load mute status.';
   }
 }
 
 async function muteOpenedProfile(durationMinutes){
   if(!openedChatUserId || !canModerateChat()) return;
 
-  const labels={10:&#x27;10 minutes&#x27;,60:&#x27;1 hour&#x27;,1440:&#x27;24 hours&#x27;,10080:&#x27;7 days&#x27;};
+  const labels={10:'10 minutes',60:'1 hour',1440:'24 hours',10080:'7 days'};
   const label=labels[Number(durationMinutes)] || `${durationMinutes} minutes`;
 
-  if(!confirm(`Mute ${openedChatDisplayName || &#x27;this member&#x27;} from public chat for ${label}?`)) return;
+  if(!confirm(`Mute ${openedChatDisplayName || 'this member'} from public chat for ${label}?`)) return;
 
   try{
-    setChatMuteActionStatus(&#x27;Muting...&#x27;);
+    setChatMuteActionStatus('Muting...');
     const client=window.gymcelsLolDb;
-    const {error}=await client.rpc(&#x27;mute_chat_member&#x27;,{
+    const {error}=await client.rpc('mute_chat_member',{
       target_user:openedChatUserId,
       duration_minutes:Number(durationMinutes),
-      mute_reason:&#x27;Muted by Gymcels moderation&#x27;
+      mute_reason:'Muted by Gymcels moderation'
     });
     if(error) throw error;
 
-    setChatMuteActionStatus(`✓ Muted for ${label}.`,&#x27;success&#x27;);
+    setChatMuteActionStatus(`✓ Muted for ${label}.`,'success');
     await loadProfileMuteControls(openedChatUserId);
   }catch(err){
-    setChatMuteActionStatus(err?.message || String(err),&#x27;error&#x27;);
+    setChatMuteActionStatus(err?.message || String(err),'error');
   }
 }
 
@@ -4115,35 +4095,35 @@ async function unmuteOpenedProfile(){
   if(!openedChatUserId || !canModerateChat()) return;
 
   try{
-    setChatMuteActionStatus(&#x27;Unmuting...&#x27;);
+    setChatMuteActionStatus('Unmuting...');
     const client=window.gymcelsLolDb;
-    const {error}=await client.rpc(&#x27;unmute_chat_member&#x27;,{target_user:openedChatUserId});
+    const {error}=await client.rpc('unmute_chat_member',{target_user:openedChatUserId});
     if(error) throw error;
 
-    setChatMuteActionStatus(&#x27;✓ Member unmuted.&#x27;,&#x27;success&#x27;);
+    setChatMuteActionStatus('✓ Member unmuted.','success');
     await loadProfileMuteControls(openedChatUserId);
   }catch(err){
-    setChatMuteActionStatus(err?.message || String(err),&#x27;error&#x27;);
+    setChatMuteActionStatus(err?.message || String(err),'error');
   }
 }
 
 async function loadPublicPostHistory(userId){
   if(!chatPublicPostHistory) return {threads:0,replies:0};
 
-  chatPublicPostHistory.innerHTML=&#x27;&lt;div class=&quot;chat-public-history-empty&quot;&gt;Loading activity...&lt;/div&gt;&#x27;;
+  chatPublicPostHistory.innerHTML='<div class="chat-public-history-empty">Loading activity...</div>';
 
   try{
     const client=window.gymcelsLolDb;
     const [threadsRes,repliesRes]=await Promise.all([
-      client.from(&#x27;forum_threads&#x27;)
-        .select(&#x27;id,title,body,created_at,media_url,media_urls&#x27;)
-        .eq(&#x27;author_id&#x27;,userId)
-        .order(&#x27;created_at&#x27;,{ascending:false})
+      client.from('forum_threads')
+        .select('id,title,body,created_at,media_url,media_urls')
+        .eq('author_id',userId)
+        .order('created_at',{ascending:false})
         .limit(8),
-      client.from(&#x27;forum_replies&#x27;)
-        .select(&#x27;id,thread_id,body,created_at,media_url,media_urls&#x27;)
-        .eq(&#x27;author_id&#x27;,userId)
-        .order(&#x27;created_at&#x27;,{ascending:false})
+      client.from('forum_replies')
+        .select('id,thread_id,body,created_at,media_url,media_urls')
+        .eq('author_id',userId)
+        .order('created_at',{ascending:false})
         .limit(8)
     ]);
 
@@ -4152,47 +4132,47 @@ async function loadPublicPostHistory(userId){
 
     const threads=threadsRes.data || [];
     const replies=repliesRes.data || [];
-    const parentIds=[...new Set(replies.map(x=&gt;Number(x.thread_id)).filter(Boolean))];
+    const parentIds=[...new Set(replies.map(x=>Number(x.thread_id)).filter(Boolean))];
     let titleMap={};
 
     if(parentIds.length){
-      const {data,error}=await client.from(&#x27;forum_threads&#x27;).select(&#x27;id,title&#x27;).in(&#x27;id&#x27;,parentIds);
-      if(!error) titleMap=Object.fromEntries((data||[]).map(row=&gt;[Number(row.id),row.title || &#x27;Thread&#x27;]));
+      const {data,error}=await client.from('forum_threads').select('id,title').in('id',parentIds);
+      if(!error) titleMap=Object.fromEntries((data||[]).map(row=>[Number(row.id),row.title || 'Thread']));
     }
 
     const activity=[
-      ...threads.map(row=&gt;({
-        type:&#x27;thread&#x27;,thread_id:Number(row.id),created_at:row.created_at,
-        title:row.title || &#x27;Thread&#x27;,text:String(row.body || &#x27;&#x27;).trim(),
-        hasPhoto:threadAllMedia(row).length&gt;0
+      ...threads.map(row=>({
+        type:'thread',thread_id:Number(row.id),created_at:row.created_at,
+        title:row.title || 'Thread',text:String(row.body || '').trim(),
+        hasPhoto:threadAllMedia(row).length>0
       })),
-      ...replies.map(row=&gt;({
-        type:&#x27;reply&#x27;,thread_id:Number(row.thread_id),created_at:row.created_at,
-        title:`Reply in ${titleMap[Number(row.thread_id)] || &#x27;thread&#x27;}`,
-        text:String(row.body || &#x27;&#x27;).trim(),hasPhoto:threadAllMedia(row).length&gt;0
+      ...replies.map(row=>({
+        type:'reply',thread_id:Number(row.thread_id),created_at:row.created_at,
+        title:`Reply in ${titleMap[Number(row.thread_id)] || 'thread'}`,
+        text:String(row.body || '').trim(),hasPhoto:threadAllMedia(row).length>0
       }))
-    ].sort((a,b)=&gt;new Date(b.created_at)-new Date(a.created_at)).slice(0,10);
+    ].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,10);
 
     if(!activity.length){
-      chatPublicPostHistory.innerHTML=&#x27;&lt;div class=&quot;chat-public-history-empty&quot;&gt;No thread activity yet.&lt;/div&gt;&#x27;;
+      chatPublicPostHistory.innerHTML='<div class="chat-public-history-empty">No thread activity yet.</div>';
     }else{
-      chatPublicPostHistory.innerHTML=activity.map(item=&gt;{
-        const preview=item.text.replace(/\s+/g,&#x27; &#x27;).trim();
-        return `&lt;button class=&quot;chat-public-history-item&quot; type=&quot;button&quot;
-                        data-profile-thread-open=&quot;${item.thread_id}&quot;&gt;
-          &lt;span class=&quot;chat-public-history-icon&quot;&gt;${item.type === &#x27;thread&#x27; ? &#x27;🧵&#x27; : &#x27;↩️&#x27;}&lt;/span&gt;
-          &lt;span class=&quot;chat-public-history-copy&quot;&gt;
-            &lt;strong&gt;${escapeChat(item.title)}&lt;/strong&gt;
-            &lt;span&gt;${escapeChat(preview || (item.hasPhoto ? &#x27;📷 Photo post&#x27; : &#x27;Open thread&#x27;))}&lt;/span&gt;
-          &lt;/span&gt;
-          &lt;span class=&quot;chat-public-history-time&quot;&gt;${escapeChat(threadTime(item.created_at))}&lt;/span&gt;
-        &lt;/button&gt;`;
-      }).join(&#x27;&#x27;);
+      chatPublicPostHistory.innerHTML=activity.map(item=>{
+        const preview=item.text.replace(/\s+/g,' ').trim();
+        return `<button class="chat-public-history-item" type="button"
+                        data-profile-thread-open="${item.thread_id}">
+          <span class="chat-public-history-icon">${item.type === 'thread' ? '🧵' : '↩️'}</span>
+          <span class="chat-public-history-copy">
+            <strong>${escapeChat(item.title)}</strong>
+            <span>${escapeChat(preview || (item.hasPhoto ? '📷 Photo post' : 'Open thread'))}</span>
+          </span>
+          <span class="chat-public-history-time">${escapeChat(threadTime(item.created_at))}</span>
+        </button>`;
+      }).join('');
     }
 
     const [threadCountRes,replyCountRes]=await Promise.all([
-      client.from(&#x27;forum_threads&#x27;).select(&#x27;id&#x27;,{count:&#x27;exact&#x27;,head:true}).eq(&#x27;author_id&#x27;,userId),
-      client.from(&#x27;forum_replies&#x27;).select(&#x27;id&#x27;,{count:&#x27;exact&#x27;,head:true}).eq(&#x27;author_id&#x27;,userId)
+      client.from('forum_threads').select('id',{count:'exact',head:true}).eq('author_id',userId),
+      client.from('forum_replies').select('id',{count:'exact',head:true}).eq('author_id',userId)
     ]);
 
     const counts={
@@ -4202,31 +4182,31 @@ async function loadPublicPostHistory(userId){
 
     if(chatPublicHistoryCount){
       chatPublicHistoryCount.textContent=
-        `${counts.threads} thread${counts.threads===1?&#x27;&#x27;:&#x27;s&#x27;} · ${counts.replies} repl${counts.replies===1?&#x27;y&#x27;:&#x27;ies&#x27;}`;
+        `${counts.threads} thread${counts.threads===1?'':'s'} · ${counts.replies} repl${counts.replies===1?'y':'ies'}`;
     }
 
     return counts;
   }catch(err){
-    console.error(&#x27;Profile post history error:&#x27;,err);
-    chatPublicPostHistory.innerHTML=&#x27;&lt;div class=&quot;chat-public-history-empty&quot;&gt;Could not load recent posts.&lt;/div&gt;&#x27;;
+    console.error('Profile post history error:',err);
+    chatPublicPostHistory.innerHTML='<div class="chat-public-history-empty">Could not load recent posts.</div>';
     return {threads:0,replies:0};
   }
 }
 
-document.querySelectorAll(&#x27;[data-chat-mute-minutes]&#x27;).forEach(btn=&gt;{
-  btn.addEventListener(&#x27;click&#x27;,()=&gt;muteOpenedProfile(Number(btn.dataset.chatMuteMinutes)));
+document.querySelectorAll('[data-chat-mute-minutes]').forEach(btn=>{
+  btn.addEventListener('click',()=>muteOpenedProfile(Number(btn.dataset.chatMuteMinutes)));
 });
-chatUnmuteBtn?.addEventListener(&#x27;click&#x27;,unmuteOpenedProfile);
+chatUnmuteBtn?.addEventListener('click',unmuteOpenedProfile);
 
-chatPublicPostHistory?.addEventListener(&#x27;click&#x27;,(e)=&gt;{
-  const item=e.target.closest(&#x27;[data-profile-thread-open]&#x27;);
+chatPublicPostHistory?.addEventListener('click',(e)=>{
+  const item=e.target.closest('[data-profile-thread-open]');
   if(!item) return;
   const id=Number(item.dataset.profileThreadOpen);
   if(!id) return;
 
   closeChatPublicProfile();
-  threadsSection?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;start&#x27;});
-  setTimeout(()=&gt;openThread(id),180);
+  threadsSection?.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>openThread(id),180);
 });
 
 async function openChatPublicProfile(userId, displayName, avatarUrl){
@@ -4234,83 +4214,83 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
 
   openedChatUserId = userId;
   openedFriendship = null;
-  openedChatDisplayName = displayName || &#x27;Member&#x27;;
-  openedChatAvatarUrl = avatarUrl || &#x27;&#x27;;
+  openedChatDisplayName = displayName || 'Member';
+  openedChatAvatarUrl = avatarUrl || '';
 
-  const name = displayName || &#x27;Member&#x27;;
+  const name = displayName || 'Member';
   chatPublicName.textContent = name;
-  chatPublicSub.textContent = &#x27;Gymcels.lol Community Member&#x27;;
-  if(chatPublicStaffBadge) chatPublicStaffBadge.innerHTML = &#x27;&#x27;;
-  if(chatPublicVipBadge) chatPublicVipBadge.classList.remove(&#x27;show&#x27;);
+  chatPublicSub.textContent = 'Gymcels.lol Community Member';
+  if(chatPublicStaffBadge) chatPublicStaffBadge.innerHTML = '';
+  if(chatPublicVipBadge) chatPublicVipBadge.classList.remove('show');
 
   if(avatarUrl){
-    chatPublicAvatar.innerHTML = `&lt;img src=&quot;${escapeChat(avatarUrl)}&quot; alt=&quot;${escapeChat(name)} profile photo&quot;&gt;`;
+    chatPublicAvatar.innerHTML = `<img src="${escapeChat(avatarUrl)}" alt="${escapeChat(name)} profile photo">`;
   }else{
     chatPublicAvatar.textContent = chatInitials(name);
   }
 
-  chatPublicLevel.textContent = &#x27;—&#x27;;
-  chatPublicMessages.textContent = &#x27;—&#x27;;
-  if(chatPublicWorkouts) chatPublicWorkouts.textContent = &#x27;—&#x27;;
-  if(chatPublicSets) chatPublicSets.textContent = &#x27;—&#x27;;
-  if(chatPublicCurrentStreak) chatPublicCurrentStreak.textContent = &#x27;—&#x27;;
-  if(chatPublicBestStreak) chatPublicBestStreak.textContent = &#x27;—&#x27;;
+  chatPublicLevel.textContent = '—';
+  chatPublicMessages.textContent = '—';
+  if(chatPublicWorkouts) chatPublicWorkouts.textContent = '—';
+  if(chatPublicSets) chatPublicSets.textContent = '—';
+  if(chatPublicCurrentStreak) chatPublicCurrentStreak.textContent = '—';
+  if(chatPublicBestStreak) chatPublicBestStreak.textContent = '—';
   if(chatPublicBio){
-    chatPublicBio.textContent = &#x27;No bio yet.&#x27;;
-    chatPublicBio.classList.add(&#x27;empty&#x27;);
+    chatPublicBio.textContent = 'No bio yet.';
+    chatPublicBio.classList.add('empty');
   }
   if(chatPublicPhysique){
-    chatPublicPhysique.innerHTML = &#x27;&lt;div class=&quot;chat-public-physique-empty&quot;&gt;No physique photo added yet.&lt;/div&gt;&#x27;;
+    chatPublicPhysique.innerHTML = '<div class="chat-public-physique-empty">No physique photo added yet.</div>';
   }
-  chatPublicAchievements.innerHTML = &#x27;&#x27;;
-  document.getElementById(&#x27;chatReportUserBtn&#x27;)?.classList.add(&#x27;hidden&#x27;);
-  chatBlockBtn?.classList.add(&#x27;hidden&#x27;);
+  chatPublicAchievements.innerHTML = '';
+  document.getElementById('chatReportUserBtn')?.classList.add('hidden');
+  chatBlockBtn?.classList.add('hidden');
   openedBlockState = {blocked_by_me:false,blocked_me:false};
   if(chatPublicPostHistory){
-    chatPublicPostHistory.innerHTML = &#x27;&lt;div class=&quot;chat-public-history-empty&quot;&gt;Loading activity...&lt;/div&gt;&#x27;;
+    chatPublicPostHistory.innerHTML = '<div class="chat-public-history-empty">Loading activity...</div>';
   }
-  if(chatPublicHistoryCount) chatPublicHistoryCount.textContent = &#x27;Threads &amp; replies&#x27;;
-  chatModerationArea?.classList.add(&#x27;hidden&#x27;);
-  setChatMuteActionStatus(&#x27;&#x27;);
+  if(chatPublicHistoryCount) chatPublicHistoryCount.textContent = 'Threads & replies';
+  chatModerationArea?.classList.add('hidden');
+  setChatMuteActionStatus('');
   renderPublicPresence(null);
 
-  chatProfileOverlay.classList.add(&#x27;show&#x27;);
-  chatProfileOverlay.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
+  chatProfileOverlay.classList.add('show');
+  chatProfileOverlay.setAttribute('aria-hidden','false');
 
   try{
     const client = window.gymcelsLolDb;
-    if(!client) throw new Error(&#x27;Database connection is not ready.&#x27;);
+    if(!client) throw new Error('Database connection is not ready.');
 
     const viewerSession = await getChatSession();
     if(viewerSession?.user) await refreshChatAdminStatus(viewerSession);
 
-    const chatReportUserBtn = document.getElementById(&#x27;chatReportUserBtn&#x27;);
+    const chatReportUserBtn = document.getElementById('chatReportUserBtn');
     if(chatReportUserBtn){
       chatReportUserBtn.classList.toggle(
-        &#x27;hidden&#x27;,
+        'hidden',
         !viewerSession?.user || viewerSession.user.id === userId
       );
     }
 
     const [statRes, workoutRes, streakRes, presenceRes, isVip, staffRoles, historyStats] = await Promise.all([
       client
-        .from(&#x27;chat_stats&#x27;)
-        .select(&#x27;lifetime_messages&#x27;)
-        .eq(&#x27;user_id&#x27;, userId)
+        .from('chat_stats')
+        .select('lifetime_messages')
+        .eq('user_id', userId)
         .maybeSingle(),
 
-      client.rpc(&#x27;get_public_member_stats&#x27;, {
+      client.rpc('get_public_member_stats', {
         target_user: userId
       }),
 
-      client.rpc(&#x27;get_public_member_streaks&#x27;, {
+      client.rpc('get_public_member_streaks', {
         target_user: userId
       }),
 
       client
-        .from(&#x27;member_presence&#x27;)
-        .select(&#x27;last_seen,display_name,avatar_url,bio,physique_url&#x27;)
-        .eq(&#x27;user_id&#x27;, userId)
+        .from('member_presence')
+        .select('last_seen,display_name,avatar_url,bio,physique_url')
+        .eq('user_id', userId)
         .maybeSingle(),
 
       getPublicVipStatus(userId, true),
@@ -4323,7 +4303,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
     if(streakRes.error) throw streakRes.error;
     if(presenceRes.error) throw presenceRes.error;
 
-    if(chatPublicVipBadge) chatPublicVipBadge.classList.toggle(&#x27;show&#x27;, !!isVip);
+    if(chatPublicVipBadge) chatPublicVipBadge.classList.toggle('show', !!isVip);
     if(chatPublicStaffBadge){
       chatPublicStaffBadge.innerHTML = staffBadgeMarkup(staffRoles?.[userId] || null);
     }
@@ -4367,56 +4347,56 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
         openedChatDisplayName = presenceRes.data.display_name;
       }
       if(presenceRes.data.avatar_url){
-        chatPublicAvatar.innerHTML = `&lt;img src=&quot;${escapeChat(presenceRes.data.avatar_url)}&quot; alt=&quot;${escapeChat(presenceRes.data.display_name || name)} profile photo&quot;&gt;`;
+        chatPublicAvatar.innerHTML = `<img src="${escapeChat(presenceRes.data.avatar_url)}" alt="${escapeChat(presenceRes.data.display_name || name)} profile photo">`;
         openedChatAvatarUrl = presenceRes.data.avatar_url;
       }
       if(chatPublicBio){
-        const publicBio = String(presenceRes.data.bio || &#x27;&#x27;).trim();
-        chatPublicBio.textContent = publicBio || &#x27;No bio yet.&#x27;;
-        chatPublicBio.classList.toggle(&#x27;empty&#x27;, !publicBio);
+        const publicBio = String(presenceRes.data.bio || '').trim();
+        chatPublicBio.textContent = publicBio || 'No bio yet.';
+        chatPublicBio.classList.toggle('empty', !publicBio);
       }
       if(chatPublicPhysique){
-        const physiqueUrl = String(presenceRes.data.physique_url || &#x27;&#x27;).trim();
+        const physiqueUrl = String(presenceRes.data.physique_url || '').trim();
         chatPublicPhysique.innerHTML = physiqueUrl
-          ? `&lt;img src=&quot;${escapeChat(physiqueUrl)}&quot; alt=&quot;${escapeChat(presenceRes.data.display_name || name)} physique photo&quot;&gt;`
-          : &#x27;&lt;div class=&quot;chat-public-physique-empty&quot;&gt;No physique photo added yet.&lt;/div&gt;&#x27;;
+          ? `<img src="${escapeChat(physiqueUrl)}" alt="${escapeChat(presenceRes.data.display_name || name)} physique photo">`
+          : '<div class="chat-public-physique-empty">No physique photo added yet.</div>';
       }
     }
 
     await renderFriendButton(userId);
   }catch(err){
-    console.error(&#x27;Public chat profile error:&#x27;, err);
-    if(chatFriendNote) chatFriendNote.textContent = &#x27;Some profile stats could not load.&#x27;;
+    console.error('Public chat profile error:', err);
+    if(chatFriendNote) chatFriendNote.textContent = 'Some profile stats could not load.';
     try{ await renderFriendButton(userId); }catch(_){}
   }
 }
 
 function closeChatPublicProfile(){
   if(!chatProfileOverlay) return;
-  chatProfileOverlay.classList.remove(&#x27;show&#x27;);
-  chatProfileOverlay.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+  chatProfileOverlay.classList.remove('show');
+  chatProfileOverlay.setAttribute('aria-hidden','true');
   openedChatUserId = null;
   openedFriendship = null;
   openedBlockState = {blocked_by_me:false,blocked_me:false};
 }
 
 if(chatProfileClose){
-  chatProfileClose.addEventListener(&#x27;click&#x27;, closeChatPublicProfile);
+  chatProfileClose.addEventListener('click', closeChatPublicProfile);
 }
 if(chatProfileOverlay){
-  chatProfileOverlay.addEventListener(&#x27;click&#x27;, (e) =&gt; {
+  chatProfileOverlay.addEventListener('click', (e) => {
     if(e.target === chatProfileOverlay) closeChatPublicProfile();
   });
 }
-document.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
-  if(e.key === &#x27;Escape&#x27;) closeChatPublicProfile();
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeChatPublicProfile();
 });
 
 
 
 
 function escapeRegex(text){
-  return String(text ?? &#x27;&#x27;).replace(/[.*+?^${}()|[\]\\]/g, &#x27;\\$&amp;&#x27;);
+  return String(text ?? '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function chatTextWithMentions(text){
@@ -4424,21 +4404,21 @@ function chatTextWithMentions(text){
 
   // Style common @mention-looking tokens without changing stored text.
   safe = safe.replace(/(^|[\s(])@([A-Za-z0-9_.-]{1,30})/g,
-    &#x27;$1&lt;span class=&quot;mention-token&quot;&gt;@$2&lt;/span&gt;&#x27;);
+    '$1<span class="mention-token">@$2</span>');
   return safe;
 }
 
 function mentionInitials(name){
-  const s = String(name || &#x27;M&#x27;).trim();
+  const s = String(name || 'M').trim();
   const parts = s.split(/\s+/).filter(Boolean);
-  if(parts.length &gt;= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return s.slice(0,2).toUpperCase();
 }
 
 function closeMentionSuggestions(){
   if(mentionSuggestions){
-    mentionSuggestions.classList.add(&#x27;hidden&#x27;);
-    mentionSuggestions.innerHTML = &#x27;&#x27;;
+    mentionSuggestions.classList.add('hidden');
+    mentionSuggestions.innerHTML = '';
   }
   mentionCandidates = [];
 }
@@ -4453,8 +4433,8 @@ function currentMentionQuery(){
   const match = before.match(/(?:^|\s)@([A-Za-z0-9_.-]{0,30})$/);
   if(!match) return null;
 
-  const query = match[1] || &#x27;&#x27;;
-  const atIndex = before.lastIndexOf(&#x27;@&#x27;);
+  const query = match[1] || '';
+  const atIndex = before.lastIndexOf('@');
 
   return { query, atIndex, cursor:pos };
 }
@@ -4474,27 +4454,27 @@ async function loadMentionSuggestions(){
   }
 
   let request = client
-    .from(&#x27;member_presence&#x27;)
-    .select(&#x27;user_id,display_name,avatar_url&#x27;)
-    .neq(&#x27;user_id&#x27;, session.user.id)
-    .order(&#x27;display_name&#x27;, { ascending:true })
+    .from('member_presence')
+    .select('user_id,display_name,avatar_url')
+    .neq('user_id', session.user.id)
+    .order('display_name', { ascending:true })
     .limit(8);
 
   if(info.query){
-    request = request.ilike(&#x27;display_name&#x27;, `%${info.query}%`);
+    request = request.ilike('display_name', `%${info.query}%`);
   }
 
   const { data, error } = await request;
 
   if(error){
-    console.error(&#x27;Mention suggestions error:&#x27;, error);
+    console.error('Mention suggestions error:', error);
     closeMentionSuggestions();
     return;
   }
 
   const blockedIds = await getMyBlockedUserIds();
   mentionCandidates = (data || []).filter(
-    x =&gt; x.user_id &amp;&amp; x.display_name &amp;&amp; !blockedIds.has(String(x.user_id))
+    x => x.user_id && x.display_name && !blockedIds.has(String(x.user_id))
   );
 
   if(!mentionCandidates.length){
@@ -4502,23 +4482,23 @@ async function loadMentionSuggestions(){
     return;
   }
 
-  mentionSuggestions.innerHTML = mentionCandidates.map((person, index) =&gt; {
+  mentionSuggestions.innerHTML = mentionCandidates.map((person, index) => {
     const avatar = person.avatar_url
-      ? `&lt;span class=&quot;mention-avatar&quot;&gt;&lt;img src=&quot;${escapeChat(person.avatar_url)}&quot; alt=&quot;&quot;&gt;&lt;/span&gt;`
-      : `&lt;span class=&quot;mention-avatar&quot;&gt;${escapeChat(mentionInitials(person.display_name))}&lt;/span&gt;`;
+      ? `<span class="mention-avatar"><img src="${escapeChat(person.avatar_url)}" alt=""></span>`
+      : `<span class="mention-avatar">${escapeChat(mentionInitials(person.display_name))}</span>`;
 
-    return `&lt;button class=&quot;mention-option ${index === 0 ? &#x27;active&#x27; : &#x27;&#x27;}&quot;
-                    type=&quot;button&quot;
-                    data-mention-index=&quot;${index}&quot;&gt;
+    return `<button class="mention-option ${index === 0 ? 'active' : ''}"
+                    type="button"
+                    data-mention-index="${index}">
               ${avatar}
-              &lt;span&gt;
-                &lt;span class=&quot;mention-name&quot;&gt;@${escapeChat(person.display_name)}&lt;/span&gt;
-                &lt;span class=&quot;mention-help&quot;&gt;Mention this member&lt;/span&gt;
-              &lt;/span&gt;
-            &lt;/button&gt;`;
-  }).join(&#x27;&#x27;);
+              <span>
+                <span class="mention-name">@${escapeChat(person.display_name)}</span>
+                <span class="mention-help">Mention this member</span>
+              </span>
+            </button>`;
+  }).join('');
 
-  mentionSuggestions.classList.remove(&#x27;hidden&#x27;);
+  mentionSuggestions.classList.remove('hidden');
 }
 
 function chooseMention(person){
@@ -4531,9 +4511,9 @@ function chooseMention(person){
   const after = chatInput.value.slice(info.cursor);
   const mentionText = `@${person.display_name}`;
 
-  chatInput.value = before + mentionText + &#x27; &#x27; + after;
+  chatInput.value = before + mentionText + ' ' + after;
 
-  const newCursor = (before + mentionText + &#x27; &#x27;).length;
+  const newCursor = (before + mentionText + ' ').length;
   chatInput.setSelectionRange(newCursor, newCursor);
   chatInput.focus();
 
@@ -4546,84 +4526,84 @@ function chooseMention(person){
 }
 
 function activeMentionUserIds(messageText){
-  const text = String(messageText || &#x27;&#x27;);
+  const text = String(messageText || '');
 
   return [...selectedMentions.values()]
-    .filter(person =&gt; text.toLowerCase().includes(`@${String(person.display_name || &#x27;&#x27;).toLowerCase()}`))
-    .map(person =&gt; person.user_id)
+    .filter(person => text.toLowerCase().includes(`@${String(person.display_name || '').toLowerCase()}`))
+    .map(person => person.user_id)
     .filter(Boolean)
     .slice(0, 8);
 }
 
 function clearChatReply(){
   chatReplyTarget = null;
-  if(chatReplyBar) chatReplyBar.classList.add(&#x27;hidden&#x27;);
-  if(chatReplyName) chatReplyName.textContent = &#x27;Member&#x27;;
-  if(chatReplyPreview) chatReplyPreview.textContent = &#x27;&#x27;;
+  if(chatReplyBar) chatReplyBar.classList.add('hidden');
+  if(chatReplyName) chatReplyName.textContent = 'Member';
+  if(chatReplyPreview) chatReplyPreview.textContent = '';
 }
 
 function beginChatReply(row){
   if(!row || !row.id) return;
 
   chatReplyTarget = row;
-  if(chatReplyName) chatReplyName.textContent = row.display_name || &#x27;Member&#x27;;
+  if(chatReplyName) chatReplyName.textContent = row.display_name || 'Member';
   if(chatReplyPreview){
-    const preview = String(row.message || &#x27;&#x27;).replace(/\s+/g,&#x27; &#x27;).trim();
-    chatReplyPreview.textContent = preview.length &gt; 110 ? preview.slice(0,110) + &#x27;…&#x27; : preview;
+    const preview = String(row.message || '').replace(/\s+/g,' ').trim();
+    chatReplyPreview.textContent = preview.length > 110 ? preview.slice(0,110) + '…' : preview;
   }
-  if(chatReplyBar) chatReplyBar.classList.remove(&#x27;hidden&#x27;);
+  if(chatReplyBar) chatReplyBar.classList.remove('hidden');
 
   if(chatInput){
     chatInput.focus();
-    chatInput.placeholder = `Reply to ${row.display_name || &#x27;Member&#x27;}...`;
+    chatInput.placeholder = `Reply to ${row.display_name || 'Member'}...`;
   }
 }
 
 function jumpToChatMessage(messageId){
-  const el = chatMessages?.querySelector(`[data-message-id=&quot;${Number(messageId)}&quot;]`);
+  const el = chatMessages?.querySelector(`[data-message-id="${Number(messageId)}"]`);
   if(!el) return false;
 
-  el.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
-  el.classList.remove(&#x27;reply-highlight&#x27;);
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.remove('reply-highlight');
   void el.offsetWidth;
-  el.classList.add(&#x27;reply-highlight&#x27;);
+  el.classList.add('reply-highlight');
   return true;
 }
 
 function setNotificationBadge(count){
   if(!notificationBadge) return;
   const n = Math.max(0, Number(count) || 0);
-  notificationBadge.textContent = n &gt; 99 ? &#x27;99+&#x27; : String(n);
-  notificationBadge.classList.toggle(&#x27;hidden&#x27;, n === 0);
+  notificationBadge.textContent = n > 99 ? '99+' : String(n);
+  notificationBadge.classList.toggle('hidden', n === 0);
 }
 
 function notificationTime(value){
-  if(!value) return &#x27;&#x27;;
+  if(!value) return '';
   const d = new Date(value);
   const diff = Date.now() - d.getTime();
-  if(diff &lt; 60000) return &#x27;now&#x27;;
-  if(diff &lt; 3600000) return `${Math.floor(diff/60000)}m`;
-  if(diff &lt; 86400000) return `${Math.floor(diff/3600000)}h`;
-  return d.toLocaleDateString(undefined,{month:&#x27;short&#x27;,day:&#x27;numeric&#x27;});
+  if(diff < 60000) return 'now';
+  if(diff < 3600000) return `${Math.floor(diff/60000)}m`;
+  if(diff < 86400000) return `${Math.floor(diff/3600000)}h`;
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
 }
 
 
 // ---- Phone / desktop push notifications ----
-const GYMCELS_VAPID_PUBLIC_KEY = &#x27;BD93jX_6gNDvbZrcKXfL6ml4p2mBjG-fccjPu4VEtllqmqCTcpDu3vmkBD8TvcE2crY1zt60YPIuPpgd_bkxorE&#x27;;
+const GYMCELS_VAPID_PUBLIC_KEY = 'BD93jX_6gNDvbZrcKXfL6ml4p2mBjG-fccjPu4VEtllqmqCTcpDu3vmkBD8TvcE2crY1zt60YPIuPpgd_bkxorE';
 
 function pushUrlBase64ToUint8Array(base64String){
-  const padding = &#x27;=&#x27;.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g,&#x27;+&#x27;).replace(/_/g,&#x27;/&#x27;);
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g,'+').replace(/_/g,'/');
   const rawData = atob(base64);
-  return Uint8Array.from([...rawData].map(ch =&gt; ch.charCodeAt(0)));
+  return Uint8Array.from([...rawData].map(ch => ch.charCodeAt(0)));
 }
 
 async function getGymcelsServiceWorker(){
-  if(!(&#x27;serviceWorker&#x27; in navigator)) throw new Error(&#x27;Service workers are not supported in this browser.&#x27;);
+  if(!('serviceWorker' in navigator)) throw new Error('Service workers are not supported in this browser.');
 
-  const registration = await navigator.serviceWorker.register(&#x27;/sw.js&#x27;,{
-    scope:&#x27;/&#x27;,
-    updateViaCache:&#x27;none&#x27;
+  const registration = await navigator.serviceWorker.register('/sw.js',{
+    scope:'/',
+    updateViaCache:'none'
   });
 
   // Force an update check whenever Gymcels opens, including Home Screen installs.
@@ -4634,7 +4614,7 @@ async function getGymcelsServiceWorker(){
 }
 
 async function currentPushSubscription(){
-  if(!(&#x27;serviceWorker&#x27; in navigator) || !(&#x27;PushManager&#x27; in window)) return null;
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
   try{
     const registration = await getGymcelsServiceWorker();
     return await registration.pushManager.getSubscription();
@@ -4644,11 +4624,11 @@ async function currentPushSubscription(){
 }
 
 function getGymcelsPushDeviceId(){
-  const key = &#x27;gymcels_push_device_id&#x27;;
-  let id = &#x27;&#x27;;
+  const key = 'gymcels_push_device_id';
+  let id = '';
 
   try{
-    id = localStorage.getItem(key) || &#x27;&#x27;;
+    id = localStorage.getItem(key) || '';
   }catch(_){}
 
   if(!id){
@@ -4665,16 +4645,16 @@ function getGymcelsPushDeviceId(){
 async function savePushSubscription(subscription){
   const client = window.gymcelsLolDb;
   const session = await getChatSession();
-  if(!client || !session?.user) throw new Error(&#x27;Log in first.&#x27;);
+  if(!client || !session?.user) throw new Error('Log in first.');
 
   const json = subscription.toJSON();
   const endpoint = json.endpoint || subscription.endpoint;
-  const p256dh = json.keys?.p256dh || &#x27;&#x27;;
-  const auth = json.keys?.auth || &#x27;&#x27;;
+  const p256dh = json.keys?.p256dh || '';
+  const auth = json.keys?.auth || '';
 
-  if(!endpoint || !p256dh || !auth) throw new Error(&#x27;Browser push subscription is incomplete.&#x27;);
+  if(!endpoint || !p256dh || !auth) throw new Error('Browser push subscription is incomplete.');
 
-  const {error} = await client.rpc(&#x27;save_my_push_subscription&#x27;,{
+  const {error} = await client.rpc('save_my_push_subscription',{
     sub_endpoint:endpoint,
     sub_p256dh:p256dh,
     sub_auth:auth,
@@ -4690,7 +4670,7 @@ async function removePushSubscription(subscription){
   if(!client || !subscription) return;
 
   try{
-    await client.rpc(&#x27;remove_my_push_subscription&#x27;,{sub_endpoint:subscription.endpoint});
+    await client.rpc('remove_my_push_subscription',{sub_endpoint:subscription.endpoint});
   }catch(_){}
 
   try{ await subscription.unsubscribe(); }catch(_){}
@@ -4698,117 +4678,117 @@ async function removePushSubscription(subscription){
 
 
 function isGymcelsIosDevice(){
-  const ua = navigator.userAgent || &#x27;&#x27;;
+  const ua = navigator.userAgent || '';
   const classicIos = /iPhone|iPad|iPod/i.test(ua);
-  const ipadDesktopMode = navigator.platform === &#x27;MacIntel&#x27; &amp;&amp; navigator.maxTouchPoints &gt; 1;
+  const ipadDesktopMode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
   return classicIos || ipadDesktopMode;
 }
 
 function isGymcelsStandaloneApp(){
-  return window.matchMedia?.(&#x27;(display-mode: standalone)&#x27;).matches === true ||
+  return window.matchMedia?.('(display-mode: standalone)').matches === true ||
          navigator.standalone === true;
 }
 
 function showGymcelsIosInstallHelp(){
-  pushInstallHelp?.classList.remove(&#x27;hidden&#x27;);
+  pushInstallHelp?.classList.remove('hidden');
 
   if(pushAlertState){
-    pushAlertState.textContent = &#x27;Follow the steps below, then reopen Gymcels from your Home Screen.&#x27;;
-    pushAlertState.className = &#x27;blocked&#x27;;
+    pushAlertState.textContent = 'Follow the steps below, then reopen Gymcels from your Home Screen.';
+    pushAlertState.className = 'blocked';
   }
 
   if(pushAlertBtn){
     pushAlertBtn.disabled = false;
-    pushAlertBtn.textContent = &#x27;Add to Home Screen&#x27;;
-    pushAlertBtn.classList.remove(&#x27;off&#x27;);
+    pushAlertBtn.textContent = 'Add to Home Screen';
+    pushAlertBtn.classList.remove('off');
   }
 }
 
 async function refreshPushButton(){
   if(!pushAlertBtn || !pushAlertState) return;
 
-  pushInstallHelp?.classList.add(&#x27;hidden&#x27;);
+  pushInstallHelp?.classList.add('hidden');
 
-  const session = await getChatSession().catch(() =&gt; null);
+  const session = await getChatSession().catch(() => null);
   if(!session?.user){
     pushAlertBtn.disabled = true;
-    pushAlertBtn.textContent = &#x27;Log in first&#x27;;
-    pushAlertBtn.classList.remove(&#x27;off&#x27;);
-    pushAlertState.textContent = &#x27;Log in to enable&#x27;;
-    pushAlertState.className = &#x27;&#x27;;
+    pushAlertBtn.textContent = 'Log in first';
+    pushAlertBtn.classList.remove('off');
+    pushAlertState.textContent = 'Log in to enable';
+    pushAlertState.className = '';
     return;
   }
 
   // iPhone/iPad Safari only allows web push from a Home Screen web app.
   // Give people clear setup instructions instead of a vague unsupported-browser error.
-  if(isGymcelsIosDevice() &amp;&amp; !isGymcelsStandaloneApp()){
+  if(isGymcelsIosDevice() && !isGymcelsStandaloneApp()){
     pushAlertBtn.disabled = false;
-    pushAlertBtn.textContent = &#x27;Enable phone alerts&#x27;;
-    pushAlertBtn.classList.remove(&#x27;off&#x27;);
-    pushAlertState.textContent = &#x27;Add Gymcels to your Home Screen to enable notifications.&#x27;;
-    pushAlertState.className = &#x27;blocked&#x27;;
+    pushAlertBtn.textContent = 'Enable phone alerts';
+    pushAlertBtn.classList.remove('off');
+    pushAlertState.textContent = 'Add Gymcels to your Home Screen to enable notifications.';
+    pushAlertState.className = 'blocked';
     return;
   }
 
-  if(!(&#x27;Notification&#x27; in window) || !(&#x27;serviceWorker&#x27; in navigator) || !(&#x27;PushManager&#x27; in window)){
+  if(!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)){
     pushAlertBtn.disabled = true;
-    pushAlertBtn.textContent = &#x27;Not available&#x27;;
-    pushAlertState.textContent = &#x27;Notifications are not available in this browser.&#x27;;
-    pushAlertState.className = &#x27;blocked&#x27;;
+    pushAlertBtn.textContent = 'Not available';
+    pushAlertState.textContent = 'Notifications are not available in this browser.';
+    pushAlertState.className = 'blocked';
     return;
   }
 
-  if(Notification.permission === &#x27;denied&#x27;){
+  if(Notification.permission === 'denied'){
     pushAlertBtn.disabled = true;
-    pushAlertBtn.textContent = &#x27;Blocked&#x27;;
-    pushAlertState.textContent = &#x27;Allow notifications in browser/site settings&#x27;;
-    pushAlertState.className = &#x27;blocked&#x27;;
+    pushAlertBtn.textContent = 'Blocked';
+    pushAlertState.textContent = 'Allow notifications in browser/site settings';
+    pushAlertState.className = 'blocked';
     return;
   }
 
   const sub = await currentPushSubscription();
-  const hasLocalSubscription = Notification.permission === &#x27;granted&#x27; &amp;&amp; !!sub;
+  const hasLocalSubscription = Notification.permission === 'granted' && !!sub;
 
   // Important: Safari/iPhone can already have a local push subscription even if
   // it was created before Supabase push_subscriptions existed. Re-save it here
-  // so &quot;enabled&quot; also means the server actually knows about this device.
+  // so "enabled" also means the server actually knows about this device.
   if(hasLocalSubscription){
     try{
       await savePushSubscription(sub);
 
       pushAlertBtn.disabled = false;
-      pushAlertBtn.textContent = &#x27;Disable phone alerts&#x27;;
-      pushAlertBtn.classList.add(&#x27;off&#x27;);
-      pushAlertState.textContent = &#x27;On — device registered for push&#x27;;
-      pushAlertState.className = &#x27;on&#x27;;
+      pushAlertBtn.textContent = 'Disable phone alerts';
+      pushAlertBtn.classList.add('off');
+      pushAlertState.textContent = 'On — device registered for push';
+      pushAlertState.className = 'on';
       return;
     }catch(err){
-      console.error(&#x27;Push subscription sync failed:&#x27;,err);
+      console.error('Push subscription sync failed:',err);
       pushAlertBtn.disabled = false;
-      pushAlertBtn.textContent = &#x27;Repair phone alerts&#x27;;
-      pushAlertBtn.classList.remove(&#x27;off&#x27;);
-      pushAlertState.textContent = &#x27;Needs repair — tap to register this device&#x27;;
-      pushAlertState.className = &#x27;blocked&#x27;;
+      pushAlertBtn.textContent = 'Repair phone alerts';
+      pushAlertBtn.classList.remove('off');
+      pushAlertState.textContent = 'Needs repair — tap to register this device';
+      pushAlertState.className = 'blocked';
       return;
     }
   }
 
   pushAlertBtn.disabled = false;
-  pushAlertBtn.textContent = &#x27;Enable phone alerts&#x27;;
-  pushAlertBtn.classList.remove(&#x27;off&#x27;);
-  pushAlertState.textContent = &#x27;Off&#x27;;
-  pushAlertState.className = &#x27;&#x27;;
+  pushAlertBtn.textContent = 'Enable phone alerts';
+  pushAlertBtn.classList.remove('off');
+  pushAlertState.textContent = 'Off';
+  pushAlertState.className = '';
 }
 
 async function enableGymcelsPush(){
   const session = await getChatSession();
-  if(!session?.user) throw new Error(&#x27;Log in first.&#x27;);
+  if(!session?.user) throw new Error('Log in first.');
 
   const permission = await Notification.requestPermission();
-  if(permission !== &#x27;granted&#x27;){
-    throw new Error(permission === &#x27;denied&#x27;
-      ? &#x27;Notifications were blocked. Allow them in your browser/site settings.&#x27;
-      : &#x27;Notification permission was not granted.&#x27;);
+  if(permission !== 'granted'){
+    throw new Error(permission === 'denied'
+      ? 'Notifications were blocked. Allow them in your browser/site settings.'
+      : 'Notification permission was not granted.');
   }
 
   const registration = await getGymcelsServiceWorker();
@@ -4827,7 +4807,7 @@ async function enableGymcelsPush(){
 async function toggleGymcelsPush(){
   if(!pushAlertBtn) return;
 
-  if(isGymcelsIosDevice() &amp;&amp; !isGymcelsStandaloneApp()){
+  if(isGymcelsIosDevice() && !isGymcelsStandaloneApp()){
     showGymcelsIosInstallHelp();
     return;
   }
@@ -4836,20 +4816,20 @@ async function toggleGymcelsPush(){
 
   try{
     const sub = await currentPushSubscription();
-    const repairing = pushAlertBtn.textContent.includes(&#x27;Repair&#x27;);
+    const repairing = pushAlertBtn.textContent.includes('Repair');
 
-    if(repairing &amp;&amp; sub){
+    if(repairing && sub){
       await savePushSubscription(sub);
-    }else if(Notification.permission === &#x27;granted&#x27; &amp;&amp; sub){
+    }else if(Notification.permission === 'granted' && sub){
       await removePushSubscription(sub);
     }else{
       await enableGymcelsPush();
     }
   }catch(err){
-    console.error(&#x27;Push setup error:&#x27;,err);
+    console.error('Push setup error:',err);
     if(pushAlertState){
       pushAlertState.textContent = err?.message || String(err);
-      pushAlertState.className = &#x27;blocked&#x27;;
+      pushAlertState.className = 'blocked';
     }
   }finally{
     await refreshPushButton();
@@ -4857,17 +4837,17 @@ async function toggleGymcelsPush(){
 }
 
 if(pushAlertBtn){
-  pushAlertBtn.addEventListener(&#x27;click&#x27;,toggleGymcelsPush);
+  pushAlertBtn.addEventListener('click',toggleGymcelsPush);
 }
 
-if(&#x27;serviceWorker&#x27; in navigator){
-  window.addEventListener(&#x27;load&#x27;,() =&gt; {
-    getGymcelsServiceWorker().catch(err =&gt; console.warn(&#x27;Service worker registration:&#x27;,err));
+if('serviceWorker' in navigator){
+  window.addEventListener('load',() => {
+    getGymcelsServiceWorker().catch(err => console.warn('Service worker registration:',err));
   });
 }
 
-document.addEventListener(&#x27;visibilitychange&#x27;,() =&gt; {
-  if(document.visibilityState === &#x27;visible&#x27;) refreshPushButton();
+document.addEventListener('visibilitychange',() => {
+  if(document.visibilityState === 'visible') refreshPushButton();
 });
 
 async function loadNotifications(){
@@ -4875,67 +4855,67 @@ async function loadNotifications(){
   const session = await getChatSession();
 
   if(!client || !session?.user){
-    if(navNotifications) navNotifications.classList.add(&#x27;hidden&#x27;);
-    if(notificationPanel) notificationPanel.classList.add(&#x27;hidden&#x27;);
+    if(navNotifications) navNotifications.classList.add('hidden');
+    if(notificationPanel) notificationPanel.classList.add('hidden');
     setNotificationBadge(0);
     return;
   }
 
-  if(navNotifications) navNotifications.classList.remove(&#x27;hidden&#x27;);
+  if(navNotifications) navNotifications.classList.remove('hidden');
 
   const { data, error } = await client
-    .from(&#x27;notifications&#x27;)
-    .select(&#x27;id,actor_id,actor_display_name,type,message_id,reply_to_id,thread_id,preview,is_read,created_at&#x27;)
-    .order(&#x27;created_at&#x27;,{ascending:false})
+    .from('notifications')
+    .select('id,actor_id,actor_display_name,type,message_id,reply_to_id,thread_id,preview,is_read,created_at')
+    .order('created_at',{ascending:false})
     .limit(30);
 
   if(error){
-    console.error(&#x27;Notification load error:&#x27;, error);
+    console.error('Notification load error:', error);
     return;
   }
 
   let rows = data || [];
   const blockedIds = await getMyBlockedUserIds();
-  rows = rows.filter(n =&gt; !blockedIds.has(String(n.actor_id || &#x27;&#x27;)));
+  rows = rows.filter(n => !blockedIds.has(String(n.actor_id || '')));
 
-  setNotificationBadge(rows.filter(n =&gt; !n.is_read).length);
+  setNotificationBadge(rows.filter(n => !n.is_read).length);
 
   if(!notificationList) return;
 
   if(!rows.length){
-    notificationList.innerHTML = &#x27;&lt;div class=&quot;notification-empty&quot;&gt;No notifications yet.&lt;/div&gt;&#x27;;
+    notificationList.innerHTML = '<div class="notification-empty">No notifications yet.</div>';
     return;
   }
 
-  notificationList.innerHTML = rows.map(n =&gt; {
-    const preview = String(n.preview || &#x27;&#x27;).replace(/\s+/g,&#x27; &#x27;).trim();
-    let icon = &#x27;🔔&#x27;;
-    let copy = &#x27;sent you a notification.&#x27;;
+  notificationList.innerHTML = rows.map(n => {
+    const preview = String(n.preview || '').replace(/\s+/g,' ').trim();
+    let icon = '🔔';
+    let copy = 'sent you a notification.';
 
-    if(n.type === &#x27;reply&#x27;){
-      icon = &#x27;↩&#x27;;
+    if(n.type === 'reply'){
+      icon = '↩';
       copy = preview
-        ? `replied: “${preview.length &gt; 120 ? preview.slice(0,120) + &#x27;…&#x27; : preview}”`
-        : &#x27;replied to your message.&#x27;;
-    }else if(n.type === &#x27;mention&#x27;){
-      icon = &#x27;@&#x27;;
+        ? `replied: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
+        : 'replied to your message.';
+    }else if(n.type === 'mention'){
+      icon = '@';
       copy = preview
-        ? `mentioned you: “${preview.length &gt; 120 ? preview.slice(0,120) + &#x27;…&#x27; : preview}”`
-        : &#x27;mentioned you in chat.&#x27;;
-    }else if(n.type === &#x27;friend_request&#x27;){
-      icon = &#x27;👤&#x27;;
-      copy = &#x27;sent you a friend request.&#x27;;
-    }else if(n.type === &#x27;friend_accepted&#x27;){
-      icon = &#x27;✓&#x27;;
-      copy = &#x27;accepted your friend request.&#x27;;
-    }else if(n.type === &#x27;dm&#x27;){
-      icon = &#x27;✉&#x27;;
+        ? `mentioned you: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
+        : 'mentioned you in chat.';
+    }else if(n.type === 'friend_request'){
+      icon = '👤';
+      copy = 'sent you a friend request.';
+    }else if(n.type === 'friend_accepted'){
+      icon = '✓';
+      copy = 'accepted your friend request.';
+    }else if(n.type === 'dm'){
+      icon = '✉';
       copy = preview
-        ? `sent you a DM: “${preview.length &gt; 120 ? preview.slice(0,120) + &#x27;…&#x27; : preview}”`
-        : &#x27;sent you a direct message.&#x27;;
-    }else if(n.type === &#x27;thread_reply&#x27;){
-      icon = &#x27;💬&#x27;;
-      const directThreadReplyPrefix = &#x27;__reply_to_user__&#x27;;
+        ? `sent you a DM: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
+        : 'sent you a direct message.';
+    }else if(n.type === 'thread_reply'){
+      icon = '💬';
+      const directThreadReplyPrefix = '__reply_to_user__';
       const directToUser = preview.startsWith(directThreadReplyPrefix);
       const cleanThreadPreview = directToUser
         ? preview.slice(directThreadReplyPrefix.length).trim()
@@ -4943,48 +4923,48 @@ async function loadNotifications(){
 
       copy = directToUser
         ? (cleanThreadPreview
-            ? `replied to you in a thread: “${cleanThreadPreview.length &gt; 120 ? cleanThreadPreview.slice(0,120) + &#x27;…&#x27; : cleanThreadPreview}”`
-            : &#x27;replied to you in a thread.&#x27;)
+            ? `replied to you in a thread: “${cleanThreadPreview.length > 120 ? cleanThreadPreview.slice(0,120) + '…' : cleanThreadPreview}”`
+            : 'replied to you in a thread.')
         : (cleanThreadPreview
-            ? `replied to your thread: “${cleanThreadPreview.length &gt; 120 ? cleanThreadPreview.slice(0,120) + &#x27;…&#x27; : cleanThreadPreview}”`
-            : &#x27;replied to your thread.&#x27;);
-    }else if(n.type === &#x27;incoming_call&#x27;){
-      icon = &#x27;📞&#x27;;
-      copy = &#x27;is calling you privately.&#x27;;
+            ? `replied to your thread: “${cleanThreadPreview.length > 120 ? cleanThreadPreview.slice(0,120) + '…' : cleanThreadPreview}”`
+            : 'replied to your thread.');
+    }else if(n.type === 'incoming_call'){
+      icon = '📞';
+      copy = 'is calling you privately.';
     }
 
     return `
-      &lt;button class=&quot;notification-item ${n.is_read ? &#x27;&#x27; : &#x27;unread&#x27;}&quot;
-              type=&quot;button&quot;
-              data-notification-id=&quot;${n.id}&quot;
-              data-notification-message=&quot;${n.message_id || &#x27;&#x27;}&quot;
-              data-notification-type=&quot;${escapeChat(n.type || &#x27;&#x27;)}&quot;
-              data-notification-actor=&quot;${escapeChat(n.actor_id || &#x27;&#x27;)}&quot;
-              data-notification-thread=&quot;${n.thread_id || &#x27;&#x27;}&quot;&gt;
-        &lt;div class=&quot;notification-item-top&quot;&gt;
-          &lt;span class=&quot;notification-item-name&quot;&gt;&lt;span class=&quot;notification-item-icon&quot;&gt;${icon}&lt;/span&gt;${escapeChat(n.actor_display_name || &#x27;Member&#x27;)}&lt;/span&gt;
-          &lt;span class=&quot;notification-item-time&quot;&gt;${escapeChat(notificationTime(n.created_at))}&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div class=&quot;notification-item-copy&quot;&gt;${escapeChat(copy)}&lt;/div&gt;
-      &lt;/button&gt;`;
-  }).join(&#x27;&#x27;);
+      <button class="notification-item ${n.is_read ? '' : 'unread'}"
+              type="button"
+              data-notification-id="${n.id}"
+              data-notification-message="${n.message_id || ''}"
+              data-notification-type="${escapeChat(n.type || '')}"
+              data-notification-actor="${escapeChat(n.actor_id || '')}"
+              data-notification-thread="${n.thread_id || ''}">
+        <div class="notification-item-top">
+          <span class="notification-item-name"><span class="notification-item-icon">${icon}</span>${escapeChat(n.actor_display_name || 'Member')}</span>
+          <span class="notification-item-time">${escapeChat(notificationTime(n.created_at))}</span>
+        </div>
+        <div class="notification-item-copy">${escapeChat(copy)}</div>
+      </button>`;
+  }).join('');
 }
 
 async function markNotificationRead(notificationId){
   const client = window.gymcelsLolDb;
   if(!client || !notificationId) return;
-  const { error } = await client.rpc(&#x27;mark_notification_read&#x27;, {
+  const { error } = await client.rpc('mark_notification_read', {
     target_notification_id: Number(notificationId)
   });
-  if(error) console.error(&#x27;Mark notification read error:&#x27;, error);
+  if(error) console.error('Mark notification read error:', error);
 }
 
 async function markAllNotificationsRead(){
   const client = window.gymcelsLolDb;
   if(!client) return;
-  const { error } = await client.rpc(&#x27;mark_all_notifications_read&#x27;);
+  const { error } = await client.rpc('mark_all_notifications_read');
   if(error){
-    console.error(&#x27;Mark all notifications error:&#x27;, error);
+    console.error('Mark all notifications error:', error);
     return;
   }
   await loadNotifications();
@@ -4995,13 +4975,13 @@ function startNotifications(session){
   setTimeout(refreshPushButton,100);
 
   if(!session?.user){
-    if(navNotifications) navNotifications.classList.add(&#x27;hidden&#x27;);
-    if(notificationPanel) notificationPanel.classList.add(&#x27;hidden&#x27;);
+    if(navNotifications) navNotifications.classList.add('hidden');
+    if(notificationPanel) notificationPanel.classList.add('hidden');
     setNotificationBadge(0);
     return;
   }
 
-  if(navNotifications) navNotifications.classList.remove(&#x27;hidden&#x27;);
+  if(navNotifications) navNotifications.classList.remove('hidden');
   loadNotifications();
   notificationPollTimer = setInterval(loadNotifications, 8000);
 }
@@ -5019,7 +4999,7 @@ async function refreshChatAdminStatus(session){
     };
     chatAdminCheckedUserId = null;
     staffPanelLoadedForUser = null;
-    staffAdminPanel?.classList.add(&#x27;hidden&#x27;);
+    staffAdminPanel?.classList.add('hidden');
     return false;
   }
 
@@ -5029,8 +5009,8 @@ async function refreshChatAdminStatus(session){
 
   try{
     const [adminRes,permissionsRes] = await Promise.all([
-      client.rpc(&#x27;is_site_admin&#x27;),
-      client.rpc(&#x27;my_staff_permissions&#x27;)
+      client.rpc('is_site_admin'),
+      client.rpc('my_staff_permissions')
     ]);
 
     if(adminRes.error) throw adminRes.error;
@@ -5057,8 +5037,8 @@ async function refreshChatAdminStatus(session){
       voice_moderation:false
     };
     chatAdminCheckedUserId = session.user.id;
-    staffAdminPanel?.classList.add(&#x27;hidden&#x27;);
-    console.error(&#x27;Staff status check failed:&#x27;, err);
+    staffAdminPanel?.classList.add('hidden');
+    console.error('Staff status check failed:', err);
   }
 
   return chatIsSiteAdmin;
@@ -5066,15 +5046,15 @@ async function refreshChatAdminStatus(session){
 
 
 // ---- Reactions: chat messages, threads, and thread replies ----
-const GYMCELS_REACTIONS = [&#x27;❤️&#x27;,&#x27;🔥&#x27;,&#x27;💪&#x27;,&#x27;⬆️&#x27;,&#x27;👍&#x27;,&#x27;👎&#x27;];
+const GYMCELS_REACTIONS = ['❤️','🔥','💪','⬆️','👍','👎'];
 
 async function loadReactionState(targetType, targetIds, currentUserId=null){
   const ids = [...new Set((targetIds || []).map(Number).filter(Boolean))];
   const state = {};
 
-  ids.forEach(id =&gt; {
+  ids.forEach(id => {
     state[id] = {counts:{}, mine:null};
-    GYMCELS_REACTIONS.forEach(reaction =&gt; {
+    GYMCELS_REACTIONS.forEach(reaction => {
       state[id].counts[reaction] = 0;
     });
   });
@@ -5085,24 +5065,24 @@ async function loadReactionState(targetType, targetIds, currentUserId=null){
   if(!client) return state;
 
   const {data,error} = await client
-    .from(&#x27;content_reactions&#x27;)
-    .select(&#x27;target_id,user_id,reaction&#x27;)
-    .eq(&#x27;target_type&#x27;,targetType)
-    .in(&#x27;target_id&#x27;,ids);
+    .from('content_reactions')
+    .select('target_id,user_id,reaction')
+    .eq('target_type',targetType)
+    .in('target_id',ids);
 
   if(error){
-    console.error(&#x27;Reaction load error:&#x27;,error);
+    console.error('Reaction load error:',error);
     return state;
   }
 
-  (data || []).forEach(row =&gt; {
+  (data || []).forEach(row => {
     const id = Number(row.target_id);
     if(!state[id]) return;
 
-    const reaction = String(row.reaction || &#x27;&#x27;);
+    const reaction = String(row.reaction || '');
     if(GYMCELS_REACTIONS.includes(reaction)){
       state[id].counts[reaction] = Number(state[id].counts[reaction] || 0) + 1;
-      if(currentUserId &amp;&amp; row.user_id === currentUserId){
+      if(currentUserId && row.user_id === currentUserId){
         state[id].mine = reaction;
       }
     }
@@ -5111,54 +5091,54 @@ async function loadReactionState(targetType, targetIds, currentUserId=null){
   return state;
 }
 
-function reactionBarHtml(targetType,targetId,reactionState={},extraClass=&#x27;&#x27;){
+function reactionBarHtml(targetType,targetId,reactionState={},extraClass=''){
   const counts = reactionState?.counts || {};
-  const mine = reactionState?.mine || &#x27;&#x27;;
+  const mine = reactionState?.mine || '';
 
   const usedReactions = GYMCELS_REACTIONS
-    .filter(reaction =&gt; Number(counts[reaction] || 0) &gt; 0)
-    .map(reaction =&gt; {
+    .filter(reaction => Number(counts[reaction] || 0) > 0)
+    .map(reaction => {
       const count = Number(counts[reaction] || 0);
-      const mineClass = mine === reaction ? &#x27; mine&#x27; : &#x27;&#x27;;
+      const mineClass = mine === reaction ? ' mine' : '';
 
-      return `&lt;span class=&quot;reaction-summary-chip${mineClass}&quot; title=&quot;${count} reaction${count === 1 ? &#x27;&#x27; : &#x27;s&#x27;}&quot;&gt;
-        &lt;span&gt;${reaction}&lt;/span&gt;
-        &lt;span&gt;${count}&lt;/span&gt;
-      &lt;/span&gt;`;
-    }).join(&#x27;&#x27;);
+      return `<span class="reaction-summary-chip${mineClass}" title="${count} reaction${count === 1 ? '' : 's'}">
+        <span>${reaction}</span>
+        <span>${count}</span>
+      </span>`;
+    }).join('');
 
-  return `&lt;div class=&quot;reaction-bar ${extraClass}&quot; data-reaction-bar=&quot;${escapeChat(targetType)}:${Number(targetId)}&quot;&gt;
-    &lt;div class=&quot;reaction-control&quot;&gt;
-      &lt;button
-        class=&quot;reaction-toggle ${mine ? &#x27;has-reaction&#x27; : &#x27;&#x27;}&quot;
-        type=&quot;button&quot;
+  return `<div class="reaction-bar ${extraClass}" data-reaction-bar="${escapeChat(targetType)}:${Number(targetId)}">
+    <div class="reaction-control">
+      <button
+        class="reaction-toggle ${mine ? 'has-reaction' : ''}"
+        type="button"
         data-reaction-toggle
-        aria-expanded=&quot;false&quot;&gt;
-        ${mine ? `${mine} Reacted` : &#x27;React&#x27;}
-      &lt;/button&gt;
+        aria-expanded="false">
+        ${mine ? `${mine} Reacted` : 'React'}
+      </button>
 
-      &lt;div class=&quot;reaction-picker hidden&quot; role=&quot;menu&quot;&gt;
-        ${GYMCELS_REACTIONS.map(reaction =&gt; {
+      <div class="reaction-picker hidden" role="menu">
+        ${GYMCELS_REACTIONS.map(reaction => {
           const count = Number(counts[reaction] || 0);
           const active = mine === reaction;
 
-          return `&lt;button
-            class=&quot;reaction-btn ${active ? &#x27;active&#x27; : &#x27;&#x27;}&quot;
-            type=&quot;button&quot;
-            data-react-type=&quot;${escapeChat(targetType)}&quot;
-            data-react-id=&quot;${Number(targetId)}&quot;
-            data-react-value=&quot;${reaction}&quot;
-            aria-pressed=&quot;${active ? &#x27;true&#x27; : &#x27;false&#x27;}&quot;
-            title=&quot;${active ? &#x27;Remove your reaction&#x27; : &#x27;React&#x27;}&quot;&gt;
-              &lt;span class=&quot;reaction-emoji&quot;&gt;${reaction}&lt;/span&gt;
-              ${count ? `&lt;span class=&quot;reaction-count&quot;&gt;${count}&lt;/span&gt;` : &#x27;&#x27;}
-          &lt;/button&gt;`;
-        }).join(&#x27;&#x27;)}
-      &lt;/div&gt;
-    &lt;/div&gt;
+          return `<button
+            class="reaction-btn ${active ? 'active' : ''}"
+            type="button"
+            data-react-type="${escapeChat(targetType)}"
+            data-react-id="${Number(targetId)}"
+            data-react-value="${reaction}"
+            aria-pressed="${active ? 'true' : 'false'}"
+            title="${active ? 'Remove your reaction' : 'React'}">
+              <span class="reaction-emoji">${reaction}</span>
+              ${count ? `<span class="reaction-count">${count}</span>` : ''}
+          </button>`;
+        }).join('')}
+      </div>
+    </div>
 
-    ${usedReactions ? `&lt;div class=&quot;reaction-summary&quot;&gt;${usedReactions}&lt;/div&gt;` : &#x27;&#x27;}
-  &lt;/div&gt;`;
+    ${usedReactions ? `<div class="reaction-summary">${usedReactions}</div>` : ''}
+  </div>`;
 }
 
 async function toggleGymcelsReaction(targetType,targetId,reaction){
@@ -5168,93 +5148,93 @@ async function toggleGymcelsReaction(targetType,targetId,reaction){
   if(!client) return;
 
   if(!session?.user){
-    const login = document.getElementById(&#x27;login-card&#x27;);
-    login?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+    const login = document.getElementById('login-card');
+    login?.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
 
-  const {error} = await client.rpc(&#x27;toggle_content_reaction&#x27;,{
+  const {error} = await client.rpc('toggle_content_reaction',{
     reaction_target_type:targetType,
     reaction_target_id:Number(targetId),
     reaction_value:reaction
   });
 
   if(error){
-    console.error(&#x27;Reaction update error:&#x27;,error);
+    console.error('Reaction update error:',error);
 
-    if(targetType === &#x27;chat&#x27;){
-      setChatStatus(&#x27;Reaction failed: &#x27; + error.message,&#x27;error&#x27;);
+    if(targetType === 'chat'){
+      setChatStatus('Reaction failed: ' + error.message,'error');
     }else{
-      setThreadStatus(threadReplyStatus || threadsStatus,&#x27;Reaction failed: &#x27; + error.message,&#x27;error&#x27;);
+      setThreadStatus(threadReplyStatus || threadsStatus,'Reaction failed: ' + error.message,'error');
     }
     return;
   }
 
-  if(targetType === &#x27;chat&#x27;){
+  if(targetType === 'chat'){
     await loadCommunityChat(false);
     return;
   }
 
-  if(targetType === &#x27;thread&#x27;){
+  if(targetType === 'thread'){
     await loadThreads();
 
-    if(activeThread &amp;&amp; Number(activeThread.id) === Number(targetId)){
-      const reactionMap = await loadReactionState(&#x27;thread&#x27;,[targetId],session.user.id);
+    if(activeThread && Number(activeThread.id) === Number(targetId)){
+      const reactionMap = await loadReactionState('thread',[targetId],session.user.id);
       if(threadViewReactions){
         threadViewReactions.innerHTML = reactionBarHtml(
-          &#x27;thread&#x27;,
+          'thread',
           targetId,
           reactionMap[Number(targetId)] || {},
-          &#x27;reaction-bar-thread&#x27;
+          'reaction-bar-thread'
         );
       }
     }
     return;
   }
 
-  if(targetType === &#x27;thread_reply&#x27; &amp;&amp; activeThread){
+  if(targetType === 'thread_reply' && activeThread){
     await loadThreadReplies(activeThread.id);
   }
 }
 
 function closeAllReactionPickers(exceptControl=null){
-  document.querySelectorAll(&#x27;.reaction-control&#x27;).forEach(control =&gt; {
-    if(exceptControl &amp;&amp; control === exceptControl) return;
+  document.querySelectorAll('.reaction-control').forEach(control => {
+    if(exceptControl && control === exceptControl) return;
 
-    control.querySelector(&#x27;.reaction-picker&#x27;)?.classList.add(&#x27;hidden&#x27;);
-    const toggle = control.querySelector(&#x27;[data-reaction-toggle]&#x27;);
-    if(toggle) toggle.setAttribute(&#x27;aria-expanded&#x27;,&#x27;false&#x27;);
+    control.querySelector('.reaction-picker')?.classList.add('hidden');
+    const toggle = control.querySelector('[data-reaction-toggle]');
+    if(toggle) toggle.setAttribute('aria-expanded','false');
   });
 }
 
-document.addEventListener(&#x27;click&#x27;,async (e) =&gt; {
-  const toggle = e.target.closest(&#x27;[data-reaction-toggle]&#x27;);
+document.addEventListener('click',async (e) => {
+  const toggle = e.target.closest('[data-reaction-toggle]');
 
   if(toggle){
     e.preventDefault();
     e.stopPropagation();
 
-    const control = toggle.closest(&#x27;.reaction-control&#x27;);
-    const picker = control?.querySelector(&#x27;.reaction-picker&#x27;);
+    const control = toggle.closest('.reaction-control');
+    const picker = control?.querySelector('.reaction-picker');
     if(!picker) return;
 
-    const opening = picker.classList.contains(&#x27;hidden&#x27;);
+    const opening = picker.classList.contains('hidden');
 
     closeAllReactionPickers(control);
-    picker.classList.toggle(&#x27;hidden&#x27;,!opening);
-    toggle.setAttribute(&#x27;aria-expanded&#x27;,opening ? &#x27;true&#x27; : &#x27;false&#x27;);
+    picker.classList.toggle('hidden',!opening);
+    toggle.setAttribute('aria-expanded',opening ? 'true' : 'false');
     return;
   }
 
-  const btn = e.target.closest(&#x27;[data-react-type][data-react-id][data-react-value]&#x27;);
+  const btn = e.target.closest('[data-react-type][data-react-id][data-react-value]');
 
   if(btn){
     e.preventDefault();
     e.stopPropagation();
 
-    const control = btn.closest(&#x27;.reaction-control&#x27;);
-    control?.querySelector(&#x27;.reaction-picker&#x27;)?.classList.add(&#x27;hidden&#x27;);
-    control?.querySelector(&#x27;[data-reaction-toggle]&#x27;)?.setAttribute(&#x27;aria-expanded&#x27;,&#x27;false&#x27;);
+    const control = btn.closest('.reaction-control');
+    control?.querySelector('.reaction-picker')?.classList.add('hidden');
+    control?.querySelector('[data-reaction-toggle]')?.setAttribute('aria-expanded','false');
 
     btn.disabled = true;
 
@@ -5270,7 +5250,7 @@ document.addEventListener(&#x27;click&#x27;,async (e) =&gt; {
     return;
   }
 
-  if(!e.target.closest(&#x27;.reaction-control&#x27;)){
+  if(!e.target.closest('.reaction-control')){
     closeAllReactionPickers();
   }
 });
@@ -5279,7 +5259,7 @@ document.addEventListener(&#x27;click&#x27;,async (e) =&gt; {
 async function loadCommunityChat(scrollToBottom=false){
   try{
     const client = window.gymcelsLolDb;
-    if(!client) throw new Error(&#x27;Chat database connection is not ready.&#x27;);
+    if(!client) throw new Error('Chat database connection is not ready.');
 
     const session = await getChatSession();
     const signedIn = setCommunityChatAuthState(session);
@@ -5291,14 +5271,14 @@ async function loadCommunityChat(scrollToBottom=false){
       chatAdminCheckedUserId = null;
     }
 
-    if(!signedIn &amp;&amp; friendsSection){
-      friendsSection.style.display = &#x27;none&#x27;;
+    if(!signedIn && friendsSection){
+      friendsSection.style.display = 'none';
     }
 
     const { data, error } = await client
-      .from(&#x27;messages&#x27;)
-      .select(&#x27;id,user_id,display_name,avatar_url,message,created_at,reply_to_id&#x27;)
-      .order(&#x27;created_at&#x27;, { ascending: true })
+      .from('messages')
+      .select('id,user_id,display_name,avatar_url,message,created_at,reply_to_id')
+      .order('created_at', { ascending: true })
       .limit(100);
 
     if(error) throw error;
@@ -5308,133 +5288,133 @@ async function loadCommunityChat(scrollToBottom=false){
 
     if(signedIn){
       const blockedIds = await getMyBlockedUserIds();
-      rows = rows.filter(row =&gt; !blockedIds.has(String(row.user_id || &#x27;&#x27;)));
+      rows = rows.filter(row => !blockedIds.has(String(row.user_id || '')));
     }
 
-    chatRowsById = new Map(rows.map(row =&gt; [Number(row.id), row]));
+    chatRowsById = new Map(rows.map(row => [Number(row.id), row]));
 
     // Load the original messages referenced by replies.
-    const replyIds = [...new Set(rows.map(row =&gt; Number(row.reply_to_id)).filter(Boolean))];
+    const replyIds = [...new Set(rows.map(row => Number(row.reply_to_id)).filter(Boolean))];
     let replyMap = {};
 
     if(replyIds.length){
       const { data: replyRows, error: replyError } = await client
-        .from(&#x27;messages&#x27;)
-        .select(&#x27;id,user_id,display_name,message&#x27;)
-        .in(&#x27;id&#x27;, replyIds);
+        .from('messages')
+        .select('id,user_id,display_name,message')
+        .in('id', replyIds);
 
       if(!replyError){
         replyMap = Object.fromEntries(
-          (replyRows || []).map(row =&gt; [Number(row.id), row])
+          (replyRows || []).map(row => [Number(row.id), row])
         );
       }
     }
 
     // Load online/offline state for everyone visible in the chat.
-    const userIds = [...new Set(rows.map(row =&gt; row.user_id).filter(Boolean))];
+    const userIds = [...new Set(rows.map(row => row.user_id).filter(Boolean))];
     let presenceMap = {};
 
-    if(userIds.length &amp;&amp; signedIn){
+    if(userIds.length && signedIn){
       const { data: presenceRows, error: presenceError } = await client
-        .from(&#x27;member_presence&#x27;)
-        .select(&#x27;user_id,last_seen&#x27;)
-        .in(&#x27;user_id&#x27;, userIds);
+        .from('member_presence')
+        .select('user_id,last_seen')
+        .in('user_id', userIds);
 
       if(!presenceError){
         presenceMap = Object.fromEntries(
-          (presenceRows || []).map(p =&gt; [p.user_id, p.last_seen])
+          (presenceRows || []).map(p => [p.user_id, p.last_seen])
         );
       }
     }
 
-    rows.forEach(row =&gt; {
+    rows.forEach(row => {
       row.is_online = isPresenceOnline(presenceMap[row.user_id]);
     });
 
     let vipMap = {};
     if(signedIn){
       const vipEntries = await Promise.all(
-        userIds.map(async uid =&gt; [uid, await getPublicVipStatus(uid)])
+        userIds.map(async uid => [uid, await getPublicVipStatus(uid)])
       );
       vipMap = Object.fromEntries(vipEntries);
     }
 
-    rows.forEach(row =&gt; {
+    rows.forEach(row => {
       row.is_vip = !!vipMap[row.user_id];
     });
 
     const chatStaffRoleMap = await loadPublicStaffRoles(userIds);
-    rows.forEach(row =&gt; {
+    rows.forEach(row => {
       row.staff_role = chatStaffRoleMap[row.user_id] || null;
     });
 
     const chatReactionMap = await loadReactionState(
-      &#x27;chat&#x27;,
-      rows.map(row =&gt; row.id),
+      'chat',
+      rows.map(row => row.id),
       signedIn ? session.user.id : null
     );
 
     if(!rows.length){
       chatMessages.innerHTML =
-        &#x27;&lt;div class=&quot;chat-empty&quot;&gt;No messages yet — start the conversation.&lt;/div&gt;&#x27;;
+        '<div class="chat-empty">No messages yet — start the conversation.</div>';
       return;
     }
 
-    chatMessages.innerHTML = rows.map(row =&gt; {
-      const mine = signedIn &amp;&amp; row.user_id === session.user.id;
-      const canDeleteMessage = mine || (signedIn &amp;&amp; canModerateChat());
+    chatMessages.innerHTML = rows.map(row => {
+      const mine = signedIn && row.user_id === session.user.id;
+      const canDeleteMessage = mine || (signedIn && canModerateChat());
       const when = row.created_at
         ? new Date(row.created_at).toLocaleTimeString([], {
-            hour:&#x27;numeric&#x27;,
-            minute:&#x27;2-digit&#x27;
+            hour:'numeric',
+            minute:'2-digit'
           })
-        : &#x27;&#x27;;
+        : '';
 
       const parent = row.reply_to_id ? replyMap[Number(row.reply_to_id)] : null;
       const quotedReply = parent
-        ? `&lt;button class=&quot;chat-quoted-reply&quot; type=&quot;button&quot; data-jump-message=&quot;${parent.id}&quot;&gt;
-             &lt;strong&gt;Replying to ${escapeChat(parent.display_name || &#x27;Member&#x27;)}&lt;/strong&gt;
-             &lt;span&gt;${escapeChat(String(parent.message || &#x27;&#x27;).replace(/\s+/g,&#x27; &#x27;).slice(0,140))}&lt;/span&gt;
-           &lt;/button&gt;`
-        : &#x27;&#x27;;
+        ? `<button class="chat-quoted-reply" type="button" data-jump-message="${parent.id}">
+             <strong>Replying to ${escapeChat(parent.display_name || 'Member')}</strong>
+             <span>${escapeChat(String(parent.message || '').replace(/\s+/g,' ').slice(0,140))}</span>
+           </button>`
+        : '';
 
       return `
-        &lt;div class=&quot;chat-message&quot; data-message-id=&quot;${row.id}&quot;&gt;
-          &lt;div class=&quot;chat-message-row&quot;&gt;
+        <div class="chat-message" data-message-id="${row.id}">
+          <div class="chat-message-row">
             ${chatAvatarMarkup(row)}
-            &lt;div class=&quot;chat-message-body&quot;&gt;
-              &lt;div class=&quot;chat-meta&quot;&gt;
-                &lt;div&gt;
-                  &lt;button class=&quot;chat-user-button&quot; type=&quot;button&quot; data-chat-user=&quot;${escapeChat(row.user_id || &#x27;&#x27;)}&quot; data-chat-name=&quot;${escapeChat(row.display_name || &#x27;Member&#x27;)}&quot; data-chat-avatar=&quot;${escapeChat(row.avatar_url || &#x27;&#x27;)}&quot;&gt;&lt;span class=&quot;chat-user&quot;&gt;${escapeChat(row.display_name || &#x27;Member&#x27;)}&lt;/span&gt;&lt;/button&gt;${staffBadgeMarkup(row.staff_role)}${vipBadgeMarkup(row.is_vip)}
-                  &lt;span class=&quot;chat-time&quot;&gt; · ${escapeChat(when)}&lt;/span&gt;
-                &lt;/div&gt;
-                &lt;div class=&quot;chat-message-actions&quot;&gt;
-                  ${signedIn ? `&lt;button class=&quot;chat-reply-btn&quot; type=&quot;button&quot; data-chat-reply=&quot;${row.id}&quot;&gt;Reply&lt;/button&gt;` : &#x27;&#x27;}
-                  ${signedIn &amp;&amp; !mine
-                    ? `&lt;button class=&quot;content-report-btn&quot;
-                               type=&quot;button&quot;
-                               data-content-report=&quot;chat&quot;
-                               data-report-id=&quot;${row.id}&quot;
-                               data-report-user=&quot;${escapeChat(row.user_id || &#x27;&#x27;)}&quot;
-                               data-report-label=&quot;Chat message by ${escapeChat(row.display_name || &#x27;Member&#x27;)}&quot;&gt;Report&lt;/button&gt;`
-                    : &#x27;&#x27;}
+            <div class="chat-message-body">
+              <div class="chat-meta">
+                <div>
+                  <button class="chat-user-button" type="button" data-chat-user="${escapeChat(row.user_id || '')}" data-chat-name="${escapeChat(row.display_name || 'Member')}" data-chat-avatar="${escapeChat(row.avatar_url || '')}"><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span></button>${staffBadgeMarkup(row.staff_role)}${vipBadgeMarkup(row.is_vip)}
+                  <span class="chat-time"> · ${escapeChat(when)}</span>
+                </div>
+                <div class="chat-message-actions">
+                  ${signedIn ? `<button class="chat-reply-btn" type="button" data-chat-reply="${row.id}">Reply</button>` : ''}
+                  ${signedIn && !mine
+                    ? `<button class="content-report-btn"
+                               type="button"
+                               data-content-report="chat"
+                               data-report-id="${row.id}"
+                               data-report-user="${escapeChat(row.user_id || '')}"
+                               data-report-label="Chat message by ${escapeChat(row.display_name || 'Member')}">Report</button>`
+                    : ''}
                   ${canDeleteMessage
-                    ? `&lt;button class=&quot;chat-delete&quot; type=&quot;button&quot; data-chat-delete=&quot;${row.id}&quot;${!mine &amp;&amp; canModerateChat() ? &#x27; title=&quot;Moderator delete&quot;&#x27; : &#x27;&#x27;}&gt;Delete&lt;/button&gt;`
-                    : &#x27;&#x27;}
-                &lt;/div&gt;
-              &lt;/div&gt;
+                    ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}"${!mine && canModerateChat() ? ' title="Moderator delete"' : ''}>Delete</button>`
+                    : ''}
+                </div>
+              </div>
               ${quotedReply}
-              &lt;div class=&quot;chat-text&quot;&gt;${chatTextWithMentions(row.message)}&lt;/div&gt;
+              <div class="chat-text">${chatTextWithMentions(row.message)}</div>
               ${reactionBarHtml(
-                &#x27;chat&#x27;,
+                'chat',
                 row.id,
                 chatReactionMap[Number(row.id)] || {},
-                &#x27;chat-reactions&#x27;
+                'chat-reactions'
               )}
-            &lt;/div&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;`;
-    }).join(&#x27;&#x27;);
+            </div>
+          </div>
+        </div>`;
+    }).join('');
 
     if(scrollToBottom){
       chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -5444,10 +5424,10 @@ async function loadCommunityChat(scrollToBottom=false){
   } catch(err){
     if(chatMessages){
       chatMessages.innerHTML =
-        &#x27;&lt;div class=&quot;chat-empty&quot;&gt;Could not load chat.&lt;/div&gt;&#x27;;
+        '<div class="chat-empty">Could not load chat.</div>';
     }
-    setChatStatus(&#x27;Chat error: &#x27; + (err?.message || String(err)), &#x27;error&#x27;);
-    console.error(&#x27;Gymcels.lol chat load error:&#x27;, err);
+    setChatStatus('Chat error: ' + (err?.message || String(err)), 'error');
+    console.error('Gymcels.lol chat load error:', err);
   }
 }
 
@@ -5459,16 +5439,16 @@ async function sendCommunityMessage(){
 
   chatSending = true;
   if(chatSendBtn) chatSendBtn.disabled = true;
-  setChatStatus(&#x27;Sending...&#x27;);
+  setChatStatus('Sending...');
 
   try{
     const client = window.gymcelsLolDb;
-    if(!client) throw new Error(&#x27;Chat database connection is not ready.&#x27;);
+    if(!client) throw new Error('Chat database connection is not ready.');
 
     const session = await getChatSession();
-    if(!session?.user) throw new Error(&#x27;You must be logged in to send messages.&#x27;);
+    if(!session?.user) throw new Error('You must be logged in to send messages.');
 
-    const {data:muteData,error:muteError}=await client.rpc(&#x27;get_chat_mute_status&#x27;,{
+    const {data:muteData,error:muteError}=await client.rpc('get_chat_mute_status',{
       target_user:session.user.id
     });
     if(muteError) throw muteError;
@@ -5481,7 +5461,7 @@ async function sendCommunityMessage(){
     const mentionUserIds = activeMentionUserIds(text);
 
     const { data: insertedMessage, error } = await client
-      .from(&#x27;messages&#x27;)
+      .from('messages')
       .insert({
         user_id: session.user.id,
         display_name: chatDisplayName(session.user),
@@ -5489,40 +5469,40 @@ async function sendCommunityMessage(){
         message: text,
         reply_to_id: chatReplyTarget?.id || null
       })
-      .select(&#x27;id&#x27;)
+      .select('id')
       .single();
 
     if(error) throw error;
 
-    if(mentionUserIds.length &amp;&amp; insertedMessage?.id){
-      const { error: mentionError } = await client.rpc(&#x27;create_mention_notifications&#x27;, {
+    if(mentionUserIds.length && insertedMessage?.id){
+      const { error: mentionError } = await client.rpc('create_mention_notifications', {
         target_user_ids: mentionUserIds,
         target_message_id: Number(insertedMessage.id),
         mention_preview: text.slice(0,160)
       });
 
       if(mentionError){
-        console.error(&#x27;Mention notification error:&#x27;, mentionError);
+        console.error('Mention notification error:', mentionError);
       }
     }
 
-    chatInput.value = &#x27;&#x27;;
+    chatInput.value = '';
     selectedMentions.clear();
     closeMentionSuggestions();
     clearChatReply();
-    chatInput.placeholder = &#x27;Say something to the community...&#x27;;
-    setChatStatus(&#x27;✓ MESSAGE SENT&#x27;, &#x27;success&#x27;);
+    chatInput.placeholder = 'Say something to the community...';
+    setChatStatus('✓ MESSAGE SENT', 'success');
     await refreshChatLevel();
     await loadCommunityChat(true);
 
-    setTimeout(() =&gt; {
-      if(chatStatus?.textContent === &#x27;✓ MESSAGE SENT&#x27;){
-        chatStatus.textContent = &#x27;&#x27;;
+    setTimeout(() => {
+      if(chatStatus?.textContent === '✓ MESSAGE SENT'){
+        chatStatus.textContent = '';
       }
     }, 3000);
   } catch(err){
-    setChatStatus(&#x27;Send failed: &#x27; + (err?.message || String(err)), &#x27;error&#x27;);
-    console.error(&#x27;Gymcels.lol chat send error:&#x27;, err);
+    setChatStatus('Send failed: ' + (err?.message || String(err)), 'error');
+    console.error('Gymcels.lol chat send error:', err);
   } finally{
     chatSending = false;
     try{
@@ -5536,7 +5516,7 @@ async function sendCommunityMessage(){
 }
 
 if(chatSendBtn){
-  chatSendBtn.addEventListener(&#x27;click&#x27;, (e) =&gt; {
+  chatSendBtn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     sendCommunityMessage();
@@ -5544,8 +5524,8 @@ if(chatSendBtn){
 }
 
 if(chatInput){
-  chatInput.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
-    if(e.key === &#x27;Enter&#x27; &amp;&amp; !e.shiftKey){
+  chatInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && !e.shiftKey){
       e.preventDefault();
       sendCommunityMessage();
     }
@@ -5556,21 +5536,21 @@ if(chatInput){
 
 
 if(chatInput){
-  chatInput.addEventListener(&#x27;input&#x27;, () =&gt; {
+  chatInput.addEventListener('input', () => {
     clearTimeout(mentionSearchTimer);
     mentionSearchTimer = setTimeout(loadMentionSuggestions, 120);
   });
 
-  chatInput.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
-    if(!mentionSuggestions || mentionSuggestions.classList.contains(&#x27;hidden&#x27;)) return;
+  chatInput.addEventListener('keydown', (e) => {
+    if(!mentionSuggestions || mentionSuggestions.classList.contains('hidden')) return;
 
-    if(e.key === &#x27;Escape&#x27;){
+    if(e.key === 'Escape'){
       closeMentionSuggestions();
       return;
     }
 
-    if(e.key === &#x27;Enter&#x27; &amp;&amp; mentionCandidates.length){
-      const active = mentionSuggestions.querySelector(&#x27;.mention-option.active&#x27;);
+    if(e.key === 'Enter' && mentionCandidates.length){
+      const active = mentionSuggestions.querySelector('.mention-option.active');
       const index = Number(active?.dataset.mentionIndex ?? 0);
       const person = mentionCandidates[index];
       if(person){
@@ -5583,8 +5563,8 @@ if(chatInput){
 }
 
 if(mentionSuggestions){
-  mentionSuggestions.addEventListener(&#x27;click&#x27;, (e) =&gt; {
-    const btn = e.target.closest(&#x27;[data-mention-index]&#x27;);
+  mentionSuggestions.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-mention-index]');
     if(!btn) return;
 
     e.preventDefault();
@@ -5595,24 +5575,24 @@ if(mentionSuggestions){
   });
 }
 
-document.addEventListener(&#x27;click&#x27;, (e) =&gt; {
-  if(e.target === chatInput || e.target.closest(&#x27;#mentionSuggestions&#x27;)) return;
+document.addEventListener('click', (e) => {
+  if(e.target === chatInput || e.target.closest('#mentionSuggestions')) return;
   closeMentionSuggestions();
 });
 
 if(chatReplyCancel){
-  chatReplyCancel.addEventListener(&#x27;click&#x27;, () =&gt; {
+  chatReplyCancel.addEventListener('click', () => {
     clearChatReply();
     if(chatInput){
-      chatInput.placeholder = &#x27;Say something to the community...&#x27;;
+      chatInput.placeholder = 'Say something to the community...';
       chatInput.focus();
     }
   });
 }
 
 if(chatMessages){
-  chatMessages.addEventListener(&#x27;click&#x27;, (e) =&gt; {
-    const replyBtn = e.target.closest(&#x27;[data-chat-reply]&#x27;);
+  chatMessages.addEventListener('click', (e) => {
+    const replyBtn = e.target.closest('[data-chat-reply]');
     if(replyBtn){
       e.preventDefault();
       e.stopPropagation();
@@ -5621,7 +5601,7 @@ if(chatMessages){
       return;
     }
 
-    const jumpBtn = e.target.closest(&#x27;[data-jump-message]&#x27;);
+    const jumpBtn = e.target.closest('[data-jump-message]');
     if(jumpBtn){
       e.preventDefault();
       e.stopPropagation();
@@ -5631,43 +5611,43 @@ if(chatMessages){
 }
 
 // Delegated chatter-profile click. This works even when chat messages are re-rendered.
-document.addEventListener(&#x27;click&#x27;, (e) =&gt; {
-  const profileTarget = e.target.closest(&#x27;[data-chat-user]&#x27;);
-  if(!profileTarget || e.target.closest(&#x27;[data-chat-delete]&#x27;)) return;
+document.addEventListener('click', (e) => {
+  const profileTarget = e.target.closest('[data-chat-user]');
+  if(!profileTarget || e.target.closest('[data-chat-delete]')) return;
 
   e.preventDefault();
   e.stopPropagation();
 
   openChatPublicProfile(
     profileTarget.dataset.chatUser,
-    profileTarget.dataset.chatName || &#x27;Member&#x27;,
-    profileTarget.dataset.chatAvatar || &#x27;&#x27;
+    profileTarget.dataset.chatName || 'Member',
+    profileTarget.dataset.chatAvatar || ''
   );
 });
 
 if(chatMessages){
-  chatMessages.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
-    const btn = e.target.closest(&#x27;[data-chat-delete]&#x27;);
+  chatMessages.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-chat-delete]');
     if(!btn) return;
 
     try{
       const client = window.gymcelsLolDb;
-      if(!client) throw new Error(&#x27;Chat database connection is not ready.&#x27;);
+      if(!client) throw new Error('Chat database connection is not ready.');
 
       const id = Number(btn.dataset.chatDelete);
       if(!id) return;
 
-      const rowEl = btn.closest(&#x27;.chat-message&#x27;);
-      const isModeratorDelete = canModerateChat() &amp;&amp; btn.getAttribute(&#x27;title&#x27;) === &#x27;Moderator delete&#x27;;
+      const rowEl = btn.closest('.chat-message');
+      const isModeratorDelete = canModerateChat() && btn.getAttribute('title') === 'Moderator delete';
 
-      if(isModeratorDelete &amp;&amp; !confirm(&quot;Delete this member&#x27;s message?&quot;)){
+      if(isModeratorDelete && !confirm("Delete this member's message?")){
         return;
       }
 
       const { error } = await client
-        .from(&#x27;messages&#x27;)
+        .from('messages')
         .delete()
-        .eq(&#x27;id&#x27;, id);
+        .eq('id', id);
 
       if(error) throw error;
 
@@ -5675,27 +5655,27 @@ if(chatMessages){
       await loadCommunityChat(false);
       await refreshChatLevel();
     } catch(err){
-      setChatStatus(&#x27;Delete failed: &#x27; + (err?.message || String(err)), &#x27;error&#x27;);
+      setChatStatus('Delete failed: ' + (err?.message || String(err)), 'error');
     }
   });
 }
 
 
 if(navNotifications){
-  navNotifications.addEventListener(&#x27;click&#x27;, (e) =&gt; {
+  navNotifications.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const opening = notificationPanel?.classList.contains(&#x27;hidden&#x27;);
+    const opening = notificationPanel?.classList.contains('hidden');
     if(notificationPanel){
-      notificationPanel.classList.toggle(&#x27;hidden&#x27;);
-      notificationPanel.setAttribute(&#x27;aria-hidden&#x27;, opening ? &#x27;false&#x27; : &#x27;true&#x27;);
+      notificationPanel.classList.toggle('hidden');
+      notificationPanel.setAttribute('aria-hidden', opening ? 'false' : 'true');
     }
     if(opening) loadNotifications();
   });
 }
 
 if(notificationMarkAll){
-  notificationMarkAll.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
+  notificationMarkAll.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
     await markAllNotificationsRead();
@@ -5703,105 +5683,105 @@ if(notificationMarkAll){
 }
 
 if(notificationList){
-  notificationList.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
-    const item = e.target.closest(&#x27;[data-notification-id]&#x27;);
+  notificationList.addEventListener('click', async (e) => {
+    const item = e.target.closest('[data-notification-id]');
     if(!item) return;
 
     const notificationId = Number(item.dataset.notificationId);
     const messageId = Number(item.dataset.notificationMessage);
-    const type = item.dataset.notificationType || &#x27;&#x27;;
-    const actorId = item.dataset.notificationActor || &#x27;&#x27;;
+    const type = item.dataset.notificationType || '';
+    const actorId = item.dataset.notificationActor || '';
     const notificationThreadId = Number(item.dataset.notificationThread);
 
     await markNotificationRead(notificationId);
     await loadNotifications();
 
     if(notificationPanel){
-      notificationPanel.classList.add(&#x27;hidden&#x27;);
-      notificationPanel.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+      notificationPanel.classList.add('hidden');
+      notificationPanel.setAttribute('aria-hidden','true');
     }
 
-    if(type === &#x27;incoming_call&#x27;){
-      dmSection?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;start&#x27;});
+    if(type === 'incoming_call'){
+      dmSection?.scrollIntoView({behavior:'smooth',block:'start'});
       await loadDmFriends();
       return;
     }
 
-    if(type === &#x27;thread_reply&#x27; &amp;&amp; notificationThreadId){
-      threadsSection?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;start&#x27;});
+    if(type === 'thread_reply' && notificationThreadId){
+      threadsSection?.scrollIntoView({behavior:'smooth',block:'start'});
       await loadThreads();
       await openThread(notificationThreadId);
       return;
     }
 
-    if(type === &#x27;friend_request&#x27; || type === &#x27;friend_accepted&#x27;){
+    if(type === 'friend_request' || type === 'friend_accepted'){
       await loadFriendsSection();
-      friendsSection?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+      friendsSection?.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
 
-    if(type === &#x27;dm&#x27; &amp;&amp; actorId){
+    if(type === 'dm' && actorId){
       try{
         const client = window.gymcelsLolDb;
         const { data: person } = await client
-          .from(&#x27;member_presence&#x27;)
-          .select(&#x27;display_name,avatar_url&#x27;)
-          .eq(&#x27;user_id&#x27;, actorId)
+          .from('member_presence')
+          .select('display_name,avatar_url')
+          .eq('user_id', actorId)
           .maybeSingle();
 
         await openDmWith(
           actorId,
-          person?.display_name || &#x27;Member&#x27;,
-          person?.avatar_url || &#x27;&#x27;
+          person?.display_name || 'Member',
+          person?.avatar_url || ''
         );
       }catch(err){
-        console.error(&#x27;DM notification open error:&#x27;, err);
+        console.error('DM notification open error:', err);
       }
       return;
     }
 
-    communityChat?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+    communityChat?.scrollIntoView({behavior:'smooth',block:'center'});
     await loadCommunityChat(false);
 
-    setTimeout(() =&gt; {
+    setTimeout(() => {
       if(messageId) jumpToChatMessage(messageId);
     }, 250);
   });
 }
 
-document.addEventListener(&#x27;click&#x27;, (e) =&gt; {
-  if(!notificationPanel || notificationPanel.classList.contains(&#x27;hidden&#x27;)) return;
+document.addEventListener('click', (e) => {
+  if(!notificationPanel || notificationPanel.classList.contains('hidden')) return;
   if(
-    e.target.closest(&#x27;#notificationPanel&#x27;) ||
-    e.target.closest(&#x27;#navNotifications&#x27;) ||
-    e.target.closest(&#x27;#mobileNotificationBtn&#x27;)
+    e.target.closest('#notificationPanel') ||
+    e.target.closest('#navNotifications') ||
+    e.target.closest('#mobileNotificationBtn')
   ) return;
 
-  notificationPanel.classList.add(&#x27;hidden&#x27;);
-  notificationPanel.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+  notificationPanel.classList.add('hidden');
+  notificationPanel.setAttribute('aria-hidden','true');
 });
 
 
-function setSiteUpdateStatus(text=&#x27;&#x27;,type=&#x27;&#x27;){
+function setSiteUpdateStatus(text='',type=''){
   if(!siteUpdateAdminStatus) return;
   siteUpdateAdminStatus.textContent = text;
-  siteUpdateAdminStatus.className = `site-update-status ${type || &#x27;&#x27;}`;
+  siteUpdateAdminStatus.className = `site-update-status ${type || ''}`;
 }
 
 function siteUpdateTime(value){
-  if(!value) return &#x27;&#x27;;
+  if(!value) return '';
   const d = new Date(value);
   const diff = Date.now()-d.getTime();
 
-  if(diff &lt; 60000) return &#x27;just now&#x27;;
-  if(diff &lt; 3600000) return `${Math.floor(diff/60000)}m ago`;
-  if(diff &lt; 86400000) return `${Math.floor(diff/3600000)}h ago`;
-  if(diff &lt; 604800000) return `${Math.floor(diff/86400000)}d ago`;
+  if(diff < 60000) return 'just now';
+  if(diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if(diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+  if(diff < 604800000) return `${Math.floor(diff/86400000)}d ago`;
 
   return d.toLocaleDateString([],{
-    month:&#x27;short&#x27;,
-    day:&#x27;numeric&#x27;,
-    year:d.getFullYear() !== new Date().getFullYear() ? &#x27;numeric&#x27; : undefined
+    month:'short',
+    day:'numeric',
+    year:d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
   });
 }
 
@@ -5812,20 +5792,20 @@ async function refreshSiteUpdateAdminUi(){
   const session = await getChatSession();
 
   if(!client || !session?.user){
-    siteUpdateAdminComposer.classList.add(&#x27;hidden&#x27;);
+    siteUpdateAdminComposer.classList.add('hidden');
     return false;
   }
 
   try{
-    const {data,error} = await client.rpc(&#x27;is_site_admin&#x27;);
+    const {data,error} = await client.rpc('is_site_admin');
     if(error) throw error;
 
     const isAdmin = data === true;
-    siteUpdateAdminComposer.classList.toggle(&#x27;hidden&#x27;,!isAdmin);
+    siteUpdateAdminComposer.classList.toggle('hidden',!isAdmin);
     return isAdmin;
   }catch(err){
-    console.error(&#x27;Update board admin check error:&#x27;,err);
-    siteUpdateAdminComposer.classList.add(&#x27;hidden&#x27;);
+    console.error('Update board admin check error:',err);
+    siteUpdateAdminComposer.classList.add('hidden');
     return false;
   }
 }
@@ -5838,15 +5818,15 @@ function safeSiteUpdateFontSize(value){
 }
 
 function safeSiteUpdateColor(value){
-  const color = String(value || &#x27;&#x27;).trim();
-  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : &#x27;#d8dde3&#x27;;
+  const color = String(value || '').trim();
+  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#d8dde3';
 }
 
 function updateSiteUpdatePreview(){
   if(!siteUpdatePreview) return;
 
-  const text = String(siteUpdateInput?.value || &#x27;&#x27;).trim() ||
-    &#x27;Your update will look like this.&#x27;;
+  const text = String(siteUpdateInput?.value || '').trim() ||
+    'Your update will look like this.';
   const size = safeSiteUpdateFontSize(siteUpdateFontSize?.value);
   const color = safeSiteUpdateColor(siteUpdateColor?.value);
 
@@ -5854,10 +5834,10 @@ function updateSiteUpdatePreview(){
   siteUpdatePreview.style.fontSize = `${size}px`;
   siteUpdatePreview.style.color = color;
 
-  document.querySelectorAll(&#x27;[data-update-color]&#x27;).forEach(btn =&gt; {
+  document.querySelectorAll('[data-update-color]').forEach(btn => {
     btn.classList.toggle(
-      &#x27;active&#x27;,
-      String(btn.dataset.updateColor || &#x27;&#x27;).toLowerCase() === color.toLowerCase()
+      'active',
+      String(btn.dataset.updateColor || '').toLowerCase() === color.toLowerCase()
     );
   });
 }
@@ -5869,9 +5849,9 @@ async function loadSiteUpdates(){
   try{
     const [updatesRes,isAdmin] = await Promise.all([
       client
-        .from(&#x27;site_updates&#x27;)
-        .select(&#x27;id,message,text_color,font_size,created_at&#x27;)
-        .order(&#x27;created_at&#x27;,{ascending:false})
+        .from('site_updates')
+        .select('id,message,text_color,font_size,created_at')
+        .order('created_at',{ascending:false})
         .limit(20),
       refreshSiteUpdateAdminUi()
     ]);
@@ -5879,40 +5859,40 @@ async function loadSiteUpdates(){
     if(updatesRes.error) throw updatesRes.error;
 
     const rows = updatesRes.data || [];
-    siteUpdateRowsById = new Map(rows.map(row =&gt; [Number(row.id),row]));
+    siteUpdateRowsById = new Map(rows.map(row => [Number(row.id),row]));
 
     if(!rows.length){
       siteUpdatesList.innerHTML =
-        &#x27;&lt;div class=&quot;site-update-empty&quot;&gt;No official updates yet.&lt;/div&gt;&#x27;;
+        '<div class="site-update-empty">No official updates yet.</div>';
       return;
     }
 
-    siteUpdatesList.innerHTML = rows.map((row,index) =&gt; `
-      &lt;div class=&quot;site-update-item ${index === 0 ? &#x27;latest&#x27; : &#x27;&#x27;}&quot; data-site-update-id=&quot;${Number(row.id)}&quot;&gt;
-        &lt;div class=&quot;site-update-item-head&quot;&gt;
-          &lt;div class=&quot;site-update-author&quot;&gt;
+    siteUpdatesList.innerHTML = rows.map((row,index) => `
+      <div class="site-update-item ${index === 0 ? 'latest' : ''}" data-site-update-id="${Number(row.id)}">
+        <div class="site-update-item-head">
+          <div class="site-update-author">
             Gymcels.lol
-            &lt;span class=&quot;site-update-admin-badge&quot;&gt;Admin&lt;/span&gt;
-          &lt;/div&gt;
-          &lt;div class=&quot;site-update-time&quot;&gt;${escapeChat(siteUpdateTime(row.created_at))}&lt;/div&gt;
-        &lt;/div&gt;
+            <span class="site-update-admin-badge">Admin</span>
+          </div>
+          <div class="site-update-time">${escapeChat(siteUpdateTime(row.created_at))}</div>
+        </div>
 
-        &lt;div class=&quot;site-update-message&quot;
-          style=&quot;color:${safeSiteUpdateColor(row.text_color)};font-size:${safeSiteUpdateFontSize(row.font_size)}px&quot;&gt;
-          ${escapeChat(row.message || &#x27;&#x27;)}
-        &lt;/div&gt;
+        <div class="site-update-message"
+          style="color:${safeSiteUpdateColor(row.text_color)};font-size:${safeSiteUpdateFontSize(row.font_size)}px">
+          ${escapeChat(row.message || '')}
+        </div>
 
         ${isAdmin ? `
-          &lt;div class=&quot;site-update-admin-actions&quot;&gt;
-            &lt;button class=&quot;site-update-edit&quot; type=&quot;button&quot; data-edit-site-update=&quot;${Number(row.id)}&quot;&gt;Edit&lt;/button&gt;
-            &lt;button class=&quot;site-update-delete&quot; type=&quot;button&quot; data-delete-site-update=&quot;${Number(row.id)}&quot;&gt;Delete&lt;/button&gt;
-          &lt;/div&gt;` : &#x27;&#x27;}
-      &lt;/div&gt;
-    `).join(&#x27;&#x27;);
+          <div class="site-update-admin-actions">
+            <button class="site-update-edit" type="button" data-edit-site-update="${Number(row.id)}">Edit</button>
+            <button class="site-update-delete" type="button" data-delete-site-update="${Number(row.id)}">Delete</button>
+          </div>` : ''}
+      </div>
+    `).join('');
   }catch(err){
-    console.error(&#x27;Update board load error:&#x27;,err);
+    console.error('Update board load error:',err);
     siteUpdatesList.innerHTML =
-      `&lt;div class=&quot;site-update-empty&quot;&gt;${escapeChat(err?.message || &#x27;Could not load updates.&#x27;)}&lt;/div&gt;`;
+      `<div class="site-update-empty">${escapeChat(err?.message || 'Could not load updates.')}</div>`;
   }
 }
 
@@ -5920,16 +5900,16 @@ async function loadSiteUpdates(){
 function resetSiteUpdateComposer(){
   siteUpdateEditingId = null;
 
-  if(siteUpdateInput) siteUpdateInput.value = &#x27;&#x27;;
-  if(siteUpdateFontSize) siteUpdateFontSize.value = &#x27;16&#x27;;
-  if(siteUpdateColor) siteUpdateColor.value = &#x27;#d8dde3&#x27;;
-  if(siteUpdateCharCount) siteUpdateCharCount.textContent = &#x27;0 / 1000&#x27;;
-  if(siteUpdatePostBtn) siteUpdatePostBtn.textContent = &#x27;Post update&#x27;;
+  if(siteUpdateInput) siteUpdateInput.value = '';
+  if(siteUpdateFontSize) siteUpdateFontSize.value = '16';
+  if(siteUpdateColor) siteUpdateColor.value = '#d8dde3';
+  if(siteUpdateCharCount) siteUpdateCharCount.textContent = '0 / 1000';
+  if(siteUpdatePostBtn) siteUpdatePostBtn.textContent = 'Post update';
 
-  siteUpdateCancelEditBtn?.classList.add(&#x27;hidden&#x27;);
+  siteUpdateCancelEditBtn?.classList.add('hidden');
 
-  const label = siteUpdateAdminComposer?.querySelector(&#x27;.site-update-admin-label&gt;span&#x27;);
-  if(label) label.textContent = &#x27;Admin announcement&#x27;;
+  const label = siteUpdateAdminComposer?.querySelector('.site-update-admin-label>span');
+  if(label) label.textContent = 'Admin announcement';
 
   updateSiteUpdatePreview();
 }
@@ -5940,27 +5920,27 @@ function beginSiteUpdateEdit(id){
 
   siteUpdateEditingId = Number(row.id);
 
-  if(siteUpdateInput) siteUpdateInput.value = row.message || &#x27;&#x27;;
+  if(siteUpdateInput) siteUpdateInput.value = row.message || '';
   if(siteUpdateFontSize) siteUpdateFontSize.value = String(safeSiteUpdateFontSize(row.font_size));
   if(siteUpdateColor) siteUpdateColor.value = safeSiteUpdateColor(row.text_color);
   if(siteUpdateCharCount){
-    siteUpdateCharCount.textContent = `${String(row.message || &#x27;&#x27;).length} / 1000`;
+    siteUpdateCharCount.textContent = `${String(row.message || '').length} / 1000`;
   }
 
-  if(siteUpdatePostBtn) siteUpdatePostBtn.textContent = &#x27;Save changes&#x27;;
-  siteUpdateCancelEditBtn?.classList.remove(&#x27;hidden&#x27;);
+  if(siteUpdatePostBtn) siteUpdatePostBtn.textContent = 'Save changes';
+  siteUpdateCancelEditBtn?.classList.remove('hidden');
 
-  const label = siteUpdateAdminComposer.querySelector(&#x27;.site-update-admin-label&gt;span&#x27;);
-  if(label) label.textContent = &#x27;Editing published update&#x27;;
+  const label = siteUpdateAdminComposer.querySelector('.site-update-admin-label>span');
+  if(label) label.textContent = 'Editing published update';
 
   updateSiteUpdatePreview();
-  siteUpdateAdminComposer.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
-  setTimeout(() =&gt; siteUpdateInput?.focus(),250);
+  siteUpdateAdminComposer.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(() => siteUpdateInput?.focus(),250);
 }
 
-siteUpdateCancelEditBtn?.addEventListener(&#x27;click&#x27;,() =&gt; {
+siteUpdateCancelEditBtn?.addEventListener('click',() => {
   resetSiteUpdateComposer();
-  setSiteUpdateStatus(&#x27;Edit canceled.&#x27;);
+  setSiteUpdateStatus('Edit canceled.');
 });
 
 async function postSiteUpdate(){
@@ -5968,17 +5948,17 @@ async function postSiteUpdate(){
 
   const client = window.gymcelsLolDb;
   const session = await getChatSession();
-  const message = String(siteUpdateInput?.value || &#x27;&#x27;).trim();
+  const message = String(siteUpdateInput?.value || '').trim();
   const textColor = safeSiteUpdateColor(siteUpdateColor?.value);
   const fontSize = safeSiteUpdateFontSize(siteUpdateFontSize?.value);
 
   if(!client || !session?.user){
-    setSiteUpdateStatus(&#x27;Log in to post.&#x27;,&#x27;error&#x27;);
+    setSiteUpdateStatus('Log in to post.','error');
     return;
   }
 
   if(!message){
-    setSiteUpdateStatus(&#x27;Write an update first.&#x27;,&#x27;error&#x27;);
+    setSiteUpdateStatus('Write an update first.','error');
     siteUpdateInput?.focus();
     return;
   }
@@ -5987,12 +5967,12 @@ async function postSiteUpdate(){
   siteUpdatePostBtn.disabled = true;
   if(siteUpdateCancelEditBtn) siteUpdateCancelEditBtn.disabled = true;
 
-  const editing = Number(siteUpdateEditingId) &gt; 0;
-  setSiteUpdateStatus(editing ? &#x27;Saving changes...&#x27; : &#x27;Posting update...&#x27;);
+  const editing = Number(siteUpdateEditingId) > 0;
+  setSiteUpdateStatus(editing ? 'Saving changes...' : 'Posting update...');
 
   try{
     if(editing){
-      const {error} = await client.rpc(&#x27;update_site_update_styled&#x27;,{
+      const {error} = await client.rpc('update_site_update_styled',{
         update_id:Number(siteUpdateEditingId),
         update_message:message,
         update_color:textColor,
@@ -6001,9 +5981,9 @@ async function postSiteUpdate(){
       if(error) throw error;
 
       resetSiteUpdateComposer();
-      setSiteUpdateStatus(&#x27;✓ Update edited.&#x27;,&#x27;success&#x27;);
+      setSiteUpdateStatus('✓ Update edited.','success');
     }else{
-      const {error} = await client.rpc(&#x27;post_site_update_styled&#x27;,{
+      const {error} = await client.rpc('post_site_update_styled',{
         update_message:message,
         update_color:textColor,
         update_font_size:fontSize
@@ -6011,12 +5991,12 @@ async function postSiteUpdate(){
       if(error) throw error;
 
       resetSiteUpdateComposer();
-      setSiteUpdateStatus(&#x27;✓ Update posted.&#x27;,&#x27;success&#x27;);
+      setSiteUpdateStatus('✓ Update posted.','success');
     }
 
     await loadSiteUpdates();
   }catch(err){
-    setSiteUpdateStatus(err?.message || String(err),&#x27;error&#x27;);
+    setSiteUpdateStatus(err?.message || String(err),'error');
   }finally{
     siteUpdatePosting = false;
     siteUpdatePostBtn.disabled = false;
@@ -6025,13 +6005,13 @@ async function postSiteUpdate(){
 }
 
 async function deleteSiteUpdate(id){
-  if(!id || !confirm(&#x27;Delete this update from the board?&#x27;)) return;
+  if(!id || !confirm('Delete this update from the board?')) return;
 
   const client = window.gymcelsLolDb;
   if(!client) return;
 
   try{
-    const {error} = await client.rpc(&#x27;delete_site_update&#x27;,{
+    const {error} = await client.rpc('delete_site_update',{
       update_id:Number(id)
     });
     if(error) throw error;
@@ -6041,13 +6021,13 @@ async function deleteSiteUpdate(id){
     }
 
     await loadSiteUpdates();
-    setSiteUpdateStatus(&#x27;✓ Update deleted.&#x27;,&#x27;success&#x27;);
+    setSiteUpdateStatus('✓ Update deleted.','success');
   }catch(err){
-    setSiteUpdateStatus(err?.message || String(err),&#x27;error&#x27;);
+    setSiteUpdateStatus(err?.message || String(err),'error');
   }
 }
 
-siteUpdateInput?.addEventListener(&#x27;input&#x27;,() =&gt; {
+siteUpdateInput?.addEventListener('input',() => {
   if(siteUpdateCharCount){
     siteUpdateCharCount.textContent =
       `${siteUpdateInput.value.length} / 1000`;
@@ -6055,11 +6035,11 @@ siteUpdateInput?.addEventListener(&#x27;input&#x27;,() =&gt; {
   updateSiteUpdatePreview();
 });
 
-siteUpdateFontSize?.addEventListener(&#x27;change&#x27;,updateSiteUpdatePreview);
-siteUpdateColor?.addEventListener(&#x27;input&#x27;,updateSiteUpdatePreview);
+siteUpdateFontSize?.addEventListener('change',updateSiteUpdatePreview);
+siteUpdateColor?.addEventListener('input',updateSiteUpdatePreview);
 
-document.querySelectorAll(&#x27;[data-update-color]&#x27;).forEach(btn =&gt; {
-  btn.addEventListener(&#x27;click&#x27;,() =&gt; {
+document.querySelectorAll('[data-update-color]').forEach(btn => {
+  btn.addEventListener('click',() => {
     if(siteUpdateColor){
       siteUpdateColor.value = safeSiteUpdateColor(btn.dataset.updateColor);
       updateSiteUpdatePreview();
@@ -6069,23 +6049,23 @@ document.querySelectorAll(&#x27;[data-update-color]&#x27;).forEach(btn =&gt; {
 
 updateSiteUpdatePreview();
 
-siteUpdateInput?.addEventListener(&#x27;keydown&#x27;,(e) =&gt; {
-  if((e.ctrlKey || e.metaKey) &amp;&amp; e.key === &#x27;Enter&#x27;){
+siteUpdateInput?.addEventListener('keydown',(e) => {
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
     e.preventDefault();
     postSiteUpdate();
   }
 });
 
-siteUpdatePostBtn?.addEventListener(&#x27;click&#x27;,postSiteUpdate);
+siteUpdatePostBtn?.addEventListener('click',postSiteUpdate);
 
-siteUpdatesList?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
-  const editBtn = e.target.closest(&#x27;[data-edit-site-update]&#x27;);
+siteUpdatesList?.addEventListener('click',(e) => {
+  const editBtn = e.target.closest('[data-edit-site-update]');
   if(editBtn){
     beginSiteUpdateEdit(Number(editBtn.dataset.editSiteUpdate));
     return;
   }
 
-  const deleteBtn = e.target.closest(&#x27;[data-delete-site-update]&#x27;);
+  const deleteBtn = e.target.closest('[data-delete-site-update]');
   if(deleteBtn){
     deleteSiteUpdate(Number(deleteBtn.dataset.deleteSiteUpdate));
   }
@@ -6113,11 +6093,11 @@ function startCommunityChat(session){
   }
 
   loadCommunityChat(true);
-  chatPollTimer = setInterval(() =&gt; loadCommunityChat(false), 3000);
+  chatPollTimer = setInterval(() => loadCommunityChat(false), 3000);
 }
 
 if(window.gymcelsLolDb){
-  window.gymcelsLolDb.auth.onAuthStateChange((_event, session) =&gt; {
+  window.gymcelsLolDb.auth.onAuthStateChange((_event, session) => {
     chatIsSiteAdmin = false;
     currentStaffPermissions = {
       is_admin:false,
@@ -6128,89 +6108,89 @@ if(window.gymcelsLolDb){
     chatAdminCheckedUserId = null;
     staffPanelLoadedForUser = null;
     clearBlockedUserCache();
-    staffAdminPanel?.classList.add(&#x27;hidden&#x27;);
+    staffAdminPanel?.classList.add('hidden');
     startCommunityChat(session);
   });
 
-  setTimeout(async () =&gt; {
+  setTimeout(async () => {
     try{
       const session = await getChatSession();
       startCommunityChat(session);
     } catch(err){
-      setChatStatus(&#x27;Chat error: &#x27; + (err?.message || String(err)), &#x27;error&#x27;);
+      setChatStatus('Chat error: ' + (err?.message || String(err)), 'error');
     }
   }, 250);
 } else {
-  setChatStatus(&#x27;Chat database connection is not ready.&#x27;, &#x27;error&#x27;);
+  setChatStatus('Chat database connection is not ready.', 'error');
 }
 
 
 // ---- Gymcel Threads ----
-const navThreadsOutside = document.getElementById(&#x27;navThreads&#x27;);
-const threadsSection = document.getElementById(&#x27;threadsSection&#x27;);
-const openThreadComposerBtn = document.getElementById(&#x27;openThreadComposerBtn&#x27;);
-const threadGuestNote = document.getElementById(&#x27;threadGuestNote&#x27;);
-const threadComposer = document.getElementById(&#x27;threadComposer&#x27;);
-const threadCategory = document.getElementById(&#x27;threadCategory&#x27;);
-const threadTitle = document.getElementById(&#x27;threadTitle&#x27;);
-const threadBody = document.getElementById(&#x27;threadBody&#x27;);
-const threadMediaInput = document.getElementById(&#x27;threadMediaInput&#x27;);
-const threadMediaPreview = document.getElementById(&#x27;threadMediaPreview&#x27;);
-const threadMediaPreviewList = document.getElementById(&#x27;threadMediaPreviewList&#x27;);
-const threadMediaRemove = document.getElementById(&#x27;threadMediaRemove&#x27;);
-const threadPollToggle = document.getElementById(&#x27;threadPollToggle&#x27;);
-const threadPollFields = document.getElementById(&#x27;threadPollFields&#x27;);
-const threadPollRemove = document.getElementById(&#x27;threadPollRemove&#x27;);
-const threadPollQuestion = document.getElementById(&#x27;threadPollQuestion&#x27;);
-const threadPollOptions = document.getElementById(&#x27;threadPollOptions&#x27;);
-const threadPollAddOption = document.getElementById(&#x27;threadPollAddOption&#x27;);
-const createThreadBtn = document.getElementById(&#x27;createThreadBtn&#x27;);
-const cancelThreadBtn = document.getElementById(&#x27;cancelThreadBtn&#x27;);
-const threadComposerStatus = document.getElementById(&#x27;threadComposerStatus&#x27;);
-const threadSearchInput = document.getElementById(&#x27;threadSearchInput&#x27;);
-const threadSearchClear = document.getElementById(&#x27;threadSearchClear&#x27;);
-const threadBookmarksFilter = document.getElementById(&#x27;threadBookmarksFilter&#x27;);
-const threadFilters = document.getElementById(&#x27;threadFilters&#x27;);
-const threadsList = document.getElementById(&#x27;threadsList&#x27;);
-const threadsStatus = document.getElementById(&#x27;threadsStatus&#x27;);
+const navThreadsOutside = document.getElementById('navThreads');
+const threadsSection = document.getElementById('threadsSection');
+const openThreadComposerBtn = document.getElementById('openThreadComposerBtn');
+const threadGuestNote = document.getElementById('threadGuestNote');
+const threadComposer = document.getElementById('threadComposer');
+const threadCategory = document.getElementById('threadCategory');
+const threadTitle = document.getElementById('threadTitle');
+const threadBody = document.getElementById('threadBody');
+const threadMediaInput = document.getElementById('threadMediaInput');
+const threadMediaPreview = document.getElementById('threadMediaPreview');
+const threadMediaPreviewList = document.getElementById('threadMediaPreviewList');
+const threadMediaRemove = document.getElementById('threadMediaRemove');
+const threadPollToggle = document.getElementById('threadPollToggle');
+const threadPollFields = document.getElementById('threadPollFields');
+const threadPollRemove = document.getElementById('threadPollRemove');
+const threadPollQuestion = document.getElementById('threadPollQuestion');
+const threadPollOptions = document.getElementById('threadPollOptions');
+const threadPollAddOption = document.getElementById('threadPollAddOption');
+const createThreadBtn = document.getElementById('createThreadBtn');
+const cancelThreadBtn = document.getElementById('cancelThreadBtn');
+const threadComposerStatus = document.getElementById('threadComposerStatus');
+const threadSearchInput = document.getElementById('threadSearchInput');
+const threadSearchClear = document.getElementById('threadSearchClear');
+const threadBookmarksFilter = document.getElementById('threadBookmarksFilter');
+const threadFilters = document.getElementById('threadFilters');
+const threadsList = document.getElementById('threadsList');
+const threadsStatus = document.getElementById('threadsStatus');
 
-const threadOverlay = document.getElementById(&#x27;threadOverlay&#x27;);
-const threadCloseBtn = document.getElementById(&#x27;threadCloseBtn&#x27;);
-const threadViewCategory = document.getElementById(&#x27;threadViewCategory&#x27;);
-const threadViewTitle = document.getElementById(&#x27;threadViewTitle&#x27;);
-const threadViewAuthor = document.getElementById(&#x27;threadViewAuthor&#x27;);
-const threadViewAuthorStaff = document.getElementById(&#x27;threadViewAuthorStaff&#x27;);
-const threadViewTime = document.getElementById(&#x27;threadViewTime&#x27;);
-const threadViewBody = document.getElementById(&#x27;threadViewBody&#x27;);
-const threadViewMedia = document.getElementById(&#x27;threadViewMedia&#x27;);
-const threadViewPoll = document.getElementById(&#x27;threadViewPoll&#x27;);
-const threadViewReactions = document.getElementById(&#x27;threadViewReactions&#x27;);
-const threadViewBookmarkBtn = document.getElementById(&#x27;threadViewBookmarkBtn&#x27;);
-const threadOwnerActions = document.getElementById(&#x27;threadOwnerActions&#x27;);
-const threadLockBtn = document.getElementById(&#x27;threadLockBtn&#x27;);
-const threadDeleteBtn = document.getElementById(&#x27;threadDeleteBtn&#x27;);
-const threadReplyCount = document.getElementById(&#x27;threadReplyCount&#x27;);
-const threadReplies = document.getElementById(&#x27;threadReplies&#x27;);
-const threadReplyLocked = document.getElementById(&#x27;threadReplyLocked&#x27;);
-const threadReplyTargetBar = document.getElementById(&#x27;threadReplyTargetBar&#x27;);
-const threadReplyTargetName = document.getElementById(&#x27;threadReplyTargetName&#x27;);
-const threadReplyTargetPreview = document.getElementById(&#x27;threadReplyTargetPreview&#x27;);
-const threadReplyTargetCancel = document.getElementById(&#x27;threadReplyTargetCancel&#x27;);
-const threadReplyComposer = document.getElementById(&#x27;threadReplyComposer&#x27;);
-const threadReplyInput = document.getElementById(&#x27;threadReplyInput&#x27;);
-const threadReplyMediaInput = document.getElementById(&#x27;threadReplyMediaInput&#x27;);
-const threadReplyMediaLabel = document.getElementById(&#x27;threadReplyMediaLabel&#x27;);
-const threadReplyMediaPreview = document.getElementById(&#x27;threadReplyMediaPreview&#x27;);
-const threadReplyMediaPreviewList = document.getElementById(&#x27;threadReplyMediaPreviewList&#x27;);
-const threadReplyMediaRemove = document.getElementById(&#x27;threadReplyMediaRemove&#x27;);
-const threadReplyBtn = document.getElementById(&#x27;threadReplyBtn&#x27;);
-const threadReplyStatus = document.getElementById(&#x27;threadReplyStatus&#x27;);
+const threadOverlay = document.getElementById('threadOverlay');
+const threadCloseBtn = document.getElementById('threadCloseBtn');
+const threadViewCategory = document.getElementById('threadViewCategory');
+const threadViewTitle = document.getElementById('threadViewTitle');
+const threadViewAuthor = document.getElementById('threadViewAuthor');
+const threadViewAuthorStaff = document.getElementById('threadViewAuthorStaff');
+const threadViewTime = document.getElementById('threadViewTime');
+const threadViewBody = document.getElementById('threadViewBody');
+const threadViewMedia = document.getElementById('threadViewMedia');
+const threadViewPoll = document.getElementById('threadViewPoll');
+const threadViewReactions = document.getElementById('threadViewReactions');
+const threadViewBookmarkBtn = document.getElementById('threadViewBookmarkBtn');
+const threadOwnerActions = document.getElementById('threadOwnerActions');
+const threadLockBtn = document.getElementById('threadLockBtn');
+const threadDeleteBtn = document.getElementById('threadDeleteBtn');
+const threadReplyCount = document.getElementById('threadReplyCount');
+const threadReplies = document.getElementById('threadReplies');
+const threadReplyLocked = document.getElementById('threadReplyLocked');
+const threadReplyTargetBar = document.getElementById('threadReplyTargetBar');
+const threadReplyTargetName = document.getElementById('threadReplyTargetName');
+const threadReplyTargetPreview = document.getElementById('threadReplyTargetPreview');
+const threadReplyTargetCancel = document.getElementById('threadReplyTargetCancel');
+const threadReplyComposer = document.getElementById('threadReplyComposer');
+const threadReplyInput = document.getElementById('threadReplyInput');
+const threadReplyMediaInput = document.getElementById('threadReplyMediaInput');
+const threadReplyMediaLabel = document.getElementById('threadReplyMediaLabel');
+const threadReplyMediaPreview = document.getElementById('threadReplyMediaPreview');
+const threadReplyMediaPreviewList = document.getElementById('threadReplyMediaPreviewList');
+const threadReplyMediaRemove = document.getElementById('threadReplyMediaRemove');
+const threadReplyBtn = document.getElementById('threadReplyBtn');
+const threadReplyStatus = document.getElementById('threadReplyStatus');
 
-const threadPhotoLightbox = document.getElementById(&#x27;threadPhotoLightbox&#x27;);
-const threadPhotoLightboxImage = document.getElementById(&#x27;threadPhotoLightboxImage&#x27;);
-const threadPhotoLightboxClose = document.getElementById(&#x27;threadPhotoLightboxClose&#x27;);
+const threadPhotoLightbox = document.getElementById('threadPhotoLightbox');
+const threadPhotoLightboxImage = document.getElementById('threadPhotoLightboxImage');
+const threadPhotoLightboxClose = document.getElementById('threadPhotoLightboxClose');
 
-let threadFilter = &#x27;All&#x27;;
+let threadFilter = 'All';
 let threadRows = [];
 let activeThread = null;
 let threadsPollTimer = null;
@@ -6218,7 +6198,7 @@ let threadPosting = false;
 let threadReplyPosting = false;
 let threadReplyTarget = null;
 let threadPollEnabled = false;
-let threadSearchTerm = &#x27;&#x27;;
+let threadSearchTerm = '';
 let threadSearchTimer = null;
 let threadBookmarksOnly = false;
 let threadBookmarkedIds = new Set();
@@ -6227,63 +6207,63 @@ let threadMediaPreviewUrls = [];
 let threadReplyMediaFiles = [];
 let threadReplyMediaPreviewUrls = [];
 
-function setThreadStatus(el, text=&#x27;&#x27;, type=&#x27;normal&#x27;){
+function setThreadStatus(el, text='', type='normal'){
   if(!el) return;
   el.textContent = text;
   el.style.color =
-    type === &#x27;error&#x27; ? &#x27;#ff7c89&#x27; :
-    type === &#x27;success&#x27; ? &#x27;#67e8a5&#x27; :
-    &#x27;#8c95a1&#x27;;
-  el.style.fontWeight = type === &#x27;error&#x27; || type === &#x27;success&#x27; ? &#x27;800&#x27; : &#x27;&#x27;;
+    type === 'error' ? '#ff7c89' :
+    type === 'success' ? '#67e8a5' :
+    '#8c95a1';
+  el.style.fontWeight = type === 'error' || type === 'success' ? '800' : '';
 }
 
 function threadTime(value){
-  if(!value) return &#x27;&#x27;;
+  if(!value) return '';
   const d = new Date(value);
   const diff = Date.now() - d.getTime();
-  if(diff &lt; 60000) return &#x27;now&#x27;;
-  if(diff &lt; 3600000) return `${Math.floor(diff/60000)}m ago`;
-  if(diff &lt; 86400000) return `${Math.floor(diff/3600000)}h ago`;
-  if(diff &lt; 604800000) return `${Math.floor(diff/86400000)}d ago`;
-  return d.toLocaleDateString(undefined,{month:&#x27;short&#x27;,day:&#x27;numeric&#x27;,year:&#x27;numeric&#x27;});
+  if(diff < 60000) return 'now';
+  if(diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if(diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+  if(diff < 604800000) return `${Math.floor(diff/86400000)}d ago`;
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
 }
 
 
 const THREAD_MEDIA_MAX_BYTES = 8 * 1024 * 1024;
 const THREAD_MEDIA_MAX_FILES = 4;
 const THREAD_MEDIA_ALLOWED_TYPES = new Set([
-  &#x27;image/jpeg&#x27;,
-  &#x27;image/png&#x27;,
-  &#x27;image/webp&#x27;
+  'image/jpeg',
+  'image/png',
+  'image/webp'
 ]);
 
 function threadMediaExtension(file){
-  const byType={&#x27;image/jpeg&#x27;:&#x27;jpg&#x27;,&#x27;image/png&#x27;:&#x27;png&#x27;,&#x27;image/webp&#x27;:&#x27;webp&#x27;};
-  return byType[file?.type] || &#x27;jpg&#x27;;
+  const byType={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+  return byType[file?.type] || 'jpg';
 }
 
 function validateThreadMediaFile(file){
-  if(!file) return &#x27;Choose a photo first.&#x27;;
-  if(!THREAD_MEDIA_ALLOWED_TYPES.has(file.type)) return &#x27;Use JPG, PNG, or WebP photos.&#x27;;
-  if(file.size &gt; THREAD_MEDIA_MAX_BYTES) return &#x27;Each photo must be 8 MB or smaller.&#x27;;
-  return &#x27;&#x27;;
+  if(!file) return 'Choose a photo first.';
+  if(!THREAD_MEDIA_ALLOWED_TYPES.has(file.type)) return 'Use JPG, PNG, or WebP photos.';
+  if(file.size > THREAD_MEDIA_MAX_BYTES) return 'Each photo must be 8 MB or smaller.';
+  return '';
 }
 
 function validateThreadMediaFiles(files){
   const list=[...(files || [])];
-  if(!list.length) return &#x27;&#x27;;
-  if(list.length &gt; THREAD_MEDIA_MAX_FILES){
+  if(!list.length) return '';
+  if(list.length > THREAD_MEDIA_MAX_FILES){
     return `You can upload up to ${THREAD_MEDIA_MAX_FILES} photos per post.`;
   }
   for(const file of list){
     const error=validateThreadMediaFile(file);
     if(error) return error;
   }
-  return &#x27;&#x27;;
+  return '';
 }
 
 function revokeThreadPreviewUrls(urls){
-  (urls || []).forEach(url=&gt;{
+  (urls || []).forEach(url=>{
     try{ URL.revokeObjectURL(url); }catch(_){}
   });
 }
@@ -6294,7 +6274,7 @@ function renderThreadMediaPreview(files,isReply=false){
   const wrapper=isReply ? threadReplyMediaPreview : threadMediaPreview;
   if(!target || !wrapper) return;
 
-  const urls=list.map(file=&gt;URL.createObjectURL(file));
+  const urls=list.map(file=>URL.createObjectURL(file));
   if(isReply){
     revokeThreadPreviewUrls(threadReplyMediaPreviewUrls);
     threadReplyMediaPreviewUrls=urls;
@@ -6303,55 +6283,55 @@ function renderThreadMediaPreview(files,isReply=false){
     threadMediaPreviewUrls=urls;
   }
 
-  target.innerHTML=list.map((file,index)=&gt;`
-    &lt;div class=&quot;thread-media-preview-tile&quot;&gt;
-      &lt;img src=&quot;${escapeChat(urls[index])}&quot; alt=&quot;Selected photo ${index+1}&quot;&gt;
-    &lt;/div&gt;`).join(&#x27;&#x27;);
+  target.innerHTML=list.map((file,index)=>`
+    <div class="thread-media-preview-tile">
+      <img src="${escapeChat(urls[index])}" alt="Selected photo ${index+1}">
+    </div>`).join('');
 
-  wrapper.classList.toggle(&#x27;hidden&#x27;,list.length===0);
+  wrapper.classList.toggle('hidden',list.length===0);
 }
 
 function clearThreadMediaSelection(){
   threadMediaFiles=[];
   revokeThreadPreviewUrls(threadMediaPreviewUrls);
   threadMediaPreviewUrls=[];
-  if(threadMediaInput) threadMediaInput.value=&#x27;&#x27;;
-  if(threadMediaPreviewList) threadMediaPreviewList.innerHTML=&#x27;&#x27;;
-  threadMediaPreview?.classList.add(&#x27;hidden&#x27;);
+  if(threadMediaInput) threadMediaInput.value='';
+  if(threadMediaPreviewList) threadMediaPreviewList.innerHTML='';
+  threadMediaPreview?.classList.add('hidden');
 }
 
 function clearThreadReplyMediaSelection(){
   threadReplyMediaFiles=[];
   revokeThreadPreviewUrls(threadReplyMediaPreviewUrls);
   threadReplyMediaPreviewUrls=[];
-  if(threadReplyMediaInput) threadReplyMediaInput.value=&#x27;&#x27;;
-  if(threadReplyMediaPreviewList) threadReplyMediaPreviewList.innerHTML=&#x27;&#x27;;
-  threadReplyMediaPreview?.classList.add(&#x27;hidden&#x27;);
+  if(threadReplyMediaInput) threadReplyMediaInput.value='';
+  if(threadReplyMediaPreviewList) threadReplyMediaPreviewList.innerHTML='';
+  threadReplyMediaPreview?.classList.add('hidden');
 }
 
 function previewThreadMedia(files,isReply=false){
   const list=[...(files || [])];
   const error=validateThreadMediaFiles(list);
   if(error){
-    setThreadStatus(isReply ? threadReplyStatus : threadComposerStatus,error,&#x27;error&#x27;);
-    if(isReply &amp;&amp; threadReplyMediaInput) threadReplyMediaInput.value=&#x27;&#x27;;
-    if(!isReply &amp;&amp; threadMediaInput) threadMediaInput.value=&#x27;&#x27;;
+    setThreadStatus(isReply ? threadReplyStatus : threadComposerStatus,error,'error');
+    if(isReply && threadReplyMediaInput) threadReplyMediaInput.value='';
+    if(!isReply && threadMediaInput) threadMediaInput.value='';
     return false;
   }
 
   if(isReply){
     threadReplyMediaFiles=list;
     renderThreadMediaPreview(list,true);
-    setThreadStatus(threadReplyStatus,`${list.length} photo${list.length===1?&#x27;&#x27;:&#x27;s&#x27;} ready to upload.`);
+    setThreadStatus(threadReplyStatus,`${list.length} photo${list.length===1?'':'s'} ready to upload.`);
   }else{
     threadMediaFiles=list;
     renderThreadMediaPreview(list,false);
-    setThreadStatus(threadComposerStatus,`${list.length} photo${list.length===1?&#x27;&#x27;:&#x27;s&#x27;} ready to upload.`);
+    setThreadStatus(threadComposerStatus,`${list.length} photo${list.length===1?'':'s'} ready to upload.`);
   }
   return true;
 }
 
-async function uploadThreadMedia(file,userId,kind=&#x27;thread&#x27;){
+async function uploadThreadMedia(file,userId,kind='thread'){
   const client=window.gymcelsLolDb;
   if(!client || !file || !userId) return null;
 
@@ -6363,15 +6343,15 @@ async function uploadThreadMedia(file,userId,kind=&#x27;thread&#x27;){
   const path=`${userId}/${kind}/${Date.now()}-${unique}.${ext}`;
 
   const {error:uploadError}=await client.storage
-    .from(&#x27;thread-media&#x27;)
-    .upload(path,file,{cacheControl:&#x27;3600&#x27;,upsert:false,contentType:file.type});
+    .from('thread-media')
+    .upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type});
   if(uploadError) throw uploadError;
 
-  const {data}=client.storage.from(&#x27;thread-media&#x27;).getPublicUrl(path);
+  const {data}=client.storage.from('thread-media').getPublicUrl(path);
   const url=data?.publicUrl;
   if(!url){
-    try{ await client.storage.from(&#x27;thread-media&#x27;).remove([path]); }catch(_){}
-    throw new Error(&#x27;Could not create the photo URL.&#x27;);
+    try{ await client.storage.from('thread-media').remove([path]); }catch(_){}
+    throw new Error('Could not create the photo URL.');
   }
   return {url,path};
 }
@@ -6383,13 +6363,13 @@ async function cleanupUploadedThreadMedia(pathOrPaths){
 
   if(!paths.length) return;
   try{
-    await window.gymcelsLolDb?.storage.from(&#x27;thread-media&#x27;).remove(paths);
+    await window.gymcelsLolDb?.storage.from('thread-media').remove(paths);
   }catch(err){
-    console.debug(&#x27;Thread photo cleanup:&#x27;,err);
+    console.debug('Thread photo cleanup:',err);
   }
 }
 
-async function uploadThreadMediaFiles(files,userId,kind=&#x27;thread&#x27;){
+async function uploadThreadMediaFiles(files,userId,kind='thread'){
   const list=[...(files || [])];
   if(!list.length) return {urls:[],paths:[]};
 
@@ -6402,13 +6382,13 @@ async function uploadThreadMediaFiles(files,userId,kind=&#x27;thread&#x27;){
       uploaded.push(await uploadThreadMedia(file,userId,kind));
     }
   }catch(err){
-    await cleanupUploadedThreadMedia(uploaded.map(x=&gt;x?.path));
+    await cleanupUploadedThreadMedia(uploaded.map(x=>x?.path));
     throw err;
   }
 
   return {
-    urls:uploaded.map(x=&gt;x.url),
-    paths:uploaded.map(x=&gt;x.path)
+    urls:uploaded.map(x=>x.url),
+    paths:uploaded.map(x=>x.path)
   };
 }
 
@@ -6428,36 +6408,36 @@ function threadAllMediaPaths(row){
   ])].filter(Boolean);
 }
 
-function threadMediaGalleryMarkup(urls,extraClass=&#x27;&#x27;){
+function threadMediaGalleryMarkup(urls,extraClass=''){
   const list=[...new Set((urls || []).filter(Boolean))].slice(0,THREAD_MEDIA_MAX_FILES);
-  if(!list.length) return &#x27;&#x27;;
+  if(!list.length) return '';
 
-  return `&lt;div class=&quot;thread-media-gallery count-${list.length} ${extraClass}&quot;&gt;
-    ${list.map((url,index)=&gt;{
+  return `<div class="thread-media-gallery count-${list.length} ${extraClass}">
+    ${list.map((url,index)=>{
       const safe=escapeChat(url);
-      return `&lt;div class=&quot;thread-media-gallery-item&quot;&gt;
-        &lt;button type=&quot;button&quot; data-thread-photo=&quot;${safe}&quot; aria-label=&quot;Open photo ${index+1}&quot;&gt;
-          &lt;img src=&quot;${safe}&quot; alt=&quot;Thread photo ${index+1}&quot; loading=&quot;lazy&quot;&gt;
-        &lt;/button&gt;
-      &lt;/div&gt;`;
-    }).join(&#x27;&#x27;)}
-  &lt;/div&gt;`;
+      return `<div class="thread-media-gallery-item">
+        <button type="button" data-thread-photo="${safe}" aria-label="Open photo ${index+1}">
+          <img src="${safe}" alt="Thread photo ${index+1}" loading="lazy">
+        </button>
+      </div>`;
+    }).join('')}
+  </div>`;
 }
 
 function openThreadPhoto(url){
   if(!url || !threadPhotoLightbox || !threadPhotoLightboxImage) return;
   threadPhotoLightboxImage.src=url;
-  threadPhotoLightbox.classList.add(&#x27;show&#x27;);
-  threadPhotoLightbox.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
-  document.body.style.overflow=&#x27;hidden&#x27;;
+  threadPhotoLightbox.classList.add('show');
+  threadPhotoLightbox.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
 }
 
 function closeThreadPhoto(){
   if(!threadPhotoLightbox || !threadPhotoLightboxImage) return;
-  threadPhotoLightbox.classList.remove(&#x27;show&#x27;);
-  threadPhotoLightbox.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
-  threadPhotoLightboxImage.removeAttribute(&#x27;src&#x27;);
-  document.body.style.overflow=&#x27;&#x27;;
+  threadPhotoLightbox.classList.remove('show');
+  threadPhotoLightbox.setAttribute('aria-hidden','true');
+  threadPhotoLightboxImage.removeAttribute('src');
+  document.body.style.overflow='';
 }
 
 function setThreadsAuthState(session){
@@ -6465,17 +6445,17 @@ function setThreadsAuthState(session){
 
   if(openThreadComposerBtn){
     openThreadComposerBtn.disabled = !signedIn;
-    openThreadComposerBtn.textContent = signedIn ? &#x27;+ New Thread&#x27; : &#x27;Log in to post&#x27;;
+    openThreadComposerBtn.textContent = signedIn ? '+ New Thread' : 'Log in to post';
   }
 
   if(threadGuestNote){
     threadGuestNote.textContent = signedIn
-      ? &#x27;Start a topic or jump into an existing discussion.&#x27;
-      : &#x27;Anyone can read threads. Log in to create one or reply.&#x27;;
+      ? 'Start a topic or jump into an existing discussion.'
+      : 'Anyone can read threads. Log in to create one or reply.';
   }
 
-  if(!signedIn &amp;&amp; threadComposer){
-    threadComposer.classList.add(&#x27;hidden&#x27;);
+  if(!signedIn && threadComposer){
+    threadComposer.classList.add('hidden');
   }
 
   if(activeThread) updateThreadReplyComposer(session);
@@ -6484,48 +6464,48 @@ function setThreadsAuthState(session){
 
 
 function renumberThreadPollOptions(){
-  const rows=[...(threadPollOptions?.querySelectorAll(&#x27;[data-poll-option-row]&#x27;) || [])];
+  const rows=[...(threadPollOptions?.querySelectorAll('[data-poll-option-row]') || [])];
 
-  rows.forEach((row,index)=&gt;{
-    const number=row.querySelector(&#x27;:scope &gt; span&#x27;);
-    const input=row.querySelector(&#x27;[data-thread-poll-option]&#x27;);
-    const remove=row.querySelector(&#x27;[data-remove-poll-option]&#x27;);
+  rows.forEach((row,index)=>{
+    const number=row.querySelector(':scope > span');
+    const input=row.querySelector('[data-thread-poll-option]');
+    const remove=row.querySelector('[data-remove-poll-option]');
 
     if(number) number.textContent=String(index+1);
     if(input) input.placeholder=`Option ${index+1}`;
-    if(remove) remove.disabled=rows.length&lt;=2;
+    if(remove) remove.disabled=rows.length<=2;
   });
 
-  if(threadPollAddOption) threadPollAddOption.disabled=rows.length&gt;=6;
+  if(threadPollAddOption) threadPollAddOption.disabled=rows.length>=6;
 }
 
 function addThreadPollOption(){
   if(!threadPollOptions) return;
 
-  const current=threadPollOptions.querySelectorAll(&#x27;[data-poll-option-row]&#x27;).length;
-  if(current&gt;=6) return;
+  const current=threadPollOptions.querySelectorAll('[data-poll-option-row]').length;
+  if(current>=6) return;
 
-  const row=document.createElement(&#x27;div&#x27;);
-  row.className=&#x27;thread-poll-option-edit&#x27;;
-  row.setAttribute(&#x27;data-poll-option-row&#x27;,&#x27;&#x27;);
+  const row=document.createElement('div');
+  row.className='thread-poll-option-edit';
+  row.setAttribute('data-poll-option-row','');
   row.innerHTML=`
-    &lt;span&gt;${current+1}&lt;/span&gt;
-    &lt;input type=&quot;text&quot; maxlength=&quot;100&quot; data-thread-poll-option placeholder=&quot;Option ${current+1}&quot;&gt;
-    &lt;button type=&quot;button&quot; data-remove-poll-option aria-label=&quot;Remove option&quot;&gt;×&lt;/button&gt;
+    <span>${current+1}</span>
+    <input type="text" maxlength="100" data-thread-poll-option placeholder="Option ${current+1}">
+    <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
   `;
 
   threadPollOptions.appendChild(row);
   renumberThreadPollOptions();
-  row.querySelector(&#x27;input&#x27;)?.focus();
+  row.querySelector('input')?.focus();
 }
 
 function setThreadPollEnabled(enabled){
   threadPollEnabled=!!enabled;
-  threadPollFields?.classList.toggle(&#x27;hidden&#x27;,!threadPollEnabled);
+  threadPollFields?.classList.toggle('hidden',!threadPollEnabled);
 
   if(threadPollToggle){
-    threadPollToggle.classList.toggle(&#x27;active&#x27;,threadPollEnabled);
-    threadPollToggle.textContent=threadPollEnabled ? &#x27;📊 Poll added&#x27; : &#x27;📊 Add poll&#x27;;
+    threadPollToggle.classList.toggle('active',threadPollEnabled);
+    threadPollToggle.textContent=threadPollEnabled ? '📊 Poll added' : '📊 Add poll';
   }
 
   if(threadPollEnabled) threadPollQuestion?.focus();
@@ -6533,27 +6513,27 @@ function setThreadPollEnabled(enabled){
 
 function resetThreadPollComposer(){
   threadPollEnabled=false;
-  threadPollFields?.classList.add(&#x27;hidden&#x27;);
+  threadPollFields?.classList.add('hidden');
 
   if(threadPollToggle){
-    threadPollToggle.classList.remove(&#x27;active&#x27;);
-    threadPollToggle.textContent=&#x27;📊 Add poll&#x27;;
+    threadPollToggle.classList.remove('active');
+    threadPollToggle.textContent='📊 Add poll';
   }
 
-  if(threadPollQuestion) threadPollQuestion.value=&#x27;&#x27;;
+  if(threadPollQuestion) threadPollQuestion.value='';
 
   if(threadPollOptions){
     threadPollOptions.innerHTML=`
-      &lt;div class=&quot;thread-poll-option-edit&quot; data-poll-option-row&gt;
-        &lt;span&gt;1&lt;/span&gt;
-        &lt;input type=&quot;text&quot; maxlength=&quot;100&quot; data-thread-poll-option placeholder=&quot;Option 1&quot;&gt;
-        &lt;button type=&quot;button&quot; data-remove-poll-option aria-label=&quot;Remove option&quot;&gt;×&lt;/button&gt;
-      &lt;/div&gt;
-      &lt;div class=&quot;thread-poll-option-edit&quot; data-poll-option-row&gt;
-        &lt;span&gt;2&lt;/span&gt;
-        &lt;input type=&quot;text&quot; maxlength=&quot;100&quot; data-thread-poll-option placeholder=&quot;Option 2&quot;&gt;
-        &lt;button type=&quot;button&quot; data-remove-poll-option aria-label=&quot;Remove option&quot;&gt;×&lt;/button&gt;
-      &lt;/div&gt;
+      <div class="thread-poll-option-edit" data-poll-option-row>
+        <span>1</span>
+        <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 1">
+        <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+      </div>
+      <div class="thread-poll-option-edit" data-poll-option-row>
+        <span>2</span>
+        <input type="text" maxlength="100" data-thread-poll-option placeholder="Option 2">
+        <button type="button" data-remove-poll-option aria-label="Remove option">×</button>
+      </div>
     `;
   }
 
@@ -6562,32 +6542,32 @@ function resetThreadPollComposer(){
 
 function collectThreadPollDraft(){
   if(!threadPollEnabled){
-    return {enabled:false,question:&#x27;&#x27;,options:[],error:&#x27;&#x27;};
+    return {enabled:false,question:'',options:[],error:''};
   }
 
-  const question=String(threadPollQuestion?.value || &#x27;&#x27;).trim();
-  const options=[...(threadPollOptions?.querySelectorAll(&#x27;[data-thread-poll-option]&#x27;) || [])]
-    .map(input=&gt;String(input.value || &#x27;&#x27;).trim())
+  const question=String(threadPollQuestion?.value || '').trim();
+  const options=[...(threadPollOptions?.querySelectorAll('[data-thread-poll-option]') || [])]
+    .map(input=>String(input.value || '').trim())
     .filter(Boolean);
 
-  if(question.length&lt;3){
-    return {enabled:true,question,options,error:&#x27;Give your poll a question.&#x27;};
+  if(question.length<3){
+    return {enabled:true,question,options,error:'Give your poll a question.'};
   }
 
-  if(options.length&lt;2){
-    return {enabled:true,question,options,error:&#x27;Add at least 2 poll options.&#x27;};
+  if(options.length<2){
+    return {enabled:true,question,options,error:'Add at least 2 poll options.'};
   }
 
-  if(options.length&gt;6){
-    return {enabled:true,question,options,error:&#x27;Polls can have up to 6 options.&#x27;};
+  if(options.length>6){
+    return {enabled:true,question,options,error:'Polls can have up to 6 options.'};
   }
 
-  const unique=new Set(options.map(x=&gt;x.toLowerCase()));
+  const unique=new Set(options.map(x=>x.toLowerCase()));
   if(unique.size!==options.length){
-    return {enabled:true,question,options,error:&#x27;Poll options must be different.&#x27;};
+    return {enabled:true,question,options,error:'Poll options must be different.'};
   }
 
-  return {enabled:true,question,options,error:&#x27;&#x27;};
+  return {enabled:true,question,options,error:''};
 }
 
 async function loadThreadPoll(threadId,session=null){
@@ -6599,7 +6579,7 @@ async function loadThreadPoll(threadId,session=null){
   const currentSession=session || await getChatSession();
 
   try{
-    const {data,error}=await client.rpc(&#x27;get_thread_poll&#x27;,{
+    const {data,error}=await client.rpc('get_thread_poll',{
       target_thread_id:Number(threadId)
     });
 
@@ -6608,54 +6588,54 @@ async function loadThreadPoll(threadId,session=null){
     const rows=data || [];
 
     if(!rows.length){
-      threadViewPoll.innerHTML=&#x27;&#x27;;
-      threadViewPoll.classList.add(&#x27;hidden&#x27;);
+      threadViewPoll.innerHTML='';
+      threadViewPoll.classList.add('hidden');
       return;
     }
 
     const first=rows[0];
     const totalVotes=Number(first.total_votes || 0);
-    const canVote=!!currentSession?.user &amp;&amp; !activeThread?.is_locked;
+    const canVote=!!currentSession?.user && !activeThread?.is_locked;
 
     threadViewPoll.innerHTML=`
-      &lt;div class=&quot;thread-poll-question&quot;&gt;${escapeChat(first.question || &#x27;Poll&#x27;)}&lt;/div&gt;
+      <div class="thread-poll-question">${escapeChat(first.question || 'Poll')}</div>
 
-      &lt;div class=&quot;thread-poll-options-live&quot;&gt;
-        ${rows.map(row=&gt;{
+      <div class="thread-poll-options-live">
+        ${rows.map(row=>{
           const count=Number(row.vote_count || 0);
-          const percent=totalVotes&gt;0 ? Math.round((count/totalVotes)*100) : 0;
+          const percent=totalVotes>0 ? Math.round((count/totalVotes)*100) : 0;
           const selected=row.selected===true;
 
-          return `&lt;button class=&quot;thread-poll-option-live ${selected ? &#x27;selected&#x27; : &#x27;&#x27;}&quot;
-                          type=&quot;button&quot;
-                          data-thread-poll-vote=&quot;${Number(row.option_id)}&quot;
-                          data-thread-poll-id=&quot;${Number(row.poll_id)}&quot;
-                          ${canVote ? &#x27;&#x27; : &#x27;disabled&#x27;}&gt;
-            &lt;span class=&quot;thread-poll-option-fill&quot; style=&quot;width:${percent}%&quot;&gt;&lt;/span&gt;
-            &lt;span class=&quot;thread-poll-option-copy&quot;&gt;
-              ${escapeChat(row.option_text || &#x27;Option&#x27;)}
-              ${selected ? &#x27;&lt;b&gt;✓ Your vote&lt;/b&gt;&#x27; : &#x27;&#x27;}
-            &lt;/span&gt;
-            &lt;span class=&quot;thread-poll-option-result&quot;&gt;${percent}% · ${count}&lt;/span&gt;
-          &lt;/button&gt;`;
-        }).join(&#x27;&#x27;)}
-      &lt;/div&gt;
+          return `<button class="thread-poll-option-live ${selected ? 'selected' : ''}"
+                          type="button"
+                          data-thread-poll-vote="${Number(row.option_id)}"
+                          data-thread-poll-id="${Number(row.poll_id)}"
+                          ${canVote ? '' : 'disabled'}>
+            <span class="thread-poll-option-fill" style="width:${percent}%"></span>
+            <span class="thread-poll-option-copy">
+              ${escapeChat(row.option_text || 'Option')}
+              ${selected ? '<b>✓ Your vote</b>' : ''}
+            </span>
+            <span class="thread-poll-option-result">${percent}% · ${count}</span>
+          </button>`;
+        }).join('')}
+      </div>
 
-      &lt;div class=&quot;thread-poll-footer&quot;&gt;
-        &lt;span&gt;${totalVotes} vote${totalVotes===1?&#x27;&#x27;:&#x27;s&#x27;}&lt;/span&gt;
-        &lt;span&gt;${
+      <div class="thread-poll-footer">
+        <span>${totalVotes} vote${totalVotes===1?'':'s'}</span>
+        <span>${
           !currentSession?.user
-            ? &#x27;Log in to vote&#x27;
-            : (activeThread?.is_locked ? &#x27;Poll closed while thread is locked&#x27; : &#x27;Tap an option to vote · you can change it&#x27;)
-        }&lt;/span&gt;
-      &lt;/div&gt;
+            ? 'Log in to vote'
+            : (activeThread?.is_locked ? 'Poll closed while thread is locked' : 'Tap an option to vote · you can change it')
+        }</span>
+      </div>
     `;
 
-    threadViewPoll.classList.remove(&#x27;hidden&#x27;);
+    threadViewPoll.classList.remove('hidden');
   }catch(err){
-    console.error(&#x27;Poll load error:&#x27;,err);
-    threadViewPoll.innerHTML=&#x27;&#x27;;
-    threadViewPoll.classList.add(&#x27;hidden&#x27;);
+    console.error('Poll load error:',err);
+    threadViewPoll.innerHTML='';
+    threadViewPoll.classList.add('hidden');
   }
 }
 
@@ -6664,12 +6644,12 @@ async function voteThreadPoll(pollId,optionId){
   const session=await getChatSession();
 
   if(!client || !session?.user){
-    document.getElementById(&#x27;login-card&#x27;)?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+    document.getElementById('login-card')?.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
 
   try{
-    const {error}=await client.rpc(&#x27;vote_in_thread_poll&#x27;,{
+    const {error}=await client.rpc('vote_in_thread_poll',{
       target_poll_id:Number(pollId),
       target_option_id:Number(optionId)
     });
@@ -6680,30 +6660,30 @@ async function voteThreadPoll(pollId,optionId){
       await loadThreadPoll(activeThread.id,session);
     }
   }catch(err){
-    setThreadStatus(threadReplyStatus,err?.message || String(err),&#x27;error&#x27;);
+    setThreadStatus(threadReplyStatus,err?.message || String(err),'error');
   }
 }
 
-threadPollToggle?.addEventListener(&#x27;click&#x27;,()=&gt;{
+threadPollToggle?.addEventListener('click',()=>{
   setThreadPollEnabled(!threadPollEnabled);
 });
 
-threadPollRemove?.addEventListener(&#x27;click&#x27;,resetThreadPollComposer);
-threadPollAddOption?.addEventListener(&#x27;click&#x27;,addThreadPollOption);
+threadPollRemove?.addEventListener('click',resetThreadPollComposer);
+threadPollAddOption?.addEventListener('click',addThreadPollOption);
 
-threadPollOptions?.addEventListener(&#x27;click&#x27;,(e)=&gt;{
-  const btn=e.target.closest(&#x27;[data-remove-poll-option]&#x27;);
+threadPollOptions?.addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-remove-poll-option]');
   if(!btn) return;
 
-  const rows=threadPollOptions.querySelectorAll(&#x27;[data-poll-option-row]&#x27;);
-  if(rows.length&lt;=2) return;
+  const rows=threadPollOptions.querySelectorAll('[data-poll-option-row]');
+  if(rows.length<=2) return;
 
-  btn.closest(&#x27;[data-poll-option-row]&#x27;)?.remove();
+  btn.closest('[data-poll-option-row]')?.remove();
   renumberThreadPollOptions();
 });
 
-threadViewPoll?.addEventListener(&#x27;click&#x27;,(e)=&gt;{
-  const btn=e.target.closest(&#x27;[data-thread-poll-vote]&#x27;);
+threadViewPoll?.addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-thread-poll-vote]');
   if(!btn || btn.disabled) return;
 
   voteThreadPoll(
@@ -6719,33 +6699,33 @@ async function loadThreadBookmarks(session=null){
 
   if(!client || !currentSession?.user){
     threadBookmarksOnly=false;
-    threadBookmarksFilter?.classList.remove(&#x27;active&#x27;);
+    threadBookmarksFilter?.classList.remove('active');
     return threadBookmarkedIds;
   }
 
   const {data,error}=await client
-    .from(&#x27;thread_bookmarks&#x27;)
-    .select(&#x27;thread_id&#x27;)
-    .eq(&#x27;user_id&#x27;,currentSession.user.id);
+    .from('thread_bookmarks')
+    .select('thread_id')
+    .eq('user_id',currentSession.user.id);
 
   if(error){
-    console.error(&#x27;Thread bookmarks load error:&#x27;,error);
+    console.error('Thread bookmarks load error:',error);
     return threadBookmarkedIds;
   }
 
-  threadBookmarkedIds=new Set((data || []).map(row=&gt;Number(row.thread_id)).filter(Boolean));
+  threadBookmarkedIds=new Set((data || []).map(row=>Number(row.thread_id)).filter(Boolean));
   return threadBookmarkedIds;
 }
 
 function updateThreadViewBookmark(session){
   if(!threadViewBookmarkBtn || !activeThread) return;
   const signedIn=!!session?.user;
-  threadViewBookmarkBtn.classList.toggle(&#x27;hidden&#x27;,!signedIn);
+  threadViewBookmarkBtn.classList.toggle('hidden',!signedIn);
   if(!signedIn) return;
 
   const saved=threadBookmarkedIds.has(Number(activeThread.id));
-  threadViewBookmarkBtn.classList.toggle(&#x27;saved&#x27;,saved);
-  threadViewBookmarkBtn.textContent=saved ? &#x27;🔖 Saved&#x27; : &#x27;🔖 Save&#x27;;
+  threadViewBookmarkBtn.classList.toggle('saved',saved);
+  threadViewBookmarkBtn.textContent=saved ? '🔖 Saved' : '🔖 Save';
 }
 
 async function toggleThreadBookmark(threadId){
@@ -6756,7 +6736,7 @@ async function toggleThreadBookmark(threadId){
   const session=await getChatSession();
 
   if(!client || !session?.user){
-    setThreadStatus(threadsStatus,&#x27;Log in to save bookmarks.&#x27;,&#x27;error&#x27;);
+    setThreadStatus(threadsStatus,'Log in to save bookmarks.','error');
     return;
   }
 
@@ -6764,12 +6744,12 @@ async function toggleThreadBookmark(threadId){
 
   try{
     if(saved){
-      const {error}=await client.from(&#x27;thread_bookmarks&#x27;)
-        .delete().eq(&#x27;user_id&#x27;,session.user.id).eq(&#x27;thread_id&#x27;,id);
+      const {error}=await client.from('thread_bookmarks')
+        .delete().eq('user_id',session.user.id).eq('thread_id',id);
       if(error) throw error;
       threadBookmarkedIds.delete(id);
     }else{
-      const {error}=await client.from(&#x27;thread_bookmarks&#x27;)
+      const {error}=await client.from('thread_bookmarks')
         .insert({user_id:session.user.id,thread_id:id});
       if(error) throw error;
       threadBookmarkedIds.add(id);
@@ -6778,7 +6758,7 @@ async function toggleThreadBookmark(threadId){
     updateThreadViewBookmark(session);
     await loadThreads();
   }catch(err){
-    setThreadStatus(threadsStatus,err?.message || String(err),&#x27;error&#x27;);
+    setThreadStatus(threadsStatus,err?.message || String(err),'error');
   }
 }
 
@@ -6786,110 +6766,110 @@ async function loadThreads(){
   const client=window.gymcelsLolDb;
   if(!client || !threadsList) return;
 
-  setThreadStatus(threadsStatus,&#x27;Loading threads...&#x27;);
+  setThreadStatus(threadsStatus,'Loading threads...');
 
   const threadSession=await getChatSession();
   await loadThreadBookmarks(threadSession);
 
   let query=client
-    .from(&#x27;forum_threads&#x27;)
-    .select(&#x27;id,author_id,author_name,title,body,category,is_locked,media_url,media_path,media_urls,media_paths,created_at&#x27;)
-    .order(&#x27;created_at&#x27;,{ascending:false})
+    .from('forum_threads')
+    .select('id,author_id,author_name,title,body,category,is_locked,media_url,media_path,media_urls,media_paths,created_at')
+    .order('created_at',{ascending:false})
     .limit(200);
 
-  if(threadFilter !== &#x27;All&#x27;) query=query.eq(&#x27;category&#x27;,threadFilter);
+  if(threadFilter !== 'All') query=query.eq('category',threadFilter);
 
   const {data,error}=await query;
   if(error){
-    threadsList.innerHTML=`&lt;div class=&quot;thread-empty&quot;&gt;${escapeChat(error.message)}&lt;/div&gt;`;
-    setThreadStatus(threadsStatus,&#x27;&#x27;,&#x27;normal&#x27;);
+    threadsList.innerHTML=`<div class="thread-empty">${escapeChat(error.message)}</div>`;
+    setThreadStatus(threadsStatus,'','normal');
     return;
   }
 
   let rows=data || [];
-  const search=String(threadSearchTerm || &#x27;&#x27;).trim().toLowerCase();
+  const search=String(threadSearchTerm || '').trim().toLowerCase();
 
   if(search){
-    rows=rows.filter(row=&gt;{
+    rows=rows.filter(row=>{
       const haystack=[row.title,row.body,row.author_name,row.category]
-        .map(x=&gt;String(x || &#x27;&#x27;).toLowerCase()).join(&#x27; &#x27;);
+        .map(x=>String(x || '').toLowerCase()).join(' ');
       return haystack.includes(search);
     });
   }
 
   if(threadBookmarksOnly){
-    rows=rows.filter(row=&gt;threadBookmarkedIds.has(Number(row.id)));
+    rows=rows.filter(row=>threadBookmarkedIds.has(Number(row.id)));
   }
 
   threadRows=rows;
 
   if(!threadRows.length){
     const message=threadBookmarksOnly
-      ? &#x27;No bookmarked threads match this view.&#x27;
-      : (search ? &#x27;No threads matched your search.&#x27; : &#x27;No threads here yet. Be the first to start one.&#x27;);
-    threadsList.innerHTML=`&lt;div class=&quot;thread-empty&quot;&gt;${message}&lt;/div&gt;`;
-    setThreadStatus(threadsStatus,&#x27;&#x27;);
+      ? 'No bookmarked threads match this view.'
+      : (search ? 'No threads matched your search.' : 'No threads here yet. Be the first to start one.');
+    threadsList.innerHTML=`<div class="thread-empty">${message}</div>`;
+    setThreadStatus(threadsStatus,'');
     return;
   }
 
-  const ids=threadRows.map(x=&gt;x.id);
+  const ids=threadRows.map(x=>x.id);
   let counts={};
 
   if(ids.length){
     const {data:replyRows,error:replyCountError}=await client
-      .from(&#x27;forum_replies&#x27;).select(&#x27;thread_id&#x27;).in(&#x27;thread_id&#x27;,ids);
+      .from('forum_replies').select('thread_id').in('thread_id',ids);
 
     if(!replyCountError){
-      counts=(replyRows || []).reduce((acc,row)=&gt;{
+      counts=(replyRows || []).reduce((acc,row)=>{
         acc[row.thread_id]=(acc[row.thread_id] || 0)+1;
         return acc;
       },{});
     }
   }
 
-  const threadStaffRoleMap=await loadPublicStaffRoles(threadRows.map(row=&gt;row.author_id));
+  const threadStaffRoleMap=await loadPublicStaffRoles(threadRows.map(row=>row.author_id));
   const threadReactionMap=await loadReactionState(
-    &#x27;thread&#x27;,ids,threadSession?.user?.id || null
+    'thread',ids,threadSession?.user?.id || null
   );
 
-  threadsList.innerHTML=threadRows.map(row=&gt;{
-    const preview=String(row.body || &#x27;&#x27;).replace(/\s+/g,&#x27; &#x27;).trim();
+  threadsList.innerHTML=threadRows.map(row=>{
+    const preview=String(row.body || '').replace(/\s+/g,' ').trim();
     const media=threadAllMedia(row);
     const saved=threadBookmarkedIds.has(Number(row.id));
 
     return `
-      &lt;div class=&quot;thread-card&quot; role=&quot;button&quot; tabindex=&quot;0&quot; data-open-thread=&quot;${row.id}&quot;&gt;
-        &lt;div class=&quot;thread-card-top&quot;&gt;
-          &lt;span class=&quot;thread-category&quot;&gt;${escapeChat(row.category || &#x27;General&#x27;)}&lt;/span&gt;
-          &lt;span class=&quot;thread-card-time&quot;&gt;${escapeChat(threadTime(row.created_at))}&lt;/span&gt;
-        &lt;/div&gt;
+      <div class="thread-card" role="button" tabindex="0" data-open-thread="${row.id}">
+        <div class="thread-card-top">
+          <span class="thread-category">${escapeChat(row.category || 'General')}</span>
+          <span class="thread-card-time">${escapeChat(threadTime(row.created_at))}</span>
+        </div>
 
-        &lt;div class=&quot;thread-card-title&quot;&gt;${escapeChat(row.title || &#x27;Untitled&#x27;)}&lt;/div&gt;
-        ${preview ? `&lt;div class=&quot;thread-card-preview&quot;&gt;${escapeChat(preview)}&lt;/div&gt;` : &#x27;&#x27;}
+        <div class="thread-card-title">${escapeChat(row.title || 'Untitled')}</div>
+        ${preview ? `<div class="thread-card-preview">${escapeChat(preview)}</div>` : ''}
 
         ${media.length ? `
-          &lt;div class=&quot;thread-card-media&quot;&gt;
-            &lt;img src=&quot;${escapeChat(media[0])}&quot; alt=&quot;Thread photo&quot; loading=&quot;lazy&quot;&gt;
-            ${media.length&gt;1 ? `&lt;span class=&quot;thread-card-media-count&quot;&gt;📷 ${media.length}&lt;/span&gt;` : &#x27;&#x27;}
-          &lt;/div&gt;` : &#x27;&#x27;}
+          <div class="thread-card-media">
+            <img src="${escapeChat(media[0])}" alt="Thread photo" loading="lazy">
+            ${media.length>1 ? `<span class="thread-card-media-count">📷 ${media.length}</span>` : ''}
+          </div>` : ''}
 
-        &lt;div class=&quot;thread-card-meta&quot;&gt;
-          &lt;span class=&quot;thread-card-author&quot;&gt;by ${escapeChat(row.author_name || &#x27;Member&#x27;)}${staffBadgeMarkup(threadStaffRoleMap[row.author_id] || null)}&lt;/span&gt;
-          &lt;span&gt;${Number(counts[row.id] || 0)} ${Number(counts[row.id] || 0)===1 ? &#x27;reply&#x27; : &#x27;replies&#x27;}&lt;/span&gt;
-          ${media.length ? `&lt;span class=&quot;thread-card-has-photo&quot;&gt;📷 ${media.length} photo${media.length===1?&#x27;&#x27;:&#x27;s&#x27;}&lt;/span&gt;` : &#x27;&#x27;}
-          ${row.is_locked ? &#x27;&lt;span class=&quot;thread-card-locked&quot;&gt;🔒 Locked&lt;/span&gt;&#x27; : &#x27;&#x27;}
+        <div class="thread-card-meta">
+          <span class="thread-card-author">by ${escapeChat(row.author_name || 'Member')}${staffBadgeMarkup(threadStaffRoleMap[row.author_id] || null)}</span>
+          <span>${Number(counts[row.id] || 0)} ${Number(counts[row.id] || 0)===1 ? 'reply' : 'replies'}</span>
+          ${media.length ? `<span class="thread-card-has-photo">📷 ${media.length} photo${media.length===1?'':'s'}</span>` : ''}
+          ${row.is_locked ? '<span class="thread-card-locked">🔒 Locked</span>' : ''}
           ${threadSession?.user ? `
-            &lt;button class=&quot;thread-card-bookmark ${saved ? &#x27;saved&#x27; : &#x27;&#x27;}&quot; type=&quot;button&quot;
-                    data-thread-bookmark=&quot;${Number(row.id)}&quot;&gt;
-              ${saved ? &#x27;🔖 Saved&#x27; : &#x27;🔖 Save&#x27;}
-            &lt;/button&gt;` : &#x27;&#x27;}
-        &lt;/div&gt;
+            <button class="thread-card-bookmark ${saved ? 'saved' : ''}" type="button"
+                    data-thread-bookmark="${Number(row.id)}">
+              ${saved ? '🔖 Saved' : '🔖 Save'}
+            </button>` : ''}
+        </div>
 
-        ${reactionBarHtml(&#x27;thread&#x27;,row.id,threadReactionMap[Number(row.id)] || {},&#x27;thread-card-reactions&#x27;)}
-      &lt;/div&gt;`;
-  }).join(&#x27;&#x27;);
+        ${reactionBarHtml('thread',row.id,threadReactionMap[Number(row.id)] || {},'thread-card-reactions')}
+      </div>`;
+  }).join('');
 
-  setThreadStatus(threadsStatus,&#x27;&#x27;);
+  setThreadStatus(threadsStatus,'');
 }
 
 async function createThread(){
@@ -6899,44 +6879,44 @@ async function createThread(){
   const session = await getChatSession();
 
   if(!client || !session?.user){
-    setThreadStatus(threadComposerStatus,&#x27;Log in to create a thread.&#x27;,&#x27;error&#x27;);
+    setThreadStatus(threadComposerStatus,'Log in to create a thread.','error');
     return;
   }
 
-  const title = String(threadTitle?.value || &#x27;&#x27;).trim();
-  const body = String(threadBody?.value || &#x27;&#x27;).trim();
-  const category = String(threadCategory?.value || &#x27;General&#x27;);
+  const title = String(threadTitle?.value || '').trim();
+  const body = String(threadBody?.value || '').trim();
+  const category = String(threadCategory?.value || 'General');
   const pollDraft=collectThreadPollDraft();
 
-  if(title.length &lt; 3){
-    setThreadStatus(threadComposerStatus,&#x27;Give your thread a title.&#x27;,&#x27;error&#x27;);
+  if(title.length < 3){
+    setThreadStatus(threadComposerStatus,'Give your thread a title.','error');
     return;
   }
-  if(body.length &lt; 2 &amp;&amp; !threadMediaFiles.length &amp;&amp; !pollDraft.enabled){
-    setThreadStatus(threadComposerStatus,&#x27;Write something, add a photo, or add a poll.&#x27;,&#x27;error&#x27;);
+  if(body.length < 2 && !threadMediaFiles.length && !pollDraft.enabled){
+    setThreadStatus(threadComposerStatus,'Write something, add a photo, or add a poll.','error');
     return;
   }
 
   if(pollDraft.error){
-    setThreadStatus(threadComposerStatus,pollDraft.error,&#x27;error&#x27;);
+    setThreadStatus(threadComposerStatus,pollDraft.error,'error');
     return;
   }
 
   threadPosting = true;
   if(createThreadBtn) createThreadBtn.disabled = true;
-  setThreadStatus(threadComposerStatus,&#x27;Posting...&#x27;);
+  setThreadStatus(threadComposerStatus,'Posting...');
 
   let uploadedMedia = {urls:[],paths:[]};
 
   try{
     if(threadMediaFiles.length){
-      setThreadStatus(threadComposerStatus,`Uploading ${threadMediaFiles.length} photo${threadMediaFiles.length===1?&#x27;&#x27;:&#x27;s&#x27;}...`);
-      uploadedMedia=await uploadThreadMediaFiles(threadMediaFiles,session.user.id,&#x27;threads&#x27;);
-      setThreadStatus(threadComposerStatus,&#x27;Posting thread...&#x27;);
+      setThreadStatus(threadComposerStatus,`Uploading ${threadMediaFiles.length} photo${threadMediaFiles.length===1?'':'s'}...`);
+      uploadedMedia=await uploadThreadMediaFiles(threadMediaFiles,session.user.id,'threads');
+      setThreadStatus(threadComposerStatus,'Posting thread...');
     }
 
     const { data, error } = await client
-      .from(&#x27;forum_threads&#x27;)
+      .from('forum_threads')
       .insert({
         author_id:session.user.id,
         author_name:chatDisplayName(session.user),
@@ -6948,7 +6928,7 @@ async function createThread(){
         media_urls:uploadedMedia.urls,
         media_paths:uploadedMedia.paths
       })
-      .select(&#x27;id&#x27;)
+      .select('id')
       .single();
 
     if(error){
@@ -6957,7 +6937,7 @@ async function createThread(){
     }
 
     if(pollDraft.enabled){
-      const {error:pollError}=await client.rpc(&#x27;create_thread_poll&#x27;,{
+      const {error:pollError}=await client.rpc('create_thread_poll',{
         target_thread_id:Number(data.id),
         poll_question:pollDraft.question,
         poll_options:pollDraft.options
@@ -6965,7 +6945,7 @@ async function createThread(){
 
       if(pollError){
         // Keep the database clean if the thread was created but its poll failed.
-        try{ await client.from(&#x27;forum_threads&#x27;).delete().eq(&#x27;id&#x27;,Number(data.id)); }catch(_){}
+        try{ await client.from('forum_threads').delete().eq('id',Number(data.id)); }catch(_){}
         if(uploadedMedia.paths.length){
           await cleanupUploadedThreadMedia(uploadedMedia.paths);
           uploadedMedia={urls:[],paths:[]};
@@ -6974,17 +6954,17 @@ async function createThread(){
       }
     }
 
-    if(threadTitle) threadTitle.value = &#x27;&#x27;;
-    if(threadBody) threadBody.value = &#x27;&#x27;;
+    if(threadTitle) threadTitle.value = '';
+    if(threadBody) threadBody.value = '';
     clearThreadMediaSelection();
     resetThreadPollComposer();
-    if(threadComposer) threadComposer.classList.add(&#x27;hidden&#x27;);
-    setThreadStatus(threadComposerStatus,&#x27;✓ THREAD POSTED&#x27;,&#x27;success&#x27;);
+    if(threadComposer) threadComposer.classList.add('hidden');
+    setThreadStatus(threadComposerStatus,'✓ THREAD POSTED','success');
 
     await loadThreads();
     if(data?.id) await openThread(Number(data.id));
   }catch(err){
-    setThreadStatus(threadComposerStatus, err?.message || String(err), &#x27;error&#x27;);
+    setThreadStatus(threadComposerStatus, err?.message || String(err), 'error');
   }finally{
     threadPosting = false;
     if(createThreadBtn) createThreadBtn.disabled = false;
@@ -6994,9 +6974,9 @@ async function createThread(){
 
 function clearThreadReplyTarget(){
   threadReplyTarget = null;
-  threadReplyTargetBar?.classList.add(&#x27;hidden&#x27;);
-  if(threadReplyTargetName) threadReplyTargetName.textContent = &#x27;Member&#x27;;
-  if(threadReplyTargetPreview) threadReplyTargetPreview.textContent = &#x27;&#x27;;
+  threadReplyTargetBar?.classList.add('hidden');
+  if(threadReplyTargetName) threadReplyTargetName.textContent = 'Member';
+  if(threadReplyTargetPreview) threadReplyTargetPreview.textContent = '';
 }
 
 function startThreadReplyTo(row){
@@ -7004,9 +6984,9 @@ function startThreadReplyTo(row){
 
   threadReplyTarget = {
     id:Number(row.id),
-    author_id:String(row.author_id || &#x27;&#x27;),
-    author_name:String(row.author_name || &#x27;Member&#x27;),
-    body:String(row.body || &#x27;&#x27;)
+    author_id:String(row.author_id || ''),
+    author_name:String(row.author_name || 'Member'),
+    body:String(row.body || '')
   };
 
   if(threadReplyTargetName){
@@ -7014,25 +6994,25 @@ function startThreadReplyTo(row){
   }
 
   if(threadReplyTargetPreview){
-    const preview = threadReplyTarget.body.replace(/\s+/g,&#x27; &#x27;).trim();
+    const preview = threadReplyTarget.body.replace(/\s+/g,' ').trim();
     threadReplyTargetPreview.textContent =
-      preview.length &gt; 120 ? preview.slice(0,120) + &#x27;…&#x27; : preview;
+      preview.length > 120 ? preview.slice(0,120) + '…' : preview;
   }
 
-  threadReplyTargetBar?.classList.remove(&#x27;hidden&#x27;);
+  threadReplyTargetBar?.classList.remove('hidden');
   threadReplyInput?.focus();
 }
 
 function jumpToThreadReply(replyId){
-  const target = threadReplies?.querySelector(`[data-thread-reply-id=&quot;${Number(replyId)}&quot;]`);
+  const target = threadReplies?.querySelector(`[data-thread-reply-id="${Number(replyId)}"]`);
   if(!target) return;
 
-  target.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
-  target.classList.remove(&#x27;reply-highlight&#x27;);
+  target.scrollIntoView({behavior:'smooth',block:'center'});
+  target.classList.remove('reply-highlight');
   void target.offsetWidth;
-  target.classList.add(&#x27;reply-highlight&#x27;);
+  target.classList.add('reply-highlight');
 
-  setTimeout(() =&gt; target.classList.remove(&#x27;reply-highlight&#x27;),1500);
+  setTimeout(() => target.classList.remove('reply-highlight'),1500);
 }
 
 function updateThreadReplyComposer(session){
@@ -7041,29 +7021,29 @@ function updateThreadReplyComposer(session){
   const signedIn = !!session?.user;
   const locked = !!activeThread?.is_locked;
 
-  threadReplyLocked.classList.toggle(&#x27;hidden&#x27;, !locked);
+  threadReplyLocked.classList.toggle('hidden', !locked);
 
   if(locked){
     threadReplyInput.disabled = true;
     threadReplyBtn.disabled = true;
     if(threadReplyMediaInput) threadReplyMediaInput.disabled = true;
-    threadReplyMediaLabel?.classList.add(&#x27;disabled&#x27;);
-    threadReplyInput.placeholder = &#x27;This thread is locked.&#x27;;
-    threadReplyBtn.textContent = &#x27;Locked&#x27;;
+    threadReplyMediaLabel?.classList.add('disabled');
+    threadReplyInput.placeholder = 'This thread is locked.';
+    threadReplyBtn.textContent = 'Locked';
   }else if(!signedIn){
     threadReplyInput.disabled = true;
     threadReplyBtn.disabled = true;
     if(threadReplyMediaInput) threadReplyMediaInput.disabled = true;
-    threadReplyMediaLabel?.classList.add(&#x27;disabled&#x27;);
-    threadReplyInput.placeholder = &#x27;Log in to reply...&#x27;;
-    threadReplyBtn.textContent = &#x27;Log in to reply&#x27;;
+    threadReplyMediaLabel?.classList.add('disabled');
+    threadReplyInput.placeholder = 'Log in to reply...';
+    threadReplyBtn.textContent = 'Log in to reply';
   }else{
     threadReplyInput.disabled = false;
     threadReplyBtn.disabled = false;
     if(threadReplyMediaInput) threadReplyMediaInput.disabled = false;
-    threadReplyMediaLabel?.classList.remove(&#x27;disabled&#x27;);
-    threadReplyInput.placeholder = &#x27;Write a reply or add a photo...&#x27;;
-    threadReplyBtn.textContent = &#x27;Reply&#x27;;
+    threadReplyMediaLabel?.classList.remove('disabled');
+    threadReplyInput.placeholder = 'Write a reply or add a photo...';
+    threadReplyBtn.textContent = 'Reply';
   }
 }
 
@@ -7074,14 +7054,14 @@ async function loadThreadReplies(threadId){
   if(!client || !threadReplies) return;
 
   const { data, error } = await client
-    .from(&#x27;forum_replies&#x27;)
-    .select(&#x27;id,thread_id,author_id,author_name,body,reply_to_id,media_url,media_path,media_urls,media_paths,created_at&#x27;)
-    .eq(&#x27;thread_id&#x27;, threadId)
-    .order(&#x27;created_at&#x27;,{ascending:true})
+    .from('forum_replies')
+    .select('id,thread_id,author_id,author_name,body,reply_to_id,media_url,media_path,media_urls,media_paths,created_at')
+    .eq('thread_id', threadId)
+    .order('created_at',{ascending:true})
     .limit(300);
 
   if(error){
-    threadReplies.innerHTML = `&lt;div class=&quot;thread-empty&quot;&gt;${escapeChat(error.message)}&lt;/div&gt;`;
+    threadReplies.innerHTML = `<div class="thread-empty">${escapeChat(error.message)}</div>`;
     return;
   }
 
@@ -7089,82 +7069,82 @@ async function loadThreadReplies(threadId){
   if(threadReplyCount) threadReplyCount.textContent = String(rows.length);
 
   if(!rows.length){
-    threadReplies.innerHTML = &#x27;&lt;div class=&quot;thread-empty&quot;&gt;No replies yet. Start the conversation.&lt;/div&gt;&#x27;;
+    threadReplies.innerHTML = '<div class="thread-empty">No replies yet. Start the conversation.</div>';
     return;
   }
 
   const me = session?.user?.id || null;
-  const rowMap = new Map(rows.map(row =&gt; [Number(row.id),row]));
-  const canReply = !!me &amp;&amp; !activeThread?.is_locked;
+  const rowMap = new Map(rows.map(row => [Number(row.id),row]));
+  const canReply = !!me && !activeThread?.is_locked;
 
   const threadReplyStaffRoleMap = await loadPublicStaffRoles(
-    rows.map(row =&gt; row.author_id)
+    rows.map(row => row.author_id)
   );
 
   const threadReplyReactionMap = await loadReactionState(
-    &#x27;thread_reply&#x27;,
-    rows.map(row =&gt; row.id),
+    'thread_reply',
+    rows.map(row => row.id),
     me
   );
 
-  threadReplies.innerHTML = rows.map(row =&gt; {
-    const canDelete = !!me &amp;&amp; (row.author_id === me || canModerateThreads());
-    const canReport = !!me &amp;&amp; row.author_id !== me;
+  threadReplies.innerHTML = rows.map(row => {
+    const canDelete = !!me && (row.author_id === me || canModerateThreads());
+    const canReport = !!me && row.author_id !== me;
     const quoted = row.reply_to_id ? rowMap.get(Number(row.reply_to_id)) : null;
     const quotedPreview = quoted
-      ? String(quoted.body || &#x27;&#x27;).replace(/\s+/g,&#x27; &#x27;).trim()
-      : &#x27;&#x27;;
+      ? String(quoted.body || '').replace(/\s+/g,' ').trim()
+      : '';
 
     return `
-      &lt;div class=&quot;thread-reply&quot; data-thread-reply-id=&quot;${row.id}&quot;&gt;
+      <div class="thread-reply" data-thread-reply-id="${row.id}">
         ${quoted ? `
-          &lt;button class=&quot;thread-quoted-reply&quot;
-                  type=&quot;button&quot;
-                  data-jump-thread-reply=&quot;${quoted.id}&quot;&gt;
-            &lt;strong&gt;Replying to ${escapeChat(quoted.author_name || &#x27;Member&#x27;)}&lt;/strong&gt;
-            &lt;span&gt;${escapeChat(quotedPreview.length &gt; 150 ? quotedPreview.slice(0,150) + &#x27;…&#x27; : quotedPreview)}&lt;/span&gt;
-          &lt;/button&gt;` : &#x27;&#x27;}
+          <button class="thread-quoted-reply"
+                  type="button"
+                  data-jump-thread-reply="${quoted.id}">
+            <strong>Replying to ${escapeChat(quoted.author_name || 'Member')}</strong>
+            <span>${escapeChat(quotedPreview.length > 150 ? quotedPreview.slice(0,150) + '…' : quotedPreview)}</span>
+          </button>` : ''}
 
-        &lt;div class=&quot;thread-reply-head&quot;&gt;
-          &lt;span class=&quot;thread-reply-author-wrap&quot;&gt;
-            &lt;span class=&quot;thread-reply-author&quot;&gt;${escapeChat(row.author_name || &#x27;Member&#x27;)}&lt;/span&gt;
+        <div class="thread-reply-head">
+          <span class="thread-reply-author-wrap">
+            <span class="thread-reply-author">${escapeChat(row.author_name || 'Member')}</span>
             ${staffBadgeMarkup(threadReplyStaffRoleMap[row.author_id] || null)}
-          &lt;/span&gt;
-          &lt;span class=&quot;thread-reply-time&quot;&gt;${escapeChat(threadTime(row.created_at))}&lt;/span&gt;
-        &lt;/div&gt;
+          </span>
+          <span class="thread-reply-time">${escapeChat(threadTime(row.created_at))}</span>
+        </div>
 
-        ${row.body ? `&lt;div class=&quot;thread-reply-body&quot;&gt;${chatTextWithMentions(row.body || &#x27;&#x27;)}&lt;/div&gt;` : &#x27;&#x27;}
+        ${row.body ? `<div class="thread-reply-body">${chatTextWithMentions(row.body || '')}</div>` : ''}
 
         ${threadAllMedia(row).length
-          ? `&lt;div class=&quot;thread-reply-media&quot;&gt;${threadMediaGalleryMarkup(threadAllMedia(row))}&lt;/div&gt;`
-          : &#x27;&#x27;}
+          ? `<div class="thread-reply-media">${threadMediaGalleryMarkup(threadAllMedia(row))}</div>`
+          : ''}
 
         ${reactionBarHtml(
-          &#x27;thread_reply&#x27;,
+          'thread_reply',
           row.id,
           threadReplyReactionMap[Number(row.id)] || {}
         )}
 
         ${(canReply || canDelete || canReport) ? `
-          &lt;div class=&quot;thread-reply-actions&quot;&gt;
+          <div class="thread-reply-actions">
             ${canReply ? `
-              &lt;button class=&quot;thread-reply-reply&quot;
-                      type=&quot;button&quot;
-                      data-reply-thread-user=&quot;${row.id}&quot;&gt;Reply&lt;/button&gt;` : &#x27;&#x27;}
+              <button class="thread-reply-reply"
+                      type="button"
+                      data-reply-thread-user="${row.id}">Reply</button>` : ''}
             ${canReport ? `
-              &lt;button class=&quot;content-report-btn&quot;
-                      type=&quot;button&quot;
-                      data-content-report=&quot;thread_reply&quot;
-                      data-report-id=&quot;${row.id}&quot;
-                      data-report-user=&quot;${escapeChat(row.author_id || &#x27;&#x27;)}&quot;
-                      data-report-label=&quot;Reply by ${escapeChat(row.author_name || &#x27;Member&#x27;)}&quot;&gt;Report&lt;/button&gt;` : &#x27;&#x27;}
+              <button class="content-report-btn"
+                      type="button"
+                      data-content-report="thread_reply"
+                      data-report-id="${row.id}"
+                      data-report-user="${escapeChat(row.author_id || '')}"
+                      data-report-label="Reply by ${escapeChat(row.author_name || 'Member')}">Report</button>` : ''}
             ${canDelete ? `
-              &lt;button class=&quot;thread-reply-delete&quot;
-                      type=&quot;button&quot;
-                      data-delete-thread-reply=&quot;${row.id}&quot;&gt;Delete&lt;/button&gt;` : &#x27;&#x27;}
-          &lt;/div&gt;` : &#x27;&#x27;}
-      &lt;/div&gt;`;
-  }).join(&#x27;&#x27;);
+              <button class="thread-reply-delete"
+                      type="button"
+                      data-delete-thread-reply="${row.id}">Delete</button>` : ''}
+          </div>` : ''}
+      </div>`;
+  }).join('');
 
   // Keep enough row data available for reply buttons without another database request.
   threadReplies._gymcelsRows = rows;
@@ -7181,33 +7161,33 @@ async function openThread(threadId){
   }
 
   const { data, error } = await client
-    .from(&#x27;forum_threads&#x27;)
-    .select(&#x27;id,author_id,author_name,title,body,category,is_locked,media_url,media_path,media_urls,media_paths,created_at&#x27;)
-    .eq(&#x27;id&#x27;, threadId)
+    .from('forum_threads')
+    .select('id,author_id,author_name,title,body,category,is_locked,media_url,media_path,media_urls,media_paths,created_at')
+    .eq('id', threadId)
     .maybeSingle();
 
   if(error || !data){
-    setThreadStatus(threadsStatus, error?.message || &#x27;Thread not found.&#x27;, &#x27;error&#x27;);
+    setThreadStatus(threadsStatus, error?.message || 'Thread not found.', 'error');
     return;
   }
 
   activeThread = data;
 
-  threadViewCategory.textContent = data.category || &#x27;General&#x27;;
-  threadViewTitle.textContent = data.title || &#x27;Thread&#x27;;
-  threadViewAuthor.textContent = data.author_name || &#x27;Member&#x27;;
+  threadViewCategory.textContent = data.category || 'General';
+  threadViewTitle.textContent = data.title || 'Thread';
+  threadViewAuthor.textContent = data.author_name || 'Member';
   threadViewTime.textContent = threadTime(data.created_at);
-  threadViewBody.textContent = data.body || &#x27;&#x27;;
-  threadViewBody.classList.toggle(&#x27;hidden&#x27;, !String(data.body || &#x27;&#x27;).trim());
+  threadViewBody.textContent = data.body || '';
+  threadViewBody.classList.toggle('hidden', !String(data.body || '').trim());
 
   if(threadViewMedia){
     const media=threadAllMedia(data);
     if(media.length){
       threadViewMedia.innerHTML=threadMediaGalleryMarkup(media);
-      threadViewMedia.classList.remove(&#x27;hidden&#x27;);
+      threadViewMedia.classList.remove('hidden');
     }else{
-      threadViewMedia.innerHTML=&#x27;&#x27;;
-      threadViewMedia.classList.add(&#x27;hidden&#x27;);
+      threadViewMedia.innerHTML='';
+      threadViewMedia.classList.add('hidden');
     }
   }
 
@@ -7217,27 +7197,27 @@ async function openThread(threadId){
   }
 
   const threadViewReactionMap = await loadReactionState(
-    &#x27;thread&#x27;,
+    'thread',
     [data.id],
     session?.user?.id || null
   );
 
   if(threadViewReactions){
     threadViewReactions.innerHTML = reactionBarHtml(
-      &#x27;thread&#x27;,
+      'thread',
       data.id,
       threadViewReactionMap[Number(data.id)] || {},
-      &#x27;reaction-bar-thread&#x27;
+      'reaction-bar-thread'
     );
   }
 
-  const canManage = !!session?.user &amp;&amp; (data.author_id === session.user.id || canModerateThreads());
-  threadOwnerActions.classList.toggle(&#x27;hidden&#x27;, !canManage);
+  const canManage = !!session?.user && (data.author_id === session.user.id || canModerateThreads());
+  threadOwnerActions.classList.toggle('hidden', !canManage);
 
-  const threadReportBtn = document.getElementById(&#x27;threadReportBtn&#x27;);
+  const threadReportBtn = document.getElementById('threadReportBtn');
   if(threadReportBtn){
     threadReportBtn.classList.toggle(
-      &#x27;hidden&#x27;,
+      'hidden',
       !session?.user || data.author_id === session.user.id
     );
   }
@@ -7246,14 +7226,14 @@ async function openThread(threadId){
   updateThreadViewBookmark(session);
 
   if(threadLockBtn){
-    threadLockBtn.textContent = data.is_locked ? &#x27;Unlock Thread&#x27; : &#x27;Lock Thread&#x27;;
+    threadLockBtn.textContent = data.is_locked ? 'Unlock Thread' : 'Lock Thread';
   }
 
-  setThreadStatus(threadReplyStatus,&#x27;&#x27;);
+  setThreadStatus(threadReplyStatus,'');
   updateThreadReplyComposer(session);
 
-  threadOverlay.classList.add(&#x27;show&#x27;);
-  threadOverlay.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
+  threadOverlay.classList.add('show');
+  threadOverlay.setAttribute('aria-hidden','false');
 
   await loadThreadReplies(data.id);
   await loadThreadPoll(data.id,session);
@@ -7261,18 +7241,18 @@ async function openThread(threadId){
 
 function closeThread(){
   if(!threadOverlay) return;
-  threadOverlay.classList.remove(&#x27;show&#x27;);
-  threadOverlay.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+  threadOverlay.classList.remove('show');
+  threadOverlay.setAttribute('aria-hidden','true');
   activeThread = null;
-  document.getElementById(&#x27;threadReportBtn&#x27;)?.classList.add(&#x27;hidden&#x27;);
+  document.getElementById('threadReportBtn')?.classList.add('hidden');
   if(threadViewPoll){
-    threadViewPoll.innerHTML=&#x27;&#x27;;
-    threadViewPoll.classList.add(&#x27;hidden&#x27;);
+    threadViewPoll.innerHTML='';
+    threadViewPoll.classList.add('hidden');
   }
-  if(threadReplyInput) threadReplyInput.value = &#x27;&#x27;;
+  if(threadReplyInput) threadReplyInput.value = '';
   clearThreadReplyMediaSelection();
   clearThreadReplyTarget();
-  setThreadStatus(threadReplyStatus,&#x27;&#x27;);
+  setThreadStatus(threadReplyStatus,'');
 }
 
 async function postThreadReply(){
@@ -7282,36 +7262,36 @@ async function postThreadReply(){
   const session = await getChatSession();
 
   if(!client || !session?.user){
-    setThreadStatus(threadReplyStatus,&#x27;Log in to reply.&#x27;,&#x27;error&#x27;);
+    setThreadStatus(threadReplyStatus,'Log in to reply.','error');
     return;
   }
 
   if(activeThread.is_locked){
-    setThreadStatus(threadReplyStatus,&#x27;This thread is locked.&#x27;,&#x27;error&#x27;);
+    setThreadStatus(threadReplyStatus,'This thread is locked.','error');
     return;
   }
 
-  const body = String(threadReplyInput?.value || &#x27;&#x27;).trim();
-  if(!body &amp;&amp; !threadReplyMediaFiles.length){
-    setThreadStatus(threadReplyStatus,&#x27;Write a reply or add a photo.&#x27;,&#x27;error&#x27;);
+  const body = String(threadReplyInput?.value || '').trim();
+  if(!body && !threadReplyMediaFiles.length){
+    setThreadStatus(threadReplyStatus,'Write a reply or add a photo.','error');
     return;
   }
 
   threadReplyPosting = true;
   if(threadReplyBtn) threadReplyBtn.disabled = true;
-  setThreadStatus(threadReplyStatus,&#x27;Posting reply...&#x27;);
+  setThreadStatus(threadReplyStatus,'Posting reply...');
 
   let uploadedMedia = {urls:[],paths:[]};
 
   try{
     if(threadReplyMediaFiles.length){
-      setThreadStatus(threadReplyStatus,`Uploading ${threadReplyMediaFiles.length} photo${threadReplyMediaFiles.length===1?&#x27;&#x27;:&#x27;s&#x27;}...`);
-      uploadedMedia=await uploadThreadMediaFiles(threadReplyMediaFiles,session.user.id,&#x27;replies&#x27;);
-      setThreadStatus(threadReplyStatus,&#x27;Posting reply...&#x27;);
+      setThreadStatus(threadReplyStatus,`Uploading ${threadReplyMediaFiles.length} photo${threadReplyMediaFiles.length===1?'':'s'}...`);
+      uploadedMedia=await uploadThreadMediaFiles(threadReplyMediaFiles,session.user.id,'replies');
+      setThreadStatus(threadReplyStatus,'Posting reply...');
     }
 
     const { error } = await client
-      .from(&#x27;forum_replies&#x27;)
+      .from('forum_replies')
       .insert({
         thread_id:activeThread.id,
         author_id:session.user.id,
@@ -7329,16 +7309,16 @@ async function postThreadReply(){
       throw error;
     }
 
-    threadReplyInput.value = &#x27;&#x27;;
+    threadReplyInput.value = '';
     clearThreadReplyMediaSelection();
     clearThreadReplyTarget();
-    setThreadStatus(threadReplyStatus,&#x27;✓ REPLY POSTED&#x27;,&#x27;success&#x27;);
+    setThreadStatus(threadReplyStatus,'✓ REPLY POSTED','success');
 
     await loadThreadReplies(activeThread.id);
     await loadThreads();
-    setTimeout(() =&gt; setThreadStatus(threadReplyStatus,&#x27;&#x27;), 2000);
+    setTimeout(() => setThreadStatus(threadReplyStatus,''), 2000);
   }catch(err){
-    setThreadStatus(threadReplyStatus,err?.message || String(err),&#x27;error&#x27;);
+    setThreadStatus(threadReplyStatus,err?.message || String(err),'error');
   }finally{
     threadReplyPosting = false;
     updateThreadReplyComposer(session);
@@ -7348,21 +7328,21 @@ async function postThreadReply(){
 async function deleteThread(threadId){
   const client=window.gymcelsLolDb;
   if(!client || !threadId) return;
-  if(!confirm(&#x27;Delete this entire thread and all of its replies?&#x27;)) return;
+  if(!confirm('Delete this entire thread and all of its replies?')) return;
 
   let mediaPaths=[];
   try{
     const [threadRes,repliesRes]=await Promise.all([
-      client.from(&#x27;forum_threads&#x27;).select(&#x27;media_path,media_paths&#x27;).eq(&#x27;id&#x27;,threadId).maybeSingle(),
-      client.from(&#x27;forum_replies&#x27;).select(&#x27;media_path,media_paths&#x27;).eq(&#x27;thread_id&#x27;,threadId)
+      client.from('forum_threads').select('media_path,media_paths').eq('id',threadId).maybeSingle(),
+      client.from('forum_replies').select('media_path,media_paths').eq('thread_id',threadId)
     ]);
     if(threadRes.data) mediaPaths.push(...threadAllMediaPaths(threadRes.data));
-    (repliesRes.data || []).forEach(row=&gt;mediaPaths.push(...threadAllMediaPaths(row)));
+    (repliesRes.data || []).forEach(row=>mediaPaths.push(...threadAllMediaPaths(row)));
   }catch(_){}
 
-  const {error}=await client.from(&#x27;forum_threads&#x27;).delete().eq(&#x27;id&#x27;,threadId);
+  const {error}=await client.from('forum_threads').delete().eq('id',threadId);
   if(error){
-    setThreadStatus(threadReplyStatus,error.message,&#x27;error&#x27;);
+    setThreadStatus(threadReplyStatus,error.message,'error');
     return;
   }
 
@@ -7378,18 +7358,18 @@ async function toggleThreadLock(){
   if(!client) return;
 
   const nextLocked = !activeThread.is_locked;
-  const { error } = await client.rpc(&#x27;set_thread_locked&#x27;, {
+  const { error } = await client.rpc('set_thread_locked', {
     target_thread_id:activeThread.id,
     locked_value:nextLocked
   });
 
   if(error){
-    setThreadStatus(threadReplyStatus,error.message,&#x27;error&#x27;);
+    setThreadStatus(threadReplyStatus,error.message,'error');
     return;
   }
 
   activeThread.is_locked = nextLocked;
-  threadLockBtn.textContent = nextLocked ? &#x27;Unlock Thread&#x27; : &#x27;Lock Thread&#x27;;
+  threadLockBtn.textContent = nextLocked ? 'Unlock Thread' : 'Lock Thread';
 
   const session = await getChatSession();
   updateThreadReplyComposer(session);
@@ -7400,18 +7380,18 @@ async function toggleThreadLock(){
 async function deleteThreadReply(replyId){
   const client=window.gymcelsLolDb;
   if(!client || !replyId || !activeThread) return;
-  if(!confirm(&#x27;Delete this reply?&#x27;)) return;
+  if(!confirm('Delete this reply?')) return;
 
   let mediaPaths=[];
   try{
-    const {data}=await client.from(&#x27;forum_replies&#x27;)
-      .select(&#x27;media_path,media_paths&#x27;).eq(&#x27;id&#x27;,replyId).maybeSingle();
+    const {data}=await client.from('forum_replies')
+      .select('media_path,media_paths').eq('id',replyId).maybeSingle();
     if(data) mediaPaths=threadAllMediaPaths(data);
   }catch(_){}
 
-  const {error}=await client.from(&#x27;forum_replies&#x27;).delete().eq(&#x27;id&#x27;,replyId);
+  const {error}=await client.from('forum_replies').delete().eq('id',replyId);
   if(error){
-    setThreadStatus(threadReplyStatus,error.message,&#x27;error&#x27;);
+    setThreadStatus(threadReplyStatus,error.message,'error');
     return;
   }
 
@@ -7420,109 +7400,109 @@ async function deleteThreadReply(replyId){
   await loadThreads();
 }
 
-threadMediaInput?.addEventListener(&#x27;change&#x27;,() =&gt; {
+threadMediaInput?.addEventListener('change',() => {
   const files=[...(threadMediaInput.files || [])];
   if(files.length) previewThreadMedia(files,false);
 });
-threadMediaRemove?.addEventListener(&#x27;click&#x27;,clearThreadMediaSelection);
+threadMediaRemove?.addEventListener('click',clearThreadMediaSelection);
 
-threadReplyMediaInput?.addEventListener(&#x27;change&#x27;,() =&gt; {
+threadReplyMediaInput?.addEventListener('change',() => {
   const files=[...(threadReplyMediaInput.files || [])];
   if(files.length) previewThreadMedia(files,true);
 });
-threadReplyMediaRemove?.addEventListener(&#x27;click&#x27;,clearThreadReplyMediaSelection);
+threadReplyMediaRemove?.addEventListener('click',clearThreadReplyMediaSelection);
 
-document.addEventListener(&#x27;click&#x27;,(e) =&gt; {
-  const photo = e.target.closest(&#x27;[data-thread-photo]&#x27;);
+document.addEventListener('click',(e) => {
+  const photo = e.target.closest('[data-thread-photo]');
   if(photo){
     e.preventDefault();
     e.stopPropagation();
-    openThreadPhoto(photo.dataset.threadPhoto || &#x27;&#x27;);
+    openThreadPhoto(photo.dataset.threadPhoto || '');
   }
 });
 
-threadPhotoLightboxClose?.addEventListener(&#x27;click&#x27;,closeThreadPhoto);
-threadPhotoLightbox?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
+threadPhotoLightboxClose?.addEventListener('click',closeThreadPhoto);
+threadPhotoLightbox?.addEventListener('click',(e) => {
   if(e.target === threadPhotoLightbox) closeThreadPhoto();
 });
 
 
-threadSearchInput?.addEventListener(&#x27;input&#x27;,() =&gt; {
+threadSearchInput?.addEventListener('input',() => {
   clearTimeout(threadSearchTimer);
-  threadSearchTerm=String(threadSearchInput.value || &#x27;&#x27;).trim();
-  threadSearchClear?.classList.toggle(&#x27;hidden&#x27;,!threadSearchTerm);
+  threadSearchTerm=String(threadSearchInput.value || '').trim();
+  threadSearchClear?.classList.toggle('hidden',!threadSearchTerm);
   threadSearchTimer=setTimeout(loadThreads,180);
 });
 
-threadSearchInput?.addEventListener(&#x27;keydown&#x27;,(e) =&gt; {
-  if(e.key===&#x27;Enter&#x27;){
+threadSearchInput?.addEventListener('keydown',(e) => {
+  if(e.key==='Enter'){
     e.preventDefault();
-    threadSearchTerm=String(threadSearchInput.value || &#x27;&#x27;).trim();
+    threadSearchTerm=String(threadSearchInput.value || '').trim();
     loadThreads();
   }
 });
 
-threadSearchClear?.addEventListener(&#x27;click&#x27;,() =&gt; {
-  if(threadSearchInput) threadSearchInput.value=&#x27;&#x27;;
-  threadSearchTerm=&#x27;&#x27;;
-  threadSearchClear.classList.add(&#x27;hidden&#x27;);
+threadSearchClear?.addEventListener('click',() => {
+  if(threadSearchInput) threadSearchInput.value='';
+  threadSearchTerm='';
+  threadSearchClear.classList.add('hidden');
   loadThreads();
 });
 
-threadBookmarksFilter?.addEventListener(&#x27;click&#x27;,async () =&gt; {
+threadBookmarksFilter?.addEventListener('click',async () => {
   const session=await getChatSession();
   if(!session?.user){
-    setThreadStatus(threadsStatus,&#x27;Log in to view bookmarked threads.&#x27;,&#x27;error&#x27;);
+    setThreadStatus(threadsStatus,'Log in to view bookmarked threads.','error');
     return;
   }
 
   threadBookmarksOnly=!threadBookmarksOnly;
-  threadBookmarksFilter.classList.toggle(&#x27;active&#x27;,threadBookmarksOnly);
+  threadBookmarksFilter.classList.toggle('active',threadBookmarksOnly);
   await loadThreads();
 });
 
-threadViewBookmarkBtn?.addEventListener(&#x27;click&#x27;,() =&gt; {
+threadViewBookmarkBtn?.addEventListener('click',() => {
   if(activeThread) toggleThreadBookmark(activeThread.id);
 });
 
 if(navThreadsOutside){
-  navThreadsOutside.addEventListener(&#x27;click&#x27;, () =&gt; {
+  navThreadsOutside.addEventListener('click', () => {
     setTimeout(loadThreads, 100);
   });
 }
 
 if(openThreadComposerBtn){
-  openThreadComposerBtn.addEventListener(&#x27;click&#x27;, async () =&gt; {
+  openThreadComposerBtn.addEventListener('click', async () => {
     const session = await getChatSession();
     if(!session?.user){
-      document.getElementById(&#x27;login-card&#x27;)?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+      document.getElementById('login-card')?.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
-    threadComposer.classList.remove(&#x27;hidden&#x27;);
+    threadComposer.classList.remove('hidden');
     threadTitle?.focus();
   });
 }
 
 if(cancelThreadBtn){
-  cancelThreadBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
-    threadComposer.classList.add(&#x27;hidden&#x27;);
+  cancelThreadBtn.addEventListener('click', () => {
+    threadComposer.classList.add('hidden');
     clearThreadMediaSelection();
     resetThreadPollComposer();
-    setThreadStatus(threadComposerStatus,&#x27;&#x27;);
+    setThreadStatus(threadComposerStatus,'');
   });
 }
 
-if(createThreadBtn) createThreadBtn.addEventListener(&#x27;click&#x27;, createThread);
+if(createThreadBtn) createThreadBtn.addEventListener('click', createThread);
 
 if(threadFilters){
-  threadFilters.addEventListener(&#x27;click&#x27;, (e) =&gt; {
-    const btn = e.target.closest(&#x27;[data-thread-filter]&#x27;);
+  threadFilters.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-thread-filter]');
     if(!btn) return;
 
-    threadFilter = btn.dataset.threadFilter || &#x27;All&#x27;;
+    threadFilter = btn.dataset.threadFilter || 'All';
 
-    threadFilters.querySelectorAll(&#x27;.thread-filter&#x27;).forEach(x =&gt;
-      x.classList.toggle(&#x27;active&#x27;, x === btn)
+    threadFilters.querySelectorAll('.thread-filter').forEach(x =>
+      x.classList.toggle('active', x === btn)
     );
 
     loadThreads();
@@ -7530,10 +7510,10 @@ if(threadFilters){
 }
 
 if(threadsList){
-  threadsList.addEventListener(&#x27;click&#x27;, (e) =&gt; {
-    if(e.target.closest(&#x27;.reaction-control&#x27;)) return;
+  threadsList.addEventListener('click', (e) => {
+    if(e.target.closest('.reaction-control')) return;
 
-    const bookmark=e.target.closest(&#x27;[data-thread-bookmark]&#x27;);
+    const bookmark=e.target.closest('[data-thread-bookmark]');
     if(bookmark){
       e.preventDefault();
       e.stopPropagation();
@@ -7541,15 +7521,15 @@ if(threadsList){
       return;
     }
 
-    const card = e.target.closest(&#x27;[data-open-thread]&#x27;);
+    const card = e.target.closest('[data-open-thread]');
     if(card) openThread(Number(card.dataset.openThread));
   });
 
-  threadsList.addEventListener(&#x27;keydown&#x27;,(e) =&gt; {
-    if(e.key !== &#x27;Enter&#x27; &amp;&amp; e.key !== &#x27; &#x27;) return;
-    if(e.target.closest(&#x27;.reaction-control&#x27;) || e.target.closest(&#x27;[data-thread-bookmark]&#x27;)) return;
+  threadsList.addEventListener('keydown',(e) => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    if(e.target.closest('.reaction-control') || e.target.closest('[data-thread-bookmark]')) return;
 
-    const card = e.target.closest(&#x27;[data-open-thread]&#x27;);
+    const card = e.target.closest('[data-open-thread]');
     if(card){
       e.preventDefault();
       openThread(Number(card.dataset.openThread));
@@ -7557,17 +7537,17 @@ if(threadsList){
   });
 }
 
-if(threadCloseBtn) threadCloseBtn.addEventListener(&#x27;click&#x27;, closeThread);
+if(threadCloseBtn) threadCloseBtn.addEventListener('click', closeThread);
 if(threadOverlay){
-  threadOverlay.addEventListener(&#x27;click&#x27;, (e) =&gt; {
+  threadOverlay.addEventListener('click', (e) => {
     if(e.target === threadOverlay) closeThread();
   });
 }
 
-if(threadReplyBtn) threadReplyBtn.addEventListener(&#x27;click&#x27;, postThreadReply);
+if(threadReplyBtn) threadReplyBtn.addEventListener('click', postThreadReply);
 if(threadReplyInput){
-  threadReplyInput.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
-    if((e.ctrlKey || e.metaKey) &amp;&amp; e.key === &#x27;Enter&#x27;){
+  threadReplyInput.addEventListener('keydown', (e) => {
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
       e.preventDefault();
       postThreadReply();
     }
@@ -7575,57 +7555,57 @@ if(threadReplyInput){
 }
 
 if(threadDeleteBtn){
-  threadDeleteBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+  threadDeleteBtn.addEventListener('click', () => {
     if(activeThread) deleteThread(activeThread.id);
   });
 }
 
-if(threadLockBtn) threadLockBtn.addEventListener(&#x27;click&#x27;, toggleThreadLock);
+if(threadLockBtn) threadLockBtn.addEventListener('click', toggleThreadLock);
 
 if(threadReplies){
-  threadReplies.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
-    const jumpBtn = e.target.closest(&#x27;[data-jump-thread-reply]&#x27;);
+  threadReplies.addEventListener('click', async (e) => {
+    const jumpBtn = e.target.closest('[data-jump-thread-reply]');
     if(jumpBtn){
       jumpToThreadReply(Number(jumpBtn.dataset.jumpThreadReply));
       return;
     }
 
-    const replyBtn = e.target.closest(&#x27;[data-reply-thread-user]&#x27;);
+    const replyBtn = e.target.closest('[data-reply-thread-user]');
     if(replyBtn){
       const session = await getChatSession();
       if(!session?.user){
-        setThreadStatus(threadReplyStatus,&#x27;Log in to reply.&#x27;,&#x27;error&#x27;);
+        setThreadStatus(threadReplyStatus,'Log in to reply.','error');
         return;
       }
 
       if(activeThread?.is_locked){
-        setThreadStatus(threadReplyStatus,&#x27;This thread is locked.&#x27;,&#x27;error&#x27;);
+        setThreadStatus(threadReplyStatus,'This thread is locked.','error');
         return;
       }
 
       const replyId = Number(replyBtn.dataset.replyThreadUser);
       const rows = threadReplies._gymcelsRows || [];
-      const row = rows.find(x =&gt; Number(x.id) === replyId);
+      const row = rows.find(x => Number(x.id) === replyId);
       if(row) startThreadReplyTo(row);
       return;
     }
 
-    const deleteBtn = e.target.closest(&#x27;[data-delete-thread-reply]&#x27;);
+    const deleteBtn = e.target.closest('[data-delete-thread-reply]');
     if(deleteBtn){
       deleteThreadReply(Number(deleteBtn.dataset.deleteThreadReply));
     }
   });
 }
 
-threadReplyTargetCancel?.addEventListener(&#x27;click&#x27;,clearThreadReplyTarget);
+threadReplyTargetCancel?.addEventListener('click',clearThreadReplyTarget);
 
-document.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
-  if(e.key !== &#x27;Escape&#x27;) return;
-  if(threadPhotoLightbox?.classList.contains(&#x27;show&#x27;)){
+document.addEventListener('keydown', (e) => {
+  if(e.key !== 'Escape') return;
+  if(threadPhotoLightbox?.classList.contains('show')){
     closeThreadPhoto();
     return;
   }
-  if(threadOverlay?.classList.contains(&#x27;show&#x27;)) closeThread();
+  if(threadOverlay?.classList.contains('show')) closeThread();
 });
 
 function startThreads(session){
@@ -7638,27 +7618,27 @@ function startThreads(session){
 
 
 // ---- Gymcel Crew: General + Gaming ----
-const navVoiceOutside = document.getElementById(&#x27;navVoice&#x27;);
-const voiceSection = document.getElementById(&#x27;voiceSection&#x27;);
-const voiceGuestNote = document.getElementById(&#x27;voiceGuestNote&#x27;);
-const joinVoiceGeneral = document.getElementById(&#x27;joinVoiceGeneral&#x27;);
-const joinVoiceGaming = document.getElementById(&#x27;joinVoiceGaming&#x27;);
-const voiceCountGeneral = document.getElementById(&#x27;voiceCountGeneral&#x27;);
-const voiceCountGaming = document.getElementById(&#x27;voiceCountGaming&#x27;);
-const voiceMembersGeneral = document.getElementById(&#x27;voiceMembersGeneral&#x27;);
-const voiceMembersGaming = document.getElementById(&#x27;voiceMembersGaming&#x27;);
-const voiceControls = document.getElementById(&#x27;voiceControls&#x27;);
-const voiceCurrentRoom = document.getElementById(&#x27;voiceCurrentRoom&#x27;);
-const voiceConnectionText = document.getElementById(&#x27;voiceConnectionText&#x27;);
-const voiceMuteBtn = document.getElementById(&#x27;voiceMuteBtn&#x27;);
-const voiceLeaveBtn = document.getElementById(&#x27;voiceLeaveBtn&#x27;);
-const voiceStatus = document.getElementById(&#x27;voiceStatus&#x27;);
-const voiceMicState = document.getElementById(&#x27;voiceMicState&#x27;);
-const voiceAudioMount = document.getElementById(&#x27;voiceAudioMount&#x27;);
+const navVoiceOutside = document.getElementById('navVoice');
+const voiceSection = document.getElementById('voiceSection');
+const voiceGuestNote = document.getElementById('voiceGuestNote');
+const joinVoiceGeneral = document.getElementById('joinVoiceGeneral');
+const joinVoiceGaming = document.getElementById('joinVoiceGaming');
+const voiceCountGeneral = document.getElementById('voiceCountGeneral');
+const voiceCountGaming = document.getElementById('voiceCountGaming');
+const voiceMembersGeneral = document.getElementById('voiceMembersGeneral');
+const voiceMembersGaming = document.getElementById('voiceMembersGaming');
+const voiceControls = document.getElementById('voiceControls');
+const voiceCurrentRoom = document.getElementById('voiceCurrentRoom');
+const voiceConnectionText = document.getElementById('voiceConnectionText');
+const voiceMuteBtn = document.getElementById('voiceMuteBtn');
+const voiceLeaveBtn = document.getElementById('voiceLeaveBtn');
+const voiceStatus = document.getElementById('voiceStatus');
+const voiceMicState = document.getElementById('voiceMicState');
+const voiceAudioMount = document.getElementById('voiceAudioMount');
 
 const VOICE_ROOMS = {
-  general:{ topic:&#x27;voice:general&#x27;, label:&#x27;General&#x27; },
-  gaming:{ topic:&#x27;voice:gaming&#x27;, label:&#x27;Gaming&#x27; }
+  general:{ topic:'voice:general', label:'General' },
+  gaming:{ topic:'voice:gaming', label:'Gaming' }
 };
 
 let voiceRoomKey = null;
@@ -7676,95 +7656,95 @@ let voiceRoomPreviewChannels = new Map();
 let voicePreviewState = {general:{},gaming:{}};
 
 const voiceIceServers = [
-  { urls:&#x27;stun:stun.l.google.com:19302&#x27; },
-  { urls:&#x27;stun:stun1.l.google.com:19302&#x27; }
+  { urls:'stun:stun.l.google.com:19302' },
+  { urls:'stun:stun1.l.google.com:19302' }
 ];
 
-function setVoiceStatus(text=&#x27;&#x27;, type=&#x27;normal&#x27;){
+function setVoiceStatus(text='', type='normal'){
   if(!voiceStatus) return;
   voiceStatus.textContent = text;
   voiceStatus.style.color =
-    type === &#x27;error&#x27; ? &#x27;#ff7c89&#x27; :
-    type === &#x27;success&#x27; ? &#x27;#67e8a5&#x27; :
-    &#x27;#858e9a&#x27;;
-  voiceStatus.style.fontWeight = type === &#x27;error&#x27; || type === &#x27;success&#x27; ? &#x27;800&#x27; : &#x27;&#x27;;
+    type === 'error' ? '#ff7c89' :
+    type === 'success' ? '#67e8a5' :
+    '#858e9a';
+  voiceStatus.style.fontWeight = type === 'error' || type === 'success' ? '800' : '';
 }
 
 function voiceSafeName(){
   return voiceSessionUser?.user_metadata?.display_name ||
-    (voiceSessionUser?.email ? voiceSessionUser.email.split(&#x27;@&#x27;)[0] : &#x27;Member&#x27;);
+    (voiceSessionUser?.email ? voiceSessionUser.email.split('@')[0] : 'Member');
 }
 
 function voiceMemberHtml(entry, myId, allowLocalMute=false){
-  const userId = String(entry?.user_id || &#x27;&#x27;);
-  const name = escapeChat(entry?.display_name || &#x27;Member&#x27;);
+  const userId = String(entry?.user_id || '');
+  const name = escapeChat(entry?.display_name || 'Member');
   const micMuted = !!entry?.muted;
   const mine = userId === myId;
-  const locallyMuted = !mine &amp;&amp; voiceLocallyMutedUsers.has(userId);
+  const locallyMuted = !mine && voiceLocallyMutedUsers.has(userId);
 
-  const localMuteButton = allowLocalMute &amp;&amp; !mine
-    ? `&lt;button class=&quot;voice-person-mute ${locallyMuted ? &#x27;active&#x27; : &#x27;&#x27;}&quot;
-               type=&quot;button&quot;
-               data-local-voice-mute=&quot;${escapeChat(userId)}&quot;
-               title=&quot;${locallyMuted ? &#x27;Hear this person again&#x27; : &#x27;Mute only this person for you&#x27;}&quot;&gt;${locallyMuted ? &#x27;Unmute&#x27; : &#x27;Mute&#x27;}&lt;/button&gt;`
-    : &#x27;&#x27;;
+  const localMuteButton = allowLocalMute && !mine
+    ? `<button class="voice-person-mute ${locallyMuted ? 'active' : ''}"
+               type="button"
+               data-local-voice-mute="${escapeChat(userId)}"
+               title="${locallyMuted ? 'Hear this person again' : 'Mute only this person for you'}">${locallyMuted ? 'Unmute' : 'Mute'}</button>`
+    : '';
 
-  const kickButton = allowLocalMute &amp;&amp; !mine &amp;&amp; canModerateVoice()
-    ? `&lt;button class=&quot;voice-kick-btn&quot;
-               type=&quot;button&quot;
-               data-voice-kick=&quot;${escapeChat(userId)}&quot;
-               data-voice-kick-name=&quot;${name}&quot;
-               title=&quot;Remove this member from the current voice room&quot;&gt;Kick&lt;/button&gt;`
-    : &#x27;&#x27;;
+  const kickButton = allowLocalMute && !mine && canModerateVoice()
+    ? `<button class="voice-kick-btn"
+               type="button"
+               data-voice-kick="${escapeChat(userId)}"
+               data-voice-kick-name="${name}"
+               title="Remove this member from the current voice room">Kick</button>`
+    : '';
 
-  return `&lt;span class=&quot;voice-member ${micMuted ? &#x27;muted&#x27; : &#x27;&#x27;} ${mine ? &#x27;you&#x27; : &#x27;&#x27;} ${locallyMuted ? &#x27;local-muted&#x27; : &#x27;&#x27;}&quot;&gt;
-    &lt;span class=&quot;voice-member-dot&quot;&gt;&lt;/span&gt;
-    ${name}${mine ? &#x27; (You)&#x27; : &#x27;&#x27;}${micMuted ? &#x27; · mic muted&#x27; : &#x27;&#x27;}${locallyMuted ? &#x27; · muted by you&#x27; : &#x27;&#x27;}
-    &lt;span class=&quot;voice-member-actions&quot;&gt;${localMuteButton}${kickButton}&lt;/span&gt;
-  &lt;/span&gt;`;
+  return `<span class="voice-member ${micMuted ? 'muted' : ''} ${mine ? 'you' : ''} ${locallyMuted ? 'local-muted' : ''}">
+    <span class="voice-member-dot"></span>
+    ${name}${mine ? ' (You)' : ''}${micMuted ? ' · mic muted' : ''}${locallyMuted ? ' · muted by you' : ''}
+    <span class="voice-member-actions">${localMuteButton}${kickButton}</span>
+  </span>`;
 }
 
 function flattenVoicePresence(state){
   const rows = [];
-  Object.values(state || {}).forEach(entries =&gt; {
-    (entries || []).forEach(entry =&gt; {
+  Object.values(state || {}).forEach(entries => {
+    (entries || []).forEach(entry => {
       if(entry?.user_id) rows.push(entry);
     });
   });
 
   const byUser = new Map();
-  rows.forEach(row =&gt; byUser.set(row.user_id,row));
+  rows.forEach(row => byUser.set(row.user_id,row));
   return [...byUser.values()];
 }
 
 function renderVoiceRoom(roomKey, state){
   const people = flattenVoicePresence(state);
-  const countEl = roomKey === &#x27;general&#x27; ? voiceCountGeneral : voiceCountGaming;
-  const membersEl = roomKey === &#x27;general&#x27; ? voiceMembersGeneral : voiceMembersGaming;
+  const countEl = roomKey === 'general' ? voiceCountGeneral : voiceCountGaming;
+  const membersEl = roomKey === 'general' ? voiceMembersGeneral : voiceMembersGaming;
 
   if(countEl) countEl.textContent = String(people.length);
   if(membersEl){
     const activeRoom = roomKey === voiceRoomKey;
     membersEl.innerHTML = people.length
-      ? people.map(p =&gt; voiceMemberHtml(p, voiceSessionUser?.id || null, activeRoom)).join(&#x27;&#x27;)
-      : &#x27;&lt;div class=&quot;voice-empty&quot;&gt;Nobody is in here yet.&lt;/div&gt;&#x27;;
+      ? people.map(p => voiceMemberHtml(p, voiceSessionUser?.id || null, activeRoom)).join('')
+      : '<div class="voice-empty">Nobody is in here yet.</div>';
   }
 
-  const card = document.querySelector(`[data-voice-room-card=&quot;${roomKey}&quot;]`);
-  if(card) card.classList.toggle(&#x27;active&#x27;, voiceRoomKey === roomKey);
+  const card = document.querySelector(`[data-voice-room-card="${roomKey}"]`);
+  if(card) card.classList.toggle('active', voiceRoomKey === roomKey);
 }
 
 function renderAllVoiceRooms(){
-  renderVoiceRoom(&#x27;general&#x27;, voiceRoomKey === &#x27;general&#x27; ? voicePresence : voicePreviewState.general);
-  renderVoiceRoom(&#x27;gaming&#x27;, voiceRoomKey === &#x27;gaming&#x27; ? voicePresence : voicePreviewState.gaming);
+  renderVoiceRoom('general', voiceRoomKey === 'general' ? voicePresence : voicePreviewState.general);
+  renderVoiceRoom('gaming', voiceRoomKey === 'gaming' ? voicePresence : voicePreviewState.gaming);
 }
 
 async function voiceSendSignal(to, signal){
   if(!voiceRealtimeChannel || !voiceSessionUser || !to) return;
 
   await voiceRealtimeChannel.send({
-    type:&#x27;broadcast&#x27;,
-    event:&#x27;webrtc-signal&#x27;,
+    type:'broadcast',
+    event:'webrtc-signal',
     payload:{
       from:voiceSessionUser.id,
       to,
@@ -7798,7 +7778,7 @@ function ensureVoicePeer(userId){
   if(voicePeers.has(userId)) return voicePeers.get(userId);
 
   const pc = new RTCPeerConnection({iceServers:voiceIceServers});
-  const audio = document.createElement(&#x27;audio&#x27;);
+  const audio = document.createElement('audio');
   audio.autoplay = true;
   audio.playsInline = true;
   // Muting this element silences only this remote person on YOUR device.
@@ -7810,30 +7790,30 @@ function ensureVoicePeer(userId){
   voicePeers.set(userId,peer);
 
   if(voiceLocalStream){
-    voiceLocalStream.getAudioTracks().forEach(track =&gt; {
+    voiceLocalStream.getAudioTracks().forEach(track => {
       pc.addTrack(track,voiceLocalStream);
     });
   }
 
-  pc.ontrack = (event) =&gt; {
+  pc.ontrack = (event) => {
     const stream = event.streams?.[0] || new MediaStream([event.track]);
     audio.srcObject = stream;
     audio.muted = voiceLocallyMutedUsers.has(userId);
-    audio.play().catch(() =&gt; {});
+    audio.play().catch(() => {});
   };
 
-  pc.onicecandidate = (event) =&gt; {
+  pc.onicecandidate = (event) => {
     if(event.candidate){
       voiceSendSignal(userId,{
-        type:&#x27;ice&#x27;,
+        type:'ice',
         candidate:event.candidate.toJSON ? event.candidate.toJSON() : event.candidate
       });
     }
   };
 
-  pc.onconnectionstatechange = () =&gt; {
+  pc.onconnectionstatechange = () => {
     const state = pc.connectionState;
-    if(state === &#x27;failed&#x27; || state === &#x27;closed&#x27;){
+    if(state === 'failed' || state === 'closed'){
       destroyVoicePeer(userId);
     }
   };
@@ -7858,11 +7838,11 @@ async function createVoiceOffer(userId){
     const offer = await peer.pc.createOffer();
     await peer.pc.setLocalDescription(offer);
     await voiceSendSignal(userId,{
-      type:&#x27;offer&#x27;,
+      type:'offer',
       sdp:peer.pc.localDescription
     });
   }catch(err){
-    console.error(&#x27;Voice offer error:&#x27;,err);
+    console.error('Voice offer error:',err);
   }
 }
 
@@ -7878,7 +7858,7 @@ async function handleVoiceSignal(payload){
   if(!peer) return;
 
   try{
-    if(signal.type === &#x27;offer&#x27;){
+    if(signal.type === 'offer'){
       await peer.pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
       await flushVoiceIce(peer);
 
@@ -7886,19 +7866,19 @@ async function handleVoiceSignal(payload){
       await peer.pc.setLocalDescription(answer);
 
       await voiceSendSignal(from,{
-        type:&#x27;answer&#x27;,
+        type:'answer',
         sdp:peer.pc.localDescription
       });
       return;
     }
 
-    if(signal.type === &#x27;answer&#x27;){
+    if(signal.type === 'answer'){
       await peer.pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
       await flushVoiceIce(peer);
       return;
     }
 
-    if(signal.type === &#x27;ice&#x27; &amp;&amp; signal.candidate){
+    if(signal.type === 'ice' && signal.candidate){
       if(peer.pc.remoteDescription){
         await peer.pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
       }else{
@@ -7906,7 +7886,7 @@ async function handleVoiceSignal(payload){
       }
     }
   }catch(err){
-    console.error(&#x27;Voice signal error:&#x27;,err);
+    console.error('Voice signal error:',err);
   }
 }
 
@@ -7915,17 +7895,17 @@ async function syncVoicePeers(){
 
   const people = flattenVoicePresence(voicePresence);
   const remoteIds = people
-    .map(p =&gt; p.user_id)
-    .filter(id =&gt; id &amp;&amp; id !== voiceSessionUser.id);
+    .map(p => p.user_id)
+    .filter(id => id && id !== voiceSessionUser.id);
 
   // Remove connections for members who left.
-  [...voicePeers.keys()].forEach(id =&gt; {
+  [...voicePeers.keys()].forEach(id => {
     if(!remoteIds.includes(id)) destroyVoicePeer(id);
   });
 
   // Deterministic initiator prevents both sides from constantly offering.
   for(const remoteId of remoteIds){
-    if(!voicePeers.has(remoteId) &amp;&amp; voiceSessionUser.id.localeCompare(remoteId) &lt; 0){
+    if(!voicePeers.has(remoteId) && voiceSessionUser.id.localeCompare(remoteId) < 0){
       await createVoiceOffer(remoteId);
     }
   }
@@ -7958,9 +7938,9 @@ async function removeCachedVoiceTopic(roomKey){
   // Remove any stale/cached copies before adding presence callbacks again.
   try{
     const expectedTopic = `realtime:${room.topic}`;
-    const matches = (client.getChannels?.() || []).filter(ch =&gt;
-      ch &amp;&amp;
-      ch !== voiceRealtimeChannel &amp;&amp;
+    const matches = (client.getChannels?.() || []).filter(ch =>
+      ch &&
+      ch !== voiceRealtimeChannel &&
       (ch.topic === expectedTopic || ch.topic === room.topic)
     );
 
@@ -7968,7 +7948,7 @@ async function removeCachedVoiceTopic(roomKey){
       try{ await client.removeChannel(ch); }catch(_){}
     }
   }catch(err){
-    console.warn(&#x27;Voice channel cleanup warning:&#x27;, err);
+    console.warn('Voice channel cleanup warning:', err);
   }
 }
 
@@ -7983,7 +7963,7 @@ async function leaveVoiceChannel(showStatus=true, restorePreviews=true){
   }
 
   if(voiceLocalStream){
-    voiceLocalStream.getTracks().forEach(track =&gt; track.stop());
+    voiceLocalStream.getTracks().forEach(track => track.stop());
   }
 
   voiceRealtimeChannel = null;
@@ -7992,12 +7972,12 @@ async function leaveVoiceChannel(showStatus=true, restorePreviews=true){
   voicePresence = {};
   voiceMuted = false;
 
-  if(voiceControls) voiceControls.classList.add(&#x27;hidden&#x27;);
+  if(voiceControls) voiceControls.classList.add('hidden');
   if(voiceMicState){
-    voiceMicState.textContent = &#x27;Mic disconnected&#x27;;
-    voiceMicState.classList.remove(&#x27;live&#x27;);
+    voiceMicState.textContent = 'Mic disconnected';
+    voiceMicState.classList.remove('live');
   }
-  if(voiceMuteBtn) voiceMuteBtn.textContent = &#x27;Mute Mic&#x27;;
+  if(voiceMuteBtn) voiceMuteBtn.textContent = 'Mute Mic';
 
   renderAllVoiceRooms();
 
@@ -8008,7 +7988,7 @@ async function leaveVoiceChannel(showStatus=true, restorePreviews=true){
     }catch(_){}
   }
 
-  if(showStatus) setVoiceStatus(&#x27;Left voice channel.&#x27;);
+  if(showStatus) setVoiceStatus('Left voice channel.');
 }
 
 async function joinVoiceChannel(roomKey){
@@ -8019,18 +7999,18 @@ async function joinVoiceChannel(roomKey){
   const session = await getChatSession();
 
   if(!client || !session?.user){
-    setVoiceStatus(&#x27;Log in first to join voice.&#x27;,&#x27;error&#x27;);
-    document.getElementById(&#x27;login-card&#x27;)?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+    setVoiceStatus('Log in first to join voice.','error');
+    document.getElementById('login-card')?.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
 
   if(!window.isSecureContext){
-    setVoiceStatus(&#x27;Voice requires HTTPS.&#x27;,&#x27;error&#x27;);
+    setVoiceStatus('Voice requires HTTPS.','error');
     return;
   }
 
   if(!navigator.mediaDevices?.getUserMedia){
-    setVoiceStatus(&#x27;This browser does not support microphone access.&#x27;,&#x27;error&#x27;);
+    setVoiceStatus('This browser does not support microphone access.','error');
     return;
   }
 
@@ -8078,61 +8058,61 @@ async function joinVoiceChannel(roomKey){
     voiceRealtimeChannel = channel;
 
     channel
-      .on(&#x27;broadcast&#x27;,{event:&#x27;webrtc-signal&#x27;},({payload}) =&gt; {
+      .on('broadcast',{event:'webrtc-signal'},({payload}) => {
         handleVoiceSignal(payload);
       })
-      .on(&#x27;presence&#x27;,{event:&#x27;sync&#x27;},async () =&gt; {
+      .on('presence',{event:'sync'},async () => {
         if(channel !== voiceRealtimeChannel) return;
         voicePresence = channel.presenceState() || {};
         renderAllVoiceRooms();
         await syncVoicePeers();
       })
-      .on(&#x27;presence&#x27;,{event:&#x27;leave&#x27;},({key}) =&gt; {
+      .on('presence',{event:'leave'},({key}) => {
         if(key) destroyVoicePeer(key);
       });
 
-    channel.subscribe(async (status,err) =&gt; {
+    channel.subscribe(async (status,err) => {
       if(channel !== voiceRealtimeChannel) return;
 
-      if(status === &#x27;SUBSCRIBED&#x27;){
+      if(status === 'SUBSCRIBED'){
         await publishVoicePresence();
 
-        if(voiceControls) voiceControls.classList.remove(&#x27;hidden&#x27;);
+        if(voiceControls) voiceControls.classList.remove('hidden');
         if(voiceCurrentRoom) voiceCurrentRoom.textContent = room.label;
-        if(voiceConnectionText) voiceConnectionText.textContent = &#x27;Connected&#x27;;
+        if(voiceConnectionText) voiceConnectionText.textContent = 'Connected';
         if(voiceMicState){
-          voiceMicState.textContent = &#x27;Mic live&#x27;;
-          voiceMicState.classList.add(&#x27;live&#x27;);
+          voiceMicState.textContent = 'Mic live';
+          voiceMicState.classList.add('live');
         }
 
-        setVoiceStatus(`✓ JOINED ${room.label.toUpperCase()}`,&#x27;success&#x27;);
+        setVoiceStatus(`✓ JOINED ${room.label.toUpperCase()}`,'success');
         renderAllVoiceRooms();
-      }else if(status === &#x27;CHANNEL_ERROR&#x27; || status === &#x27;TIMED_OUT&#x27;){
-        console.error(&#x27;Voice channel error:&#x27;,err);
-        setVoiceStatus(&#x27;Could not connect to voice. Check the Supabase voice setup.&#x27;,&#x27;error&#x27;);
+      }else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
+        console.error('Voice channel error:',err);
+        setVoiceStatus('Could not connect to voice. Check the Supabase voice setup.','error');
       }
     });
 
   }catch(err){
-    console.error(&#x27;Voice join error:&#x27;,err);
+    console.error('Voice join error:',err);
     await leaveVoiceChannel(false, false);
     try{
       const latestSession = await getChatSession();
       if(latestSession?.user) await startVoiceRoomPreviews(latestSession);
     }catch(_){}
 
-    const name = err?.name || &#x27;&#x27;;
-    if(name === &#x27;NotAllowedError&#x27;){
-      setVoiceStatus(&#x27;Microphone permission was blocked. Allow mic access and try again.&#x27;,&#x27;error&#x27;);
+    const name = err?.name || '';
+    if(name === 'NotAllowedError'){
+      setVoiceStatus('Microphone permission was blocked. Allow mic access and try again.','error');
     }else{
-      setVoiceStatus(err?.message || String(err),&#x27;error&#x27;);
+      setVoiceStatus(err?.message || String(err),'error');
     }
   }
 }
 
 
 
-async function kickVoiceMember(userId,displayName=&#x27;Member&#x27;){
+async function kickVoiceMember(userId,displayName='Member'){
   if(!userId || !voiceRoomKey) return;
 
   const client = window.gymcelsLolDb;
@@ -8141,28 +8121,28 @@ async function kickVoiceMember(userId,displayName=&#x27;Member&#x27;){
 
   await refreshChatAdminStatus(session);
   if(!chatIsSiteAdmin){
-    setVoiceStatus(&#x27;Only the site admin can kick members.&#x27;,&#x27;error&#x27;);
+    setVoiceStatus('Only the site admin can kick members.','error');
     return;
   }
 
   if(userId === session.user.id) return;
 
-  if(!confirm(`Kick ${displayName} from ${VOICE_ROOMS[voiceRoomKey]?.label || &#x27;this voice room&#x27;}?`)){
+  if(!confirm(`Kick ${displayName} from ${VOICE_ROOMS[voiceRoomKey]?.label || 'this voice room'}?`)){
     return;
   }
 
   try{
-    const {error} = await client.rpc(&#x27;kick_voice_member&#x27;,{
+    const {error} = await client.rpc('kick_voice_member',{
       target_user:userId,
       target_room:voiceRoomKey
     });
 
     if(error) throw error;
 
-    setVoiceStatus(`✓ ${displayName} was removed from ${VOICE_ROOMS[voiceRoomKey]?.label || &#x27;voice&#x27;}.`,&#x27;success&#x27;);
+    setVoiceStatus(`✓ ${displayName} was removed from ${VOICE_ROOMS[voiceRoomKey]?.label || 'voice'}.`,'success');
   }catch(err){
-    console.error(&#x27;Voice kick error:&#x27;,err);
-    setVoiceStatus(err?.message || String(err),&#x27;error&#x27;);
+    console.error('Voice kick error:',err);
+    setVoiceStatus(err?.message || String(err),'error');
   }
 }
 
@@ -8174,19 +8154,19 @@ async function checkMyVoiceKick(){
   if(!client || !session?.user) return;
 
   try{
-    const {data,error} = await client.rpc(&#x27;take_my_voice_kick&#x27;);
+    const {data,error} = await client.rpc('take_my_voice_kick');
     if(error) throw error;
 
     if(!data) return;
 
     const kickedRoom = String(data);
     if(kickedRoom === voiceRoomKey){
-      const roomName = VOICE_ROOMS[voiceRoomKey]?.label || &#x27;voice&#x27;;
+      const roomName = VOICE_ROOMS[voiceRoomKey]?.label || 'voice';
       await leaveVoiceChannel(false,true);
-      setVoiceStatus(`You were removed from ${roomName} by a moderator.`,&#x27;error&#x27;);
+      setVoiceStatus(`You were removed from ${roomName} by a moderator.`,'error');
     }
   }catch(err){
-    console.error(&#x27;Voice kick check error:&#x27;,err);
+    console.error('Voice kick check error:',err);
   }
 }
 
@@ -8196,8 +8176,8 @@ function startVoiceKickPolling(session){
 
   if(!session?.user) return;
 
-  voiceKickPollTimer = setInterval(() =&gt; {
-    if(document.visibilityState === &#x27;visible&#x27; &amp;&amp; voiceRoomKey){
+  voiceKickPollTimer = setInterval(() => {
+    if(document.visibilityState === 'visible' && voiceRoomKey){
       checkMyVoiceKick();
     }
   },1200);
@@ -8221,9 +8201,9 @@ function toggleLocalVoiceMute(userId){
 
   setVoiceStatus(
     voiceLocallyMutedUsers.has(userId)
-      ? &#x27;That member is muted only for you.&#x27;
-      : &#x27;That member is unmuted for you.&#x27;,
-    &#x27;normal&#x27;
+      ? 'That member is muted only for you.'
+      : 'That member is unmuted for you.',
+    'normal'
   );
 }
 
@@ -8231,14 +8211,14 @@ async function toggleVoiceMute(){
   if(!voiceLocalStream || !voiceRoomKey) return;
 
   voiceMuted = !voiceMuted;
-  voiceLocalStream.getAudioTracks().forEach(track =&gt; {
+  voiceLocalStream.getAudioTracks().forEach(track => {
     track.enabled = !voiceMuted;
   });
 
-  if(voiceMuteBtn) voiceMuteBtn.textContent = voiceMuted ? &#x27;Unmute Mic&#x27; : &#x27;Mute Mic&#x27;;
+  if(voiceMuteBtn) voiceMuteBtn.textContent = voiceMuted ? 'Unmute Mic' : 'Mute Mic';
   if(voiceMicState){
-    voiceMicState.textContent = voiceMuted ? &#x27;Mic muted&#x27; : &#x27;Mic live&#x27;;
-    voiceMicState.classList.toggle(&#x27;live&#x27;,!voiceMuted);
+    voiceMicState.textContent = voiceMuted ? 'Mic muted' : 'Mic live';
+    voiceMicState.classList.toggle('live',!voiceMuted);
   }
 
   await publishVoicePresence();
@@ -8251,19 +8231,19 @@ function setVoiceAuthState(session){
 
   if(voiceGuestNote){
     voiceGuestNote.textContent = signedIn
-      ? &#x27;Choose General or Gaming. Your browser will ask for microphone permission.&#x27;
-      : &#x27;Log in to join voice channels.&#x27;;
+      ? 'Choose General or Gaming. Your browser will ask for microphone permission.'
+      : 'Log in to join voice channels.';
   }
 
-  [joinVoiceGeneral,joinVoiceGaming].forEach(btn =&gt; {
+  [joinVoiceGeneral,joinVoiceGaming].forEach(btn => {
     if(!btn) return;
     btn.disabled = !signedIn;
-    if(!signedIn) btn.textContent = &#x27;Log in&#x27;;
+    if(!signedIn) btn.textContent = 'Log in';
   });
 
   if(signedIn){
-    if(joinVoiceGeneral) joinVoiceGeneral.textContent = voiceRoomKey === &#x27;general&#x27; ? &#x27;Joined&#x27; : &#x27;Join&#x27;;
-    if(joinVoiceGaming) joinVoiceGaming.textContent = voiceRoomKey === &#x27;gaming&#x27; ? &#x27;Joined&#x27; : &#x27;Join&#x27;;
+    if(joinVoiceGeneral) joinVoiceGeneral.textContent = voiceRoomKey === 'general' ? 'Joined' : 'Join';
+    if(joinVoiceGaming) joinVoiceGaming.textContent = voiceRoomKey === 'gaming' ? 'Joined' : 'Join';
   }
 
   if(!signedIn){
@@ -8292,7 +8272,7 @@ async function startVoiceRoomPreviews(session){
   try{ client.realtime.setAuth(session.access_token); }catch(_){}
 
   for(const [roomKey,room] of Object.entries(VOICE_ROOMS)){
-    // Don&#x27;t create a preview channel for the room we&#x27;re actively in.
+    // Don't create a preview channel for the room we're actively in.
     if(roomKey === voiceRoomKey) continue;
 
     const preview = client.channel(room.topic,{
@@ -8303,7 +8283,7 @@ async function startVoiceRoomPreviews(session){
     });
 
     preview
-      .on(&#x27;presence&#x27;,{event:&#x27;sync&#x27;},() =&gt; {
+      .on('presence',{event:'sync'},() => {
         voicePreviewState[roomKey] = preview.presenceState() || {};
         renderVoiceRoom(roomKey,voicePreviewState[roomKey]);
       });
@@ -8325,18 +8305,18 @@ async function startVoiceSystem(session){
 
 
 function handleVoiceMemberMuteClick(e){
-  const kickBtn = e.target.closest(&#x27;[data-voice-kick]&#x27;);
+  const kickBtn = e.target.closest('[data-voice-kick]');
   if(kickBtn){
     e.preventDefault();
     e.stopPropagation();
     kickVoiceMember(
       kickBtn.dataset.voiceKick,
-      kickBtn.dataset.voiceKickName || &#x27;Member&#x27;
+      kickBtn.dataset.voiceKickName || 'Member'
     );
     return;
   }
 
-  const btn = e.target.closest(&#x27;[data-local-voice-mute]&#x27;);
+  const btn = e.target.closest('[data-local-voice-mute]');
   if(!btn) return;
 
   e.preventDefault();
@@ -8346,125 +8326,93 @@ function handleVoiceMemberMuteClick(e){
 }
 
 if(voiceMembersGeneral){
-  voiceMembersGeneral.addEventListener(&#x27;click&#x27;, handleVoiceMemberMuteClick);
+  voiceMembersGeneral.addEventListener('click', handleVoiceMemberMuteClick);
 }
 if(voiceMembersGaming){
-  voiceMembersGaming.addEventListener(&#x27;click&#x27;, handleVoiceMemberMuteClick);
+  voiceMembersGaming.addEventListener('click', handleVoiceMemberMuteClick);
 }
 
 if(joinVoiceGeneral){
-  joinVoiceGeneral.addEventListener(&#x27;click&#x27;,() =&gt; joinVoiceChannel(&#x27;general&#x27;));
+  joinVoiceGeneral.addEventListener('click',() => joinVoiceChannel('general'));
 }
 if(joinVoiceGaming){
-  joinVoiceGaming.addEventListener(&#x27;click&#x27;,() =&gt; joinVoiceChannel(&#x27;gaming&#x27;));
+  joinVoiceGaming.addEventListener('click',() => joinVoiceChannel('gaming'));
 }
 if(voiceMuteBtn){
-  voiceMuteBtn.addEventListener(&#x27;click&#x27;,toggleVoiceMute);
+  voiceMuteBtn.addEventListener('click',toggleVoiceMute);
 }
 if(voiceLeaveBtn){
-  voiceLeaveBtn.addEventListener(&#x27;click&#x27;,() =&gt; leaveVoiceChannel(true, true));
+  voiceLeaveBtn.addEventListener('click',() => leaveVoiceChannel(true, true));
 }
 if(navVoiceOutside){
-  navVoiceOutside.addEventListener(&#x27;click&#x27;,() =&gt; {
-    setTimeout(() =&gt; voiceSection?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;start&#x27;}),20);
+  navVoiceOutside.addEventListener('click',() => {
+    setTimeout(() => voiceSection?.scrollIntoView({behavior:'smooth',block:'start'}),20);
   });
 }
 
-window.addEventListener(&#x27;beforeunload&#x27;,() =&gt; {
+window.addEventListener('beforeunload',() => {
   try{
-    voiceLocalStream?.getTracks().forEach(track =&gt; track.stop());
+    voiceLocalStream?.getTracks().forEach(track => track.stop());
   }catch(_){}
 });
 
 
 // ---- Private Direct Messages ----
-const dmSection = document.getElementById(&#x27;dmSection&#x27;);
-const dmFriendList = document.getElementById(&#x27;dmFriendList&#x27;);
-const dmThreadName = document.getElementById(&#x27;dmThreadName&#x27;);
-const dmThreadState = document.getElementById(&#x27;dmThreadState&#x27;);
-const dmMessages = document.getElementById(&#x27;dmMessages&#x27;);
-const dmScrollControls = document.getElementById(&#x27;dmScrollControls&#x27;);
-const dmJumpTopBtn = document.getElementById(&#x27;dmJumpTopBtn&#x27;);
-const dmJumpBottomBtn = document.getElementById(&#x27;dmJumpBottomBtn&#x27;);
+const dmSection = document.getElementById('dmSection');
+const dmFriendList = document.getElementById('dmFriendList');
+const dmThreadName = document.getElementById('dmThreadName');
+const dmThreadState = document.getElementById('dmThreadState');
+const dmMessages = document.getElementById('dmMessages');
+const dmScrollControls = document.getElementById('dmScrollControls');
+const dmJumpTopBtn = document.getElementById('dmJumpTopBtn');
+const dmJumpBottomBtn = document.getElementById('dmJumpBottomBtn');
 
-const dmTypingIndicator = document.getElementById(&#x27;dmTypingIndicator&#x27;);
-const dmReplyBar = document.getElementById(&#x27;dmReplyBar&#x27;);
-const dmReplyName = document.getElementById(&#x27;dmReplyName&#x27;);
-const dmReplyPreview = document.getElementById(&#x27;dmReplyPreview&#x27;);
-const dmReplyCancel = document.getElementById(&#x27;dmReplyCancel&#x27;);
+const dmTypingIndicator = document.getElementById('dmTypingIndicator');
+const dmReplyBar = document.getElementById('dmReplyBar');
+const dmReplyName = document.getElementById('dmReplyName');
+const dmReplyPreview = document.getElementById('dmReplyPreview');
+const dmReplyCancel = document.getElementById('dmReplyCancel');
 
-function ensureDmEditBar(){
-  if(!dmReplyBar) return {bar:null,preview:null,cancel:null};
+const dmInput = document.getElementById('dmInput');
+const dmSendBtn = document.getElementById('dmSendBtn');
+const dmStatus = document.getElementById('dmStatus');
+const dmRefreshBtn = document.getElementById('dmRefreshBtn');
 
-  let bar = document.getElementById(&#x27;dmEditBar&#x27;);
+const dmPhotoBtn = document.getElementById('dmPhotoBtn');
+const dmAttachBtn = document.getElementById('dmAttachBtn');
+const dmPhotoInput = document.getElementById('dmPhotoInput');
+const dmFileInput = document.getElementById('dmFileInput');
+const dmAttachmentPreview = document.getElementById('dmAttachmentPreview');
+const dmCallBtn = document.getElementById('dmCallBtn');
+const navDmsOutside = document.getElementById('navDms');
 
-  if(!bar){
-    bar = document.createElement(&#x27;div&#x27;);
-    bar.id = &#x27;dmEditBar&#x27;;
-    bar.className = &#x27;dm-edit-bar hidden&#x27;;
-    bar.innerHTML = `
-      &lt;div class=&quot;dm-edit-bar-copy&quot;&gt;
-        &lt;span&gt;Editing message&lt;/span&gt;
-        &lt;small id=&quot;dmEditPreview&quot;&gt;&lt;/small&gt;
-      &lt;/div&gt;
-      &lt;button id=&quot;dmEditCancel&quot; type=&quot;button&quot; aria-label=&quot;Cancel edit&quot;&gt;×&lt;/button&gt;
-    `;
-    dmReplyBar.insertAdjacentElement(&#x27;afterend&#x27;,bar);
-  }
+const dmIncomingCallOverlay = document.getElementById('dmIncomingCallOverlay');
+const dmIncomingCallAvatar = document.getElementById('dmIncomingCallAvatar');
+const dmIncomingCallName = document.getElementById('dmIncomingCallName');
+const dmAcceptCallBtn = document.getElementById('dmAcceptCallBtn');
+const dmDeclineCallBtn = document.getElementById('dmDeclineCallBtn');
 
-  return {
-    bar,
-    preview:bar.querySelector(&#x27;#dmEditPreview&#x27;),
-    cancel:bar.querySelector(&#x27;#dmEditCancel&#x27;)
-  };
-}
-
-const dmEditUi = ensureDmEditBar();
-const dmEditBar = dmEditUi.bar;
-const dmEditPreview = dmEditUi.preview;
-const dmEditCancel = dmEditUi.cancel;
-
-const dmInput = document.getElementById(&#x27;dmInput&#x27;);
-const dmSendBtn = document.getElementById(&#x27;dmSendBtn&#x27;);
-const dmStatus = document.getElementById(&#x27;dmStatus&#x27;);
-const dmRefreshBtn = document.getElementById(&#x27;dmRefreshBtn&#x27;);
-
-const dmPhotoBtn = document.getElementById(&#x27;dmPhotoBtn&#x27;);
-const dmAttachBtn = document.getElementById(&#x27;dmAttachBtn&#x27;);
-const dmPhotoInput = document.getElementById(&#x27;dmPhotoInput&#x27;);
-const dmFileInput = document.getElementById(&#x27;dmFileInput&#x27;);
-const dmAttachmentPreview = document.getElementById(&#x27;dmAttachmentPreview&#x27;);
-const dmCallBtn = document.getElementById(&#x27;dmCallBtn&#x27;);
-const navDmsOutside = document.getElementById(&#x27;navDms&#x27;);
-
-const dmIncomingCallOverlay = document.getElementById(&#x27;dmIncomingCallOverlay&#x27;);
-const dmIncomingCallAvatar = document.getElementById(&#x27;dmIncomingCallAvatar&#x27;);
-const dmIncomingCallName = document.getElementById(&#x27;dmIncomingCallName&#x27;);
-const dmAcceptCallBtn = document.getElementById(&#x27;dmAcceptCallBtn&#x27;);
-const dmDeclineCallBtn = document.getElementById(&#x27;dmDeclineCallBtn&#x27;);
-
-const dmActiveCallOverlay = document.getElementById(&#x27;dmActiveCallOverlay&#x27;);
-const dmActiveCallCard = document.getElementById(&#x27;dmActiveCallCard&#x27;);
-const dmCallDragHandle = document.getElementById(&#x27;dmCallDragHandle&#x27;);
-const dmActiveCallState = document.getElementById(&#x27;dmActiveCallState&#x27;);
-const dmActiveCallAvatar = document.getElementById(&#x27;dmActiveCallAvatar&#x27;);
-const dmActiveCallName = document.getElementById(&#x27;dmActiveCallName&#x27;);
-const dmActiveCallTimer = document.getElementById(&#x27;dmActiveCallTimer&#x27;);
-const dmCallMuteBtn = document.getElementById(&#x27;dmCallMuteBtn&#x27;);
-const dmEndCallBtn = document.getElementById(&#x27;dmEndCallBtn&#x27;);
-const dmCallStatus = document.getElementById(&#x27;dmCallStatus&#x27;);
-const dmPrivateCallAudio = document.getElementById(&#x27;dmPrivateCallAudio&#x27;);
+const dmActiveCallOverlay = document.getElementById('dmActiveCallOverlay');
+const dmActiveCallCard = document.getElementById('dmActiveCallCard');
+const dmCallDragHandle = document.getElementById('dmCallDragHandle');
+const dmActiveCallState = document.getElementById('dmActiveCallState');
+const dmActiveCallAvatar = document.getElementById('dmActiveCallAvatar');
+const dmActiveCallName = document.getElementById('dmActiveCallName');
+const dmActiveCallTimer = document.getElementById('dmActiveCallTimer');
+const dmCallMuteBtn = document.getElementById('dmCallMuteBtn');
+const dmEndCallBtn = document.getElementById('dmEndCallBtn');
+const dmCallStatus = document.getElementById('dmCallStatus');
+const dmPrivateCallAudio = document.getElementById('dmPrivateCallAudio');
 
 let dmActiveUserId = null;
-let dmActiveName = &#x27;&#x27;;
-let dmActiveAvatar = &#x27;&#x27;;
+let dmActiveName = '';
+let dmActiveAvatar = '';
 let dmPollTimer = null;
 let dmTypingPollTimer = null;
 let dmTypingWriteTimer = null;
 let dmTypingClearTimer = null;
 let dmSending = false;
 let dmReplyTarget = null;
-let dmEditTarget = null;
 let dmRowsById = new Map();
 
 const DM_MAX_ATTACHMENTS = 4;
@@ -8475,20 +8423,20 @@ let dmPendingPreviewUrls = [];
 // Keep already-loaded DM photos stable instead of generating a new signed
 // URL and rebuilding the whole conversation every 3-second poll.
 const dmSignedUrlCache = new Map();
-let dmLastRenderSignature = &#x27;&#x27;;
-let dmLastRenderConversation = &#x27;&#x27;;
+let dmLastRenderSignature = '';
+let dmLastRenderConversation = '';
 
 
 // ---- Private one-to-one DM calls ----
-// Call invitations use the database instead of a recipient Realtime &quot;inbox&quot;.
+// Call invitations use the database instead of a recipient Realtime "inbox".
 // This avoids the private-channel subscribe timeout that prevented calls from ringing.
 let dmCallChannel = null;
 let dmCallPeer = null;
 let dmCallLocalStream = null;
 let dmCallRemoteUserId = null;
-let dmCallRemoteName = &#x27;&#x27;;
-let dmCallRemoteAvatar = &#x27;&#x27;;
-let dmCallTopic = &#x27;&#x27;;
+let dmCallRemoteName = '';
+let dmCallRemoteAvatar = '';
+let dmCallTopic = '';
 let dmCallRole = null;
 let dmCallMuted = false;
 let dmCallOfferSent = false;
@@ -8502,55 +8450,55 @@ let dmOutgoingCallPollTimer = null;
 let dmCallRingTimeout = null;
 
 const DM_CALL_ICE_SERVERS = [
-  {urls:&#x27;stun:stun.l.google.com:19302&#x27;},
-  {urls:&#x27;stun:stun1.l.google.com:19302&#x27;}
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'}
 ];
 
-function dmCallSetStatus(text=&#x27;&#x27;, type=&#x27;normal&#x27;){
+function dmCallSetStatus(text='', type='normal'){
   if(!dmCallStatus) return;
   dmCallStatus.textContent = text;
   dmCallStatus.style.color =
-    type === &#x27;error&#x27; ? &#x27;#ff7c89&#x27; :
-    type === &#x27;success&#x27; ? &#x27;#67e8a5&#x27; :
-    &#x27;#7e8793&#x27;;
+    type === 'error' ? '#ff7c89' :
+    type === 'success' ? '#67e8a5' :
+    '#7e8793';
 }
 
 function dmCallInitials(name){
-  const s = String(name || &#x27;GC&#x27;).trim();
+  const s = String(name || 'GC').trim();
   const parts = s.split(/\s+/).filter(Boolean);
-  if(parts.length &gt;= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return s.slice(0,2).toUpperCase();
 }
 
 function renderDmCallAvatar(el,name,url){
   if(!el) return;
   if(url){
-    el.innerHTML = `&lt;img src=&quot;${escapeChat(url)}&quot; alt=&quot;${escapeChat(name || &#x27;Member&#x27;)} profile photo&quot;&gt;`;
+    el.innerHTML = `<img src="${escapeChat(url)}" alt="${escapeChat(name || 'Member')} profile photo">`;
   }else{
     el.textContent = dmCallInitials(name);
   }
 }
 
 function buildDmCallTopic(a,b){
-  return `dmcall:${[String(a),String(b)].sort().join(&#x27;:&#x27;)}`;
+  return `dmcall:${[String(a),String(b)].sort().join(':')}`;
 }
 
 function resetDmCallTimer(){
   clearInterval(dmCallTimerInterval);
   dmCallTimerInterval = null;
   dmCallStartedAt = null;
-  if(dmActiveCallTimer) dmActiveCallTimer.textContent = &#x27;00:00&#x27;;
+  if(dmActiveCallTimer) dmActiveCallTimer.textContent = '00:00';
 }
 
 function startDmCallTimer(){
   if(dmCallStartedAt) return;
   dmCallStartedAt = Date.now();
 
-  const tick = () =&gt; {
+  const tick = () => {
     if(!dmActiveCallTimer || !dmCallStartedAt) return;
     const seconds = Math.floor((Date.now() - dmCallStartedAt) / 1000);
-    const mins = String(Math.floor(seconds / 60)).padStart(2,&#x27;0&#x27;);
-    const secs = String(seconds % 60).padStart(2,&#x27;0&#x27;);
+    const mins = String(Math.floor(seconds / 60)).padStart(2,'0');
+    const secs = String(seconds % 60).padStart(2,'0');
     dmActiveCallTimer.textContent = `${mins}:${secs}`;
   };
 
@@ -8571,9 +8519,9 @@ async function markDmCallEnded(inviteId){
   try{
     const client = window.gymcelsLolDb;
     if(!client) return;
-    await client.rpc(&#x27;end_dm_call&#x27;,{target_invite_id:Number(inviteId)});
+    await client.rpc('end_dm_call',{target_invite_id:Number(inviteId)});
   }catch(err){
-    console.warn(&#x27;Could not mark call ended:&#x27;,err);
+    console.warn('Could not mark call ended:',err);
   }
 }
 
@@ -8587,34 +8535,34 @@ async function pollIncomingDmCalls(){
   // If an invite is already visible, confirm it is still ringing.
   if(dmIncomingInvite?.id){
     const {data:current} = await client
-      .from(&#x27;dm_call_invites&#x27;)
-      .select(&#x27;id,status&#x27;)
-      .eq(&#x27;id&#x27;,dmIncomingInvite.id)
+      .from('dm_call_invites')
+      .select('id,status')
+      .eq('id',dmIncomingInvite.id)
       .maybeSingle();
 
-    if(!current || current.status !== &#x27;ringing&#x27;){
+    if(!current || current.status !== 'ringing'){
       closeIncomingDmCall();
     }
     return;
   }
 
   const {data,error} = await client
-    .from(&#x27;dm_call_invites&#x27;)
-    .select(&#x27;id,caller_id,caller_name,caller_avatar,topic,status,created_at&#x27;)
-    .eq(&#x27;callee_id&#x27;,session.user.id)
-    .eq(&#x27;status&#x27;,&#x27;ringing&#x27;)
-    .order(&#x27;created_at&#x27;,{ascending:false})
+    .from('dm_call_invites')
+    .select('id,caller_id,caller_name,caller_avatar,topic,status,created_at')
+    .eq('callee_id',session.user.id)
+    .eq('status','ringing')
+    .order('created_at',{ascending:false})
     .limit(1)
     .maybeSingle();
 
   if(error){
-    console.error(&#x27;Incoming call poll error:&#x27;,error);
+    console.error('Incoming call poll error:',error);
     return;
   }
   if(!data) return;
 
   const created = new Date(data.created_at).getTime();
-  if(Number.isFinite(created) &amp;&amp; Date.now() - created &gt; 90000){
+  if(Number.isFinite(created) && Date.now() - created > 90000){
     await markDmCallEnded(data.id);
     return;
   }
@@ -8622,8 +8570,8 @@ async function pollIncomingDmCalls(){
   await showIncomingDmInvite({
     id:Number(data.id),
     callerId:data.caller_id,
-    callerName:data.caller_name || &#x27;Member&#x27;,
-    callerAvatar:data.caller_avatar || &#x27;&#x27;,
+    callerName:data.caller_name || 'Member',
+    callerAvatar:data.caller_avatar || '',
     topic:data.topic
   });
 }
@@ -8633,7 +8581,7 @@ async function showIncomingDmInvite(invite){
 
   try{
     const friendship = await getFriendshipState(invite.callerId);
-    if(!friendship || friendship.status !== &#x27;accepted&#x27;){
+    if(!friendship || friendship.status !== 'accepted'){
       await markDmCallEnded(invite.id);
       return;
     }
@@ -8647,55 +8595,55 @@ async function showIncomingDmInvite(invite){
   renderDmCallAvatar(dmIncomingCallAvatar,invite.callerName,invite.callerAvatar);
 
   if(dmIncomingCallOverlay){
-    dmIncomingCallOverlay.classList.add(&#x27;show&#x27;);
-    dmIncomingCallOverlay.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
+    dmIncomingCallOverlay.classList.add('show');
+    dmIncomingCallOverlay.setAttribute('aria-hidden','false');
   }
 }
 
 async function pollOutgoingDmCall(){
-  if(!dmCallInviteId || dmCallRole !== &#x27;caller&#x27;) return;
+  if(!dmCallInviteId || dmCallRole !== 'caller') return;
 
   const client = window.gymcelsLolDb;
   if(!client) return;
 
   const {data,error} = await client
-    .from(&#x27;dm_call_invites&#x27;)
-    .select(&#x27;id,status&#x27;)
-    .eq(&#x27;id&#x27;,dmCallInviteId)
+    .from('dm_call_invites')
+    .select('id,status')
+    .eq('id',dmCallInviteId)
     .maybeSingle();
 
   if(error){
-    console.error(&#x27;Outgoing call poll error:&#x27;,error);
+    console.error('Outgoing call poll error:',error);
     return;
   }
 
   if(!data){
-    dmCallSetStatus(&#x27;Call ended.&#x27;);
+    dmCallSetStatus('Call ended.');
     await cleanupDmPrivateCall(false);
     return;
   }
 
-  if(data.status === &#x27;accepted&#x27;){
-    if(dmActiveCallState &amp;&amp; dmActiveCallState.textContent !== &#x27;Private call&#x27;){
-      dmActiveCallState.textContent = &#x27;Connecting...&#x27;;
+  if(data.status === 'accepted'){
+    if(dmActiveCallState && dmActiveCallState.textContent !== 'Private call'){
+      dmActiveCallState.textContent = 'Connecting...';
     }
-    dmCallSetStatus(&#x27;Connecting...&#x27;);
-  }else if(data.status === &#x27;declined&#x27;){
-    dmCallSetStatus(&#x27;Call declined.&#x27;);
-    if(dmActiveCallState) dmActiveCallState.textContent = &#x27;Call declined&#x27;;
-    setTimeout(() =&gt; cleanupDmPrivateCall(false),800);
-  }else if(data.status === &#x27;ended&#x27;){
-    dmCallSetStatus(&#x27;Call ended.&#x27;);
-    if(dmActiveCallState) dmActiveCallState.textContent = &#x27;Call ended&#x27;;
-    setTimeout(() =&gt; cleanupDmPrivateCall(false),650);
+    dmCallSetStatus('Connecting...');
+  }else if(data.status === 'declined'){
+    dmCallSetStatus('Call declined.');
+    if(dmActiveCallState) dmActiveCallState.textContent = 'Call declined';
+    setTimeout(() => cleanupDmPrivateCall(false),800);
+  }else if(data.status === 'ended'){
+    dmCallSetStatus('Call ended.');
+    if(dmActiveCallState) dmActiveCallState.textContent = 'Call ended';
+    setTimeout(() => cleanupDmPrivateCall(false),650);
   }
 }
 
 function closeIncomingDmCall(){
   dmIncomingInvite = null;
   if(dmIncomingCallOverlay){
-    dmIncomingCallOverlay.classList.remove(&#x27;show&#x27;);
-    dmIncomingCallOverlay.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+    dmIncomingCallOverlay.classList.remove('show');
+    dmIncomingCallOverlay.setAttribute('aria-hidden','true');
   }
 }
 
@@ -8706,39 +8654,39 @@ function createDmCallPeer(){
   dmCallPeer = pc;
 
   if(dmCallLocalStream){
-    dmCallLocalStream.getAudioTracks().forEach(track =&gt; {
+    dmCallLocalStream.getAudioTracks().forEach(track => {
       pc.addTrack(track,dmCallLocalStream);
     });
   }
 
-  pc.ontrack = (event) =&gt; {
+  pc.ontrack = (event) => {
     const stream = event.streams?.[0] || new MediaStream([event.track]);
     if(dmPrivateCallAudio){
       dmPrivateCallAudio.srcObject = stream;
       dmPrivateCallAudio.muted = false;
-      dmPrivateCallAudio.play().catch(() =&gt; {});
+      dmPrivateCallAudio.play().catch(() => {});
     }
   };
 
-  pc.onicecandidate = (event) =&gt; {
+  pc.onicecandidate = (event) => {
     if(event.candidate){
       sendDmCallSignal({
-        type:&#x27;ice&#x27;,
+        type:'ice',
         candidate:event.candidate.toJSON ? event.candidate.toJSON() : event.candidate
       });
     }
   };
 
-  pc.onconnectionstatechange = () =&gt; {
+  pc.onconnectionstatechange = () => {
     const state = pc.connectionState;
 
-    if(state === &#x27;connected&#x27;){
-      if(dmActiveCallState) dmActiveCallState.textContent = &#x27;Private call&#x27;;
-      dmCallSetStatus(&#x27;Connected&#x27;,&#x27;success&#x27;);
+    if(state === 'connected'){
+      if(dmActiveCallState) dmActiveCallState.textContent = 'Private call';
+      dmCallSetStatus('Connected','success');
       startDmCallTimer();
       stopDmCallPolling();
-    }else if(state === &#x27;failed&#x27;){
-      dmCallSetStatus(&#x27;Audio connection failed. Try calling again.&#x27;,&#x27;error&#x27;);
+    }else if(state === 'failed'){
+      dmCallSetStatus('Audio connection failed. Try calling again.','error');
     }
   };
 
@@ -8752,8 +8700,8 @@ async function sendDmCallSignal(signal){
   if(!session?.user) return;
 
   await dmCallChannel.send({
-    type:&#x27;broadcast&#x27;,
-    event:&#x27;dm-call-signal&#x27;,
+    type:'broadcast',
+    event:'dm-call-signal',
     payload:{
       from:session.user.id,
       to:dmCallRemoteUserId,
@@ -8781,7 +8729,7 @@ async function handleDmCallSignal(payload){
   const signal = payload.signal;
 
   try{
-    if(signal.type === &#x27;offer&#x27;){
+    if(signal.type === 'offer'){
       await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
       await flushDmCallIce();
 
@@ -8789,19 +8737,19 @@ async function handleDmCallSignal(payload){
       await pc.setLocalDescription(answer);
 
       await sendDmCallSignal({
-        type:&#x27;answer&#x27;,
+        type:'answer',
         sdp:pc.localDescription
       });
       return;
     }
 
-    if(signal.type === &#x27;answer&#x27;){
+    if(signal.type === 'answer'){
       await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
       await flushDmCallIce();
       return;
     }
 
-    if(signal.type === &#x27;ice&#x27; &amp;&amp; signal.candidate){
+    if(signal.type === 'ice' && signal.candidate){
       const candidate = new RTCIceCandidate(signal.candidate);
       if(pc.remoteDescription){
         await pc.addIceCandidate(candidate);
@@ -8810,13 +8758,13 @@ async function handleDmCallSignal(payload){
       }
     }
   }catch(err){
-    console.error(&#x27;Private call WebRTC signal error:&#x27;,err);
-    dmCallSetStatus(&#x27;Call connection error.&#x27;,&#x27;error&#x27;);
+    console.error('Private call WebRTC signal error:',err);
+    dmCallSetStatus('Call connection error.','error');
   }
 }
 
 async function createDmCallOffer(){
-  if(dmCallOfferSent || dmCallRole !== &#x27;caller&#x27;) return;
+  if(dmCallOfferSent || dmCallRole !== 'caller') return;
 
   const pc = createDmCallPeer();
   if(!pc) return;
@@ -8826,26 +8774,26 @@ async function createDmCallOffer(){
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     await sendDmCallSignal({
-      type:&#x27;offer&#x27;,
+      type:'offer',
       sdp:pc.localDescription
     });
   }catch(err){
     dmCallOfferSent = false;
-    console.error(&#x27;Private call offer error:&#x27;,err);
-    dmCallSetStatus(&#x27;Could not start call audio.&#x27;,&#x27;error&#x27;);
+    console.error('Private call offer error:',err);
+    dmCallSetStatus('Could not start call audio.','error');
   }
 }
 
 async function joinDmCallTopic(topic,remoteUserId,remoteName,remoteAvatar,role){
   const client = window.gymcelsLolDb;
   const session = await getChatSession();
-  if(!client || !session?.user) throw new Error(&#x27;Log in first.&#x27;);
+  if(!client || !session?.user) throw new Error('Log in first.');
 
   try{ client.realtime.setAuth(session.access_token); }catch(_){}
 
   dmCallRemoteUserId = remoteUserId;
-  dmCallRemoteName = remoteName || &#x27;Member&#x27;;
-  dmCallRemoteAvatar = remoteAvatar || &#x27;&#x27;;
+  dmCallRemoteName = remoteName || 'Member';
+  dmCallRemoteAvatar = remoteAvatar || '';
   dmCallTopic = topic;
   dmCallRole = role;
   dmCallOfferSent = false;
@@ -8854,8 +8802,8 @@ async function joinDmCallTopic(topic,remoteUserId,remoteName,remoteAvatar,role){
   // Remove a stale copy of this private pair topic before registering callbacks.
   try{
     const expected = `realtime:${topic}`;
-    const stale = (client.getChannels?.() || []).filter(ch =&gt;
-      ch &amp;&amp; ch !== dmCallChannel &amp;&amp; (ch.topic === expected || ch.topic === topic)
+    const stale = (client.getChannels?.() || []).filter(ch =>
+      ch && ch !== dmCallChannel && (ch.topic === expected || ch.topic === topic)
     );
     for(const ch of stale){
       try{ await client.removeChannel(ch); }catch(_){}
@@ -8873,39 +8821,39 @@ async function joinDmCallTopic(topic,remoteUserId,remoteName,remoteAvatar,role){
   dmCallChannel = channel;
 
   channel
-    .on(&#x27;broadcast&#x27;,{event:&#x27;dm-call-signal&#x27;},({payload}) =&gt; {
+    .on('broadcast',{event:'dm-call-signal'},({payload}) => {
       handleDmCallSignal(payload);
     })
-    .on(&#x27;broadcast&#x27;,{event:&#x27;dm-call-control&#x27;},({payload}) =&gt; {
-      if(payload?.from === dmCallRemoteUserId &amp;&amp; payload?.action === &#x27;hangup&#x27;){
-        dmCallSetStatus(&#x27;Call ended.&#x27;);
-        if(dmActiveCallState) dmActiveCallState.textContent = &#x27;Call ended&#x27;;
+    .on('broadcast',{event:'dm-call-control'},({payload}) => {
+      if(payload?.from === dmCallRemoteUserId && payload?.action === 'hangup'){
+        dmCallSetStatus('Call ended.');
+        if(dmActiveCallState) dmActiveCallState.textContent = 'Call ended';
         cleanupDmPrivateCall(false);
       }
     })
-    .on(&#x27;presence&#x27;,{event:&#x27;sync&#x27;},async () =&gt; {
+    .on('presence',{event:'sync'},async () => {
       if(channel !== dmCallChannel) return;
 
       const rows = flattenVoicePresence(channel.presenceState() || {});
-      const remotePresent = rows.some(row =&gt; row.user_id === dmCallRemoteUserId);
+      const remotePresent = rows.some(row => row.user_id === dmCallRemoteUserId);
 
-      if(remotePresent &amp;&amp; dmCallRole === &#x27;caller&#x27;){
+      if(remotePresent && dmCallRole === 'caller'){
         await createDmCallOffer();
       }
     });
 
-  await new Promise((resolve,reject) =&gt; {
+  await new Promise((resolve,reject) => {
     let done = false;
-    const timer = setTimeout(() =&gt; {
+    const timer = setTimeout(() => {
       if(done) return;
       done = true;
-      reject(new Error(&#x27;Private call room timed out.&#x27;));
+      reject(new Error('Private call room timed out.'));
     },8000);
 
-    channel.subscribe(async (status,err) =&gt; {
+    channel.subscribe(async (status,err) => {
       if(done) return;
 
-      if(status === &#x27;SUBSCRIBED&#x27;){
+      if(status === 'SUBSCRIBED'){
         try{
           await channel.track({
             user_id:session.user.id,
@@ -8920,18 +8868,18 @@ async function joinDmCallTopic(topic,remoteUserId,remoteName,remoteAvatar,role){
           clearTimeout(timer);
           reject(trackErr);
         }
-      }else if(status === &#x27;CHANNEL_ERROR&#x27; || status === &#x27;TIMED_OUT&#x27;){
+      }else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
         done = true;
         clearTimeout(timer);
-        reject(err || new Error(&#x27;Private call room failed.&#x27;));
+        reject(err || new Error('Private call room failed.'));
       }
     });
   });
 }
 
 async function prepareDmCallMicrophone(){
-  if(!window.isSecureContext) throw new Error(&#x27;Private calls require HTTPS.&#x27;);
-  if(!navigator.mediaDevices?.getUserMedia) throw new Error(&#x27;This browser does not support microphone calls.&#x27;);
+  if(!window.isSecureContext) throw new Error('Private calls require HTTPS.');
+  if(!navigator.mediaDevices?.getUserMedia) throw new Error('This browser does not support microphone calls.');
 
   dmCallLocalStream = await navigator.mediaDevices.getUserMedia({
     audio:{
@@ -8943,7 +8891,7 @@ async function prepareDmCallMicrophone(){
   });
 
   dmCallMuted = false;
-  if(dmCallMuteBtn) dmCallMuteBtn.textContent = &#x27;Mute Mic&#x27;;
+  if(dmCallMuteBtn) dmCallMuteBtn.textContent = 'Mute Mic';
 }
 
 
@@ -8976,25 +8924,25 @@ function setDmCallCardPosition(left,top){
   const pos = clampDmCallPosition(left,top);
   dmActiveCallCard.style.left = `${pos.left}px`;
   dmActiveCallCard.style.top = `${pos.top}px`;
-  dmActiveCallCard.style.right = &#x27;auto&#x27;;
-  dmActiveCallCard.style.bottom = &#x27;auto&#x27;;
+  dmActiveCallCard.style.right = 'auto';
+  dmActiveCallCard.style.bottom = 'auto';
   dmCallHasCustomPosition = true;
 }
 
 function resetDmCallCardPosition(){
   if(!dmActiveCallCard) return;
 
-  dmActiveCallCard.style.left = &#x27;&#x27;;
-  dmActiveCallCard.style.top = &#x27;&#x27;;
-  dmActiveCallCard.style.right = &#x27;&#x27;;
-  dmActiveCallCard.style.bottom = &#x27;&#x27;;
+  dmActiveCallCard.style.left = '';
+  dmActiveCallCard.style.top = '';
+  dmActiveCallCard.style.right = '';
+  dmActiveCallCard.style.bottom = '';
   dmCallHasCustomPosition = false;
 }
 
-if(dmCallDragHandle &amp;&amp; dmActiveCallCard){
-  dmCallDragHandle.addEventListener(&#x27;pointerdown&#x27;,(e) =&gt; {
-    if(e.button !== undefined &amp;&amp; e.button !== 0) return;
-    if(e.target.closest(&#x27;button&#x27;)) return;
+if(dmCallDragHandle && dmActiveCallCard){
+  dmCallDragHandle.addEventListener('pointerdown',(e) => {
+    if(e.button !== undefined && e.button !== 0) return;
+    if(e.target.closest('button')) return;
 
     const rect = dmActiveCallCard.getBoundingClientRect();
 
@@ -9004,7 +8952,7 @@ if(dmCallDragHandle &amp;&amp; dmActiveCallCard){
       offsetY:e.clientY - rect.top
     };
 
-    dmActiveCallCard.classList.add(&#x27;dragging&#x27;);
+    dmActiveCallCard.classList.add('dragging');
 
     try{
       dmCallDragHandle.setPointerCapture(e.pointerId);
@@ -9013,7 +8961,7 @@ if(dmCallDragHandle &amp;&amp; dmActiveCallCard){
     e.preventDefault();
   });
 
-  dmCallDragHandle.addEventListener(&#x27;pointermove&#x27;,(e) =&gt; {
+  dmCallDragHandle.addEventListener('pointermove',(e) => {
     if(!dmCallDragState || e.pointerId !== dmCallDragState.pointerId) return;
 
     setDmCallCardPosition(
@@ -9024,38 +8972,38 @@ if(dmCallDragHandle &amp;&amp; dmActiveCallCard){
     e.preventDefault();
   });
 
-  const finishDrag = (e) =&gt; {
+  const finishDrag = (e) => {
     if(!dmCallDragState) return;
-    if(e.pointerId !== undefined &amp;&amp; e.pointerId !== dmCallDragState.pointerId) return;
+    if(e.pointerId !== undefined && e.pointerId !== dmCallDragState.pointerId) return;
 
     try{
       dmCallDragHandle.releasePointerCapture(dmCallDragState.pointerId);
     }catch(_){}
 
     dmCallDragState = null;
-    dmActiveCallCard.classList.remove(&#x27;dragging&#x27;);
+    dmActiveCallCard.classList.remove('dragging');
   };
 
-  dmCallDragHandle.addEventListener(&#x27;pointerup&#x27;,finishDrag);
-  dmCallDragHandle.addEventListener(&#x27;pointercancel&#x27;,finishDrag);
+  dmCallDragHandle.addEventListener('pointerup',finishDrag);
+  dmCallDragHandle.addEventListener('pointercancel',finishDrag);
 }
 
-window.addEventListener(&#x27;resize&#x27;,() =&gt; {
+window.addEventListener('resize',() => {
   if(!dmActiveCallCard || !dmCallHasCustomPosition) return;
 
   const rect = dmActiveCallCard.getBoundingClientRect();
   setDmCallCardPosition(rect.left,rect.top);
 });
 
-function showActiveDmCall(name,avatar,state=&#x27;Calling...&#x27;){
+function showActiveDmCall(name,avatar,state='Calling...'){
   if(!dmCallHasCustomPosition) resetDmCallCardPosition();
-  if(dmActiveCallName) dmActiveCallName.textContent = name || &#x27;Member&#x27;;
+  if(dmActiveCallName) dmActiveCallName.textContent = name || 'Member';
   renderDmCallAvatar(dmActiveCallAvatar,name,avatar);
   if(dmActiveCallState) dmActiveCallState.textContent = state;
-  if(dmActiveCallTimer) dmActiveCallTimer.textContent = &#x27;00:00&#x27;;
+  if(dmActiveCallTimer) dmActiveCallTimer.textContent = '00:00';
   if(dmActiveCallOverlay){
-    dmActiveCallOverlay.classList.add(&#x27;show&#x27;);
-    dmActiveCallOverlay.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
+    dmActiveCallOverlay.classList.add('show');
+    dmActiveCallOverlay.setAttribute('aria-hidden','false');
   }
 }
 
@@ -9065,13 +9013,13 @@ async function startPrivateDmCall(){
   const client = window.gymcelsLolDb;
   const session = await getChatSession();
   if(!client || !session?.user){
-    setDmStatus(&#x27;Log in first.&#x27;,&#x27;error&#x27;);
+    setDmStatus('Log in first.','error');
     return;
   }
 
   const friendship = await getFriendshipState(dmActiveUserId);
-  if(!friendship || friendship.status !== &#x27;accepted&#x27;){
-    setDmStatus(&#x27;You need to be friends before calling.&#x27;,&#x27;error&#x27;);
+  if(!friendship || friendship.status !== 'accepted'){
+    setDmStatus('You need to be friends before calling.','error');
     return;
   }
 
@@ -9079,15 +9027,15 @@ async function startPrivateDmCall(){
     await leaveVoiceChannel(false,true);
   }
 
-  showActiveDmCall(dmActiveName,dmActiveAvatar,&#x27;Calling...&#x27;);
-  dmCallSetStatus(&#x27;Requesting microphone...&#x27;);
+  showActiveDmCall(dmActiveName,dmActiveAvatar,'Calling...');
+  dmCallSetStatus('Requesting microphone...');
 
   try{
     await prepareDmCallMicrophone();
 
     const topic = buildDmCallTopic(session.user.id,dmActiveUserId);
 
-    const {data:inviteId,error:startError} = await client.rpc(&#x27;start_dm_call&#x27;,{
+    const {data:inviteId,error:startError} = await client.rpc('start_dm_call',{
       target_user:dmActiveUserId,
       target_topic:topic
     });
@@ -9100,31 +9048,31 @@ async function startPrivateDmCall(){
       dmActiveUserId,
       dmActiveName,
       dmActiveAvatar,
-      &#x27;caller&#x27;
+      'caller'
     );
 
-    dmCallSetStatus(&#x27;Ringing...&#x27;);
+    dmCallSetStatus('Ringing...');
 
     clearInterval(dmOutgoingCallPollTimer);
     dmOutgoingCallPollTimer = setInterval(pollOutgoingDmCall,1800);
 
     clearTimeout(dmCallRingTimeout);
-    dmCallRingTimeout = setTimeout(async () =&gt; {
-      if(dmCallRole === &#x27;caller&#x27; &amp;&amp; !dmCallStartedAt &amp;&amp; dmCallInviteId){
+    dmCallRingTimeout = setTimeout(async () => {
+      if(dmCallRole === 'caller' && !dmCallStartedAt && dmCallInviteId){
         await markDmCallEnded(dmCallInviteId);
-        dmCallSetStatus(&#x27;No answer.&#x27;);
-        if(dmActiveCallState) dmActiveCallState.textContent = &#x27;No answer&#x27;;
-        setTimeout(() =&gt; cleanupDmPrivateCall(false),700);
+        dmCallSetStatus('No answer.');
+        if(dmActiveCallState) dmActiveCallState.textContent = 'No answer';
+        setTimeout(() => cleanupDmPrivateCall(false),700);
       }
     },45000);
 
   }catch(err){
-    console.error(&#x27;Start private call error:&#x27;,err);
-    const message = err?.name === &#x27;NotAllowedError&#x27;
-      ? &#x27;Microphone permission was blocked.&#x27;
+    console.error('Start private call error:',err);
+    const message = err?.name === 'NotAllowedError'
+      ? 'Microphone permission was blocked.'
       : (err?.message || String(err));
-    dmCallSetStatus(message,&#x27;error&#x27;);
-    setTimeout(() =&gt; cleanupDmPrivateCall(false),1200);
+    dmCallSetStatus(message,'error');
+    setTimeout(() => cleanupDmPrivateCall(false),1200);
   }
 }
 
@@ -9142,8 +9090,8 @@ async function acceptPrivateDmCall(){
     await leaveVoiceChannel(false,true);
   }
 
-  showActiveDmCall(invite.callerName,invite.callerAvatar,&#x27;Connecting...&#x27;);
-  dmCallSetStatus(&#x27;Requesting microphone...&#x27;);
+  showActiveDmCall(invite.callerName,invite.callerAvatar,'Connecting...');
+  dmCallSetStatus('Requesting microphone...');
 
   try{
     await prepareDmCallMicrophone();
@@ -9155,32 +9103,32 @@ async function acceptPrivateDmCall(){
       invite.callerId,
       invite.callerName,
       invite.callerAvatar,
-      &#x27;callee&#x27;
+      'callee'
     );
 
-    const {error} = await client.rpc(&#x27;respond_to_dm_call&#x27;,{
+    const {error} = await client.rpc('respond_to_dm_call',{
       target_invite_id:dmCallInviteId,
-      call_response:&#x27;accepted&#x27;
+      call_response:'accepted'
     });
     if(error) throw error;
 
-    dmCallSetStatus(&#x27;Connecting...&#x27;);
+    dmCallSetStatus('Connecting...');
   }catch(err){
-    console.error(&#x27;Accept private call error:&#x27;,err);
+    console.error('Accept private call error:',err);
 
     try{
-      await client.rpc(&#x27;respond_to_dm_call&#x27;,{
+      await client.rpc('respond_to_dm_call',{
         target_invite_id:Number(invite.id),
-        call_response:&#x27;declined&#x27;
+        call_response:'declined'
       });
     }catch(_){}
 
-    const message = err?.name === &#x27;NotAllowedError&#x27;
-      ? &#x27;Microphone permission was blocked.&#x27;
+    const message = err?.name === 'NotAllowedError'
+      ? 'Microphone permission was blocked.'
       : (err?.message || String(err));
 
-    dmCallSetStatus(message,&#x27;error&#x27;);
-    setTimeout(() =&gt; cleanupDmPrivateCall(false),1200);
+    dmCallSetStatus(message,'error');
+    setTimeout(() => cleanupDmPrivateCall(false),1200);
   }
 }
 
@@ -9192,13 +9140,13 @@ async function declinePrivateDmCall(){
   closeIncomingDmCall();
 
   try{
-    const {error} = await client.rpc(&#x27;respond_to_dm_call&#x27;,{
+    const {error} = await client.rpc('respond_to_dm_call',{
       target_invite_id:Number(invite.id),
-      call_response:&#x27;declined&#x27;
+      call_response:'declined'
     });
     if(error) throw error;
   }catch(err){
-    console.error(&#x27;Decline call error:&#x27;,err);
+    console.error('Decline call error:',err);
   }
 }
 
@@ -9206,12 +9154,12 @@ async function togglePrivateDmCallMute(){
   if(!dmCallLocalStream) return;
 
   dmCallMuted = !dmCallMuted;
-  dmCallLocalStream.getAudioTracks().forEach(track =&gt; {
+  dmCallLocalStream.getAudioTracks().forEach(track => {
     track.enabled = !dmCallMuted;
   });
 
-  if(dmCallMuteBtn) dmCallMuteBtn.textContent = dmCallMuted ? &#x27;Unmute Mic&#x27; : &#x27;Mute Mic&#x27;;
-  dmCallSetStatus(dmCallMuted ? &#x27;Your microphone is muted.&#x27; : &#x27;Your microphone is live.&#x27;);
+  if(dmCallMuteBtn) dmCallMuteBtn.textContent = dmCallMuted ? 'Unmute Mic' : 'Mute Mic';
+  dmCallSetStatus(dmCallMuted ? 'Your microphone is muted.' : 'Your microphone is live.');
 }
 
 async function cleanupDmPrivateCall(sendHangup=true){
@@ -9220,22 +9168,22 @@ async function cleanupDmPrivateCall(sendHangup=true){
 
   stopDmCallPolling();
 
-  if(sendHangup &amp;&amp; dmCallChannel &amp;&amp; dmCallRemoteUserId){
+  if(sendHangup && dmCallChannel && dmCallRemoteUserId){
     try{
       const session = await getChatSession();
       await dmCallChannel.send({
-        type:&#x27;broadcast&#x27;,
-        event:&#x27;dm-call-control&#x27;,
+        type:'broadcast',
+        event:'dm-call-control',
         payload:{
           from:session?.user?.id,
           to:dmCallRemoteUserId,
-          action:&#x27;hangup&#x27;
+          action:'hangup'
         }
       });
     }catch(_){}
   }
 
-  if(sendHangup &amp;&amp; inviteId){
+  if(sendHangup && inviteId){
     await markDmCallEnded(inviteId);
   }
 
@@ -9251,7 +9199,7 @@ async function cleanupDmPrivateCall(sendHangup=true){
   }
 
   if(dmCallLocalStream){
-    dmCallLocalStream.getTracks().forEach(track =&gt; track.stop());
+    dmCallLocalStream.getTracks().forEach(track => track.stop());
   }
 
   if(dmPrivateCallAudio){
@@ -9262,9 +9210,9 @@ async function cleanupDmPrivateCall(sendHangup=true){
   dmCallPeer = null;
   dmCallLocalStream = null;
   dmCallRemoteUserId = null;
-  dmCallRemoteName = &#x27;&#x27;;
-  dmCallRemoteAvatar = &#x27;&#x27;;
-  dmCallTopic = &#x27;&#x27;;
+  dmCallRemoteName = '';
+  dmCallRemoteAvatar = '';
+  dmCallTopic = '';
   dmCallRole = null;
   dmCallMuted = false;
   dmCallOfferSent = false;
@@ -9274,14 +9222,14 @@ async function cleanupDmPrivateCall(sendHangup=true){
   resetDmCallTimer();
 
   if(dmActiveCallOverlay){
-    dmActiveCallOverlay.classList.remove(&#x27;show&#x27;);
-    dmActiveCallOverlay.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+    dmActiveCallOverlay.classList.remove('show');
+    dmActiveCallOverlay.setAttribute('aria-hidden','true');
   }
 
   resetDmCallCardPosition();
 
-  if(dmCallMuteBtn) dmCallMuteBtn.textContent = &#x27;Mute Mic&#x27;;
-  dmCallSetStatus(&#x27;&#x27;);
+  if(dmCallMuteBtn) dmCallMuteBtn.textContent = 'Mute Mic';
+  dmCallSetStatus('');
 }
 
 async function startPrivateCallSystem(session){
@@ -9295,120 +9243,120 @@ async function startPrivateCallSystem(session){
   }
 
   await pollIncomingDmCalls();
-  dmIncomingCallPollTimer = setInterval(() =&gt; {
-    if(document.visibilityState === &#x27;visible&#x27;){
+  dmIncomingCallPollTimer = setInterval(() => {
+    if(document.visibilityState === 'visible'){
       pollIncomingDmCalls();
     }
   },2200);
 }
 
 if(dmCallBtn){
-  dmCallBtn.addEventListener(&#x27;click&#x27;,startPrivateDmCall);
+  dmCallBtn.addEventListener('click',startPrivateDmCall);
 }
 if(dmAcceptCallBtn){
-  dmAcceptCallBtn.addEventListener(&#x27;click&#x27;,acceptPrivateDmCall);
+  dmAcceptCallBtn.addEventListener('click',acceptPrivateDmCall);
 }
 if(dmDeclineCallBtn){
-  dmDeclineCallBtn.addEventListener(&#x27;click&#x27;,declinePrivateDmCall);
+  dmDeclineCallBtn.addEventListener('click',declinePrivateDmCall);
 }
 if(dmCallMuteBtn){
-  dmCallMuteBtn.addEventListener(&#x27;click&#x27;,togglePrivateDmCallMute);
+  dmCallMuteBtn.addEventListener('click',togglePrivateDmCallMute);
 }
 if(dmEndCallBtn){
-  dmEndCallBtn.addEventListener(&#x27;click&#x27;,() =&gt; cleanupDmPrivateCall(true));
+  dmEndCallBtn.addEventListener('click',() => cleanupDmPrivateCall(true));
 }
 
-window.addEventListener(&#x27;beforeunload&#x27;,() =&gt; {
-  try{ dmCallLocalStream?.getTracks().forEach(track =&gt; track.stop()); }catch(_){}
+window.addEventListener('beforeunload',() => {
+  try{ dmCallLocalStream?.getTracks().forEach(track => track.stop()); }catch(_){}
 });
 
 
 function dmFormatFileSize(bytes){
   const n = Number(bytes || 0);
-  if(n &lt; 1024) return `${n} B`;
-  if(n &lt; 1024 * 1024) return `${(n / 1024).toFixed(n &lt; 10 * 1024 ? 1 : 0)} KB`;
+  if(n < 1024) return `${n} B`;
+  if(n < 1024 * 1024) return `${(n / 1024).toFixed(n < 10 * 1024 ? 1 : 0)} KB`;
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function dmFileExtension(name=&#x27;&#x27;){
-  const value = String(name || &#x27;&#x27;).toLowerCase();
-  const dot = value.lastIndexOf(&#x27;.&#x27;);
-  return dot &gt;= 0 ? value.slice(dot + 1) : &#x27;&#x27;;
+function dmFileExtension(name=''){
+  const value = String(name || '').toLowerCase();
+  const dot = value.lastIndexOf('.');
+  return dot >= 0 ? value.slice(dot + 1) : '';
 }
 
 function dmMimeForFile(file){
-  const existing = String(file?.type || &#x27;&#x27;).toLowerCase();
+  const existing = String(file?.type || '').toLowerCase();
   if(existing) return existing;
 
-  const ext = dmFileExtension(file?.name || &#x27;&#x27;);
+  const ext = dmFileExtension(file?.name || '');
   const map = {
-    jpg:&#x27;image/jpeg&#x27;,
-    jpeg:&#x27;image/jpeg&#x27;,
-    png:&#x27;image/png&#x27;,
-    webp:&#x27;image/webp&#x27;,
-    gif:&#x27;image/gif&#x27;,
-    heic:&#x27;image/heic&#x27;,
-    heif:&#x27;image/heif&#x27;,
-    pdf:&#x27;application/pdf&#x27;,
-    txt:&#x27;text/plain&#x27;,
-    doc:&#x27;application/msword&#x27;,
-    docx:&#x27;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#x27;,
-    xls:&#x27;application/vnd.ms-excel&#x27;,
-    xlsx:&#x27;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&#x27;,
-    ppt:&#x27;application/vnd.ms-powerpoint&#x27;,
-    pptx:&#x27;application/vnd.openxmlformats-officedocument.presentationml.presentation&#x27;,
-    zip:&#x27;application/zip&#x27;
+    jpg:'image/jpeg',
+    jpeg:'image/jpeg',
+    png:'image/png',
+    webp:'image/webp',
+    gif:'image/gif',
+    heic:'image/heic',
+    heif:'image/heif',
+    pdf:'application/pdf',
+    txt:'text/plain',
+    doc:'application/msword',
+    docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls:'application/vnd.ms-excel',
+    xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ppt:'application/vnd.ms-powerpoint',
+    pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    zip:'application/zip'
   };
 
-  return map[ext] || &#x27;&#x27;;
+  return map[ext] || '';
 }
 
 function dmAttachmentAllowed(file){
   const mime = dmMimeForFile(file);
 
   return [
-    &#x27;image/jpeg&#x27;,
-    &#x27;image/png&#x27;,
-    &#x27;image/webp&#x27;,
-    &#x27;image/gif&#x27;,
-    &#x27;image/heic&#x27;,
-    &#x27;image/heif&#x27;,
-    &#x27;application/pdf&#x27;,
-    &#x27;text/plain&#x27;,
-    &#x27;application/msword&#x27;,
-    &#x27;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#x27;,
-    &#x27;application/vnd.ms-excel&#x27;,
-    &#x27;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&#x27;,
-    &#x27;application/vnd.ms-powerpoint&#x27;,
-    &#x27;application/vnd.openxmlformats-officedocument.presentationml.presentation&#x27;,
-    &#x27;application/zip&#x27;,
-    &#x27;application/x-zip-compressed&#x27;
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/heic',
+    'image/heif',
+    'application/pdf',
+    'text/plain',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/zip',
+    'application/x-zip-compressed'
   ].includes(mime);
 }
 
-function dmSafeStorageFileName(name=&#x27;file&#x27;){
-  const cleaned = String(name || &#x27;file&#x27;)
-    .replace(/[^a-zA-Z0-9._-]+/g,&#x27;_&#x27;)
-    .replace(/^_+|_+$/g,&#x27;&#x27;)
+function dmSafeStorageFileName(name='file'){
+  const cleaned = String(name || 'file')
+    .replace(/[^a-zA-Z0-9._-]+/g,'_')
+    .replace(/^_+|_+$/g,'')
     .slice(-120);
 
-  return cleaned || &#x27;file&#x27;;
+  return cleaned || 'file';
 }
 
-function dmAttachmentIcon(mime=&#x27;&#x27;,name=&#x27;&#x27;){
-  if(String(mime).startsWith(&#x27;image/&#x27;)) return &#x27;🖼️&#x27;;
+function dmAttachmentIcon(mime='',name=''){
+  if(String(mime).startsWith('image/')) return '🖼️';
 
   const ext = dmFileExtension(name);
-  if(ext === &#x27;pdf&#x27;) return &#x27;📕&#x27;;
-  if([&#x27;doc&#x27;,&#x27;docx&#x27;].includes(ext)) return &#x27;📘&#x27;;
-  if([&#x27;xls&#x27;,&#x27;xlsx&#x27;].includes(ext)) return &#x27;📗&#x27;;
-  if([&#x27;ppt&#x27;,&#x27;pptx&#x27;].includes(ext)) return &#x27;📙&#x27;;
-  if(ext === &#x27;zip&#x27;) return &#x27;🗜️&#x27;;
-  return &#x27;📄&#x27;;
+  if(ext === 'pdf') return '📕';
+  if(['doc','docx'].includes(ext)) return '📘';
+  if(['xls','xlsx'].includes(ext)) return '📗';
+  if(['ppt','pptx'].includes(ext)) return '📙';
+  if(ext === 'zip') return '🗜️';
+  return '📄';
 }
 
 function dmClearPendingPreviewUrls(){
-  dmPendingPreviewUrls.forEach(url =&gt; {
+  dmPendingPreviewUrls.forEach(url => {
     try{ URL.revokeObjectURL(url); }catch(_){}
   });
   dmPendingPreviewUrls = [];
@@ -9418,8 +9366,8 @@ function dmClearPendingFiles(){
   dmPendingFiles = [];
   dmClearPendingPreviewUrls();
 
-  if(dmPhotoInput) dmPhotoInput.value = &#x27;&#x27;;
-  if(dmFileInput) dmFileInput.value = &#x27;&#x27;;
+  if(dmPhotoInput) dmPhotoInput.value = '';
+  if(dmFileInput) dmFileInput.value = '';
 
   renderDmPendingFiles();
 }
@@ -9430,41 +9378,41 @@ function renderDmPendingFiles(){
   dmClearPendingPreviewUrls();
 
   if(!dmPendingFiles.length){
-    dmAttachmentPreview.innerHTML = &#x27;&#x27;;
-    dmAttachmentPreview.classList.add(&#x27;hidden&#x27;);
+    dmAttachmentPreview.innerHTML = '';
+    dmAttachmentPreview.classList.add('hidden');
     return;
   }
 
-  dmAttachmentPreview.classList.remove(&#x27;hidden&#x27;);
+  dmAttachmentPreview.classList.remove('hidden');
 
   dmAttachmentPreview.innerHTML = `
-    &lt;div class=&quot;dm-attachment-preview-head&quot;&gt;
-      &lt;strong&gt;${dmPendingFiles.length} attachment${dmPendingFiles.length === 1 ? &#x27;&#x27; : &#x27;s&#x27;} ready&lt;/strong&gt;
-      &lt;span&gt;Max 4 · 10 MB each&lt;/span&gt;
-    &lt;/div&gt;
+    <div class="dm-attachment-preview-head">
+      <strong>${dmPendingFiles.length} attachment${dmPendingFiles.length === 1 ? '' : 's'} ready</strong>
+      <span>Max 4 · 10 MB each</span>
+    </div>
 
-    &lt;div class=&quot;dm-attachment-preview-list&quot;&gt;
-      ${dmPendingFiles.map((file,index) =&gt; {
+    <div class="dm-attachment-preview-list">
+      ${dmPendingFiles.map((file,index) => {
         const mime = dmMimeForFile(file);
-        const isImage = mime.startsWith(&#x27;image/&#x27;);
-        let preview = `&lt;span class=&quot;dm-pending-file-icon&quot;&gt;${dmAttachmentIcon(mime,file.name)}&lt;/span&gt;`;
+        const isImage = mime.startsWith('image/');
+        let preview = `<span class="dm-pending-file-icon">${dmAttachmentIcon(mime,file.name)}</span>`;
 
         if(isImage){
           const objectUrl = URL.createObjectURL(file);
           dmPendingPreviewUrls.push(objectUrl);
-          preview = `&lt;img class=&quot;dm-pending-thumb&quot; src=&quot;${escapeChat(objectUrl)}&quot; alt=&quot;&quot;&gt;`;
+          preview = `<img class="dm-pending-thumb" src="${escapeChat(objectUrl)}" alt="">`;
         }
 
-        return `&lt;div class=&quot;dm-pending-file&quot;&gt;
+        return `<div class="dm-pending-file">
           ${preview}
-          &lt;div class=&quot;dm-pending-file-copy&quot;&gt;
-            &lt;strong&gt;${escapeChat(file.name || &#x27;Attachment&#x27;)}&lt;/strong&gt;
-            &lt;span&gt;${escapeChat(dmFormatFileSize(file.size))}&lt;/span&gt;
-          &lt;/div&gt;
-          &lt;button type=&quot;button&quot; data-dm-remove-pending=&quot;${index}&quot; aria-label=&quot;Remove attachment&quot;&gt;×&lt;/button&gt;
-        &lt;/div&gt;`;
-      }).join(&#x27;&#x27;)}
-    &lt;/div&gt;`;
+          <div class="dm-pending-file-copy">
+            <strong>${escapeChat(file.name || 'Attachment')}</strong>
+            <span>${escapeChat(dmFormatFileSize(file.size))}</span>
+          </div>
+          <button type="button" data-dm-remove-pending="${index}" aria-label="Remove attachment">×</button>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 function addDmPendingFiles(fileList){
@@ -9472,8 +9420,8 @@ function addDmPendingFiles(fileList){
   if(!incoming.length) return;
 
   for(const file of incoming){
-    if(dmPendingFiles.length &gt;= DM_MAX_ATTACHMENTS){
-      setDmStatus(&#x27;You can attach up to 4 files per message.&#x27;,&#x27;error&#x27;);
+    if(dmPendingFiles.length >= DM_MAX_ATTACHMENTS){
+      setDmStatus('You can attach up to 4 files per message.','error');
       break;
     }
 
@@ -9481,13 +9429,13 @@ function addDmPendingFiles(fileList){
       continue;
     }
 
-    if(file.size &gt; DM_MAX_FILE_BYTES){
-      setDmStatus(`${file.name || &#x27;That file&#x27;} is over 10 MB.`,&#x27;error&#x27;);
+    if(file.size > DM_MAX_FILE_BYTES){
+      setDmStatus(`${file.name || 'That file'} is over 10 MB.`,'error');
       continue;
     }
 
     if(!dmAttachmentAllowed(file)){
-      setDmStatus(`${file.name || &#x27;That file&#x27;} type is not supported.`,&#x27;error&#x27;);
+      setDmStatus(`${file.name || 'That file'} type is not supported.`,'error');
       continue;
     }
 
@@ -9498,47 +9446,47 @@ function addDmPendingFiles(fileList){
 }
 
 function dmRenderStoredAttachment(attachment){
-  const url = attachment?.signed_url || &#x27;&#x27;;
-  const name = attachment?.file_name || &#x27;Attachment&#x27;;
-  const mime = attachment?.mime_type || &#x27;&#x27;;
+  const url = attachment?.signed_url || '';
+  const name = attachment?.file_name || 'Attachment';
+  const mime = attachment?.mime_type || '';
   const size = dmFormatFileSize(attachment?.file_size || 0);
 
   if(!url){
-    return `&lt;div class=&quot;dm-file-attachment unavailable&quot;&gt;
-      &lt;span&gt;${dmAttachmentIcon(mime,name)}&lt;/span&gt;
-      &lt;div&gt;&lt;strong&gt;${escapeChat(name)}&lt;/strong&gt;&lt;small&gt;Attachment unavailable&lt;/small&gt;&lt;/div&gt;
-    &lt;/div&gt;`;
+    return `<div class="dm-file-attachment unavailable">
+      <span>${dmAttachmentIcon(mime,name)}</span>
+      <div><strong>${escapeChat(name)}</strong><small>Attachment unavailable</small></div>
+    </div>`;
   }
 
-  if(String(mime).startsWith(&#x27;image/&#x27;)){
-    return `&lt;a class=&quot;dm-image-attachment&quot; href=&quot;${escapeChat(url)}&quot;
-              target=&quot;_blank&quot; rel=&quot;noopener&quot; title=&quot;Open full photo&quot;&gt;
-      &lt;img src=&quot;${escapeChat(url)}&quot; alt=&quot;${escapeChat(name)}&quot; loading=&quot;lazy&quot;&gt;
-    &lt;/a&gt;`;
+  if(String(mime).startsWith('image/')){
+    return `<a class="dm-image-attachment" href="${escapeChat(url)}"
+              target="_blank" rel="noopener" title="Open full photo">
+      <img src="${escapeChat(url)}" alt="${escapeChat(name)}" loading="lazy">
+    </a>`;
   }
 
-  return `&lt;a class=&quot;dm-file-attachment&quot; href=&quot;${escapeChat(url)}&quot;
-            target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
-    &lt;span&gt;${dmAttachmentIcon(mime,name)}&lt;/span&gt;
-    &lt;div&gt;
-      &lt;strong&gt;${escapeChat(name)}&lt;/strong&gt;
-      &lt;small&gt;${escapeChat(size)} · Tap to open&lt;/small&gt;
-    &lt;/div&gt;
-    &lt;b&gt;↗&lt;/b&gt;
-  &lt;/a&gt;`;
+  return `<a class="dm-file-attachment" href="${escapeChat(url)}"
+            target="_blank" rel="noopener">
+    <span>${dmAttachmentIcon(mime,name)}</span>
+    <div>
+      <strong>${escapeChat(name)}</strong>
+      <small>${escapeChat(size)} · Tap to open</small>
+    </div>
+    <b>↗</b>
+  </a>`;
 }
 
 async function dmLoadAttachmentMap(client,rows){
   const map = {};
-  const ids = (rows || []).map(row =&gt; Number(row.id)).filter(Boolean);
+  const ids = (rows || []).map(row => Number(row.id)).filter(Boolean);
   if(!ids.length) return map;
 
   try{
     const {data,error} = await client
-      .from(&#x27;direct_message_attachments&#x27;)
-      .select(&#x27;id,message_id,storage_path,file_name,mime_type,file_size,created_at&#x27;)
-      .in(&#x27;message_id&#x27;,ids)
-      .order(&#x27;created_at&#x27;,{ascending:true});
+      .from('direct_message_attachments')
+      .select('id,message_id,storage_path,file_name,mime_type,file_size,created_at')
+      .in('message_id',ids)
+      .order('created_at',{ascending:true});
 
     if(error) throw error;
 
@@ -9557,7 +9505,7 @@ async function dmLoadAttachmentMap(client,rows){
 
       // Reuse the same signed URL for almost a full day. This prevents photos
       // from visually reloading every time DMs poll for new messages.
-      if(cached?.url &amp;&amp; cached.expiresAt &gt; now + 5 * 60 * 1000){
+      if(cached?.url && cached.expiresAt > now + 5 * 60 * 1000){
         signedByPath[path] = cached.url;
       }else{
         missingPaths.push(path);
@@ -9569,13 +9517,13 @@ async function dmLoadAttachmentMap(client,rows){
     if(uniqueMissingPaths.length){
       const {data:signed,error:signedError} = await client
         .storage
-        .from(&#x27;dm-media&#x27;)
+        .from('dm-media')
         .createSignedUrls(uniqueMissingPaths,24 * 60 * 60);
 
       if(signedError) throw signedError;
 
       for(const item of signed || []){
-        if(item?.path &amp;&amp; item?.signedUrl){
+        if(item?.path && item?.signedUrl){
           signedByPath[item.path] = item.signedUrl;
           dmSignedUrlCache.set(item.path,{
             url:item.signedUrl,
@@ -9591,12 +9539,12 @@ async function dmLoadAttachmentMap(client,rows){
 
       map[key].push({
         ...attachment,
-        signed_url:signedByPath[attachment.storage_path] || &#x27;&#x27;
+        signed_url:signedByPath[attachment.storage_path] || ''
       });
     }
   }catch(err){
     // Keep normal text DMs working even if attachment storage has a problem.
-    console.warn(&#x27;DM attachments could not load:&#x27;,err);
+    console.warn('DM attachments could not load:',err);
   }
 
   return map;
@@ -9611,85 +9559,11 @@ function dmRandomToken(){
 }
 
 
-function setDmStatus(text=&#x27;&#x27;, type=&#x27;normal&#x27;){
+function setDmStatus(text='', type='normal'){
   if(!dmStatus) return;
   dmStatus.textContent = text;
-  dmStatus.style.color = type === &#x27;error&#x27; ? &#x27;#ff5a6b&#x27; : type === &#x27;success&#x27; ? &#x27;#67e8a5&#x27; : &#x27;#8c95a1&#x27;;
-  dmStatus.style.fontWeight = type === &#x27;error&#x27; || type === &#x27;success&#x27; ? &#x27;800&#x27; : &#x27;&#x27;;
-}
-
-function dmFormatInboxTime(value){
-  if(!value) return &#x27;&#x27;;
-
-  const date = new Date(value);
-  if(Number.isNaN(date.getTime())) return &#x27;&#x27;;
-
-  const now = new Date();
-  const sameDay =
-    date.getFullYear() === now.getFullYear() &amp;&amp;
-    date.getMonth() === now.getMonth() &amp;&amp;
-    date.getDate() === now.getDate();
-
-  if(sameDay){
-    return date.toLocaleTimeString([], {hour:&#x27;numeric&#x27;,minute:&#x27;2-digit&#x27;});
-  }
-
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-
-  const isYesterday =
-    date.getFullYear() === yesterday.getFullYear() &amp;&amp;
-    date.getMonth() === yesterday.getMonth() &amp;&amp;
-    date.getDate() === yesterday.getDate();
-
-  if(isYesterday) return &#x27;Yesterday&#x27;;
-
-  return date.toLocaleDateString([], {month:&#x27;short&#x27;,day:&#x27;numeric&#x27;});
-}
-
-function dmFormatMessageTimestamp(value){
-  if(!value) return &#x27;&#x27;;
-
-  const date = new Date(value);
-  if(Number.isNaN(date.getTime())) return &#x27;&#x27;;
-
-  const now = new Date();
-  const time = date.toLocaleTimeString([], {hour:&#x27;numeric&#x27;,minute:&#x27;2-digit&#x27;});
-
-  const sameDay =
-    date.getFullYear() === now.getFullYear() &amp;&amp;
-    date.getMonth() === now.getMonth() &amp;&amp;
-    date.getDate() === now.getDate();
-
-  if(sameDay) return `Today, ${time}`;
-
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-
-  const isYesterday =
-    date.getFullYear() === yesterday.getFullYear() &amp;&amp;
-    date.getMonth() === yesterday.getMonth() &amp;&amp;
-    date.getDate() === yesterday.getDate();
-
-  if(isYesterday) return `Yesterday, ${time}`;
-
-  const dateText = date.toLocaleDateString([], {
-    month:&#x27;short&#x27;,
-    day:&#x27;numeric&#x27;,
-    ...(date.getFullYear() !== now.getFullYear() ? {year:&#x27;numeric&#x27;} : {})
-  });
-
-  return `${dateText}, ${time}`;
-}
-
-function dmInboxPreviewText(text){
-  const raw = String(text || &#x27;&#x27;).trim();
-
-  if(!raw) return &#x27;No messages yet&#x27;;
-  if(raw === &#x27;📎 Attachment&#x27;) return &#x27;📎 Attachment&#x27;;
-
-  const clean = raw.replace(/\s+/g,&#x27; &#x27;);
-  return clean.length &gt; 38 ? clean.slice(0,38) + &#x27;…&#x27; : clean;
+  dmStatus.style.color = type === 'error' ? '#ff5a6b' : type === 'success' ? '#67e8a5' : '#8c95a1';
+  dmStatus.style.fontWeight = type === 'error' || type === 'success' ? '800' : '';
 }
 
 async function loadDmFriends(){
@@ -9699,121 +9573,83 @@ async function loadDmFriends(){
   const session = await getChatSession();
 
   if(!client || !session?.user){
-    dmSection.style.display = &#x27;none&#x27;;
+    dmSection.style.display = 'none';
     return;
   }
 
-  dmSection.style.display = &#x27;&#x27;;
+  dmSection.style.display = '';
 
   const me = session.user.id;
   const { data: rows, error } = await client
-    .from(&#x27;friendships&#x27;)
-    .select(&#x27;id,requester_id,addressee_id,status&#x27;)
-    .eq(&#x27;status&#x27;,&#x27;accepted&#x27;)
+    .from('friendships')
+    .select('id,requester_id,addressee_id,status')
+    .eq('status','accepted')
     .or(`requester_id.eq.${me},addressee_id.eq.${me}`);
 
   if(error){
-    dmFriendList.innerHTML = `&lt;div class=&quot;dm-empty&quot;&gt;${escapeChat(error.message)}&lt;/div&gt;`;
+    dmFriendList.innerHTML = `<div class="dm-empty">${escapeChat(error.message)}</div>`;
     return;
   }
 
   const friendships = rows || [];
-  const ids = [...new Set(friendships.map(row =&gt;
+  const ids = [...new Set(friendships.map(row =>
     row.requester_id === me ? row.addressee_id : row.requester_id
   ).filter(Boolean))];
 
   if(!ids.length){
-    dmFriendList.innerHTML = &#x27;&lt;div class=&quot;dm-empty&quot;&gt;No accepted friends yet.&lt;/div&gt;&#x27;;
+    dmFriendList.innerHTML = '<div class="dm-empty">No accepted friends yet.</div>';
     return;
   }
 
   const presence = await getPresenceMapForUsers(ids);
-  const people = ids.map(id =&gt; presence[id] || {
-    user_id:id, display_name:&#x27;Member&#x27;, avatar_url:null, last_seen:null
+  const people = ids.map(id => presence[id] || {
+    user_id:id, display_name:'Member', avatar_url:null, last_seen:null
   });
-
-  const inboxMap = new Map();
-
-  try{
-    const {data:inboxRows,error:inboxError} = await client.rpc(&#x27;get_my_dm_inbox&#x27;);
-    if(inboxError) throw inboxError;
-
-    (inboxRows || []).forEach(row =&gt; {
-      if(!row?.peer_user_id) return;
-      inboxMap.set(String(row.peer_user_id),row);
-    });
-  }catch(err){
-    // The friend list still works if the inbox RPC has not been installed yet.
-    console.warn(&#x27;DM inbox summary could not load:&#x27;,err);
-  }
 
   const pinnedIds = getPinnedFriendIds(me);
 
-  people.sort((a,b) =&gt; {
-    const aId = String(a.user_id || &#x27;&#x27;);
-    const bId = String(b.user_id || &#x27;&#x27;);
-
-    const aPinned = pinnedIds.has(aId) ? 1 : 0;
-    const bPinned = pinnedIds.has(bId) ? 1 : 0;
+  people.sort((a,b) => {
+    const aPinned = pinnedIds.has(String(a.user_id)) ? 1 : 0;
+    const bPinned = pinnedIds.has(String(b.user_id)) ? 1 : 0;
     if(aPinned !== bPinned) return bPinned - aPinned;
-
-    const aInbox = inboxMap.get(aId);
-    const bInbox = inboxMap.get(bId);
-    const aRecent = aInbox?.last_message_at ? new Date(aInbox.last_message_at).getTime() : 0;
-    const bRecent = bInbox?.last_message_at ? new Date(bInbox.last_message_at).getTime() : 0;
-
-    if(aRecent !== bRecent) return bRecent - aRecent;
 
     const aOnline = isPresenceOnline(a.last_seen) ? 1 : 0;
     const bOnline = isPresenceOnline(b.last_seen) ? 1 : 0;
     if(aOnline !== bOnline) return bOnline - aOnline;
 
-    return String(a.display_name || &#x27;&#x27;).localeCompare(String(b.display_name || &#x27;&#x27;));
+    return String(a.display_name || '').localeCompare(String(b.display_name || ''));
   });
 
-  dmFriendList.innerHTML = people.map(person =&gt; {
+  dmFriendList.innerHTML = people.map(person => {
     const online = isPresenceOnline(person.last_seen);
-    const rawId = String(person.user_id || &#x27;&#x27;);
+    const rawId = String(person.user_id || '');
     const id = escapeChat(rawId);
-    const name = escapeChat(person.display_name || &#x27;Member&#x27;);
-    const avatar = escapeChat(person.avatar_url || &#x27;&#x27;);
-    const active = person.user_id === dmActiveUserId ? &#x27;active&#x27; : &#x27;&#x27;;
+    const name = escapeChat(person.display_name || 'Member');
+    const avatar = escapeChat(person.avatar_url || '');
+    const active = person.user_id === dmActiveUserId ? 'active' : '';
     const pinned = pinnedIds.has(rawId);
 
-    const inbox = inboxMap.get(rawId);
-    const previewPrefix = inbox?.last_sender_id === me ? &#x27;You: &#x27; : &#x27;&#x27;;
-    const preview = inbox
-      ? `${previewPrefix}${dmInboxPreviewText(inbox.last_message)}`
-      : &#x27;No messages yet&#x27;;
-    const recentTime = inbox?.last_message_at ? dmFormatInboxTime(inbox.last_message_at) : &#x27;&#x27;;
-    const unreadCount = Math.max(0,Number(inbox?.unread_count || 0));
-
-    return `&lt;div class=&quot;dm-friend-row ${pinned ? &#x27;pinned&#x27; : &#x27;&#x27;}&quot;&gt;
-      &lt;button class=&quot;dm-friend ${active}&quot; type=&quot;button&quot;
-        data-dm-user=&quot;${id}&quot; data-dm-name=&quot;${name}&quot; data-dm-avatar=&quot;${avatar}&quot;&gt;
+    return `<div class="dm-friend-row ${pinned ? 'pinned' : ''}">
+      <button class="dm-friend ${active}" type="button"
+        data-dm-user="${id}" data-dm-name="${name}" data-dm-avatar="${avatar}">
         ${friendAvatarMarkup(person, online)}
-        &lt;div class=&quot;dm-friend-info&quot;&gt;
-          &lt;div class=&quot;dm-friend-name&quot;&gt;${name}${person?.is_vip ? &#x27;&lt;span class=&quot;friend-vip-badge&quot;&gt;VIP 🔱&lt;/span&gt;&#x27; : &#x27;&#x27;}&lt;/div&gt;
-          &lt;div class=&quot;dm-friend-state ${online ? &#x27;online&#x27; : &#x27;&#x27;}&quot;&gt;${online ? &#x27;Online&#x27; : &#x27;Offline&#x27;}&lt;/div&gt;
-          &lt;div class=&quot;dm-friend-preview&quot;&gt;${escapeChat(preview)}&lt;/div&gt;
-        &lt;/div&gt;
-        &lt;div class=&quot;dm-friend-inbox-meta&quot;&gt;
-          ${recentTime ? `&lt;span class=&quot;dm-friend-recent-time&quot;&gt;${escapeChat(recentTime)}&lt;/span&gt;` : &#x27;&#x27;}
-          ${unreadCount ? `&lt;span class=&quot;dm-unread-badge&quot; aria-label=&quot;${unreadCount} unread message${unreadCount === 1 ? &#x27;&#x27; : &#x27;s&#x27;}&quot;&gt;${unreadCount &gt; 99 ? &#x27;99+&#x27; : unreadCount}&lt;/span&gt;` : &#x27;&#x27;}
-        &lt;/div&gt;
-      &lt;/button&gt;
+        <div class="dm-friend-info">
+          <div class="dm-friend-name">${name}${person?.is_vip ? '<span class="friend-vip-badge">VIP 🔱</span>' : ''}</div>
+          <div class="dm-friend-state ${online ? 'online' : ''}">${online ? 'Online' : 'Offline'}</div>
+        </div>
+      </button>
 
-      &lt;button class=&quot;dm-pin-btn ${pinned ? &#x27;pinned&#x27; : &#x27;&#x27;}&quot; type=&quot;button&quot;
-        data-dm-pin-user=&quot;${id}&quot;
-        aria-label=&quot;${pinned ? &#x27;Unpin&#x27; : &#x27;Pin&#x27;} ${name}&quot;
-        title=&quot;${pinned ? &#x27;Unpin DM&#x27; : &#x27;Pin DM&#x27;}&quot;&gt;${pinned ? &#x27;📌&#x27; : &#x27;📍&#x27;}&lt;/button&gt;
-    &lt;/div&gt;`;
-  }).join(&#x27;&#x27;);
+      <button class="dm-pin-btn ${pinned ? 'pinned' : ''}" type="button"
+        data-dm-pin-user="${id}"
+        aria-label="${pinned ? 'Unpin' : 'Pin'} ${name}"
+        title="${pinned ? 'Unpin DM' : 'Pin DM'}">${pinned ? '📌' : '📍'}</button>
+    </div>`;
+  }).join('');
 }
 
 if(dmFriendList){
-  dmFriendList.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
-    const pinBtn = e.target.closest(&#x27;[data-dm-pin-user]&#x27;);
+  dmFriendList.addEventListener('click', async (e) => {
+    const pinBtn = e.target.closest('[data-dm-pin-user]');
     if(!pinBtn) return;
 
     e.preventDefault();
@@ -9827,7 +9663,7 @@ if(dmFriendList){
       await loadDmFriends();
       await loadFriendsSection();
     }catch(err){
-      setDmStatus(&#x27;Could not update pin: &#x27; + (err?.message || String(err)),&#x27;error&#x27;);
+      setDmStatus('Could not update pin: ' + (err?.message || String(err)),'error');
     }
   });
 }
@@ -9835,255 +9671,64 @@ if(dmFriendList){
 
 
 function dmReplyPreviewText(row){
-  if(!row) return &#x27;Original message&#x27;;
+  if(!row) return 'Original message';
 
-  const text = String(row.message || &#x27;&#x27;).trim();
-  if(text === &#x27;📎 Attachment&#x27;) return &#x27;Attachment&#x27;;
+  const text = String(row.message || '').trim();
+  if(text === '📎 Attachment') return 'Attachment';
 
-  const clean = text.replace(/\s+/g,&#x27; &#x27;).trim();
-  return clean.length &gt; 110 ? clean.slice(0,110) + &#x27;…&#x27; : (clean || &#x27;Attachment&#x27;);
+  const clean = text.replace(/\s+/g,' ').trim();
+  return clean.length > 110 ? clean.slice(0,110) + '…' : (clean || 'Attachment');
 }
 
 function clearDmReply(){
   dmReplyTarget = null;
 
-  if(dmReplyBar) dmReplyBar.classList.add(&#x27;hidden&#x27;);
-  if(dmReplyName) dmReplyName.textContent = &#x27;Member&#x27;;
-  if(dmReplyPreview) dmReplyPreview.textContent = &#x27;&#x27;;
-}
-
-function syncDmComposerMode(){
-  const active = !!dmActiveUserId;
-  const editing = !!dmEditTarget;
-
-  if(dmInput){
-    dmInput.disabled = !active;
-    dmInput.placeholder = editing
-      ? &#x27;Edit your message...&#x27;
-      : (active ? `Message ${dmActiveName || &#x27;friend&#x27;}...` : &#x27;Message a friend...&#x27;);
-  }
-
-  if(dmSendBtn){
-    dmSendBtn.textContent = editing ? &#x27;Save&#x27; : &#x27;Send&#x27;;
-    dmSendBtn.disabled = !active || dmSending;
-  }
-
-  if(dmPhotoBtn) dmPhotoBtn.disabled = !active || dmSending || editing;
-  if(dmAttachBtn) dmAttachBtn.disabled = !active || dmSending || editing;
-}
-
-function clearDmEdit(options={}){
-  const {keepInput=false} = options;
-  const wasEditing = !!dmEditTarget;
-
-  dmEditTarget = null;
-  dmEditBar?.classList.add(&#x27;hidden&#x27;);
-  if(dmEditPreview) dmEditPreview.textContent = &#x27;&#x27;;
-
-  if(wasEditing &amp;&amp; dmInput &amp;&amp; !keepInput){
-    dmInput.value = &#x27;&#x27;;
-  }
-
-  syncDmComposerMode();
-}
-
-async function beginDmEdit(row){
-  if(!row?.id || !dmActiveUserId) return;
-
-  const session = await getChatSession();
-  if(!session?.user || String(row.sender_id || &#x27;&#x27;) !== String(session.user.id)) return;
-
-  clearDmReply();
-  dmClearPendingFiles();
-  await clearOwnDmTyping();
-
-  dmEditTarget = row;
-
-  if(dmEditPreview){
-    dmEditPreview.textContent = dmReplyPreviewText(row);
-  }
-
-  dmEditBar?.classList.remove(&#x27;hidden&#x27;);
-
-  const hasAttachments = Number(row._attachment_count || 0) &gt; 0;
-  const currentText = String(row.message || &#x27;&#x27;);
-
-  if(dmInput){
-    dmInput.value = (hasAttachments &amp;&amp; currentText === &#x27;📎 Attachment&#x27;) ? &#x27;&#x27; : currentText;
-  }
-
-  syncDmComposerMode();
-
-  requestAnimationFrame(() =&gt; {
-    dmInput?.focus();
-    try{
-      const len = dmInput?.value?.length || 0;
-      dmInput?.setSelectionRange(len,len);
-    }catch(_){}
-  });
-}
-
-async function saveDmEdit(){
-  if(!dmEditTarget?.id || dmSending) return;
-
-  const text = dmInput?.value.trim() || &#x27;&#x27;;
-  const hasAttachments = Number(dmEditTarget._attachment_count || 0) &gt; 0;
-
-  if(!text &amp;&amp; !hasAttachments){
-    setDmStatus(&#x27;A text message cannot be empty.&#x27;,&#x27;error&#x27;);
-    return;
-  }
-
-  dmSending = true;
-  syncDmComposerMode();
-  setDmStatus(&#x27;Saving edit...&#x27;);
-
-  try{
-    const client = window.gymcelsLolDb;
-    const session = await getChatSession();
-    if(!client || !session?.user) throw new Error(&#x27;Log in first.&#x27;);
-
-    const {error} = await client.rpc(&#x27;edit_direct_message&#x27;,{
-      target_message_id:Number(dmEditTarget.id),
-      new_message:text
-    });
-
-    if(error) throw error;
-
-    if(dmInput) dmInput.value = &#x27;&#x27;;
-    clearDmEdit({keepInput:true});
-    setDmStatus(&#x27;✓ Edited&#x27;,&#x27;success&#x27;);
-
-    dmLastRenderSignature = &#x27;&#x27;;
-    await loadDmConversation(false);
-    await loadDmFriends();
-
-    setTimeout(() =&gt; {
-      if(dmStatus?.textContent === &#x27;✓ Edited&#x27;) setDmStatus(&#x27;&#x27;);
-    },1400);
-  }catch(err){
-    console.error(&#x27;DM edit error:&#x27;,err);
-    setDmStatus(&#x27;Edit failed: &#x27; + (err?.message || String(err)),&#x27;error&#x27;);
-  }finally{
-    dmSending = false;
-    syncDmComposerMode();
-  }
-}
-
-async function deleteDmMessage(row){
-  if(!row?.id || !dmActiveUserId || dmSending) return;
-
-  const session = await getChatSession();
-  if(!session?.user || String(row.sender_id || &#x27;&#x27;) !== String(session.user.id)) return;
-
-  const ok = window.confirm(&#x27;Delete this message? This cannot be undone.&#x27;);
-  if(!ok) return;
-
-  dmSending = true;
-  syncDmComposerMode();
-  setDmStatus(&#x27;Deleting message...&#x27;);
-
-  try{
-    const client = window.gymcelsLolDb;
-    if(!client) throw new Error(&#x27;Database is unavailable.&#x27;);
-
-    const {data:attachmentRows,error:attachmentLookupError} = await client
-      .from(&#x27;direct_message_attachments&#x27;)
-      .select(&#x27;storage_path&#x27;)
-      .eq(&#x27;message_id&#x27;,Number(row.id));
-
-    if(attachmentLookupError){
-      console.warn(&#x27;Could not load DM attachment paths before delete:&#x27;,attachmentLookupError);
-    }
-
-    const {error:deleteError} = await client
-      .from(&#x27;direct_messages&#x27;)
-      .delete()
-      .eq(&#x27;id&#x27;,Number(row.id))
-      .eq(&#x27;sender_id&#x27;,session.user.id);
-
-    if(deleteError) throw deleteError;
-
-    const paths = (attachmentRows || [])
-      .map(item =&gt; item.storage_path)
-      .filter(Boolean);
-
-    if(paths.length){
-      const {error:storageError} = await client.storage
-        .from(&#x27;dm-media&#x27;)
-        .remove(paths);
-
-      if(storageError){
-        // The DM is already deleted; an orphaned private storage object is harmless
-        // and can be cleaned later without breaking the conversation.
-        console.warn(&#x27;Deleted DM but could not remove every stored attachment:&#x27;,storageError);
-      }
-    }
-
-    if(dmReplyTarget?.id === row.id) clearDmReply();
-    if(dmEditTarget?.id === row.id) clearDmEdit();
-
-    dmRowsById.delete(Number(row.id));
-    dmLastRenderSignature = &#x27;&#x27;;
-
-    setDmStatus(&#x27;✓ Message deleted&#x27;,&#x27;success&#x27;);
-    await loadDmConversation(false);
-    await loadDmFriends();
-
-    setTimeout(() =&gt; {
-      if(dmStatus?.textContent === &#x27;✓ Message deleted&#x27;) setDmStatus(&#x27;&#x27;);
-    },1400);
-  }catch(err){
-    console.error(&#x27;DM delete error:&#x27;,err);
-    setDmStatus(&#x27;Delete failed: &#x27; + (err?.message || String(err)),&#x27;error&#x27;);
-  }finally{
-    dmSending = false;
-    syncDmComposerMode();
-  }
+  if(dmReplyBar) dmReplyBar.classList.add('hidden');
+  if(dmReplyName) dmReplyName.textContent = 'Member';
+  if(dmReplyPreview) dmReplyPreview.textContent = '';
 }
 
 function beginDmReply(row){
   if(!row?.id || !dmActiveUserId) return;
 
-  if(dmEditTarget) clearDmEdit();
   dmReplyTarget = row;
 
-  const sessionUserId = window.gymcelsLolLastSessionUserId || &#x27;&#x27;;
-  const mine = String(row.sender_id || &#x27;&#x27;) === String(sessionUserId);
+  const sessionUserId = window.gymcelsLolLastSessionUserId || '';
+  const mine = String(row.sender_id || '') === String(sessionUserId);
 
   if(dmReplyName){
-    dmReplyName.textContent = mine ? &#x27;You&#x27; : (dmActiveName || &#x27;Member&#x27;);
+    dmReplyName.textContent = mine ? 'You' : (dmActiveName || 'Member');
   }
 
   if(dmReplyPreview){
     dmReplyPreview.textContent = dmReplyPreviewText(row);
   }
 
-  dmReplyBar?.classList.remove(&#x27;hidden&#x27;);
+  dmReplyBar?.classList.remove('hidden');
   dmInput?.focus();
 }
 
 function jumpToDmMessage(messageId){
-  const el = dmMessages?.querySelector(`[data-dm-message-id=&quot;${Number(messageId)}&quot;]`);
+  const el = dmMessages?.querySelector(`[data-dm-message-id="${Number(messageId)}"]`);
   if(!el) return false;
 
   try{
-    el.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+    el.scrollIntoView({behavior:'smooth',block:'center'});
   }catch(_){
     el.scrollIntoView();
   }
 
-  el.classList.remove(&#x27;reply-highlight&#x27;);
+  el.classList.remove('reply-highlight');
   void el.offsetWidth;
-  el.classList.add(&#x27;reply-highlight&#x27;);
+  el.classList.add('reply-highlight');
 
   return true;
 }
 
 function hideDmTypingIndicator(){
   if(dmTypingIndicator){
-    dmTypingIndicator.classList.add(&#x27;hidden&#x27;);
-    dmTypingIndicator.removeAttribute(&#x27;data-peer&#x27;);
+    dmTypingIndicator.classList.add('hidden');
+    dmTypingIndicator.removeAttribute('data-peer');
   }
 }
 
@@ -10099,10 +9744,10 @@ async function clearOwnDmTyping(peerId=dmActiveUserId){
     if(!client || !session?.user) return;
 
     await client
-      .from(&#x27;dm_typing_status&#x27;)
+      .from('dm_typing_status')
       .delete()
-      .eq(&#x27;user_id&#x27;,session.user.id)
-      .eq(&#x27;peer_id&#x27;,peerId);
+      .eq('user_id',session.user.id)
+      .eq('peer_id',peerId);
   }catch(_){}
 }
 
@@ -10117,28 +9762,23 @@ async function writeOwnDmTyping(){
     window.gymcelsLolLastSessionUserId = session.user.id;
 
     const {error} = await client
-      .from(&#x27;dm_typing_status&#x27;)
+      .from('dm_typing_status')
       .upsert({
         user_id:session.user.id,
         peer_id:dmActiveUserId,
         updated_at:new Date().toISOString()
       },{
-        onConflict:&#x27;user_id,peer_id&#x27;
+        onConflict:'user_id,peer_id'
       });
 
     if(error) throw error;
   }catch(err){
     // Typing indicators should never break DMs.
-    console.warn(&#x27;DM typing update failed:&#x27;,err);
+    console.warn('DM typing update failed:',err);
   }
 }
 
 function scheduleOwnDmTyping(){
-  if(dmEditTarget){
-    clearOwnDmTyping();
-    return;
-  }
-
   if(!dmActiveUserId || !dmInput || !dmInput.value.trim()){
     clearOwnDmTyping();
     return;
@@ -10148,13 +9788,13 @@ function scheduleOwnDmTyping(){
   dmTypingWriteTimer = setTimeout(writeOwnDmTyping,180);
 
   clearTimeout(dmTypingClearTimer);
-  dmTypingClearTimer = setTimeout(() =&gt; {
+  dmTypingClearTimer = setTimeout(() => {
     clearOwnDmTyping();
   },2800);
 }
 
 async function pollDmTyping(){
-  if(!dmActiveUserId || document.visibilityState !== &#x27;visible&#x27;){
+  if(!dmActiveUserId || document.visibilityState !== 'visible'){
     hideDmTypingIndicator();
     return;
   }
@@ -10172,20 +9812,20 @@ async function pollDmTyping(){
     const cutoff = new Date(Date.now() - 3500).toISOString();
 
     const {data,error} = await client
-      .from(&#x27;dm_typing_status&#x27;)
-      .select(&#x27;updated_at&#x27;)
-      .eq(&#x27;user_id&#x27;,dmActiveUserId)
-      .eq(&#x27;peer_id&#x27;,session.user.id)
-      .gte(&#x27;updated_at&#x27;,cutoff)
+      .from('dm_typing_status')
+      .select('updated_at')
+      .eq('user_id',dmActiveUserId)
+      .eq('peer_id',session.user.id)
+      .gte('updated_at',cutoff)
       .maybeSingle();
 
     if(error) throw error;
 
     if(data?.updated_at){
       if(dmTypingIndicator){
-        const nameEl = dmTypingIndicator.querySelector(&#x27;.dm-typing-name&#x27;);
-        if(nameEl) nameEl.textContent = `${dmActiveName || &#x27;Member&#x27;} is typing`;
-        dmTypingIndicator.classList.remove(&#x27;hidden&#x27;);
+        const nameEl = dmTypingIndicator.querySelector('.dm-typing-name');
+        if(nameEl) nameEl.textContent = `${dmActiveName || 'Member'} is typing`;
+        dmTypingIndicator.classList.remove('hidden');
         dmTypingIndicator.dataset.peer = dmActiveUserId;
       }
     }else{
@@ -10193,7 +9833,7 @@ async function pollDmTyping(){
     }
   }catch(err){
     hideDmTypingIndicator();
-    console.warn(&#x27;DM typing poll failed:&#x27;,err);
+    console.warn('DM typing poll failed:',err);
   }
 }
 
@@ -10201,7 +9841,7 @@ function startDmTypingPolling(){
   clearInterval(dmTypingPollTimer);
   pollDmTyping();
 
-  dmTypingPollTimer = setInterval(() =&gt; {
+  dmTypingPollTimer = setInterval(() => {
     if(dmActiveUserId) pollDmTyping();
   },1200);
 }
@@ -10215,9 +9855,9 @@ function dmScrollPosition(){
   const top=Math.max(0,dmMessages.scrollTop);
 
   return {
-    atTop:top&lt;=4,
-    atBottom:maxScroll-top&lt;=8,
-    scrollable:maxScroll&gt;8
+    atTop:top<=4,
+    atBottom:maxScroll-top<=8,
+    scrollable:maxScroll>8
   };
 }
 
@@ -10225,7 +9865,7 @@ function updateDmScrollControls(){
   if(!dmScrollControls || !dmMessages) return;
 
   const state=dmScrollPosition();
-  dmScrollControls.style.display=state.scrollable ? &#x27;&#x27; : &#x27;none&#x27;;
+  dmScrollControls.style.display=state.scrollable ? '' : 'none';
 
   if(dmJumpTopBtn) dmJumpTopBtn.disabled=!state.scrollable || state.atTop;
   if(dmJumpBottomBtn) dmJumpBottomBtn.disabled=!state.scrollable || state.atBottom;
@@ -10235,7 +9875,7 @@ function jumpDmToTop(){
   if(!dmMessages) return;
 
   try{
-    dmMessages.scrollTo({top:0,behavior:&#x27;smooth&#x27;});
+    dmMessages.scrollTo({top:0,behavior:'smooth'});
   }catch(_){
     dmMessages.scrollTop=0;
   }
@@ -10249,7 +9889,7 @@ function jumpDmToBottom(){
   const bottom=dmMessages.scrollHeight;
 
   try{
-    dmMessages.scrollTo({top:bottom,behavior:&#x27;smooth&#x27;});
+    dmMessages.scrollTo({top:bottom,behavior:'smooth'});
   }catch(_){
     dmMessages.scrollTop=bottom;
   }
@@ -10257,11 +9897,11 @@ function jumpDmToBottom(){
   setTimeout(updateDmScrollControls,260);
 }
 
-dmJumpTopBtn?.addEventListener(&#x27;click&#x27;,jumpDmToTop);
-dmJumpBottomBtn?.addEventListener(&#x27;click&#x27;,jumpDmToBottom);
+dmJumpTopBtn?.addEventListener('click',jumpDmToTop);
+dmJumpBottomBtn?.addEventListener('click',jumpDmToBottom);
 
-dmMessages?.addEventListener(&#x27;scroll&#x27;,updateDmScrollControls,{passive:true});
-window.addEventListener(&#x27;resize&#x27;,updateDmScrollControls);
+dmMessages?.addEventListener('scroll',updateDmScrollControls,{passive:true});
+window.addEventListener('resize',updateDmScrollControls);
 
 async function loadDmConversation(scrollBottom=false){
   if(!dmActiveUserId || !dmMessages) return;
@@ -10277,102 +9917,58 @@ async function loadDmConversation(scrollBottom=false){
     // and then limited to 200, which meant long conversations got stuck showing
     // only the first 200 messages while new DMs still triggered notifications.
     const { data, error } = await client
-      .from(&#x27;direct_messages&#x27;)
-      .select(&#x27;id,sender_id,recipient_id,message,created_at,reply_to_id,edited_at,read_at&#x27;)
+      .from('direct_messages')
+      .select('id,sender_id,recipient_id,message,created_at,reply_to_id')
       .or(`and(sender_id.eq.${me},recipient_id.eq.${dmActiveUserId}),and(sender_id.eq.${dmActiveUserId},recipient_id.eq.${me})`)
-      .order(&#x27;created_at&#x27;,{ascending:false})
-      .order(&#x27;id&#x27;,{ascending:false})
+      .order('created_at',{ascending:false})
+      .order('id',{ascending:false})
       .limit(200);
 
     if(error) throw error;
 
-    // Render oldest -&gt; newest inside the fetched recent window.
+    // Render oldest -> newest inside the fetched recent window.
     const rows = (data || []).slice().reverse();
-
-    let markedRead = false;
-
-    if(document.visibilityState === &#x27;visible&#x27;){
-      const unreadIncoming = rows.some(row =&gt;
-        String(row.sender_id || &#x27;&#x27;) === String(dmActiveUserId) &amp;&amp;
-        String(row.recipient_id || &#x27;&#x27;) === String(me) &amp;&amp;
-        !row.read_at
-      );
-
-      if(unreadIncoming){
-        try{
-          const {data:markedCount,error:readError} = await client.rpc(&#x27;mark_dm_conversation_read&#x27;,{
-            peer_user:dmActiveUserId
-          });
-
-          if(readError) throw readError;
-
-          if(Number(markedCount || 0) &gt; 0){
-            const readNow = new Date().toISOString();
-            rows.forEach(row =&gt; {
-              if(
-                String(row.sender_id || &#x27;&#x27;) === String(dmActiveUserId) &amp;&amp;
-                String(row.recipient_id || &#x27;&#x27;) === String(me) &amp;&amp;
-                !row.read_at
-              ){
-                row.read_at = readNow;
-              }
-            });
-            markedRead = true;
-          }
-        }catch(err){
-          // Read receipts should never prevent the conversation from loading.
-          console.warn(&#x27;Could not mark DM conversation read:&#x27;,err);
-        }
-      }
-    }
-
-    dmRowsById = new Map(rows.map(row =&gt; [Number(row.id),row]));
+    dmRowsById = new Map(rows.map(row => [Number(row.id),row]));
 
     const replyIds = [...new Set(
-      rows.map(row =&gt; Number(row.reply_to_id)).filter(Boolean)
+      rows.map(row => Number(row.reply_to_id)).filter(Boolean)
     )];
 
     const replyMap = new Map();
 
-    replyIds.forEach(id =&gt; {
+    replyIds.forEach(id => {
       const local = dmRowsById.get(id);
       if(local) replyMap.set(id,local);
     });
 
-    const missingReplyIds = replyIds.filter(id =&gt; !replyMap.has(id));
+    const missingReplyIds = replyIds.filter(id => !replyMap.has(id));
 
     if(missingReplyIds.length){
       const {data:parentRows,error:parentError} = await client
-        .from(&#x27;direct_messages&#x27;)
-        .select(&#x27;id,sender_id,recipient_id,message,created_at&#x27;)
-        .in(&#x27;id&#x27;,missingReplyIds);
+        .from('direct_messages')
+        .select('id,sender_id,recipient_id,message,created_at')
+        .in('id',missingReplyIds);
 
       if(!parentError){
-        (parentRows || []).forEach(row =&gt; replyMap.set(Number(row.id),row));
+        (parentRows || []).forEach(row => replyMap.set(Number(row.id),row));
       }
     }
 
     const attachmentMap = await dmLoadAttachmentMap(client,rows);
 
-    rows.forEach(row =&gt; {
-      row._attachment_count = (attachmentMap[Number(row.id)] || []).length;
-    });
-
     const conversationKey = `${me}:${dmActiveUserId}`;
     const renderSignature = JSON.stringify({
-      rows:rows.map(row =&gt; [
+      rows:rows.map(row => [
         row.id,
         row.sender_id,
         row.recipient_id,
         row.message,
         row.created_at,
-        row.reply_to_id,
-        row.edited_at,
-        row.read_at
+        row.reply_to_id
       ]),
-      attachments:Object.entries(attachmentMap).map(([messageId,items]) =&gt; [
+      attachments:Object.entries(attachmentMap).map(([messageId,items]) => [
         messageId,
-        (items || []).map(item =&gt; [
+        (items || []).map(item => [
           item.id,
           item.storage_path,
           item.file_name,
@@ -10383,13 +9979,11 @@ async function loadDmConversation(scrollBottom=false){
     });
 
     if(!rows.length){
-      if(dmEditTarget) clearDmEdit();
-
-      if(dmLastRenderConversation !== conversationKey || dmLastRenderSignature !== &#x27;empty&#x27;){
-        dmMessages.innerHTML = &#x27;&lt;div class=&quot;dm-empty&quot;&gt;No messages yet. Say something.&lt;/div&gt;&#x27;;
+      if(dmLastRenderConversation !== conversationKey || dmLastRenderSignature !== 'empty'){
+        dmMessages.innerHTML = '<div class="dm-empty">No messages yet. Say something.</div>';
         dmMessages.scrollTop = 0;
         dmLastRenderConversation = conversationKey;
-        dmLastRenderSignature = &#x27;empty&#x27;;
+        dmLastRenderSignature = 'empty';
       }
 
       updateDmScrollControls();
@@ -10398,12 +9992,12 @@ async function loadDmConversation(scrollBottom=false){
 
     const oldScrollTop = dmMessages.scrollTop;
     const oldScrollHeight = dmMessages.scrollHeight;
-    const nearBottom = oldScrollHeight - oldScrollTop - dmMessages.clientHeight &lt; 80;
+    const nearBottom = oldScrollHeight - oldScrollTop - dmMessages.clientHeight < 80;
 
     // The 3-second poll used to replace all DM HTML every time even when
     // nothing changed. That reloaded photos and could jump the scroll.
     if(
-      dmLastRenderConversation === conversationKey &amp;&amp;
+      dmLastRenderConversation === conversationKey &&
       dmLastRenderSignature === renderSignature
     ){
       if(scrollBottom){
@@ -10414,50 +10008,40 @@ async function loadDmConversation(scrollBottom=false){
       return;
     }
 
-    dmMessages.innerHTML = rows.map(row =&gt; {
+    dmMessages.innerHTML = rows.map(row => {
       const mine = row.sender_id === me;
-      const when = dmFormatMessageTimestamp(row.created_at);
+      const when = row.created_at
+        ? new Date(row.created_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})
+        : '';
 
       const attachments = attachmentMap[Number(row.id)] || [];
       const attachmentHtml = attachments.length
-        ? `&lt;div class=&quot;dm-message-attachments&quot;&gt;${attachments.map(dmRenderStoredAttachment).join(&#x27;&#x27;)}&lt;/div&gt;`
-        : &#x27;&#x27;;
+        ? `<div class="dm-message-attachments">${attachments.map(dmRenderStoredAttachment).join('')}</div>`
+        : '';
 
       const parent = row.reply_to_id ? replyMap.get(Number(row.reply_to_id)) : null;
-      const parentMine = parent &amp;&amp; String(parent.sender_id || &#x27;&#x27;) === String(me);
+      const parentMine = parent && String(parent.sender_id || '') === String(me);
 
       const quotedReply = row.reply_to_id
-        ? `&lt;button class=&quot;dm-quoted-reply&quot; type=&quot;button&quot; data-dm-jump-message=&quot;${Number(row.reply_to_id)}&quot;&gt;
-             &lt;strong&gt;${parent ? `Replying to ${parentMine ? &#x27;You&#x27; : escapeChat(dmActiveName || &#x27;Member&#x27;)}` : &#x27;Original message unavailable&#x27;}&lt;/strong&gt;
-             &lt;span&gt;${parent ? escapeChat(dmReplyPreviewText(parent)) : &#x27;Message unavailable&#x27;}&lt;/span&gt;
-           &lt;/button&gt;`
-        : &#x27;&#x27;;
+        ? `<button class="dm-quoted-reply" type="button" data-dm-jump-message="${Number(row.reply_to_id)}">
+             <strong>${parent ? `Replying to ${parentMine ? 'You' : escapeChat(dmActiveName || 'Member')}` : 'Original message unavailable'}</strong>
+             <span>${parent ? escapeChat(dmReplyPreviewText(parent)) : 'Message unavailable'}</span>
+           </button>`
+        : '';
 
-      const text = String(row.message || &#x27;&#x27;);
-      const showText = text &amp;&amp; !(text === &#x27;📎 Attachment&#x27; &amp;&amp; attachments.length);
+      const text = String(row.message || '');
+      const showText = text && !(text === '📎 Attachment' && attachments.length);
 
-      const readLabel = mine
-        ? `&lt;span class=&quot;dm-read-state ${row.read_at ? &#x27;seen&#x27; : &#x27;&#x27;}&quot;${row.read_at ? ` title=&quot;Read ${escapeChat(dmFormatMessageTimestamp(row.read_at))}&quot;` : &#x27;&#x27;}&gt;${row.read_at ? &#x27;Seen&#x27; : &#x27;Sent&#x27;}&lt;/span&gt;`
-        : &#x27;&#x27;;
-
-      return `&lt;div class=&quot;dm-row ${mine ? &#x27;mine&#x27; : &#x27;&#x27;}&quot; data-dm-message-id=&quot;${Number(row.id)}&quot;&gt;
+      return `<div class="dm-row ${mine ? 'mine' : ''}" data-dm-message-id="${Number(row.id)}">
         ${quotedReply}
-        ${showText ? `&lt;div class=&quot;dm-bubble&quot;&gt;${escapeChat(text)}&lt;/div&gt;` : &#x27;&#x27;}
+        ${showText ? `<div class="dm-bubble">${escapeChat(text)}</div>` : ''}
         ${attachmentHtml}
-        &lt;div class=&quot;dm-row-footer&quot;&gt;
-          &lt;div class=&quot;dm-message-actions&quot;&gt;
-            &lt;button class=&quot;dm-reply-action&quot; type=&quot;button&quot; data-dm-reply=&quot;${Number(row.id)}&quot;&gt;Reply&lt;/button&gt;
-            ${mine ? `&lt;button class=&quot;dm-edit-action&quot; type=&quot;button&quot; data-dm-edit=&quot;${Number(row.id)}&quot;&gt;Edit&lt;/button&gt;` : &#x27;&#x27;}
-            ${mine ? `&lt;button class=&quot;dm-delete-action&quot; type=&quot;button&quot; data-dm-delete=&quot;${Number(row.id)}&quot;&gt;Delete&lt;/button&gt;` : &#x27;&#x27;}
-          &lt;/div&gt;
-          &lt;div class=&quot;dm-message-meta&quot;&gt;
-            ${row.edited_at ? &#x27;&lt;span class=&quot;dm-edited&quot;&gt;Edited&lt;/span&gt;&#x27; : &#x27;&#x27;}
-            &lt;span class=&quot;dm-time&quot;&gt;${escapeChat(when)}&lt;/span&gt;
-            ${readLabel}
-          &lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;`;
-    }).join(&#x27;&#x27;);
+        <div class="dm-row-footer">
+          <button class="dm-reply-action" type="button" data-dm-reply="${Number(row.id)}">Reply</button>
+          <div class="dm-time">${escapeChat(when)}</div>
+        </div>
+      </div>`;
+    }).join('');
 
     dmLastRenderConversation = conversationKey;
     dmLastRenderSignature = renderSignature;
@@ -10473,9 +10057,9 @@ async function loadDmConversation(scrollBottom=false){
     // If the user was already at the bottom, keep them at the bottom;
     // otherwise do not move their reading position.
     if(scrollBottom || nearBottom){
-      dmMessages.querySelectorAll(&#x27;.dm-image-attachment img&#x27;).forEach(img =&gt; {
+      dmMessages.querySelectorAll('.dm-image-attachment img').forEach(img => {
         if(img.complete) return;
-        img.addEventListener(&#x27;load&#x27;,() =&gt; {
+        img.addEventListener('load',() => {
           dmMessages.scrollTop = dmMessages.scrollHeight;
           updateDmScrollControls();
         },{once:true});
@@ -10483,16 +10067,12 @@ async function loadDmConversation(scrollBottom=false){
     }
 
     requestAnimationFrame(updateDmScrollControls);
-
-    if(markedRead){
-      setTimeout(loadDmFriends,0);
-    }
   }catch(err){
-    setDmStatus(&#x27;DM error: &#x27; + (err?.message || String(err)), &#x27;error&#x27;);
+    setDmStatus('DM error: ' + (err?.message || String(err)), 'error');
   }
 }
 
-async function openDmWith(userId, displayName=&#x27;Member&#x27;, avatarUrl=&#x27;&#x27;){
+async function openDmWith(userId, displayName='Member', avatarUrl=''){
   if(!userId || !dmSection) return;
 
   const session = await getChatSession();
@@ -10501,79 +10081,78 @@ async function openDmWith(userId, displayName=&#x27;Member&#x27;, avatarUrl=&#x2
 
   const blockState = await getMemberBlockState(userId);
   if(blockState.blocked_by_me || blockState.blocked_me){
-    setDmStatus(&#x27;This DM is unavailable while a block is active.&#x27;,&#x27;error&#x27;);
+    setDmStatus('This DM is unavailable while a block is active.','error');
     return;
   }
 
   // DMs are for accepted friends only.
   const friendship = await getFriendshipState(userId);
-  if(!friendship || friendship.status !== &#x27;accepted&#x27;){
-    setDmStatus(&#x27;You need to be friends before you can DM this member.&#x27;, &#x27;error&#x27;);
+  if(!friendship || friendship.status !== 'accepted'){
+    setDmStatus('You need to be friends before you can DM this member.', 'error');
     return;
   }
 
   const previousDmUserId = dmActiveUserId;
   const changingConversation = dmActiveUserId !== userId;
 
-  if(changingConversation &amp;&amp; previousDmUserId){
+  if(changingConversation && previousDmUserId){
     clearOwnDmTyping(previousDmUserId);
   }
 
   dmActiveUserId = userId;
-  dmActiveName = displayName || &#x27;Member&#x27;;
-  dmActiveAvatar = avatarUrl || &#x27;&#x27;;
+  dmActiveName = displayName || 'Member';
+  dmActiveAvatar = avatarUrl || '';
 
   if(changingConversation){
-    dmLastRenderConversation = &#x27;&#x27;;
-    dmLastRenderSignature = &#x27;&#x27;;
+    dmLastRenderConversation = '';
+    dmLastRenderSignature = '';
     dmRowsById = new Map();
     clearDmReply();
-    clearDmEdit();
     hideDmTypingIndicator();
   }
 
   dmThreadName.textContent = dmActiveName;
-  dmThreadState.textContent = &#x27;Private conversation&#x27;;
-  syncDmComposerMode();
-  if(dmCallBtn) dmCallBtn.classList.remove(&#x27;hidden&#x27;);
-  setDmStatus(&#x27;&#x27;);
+  dmThreadState.textContent = 'Private conversation';
+  dmInput.disabled = false;
+  dmSendBtn.disabled = false;
+  if(dmPhotoBtn) dmPhotoBtn.disabled = false;
+  if(dmAttachBtn) dmAttachBtn.disabled = false;
+  if(dmCallBtn) dmCallBtn.classList.remove('hidden');
+  dmInput.placeholder = `Message ${dmActiveName}...`;
+  setDmStatus('');
 
   closeChatPublicProfile();
-  dmSection.style.display = &#x27;&#x27;;
-  location.hash = &#x27;dmSection&#x27;;
+  dmSection.style.display = '';
+  location.hash = 'dmSection';
 
   await loadDmFriends();
   await loadDmConversation(true);
 
   clearInterval(dmPollTimer);
-  dmPollTimer = setInterval(() =&gt; {
-    if(dmActiveUserId &amp;&amp; document.visibilityState === &#x27;visible&#x27;){
+  dmPollTimer = setInterval(() => {
+    if(dmActiveUserId && document.visibilityState === 'visible'){
       loadDmConversation(false);
     }
   }, 3000);
 
   startDmTypingPolling();
-  setTimeout(() =&gt; dmInput?.focus(), 150);
+  setTimeout(() => dmInput?.focus(), 150);
 }
 
 async function sendDm(){
-  if(dmEditTarget){
-    return saveDmEdit();
-  }
-
   if(dmSending || !dmActiveUserId) return;
 
-  const text = dmInput?.value.trim() || &#x27;&#x27;;
+  const text = dmInput?.value.trim() || '';
   const files = [...dmPendingFiles];
 
-  if(!text &amp;&amp; !files.length) return;
+  if(!text && !files.length) return;
 
   dmSending = true;
   if(dmSendBtn) dmSendBtn.disabled = true;
   if(dmPhotoBtn) dmPhotoBtn.disabled = true;
   if(dmAttachBtn) dmAttachBtn.disabled = true;
 
-  setDmStatus(files.length ? &#x27;Preparing attachments...&#x27; : &#x27;Sending...&#x27;);
+  setDmStatus(files.length ? 'Preparing attachments...' : 'Sending...');
 
   const uploadedPaths = [];
   let insertedMessageId = null;
@@ -10581,22 +10160,22 @@ async function sendDm(){
   try{
     const client = window.gymcelsLolDb;
     const session = await getChatSession();
-    if(!client || !session?.user) throw new Error(&#x27;Log in first.&#x27;);
+    if(!client || !session?.user) throw new Error('Log in first.');
 
     const senderId = session.user.id;
     const recipientId = dmActiveUserId;
     const uploaded = [];
 
-    for(let i=0;i&lt;files.length;i++){
+    for(let i=0;i<files.length;i++){
       const file = files[i];
       const mime = dmMimeForFile(file);
 
       if(!mime || !dmAttachmentAllowed(file)){
-        throw new Error(`${file.name || &#x27;Attachment&#x27;} type is not supported.`);
+        throw new Error(`${file.name || 'Attachment'} type is not supported.`);
       }
 
-      if(file.size &gt; DM_MAX_FILE_BYTES){
-        throw new Error(`${file.name || &#x27;Attachment&#x27;} is over 10 MB.`);
+      if(file.size > DM_MAX_FILE_BYTES){
+        throw new Error(`${file.name || 'Attachment'} is over 10 MB.`);
       }
 
       setDmStatus(`Uploading attachment ${i + 1} of ${files.length}...`);
@@ -10606,11 +10185,11 @@ async function sendDm(){
 
       const {error:uploadError} = await client
         .storage
-        .from(&#x27;dm-media&#x27;)
+        .from('dm-media')
         .upload(path,file,{
           contentType:mime,
           upsert:false,
-          cacheControl:&#x27;3600&#x27;
+          cacheControl:'3600'
         });
 
       if(uploadError) throw uploadError;
@@ -10624,28 +10203,28 @@ async function sendDm(){
       });
     }
 
-    setDmStatus(&#x27;Sending...&#x27;);
+    setDmStatus('Sending...');
 
     const {data:messageRow,error:messageError} = await client
-      .from(&#x27;direct_messages&#x27;)
+      .from('direct_messages')
       .insert({
         sender_id:senderId,
         recipient_id:recipientId,
-        message:text || &#x27;📎 Attachment&#x27;,
+        message:text || '📎 Attachment',
         reply_to_id:dmReplyTarget?.id || null
       })
-      .select(&#x27;id&#x27;)
+      .select('id')
       .single();
 
     if(messageError) throw messageError;
     insertedMessageId = Number(messageRow?.id);
 
     if(!insertedMessageId){
-      throw new Error(&#x27;Message was sent but its ID could not be loaded.&#x27;);
+      throw new Error('Message was sent but its ID could not be loaded.');
     }
 
     if(uploaded.length){
-      const attachmentRows = uploaded.map(item =&gt; ({
+      const attachmentRows = uploaded.map(item => ({
         message_id:insertedMessageId,
         uploader_id:senderId,
         storage_path:item.storage_path,
@@ -10655,49 +10234,48 @@ async function sendDm(){
       }));
 
       const {error:attachmentError} = await client
-        .from(&#x27;direct_message_attachments&#x27;)
+        .from('direct_message_attachments')
         .insert(attachmentRows);
 
       if(attachmentError) throw attachmentError;
     }
 
-    if(dmInput) dmInput.value = &#x27;&#x27;;
+    if(dmInput) dmInput.value = '';
     dmClearPendingFiles();
     clearDmReply();
     await clearOwnDmTyping(recipientId);
 
-    setDmStatus(files.length ? &#x27;✓ Sent with attachment&#x27; : &#x27;✓ Sent&#x27;,&#x27;success&#x27;);
+    setDmStatus(files.length ? '✓ Sent with attachment' : '✓ Sent','success');
     await loadDmConversation(true);
-    await loadDmFriends();
 
-    setTimeout(() =&gt; {
-      if(dmStatus?.textContent?.startsWith(&#x27;✓ Sent&#x27;)) setDmStatus(&#x27;&#x27;);
+    setTimeout(() => {
+      if(dmStatus?.textContent?.startsWith('✓ Sent')) setDmStatus('');
     },1500);
 
   }catch(err){
-    console.error(&#x27;DM send error:&#x27;,err);
+    console.error('DM send error:',err);
 
     try{
       const client = window.gymcelsLolDb;
 
       if(insertedMessageId){
         await client
-          .from(&#x27;direct_messages&#x27;)
+          .from('direct_messages')
           .delete()
-          .eq(&#x27;id&#x27;,insertedMessageId);
+          .eq('id',insertedMessageId);
       }
 
       if(uploadedPaths.length){
         await client
           .storage
-          .from(&#x27;dm-media&#x27;)
+          .from('dm-media')
           .remove(uploadedPaths);
       }
     }catch(cleanupErr){
-      console.warn(&#x27;Could not fully clean up failed DM attachment:&#x27;,cleanupErr);
+      console.warn('Could not fully clean up failed DM attachment:',cleanupErr);
     }
 
-    setDmStatus(&#x27;Send failed: &#x27; + (err?.message || String(err)),&#x27;error&#x27;);
+    setDmStatus('Send failed: ' + (err?.message || String(err)),'error');
 
   }finally{
     dmSending = false;
@@ -10710,8 +10288,8 @@ async function sendDm(){
   }
 }
 
-document.addEventListener(&#x27;click&#x27;, (e) =&gt; {
-  const target = e.target.closest(&#x27;[data-dm-user]&#x27;);
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('[data-dm-user]');
   if(!target) return;
 
   e.preventDefault();
@@ -10719,53 +10297,53 @@ document.addEventListener(&#x27;click&#x27;, (e) =&gt; {
 
   openDmWith(
     target.dataset.dmUser,
-    target.dataset.dmName || &#x27;Member&#x27;,
-    target.dataset.dmAvatar || &#x27;&#x27;
+    target.dataset.dmName || 'Member',
+    target.dataset.dmAvatar || ''
   );
 });
 
 if(chatDmBtn){
-  chatDmBtn.addEventListener(&#x27;click&#x27;, () =&gt; {
+  chatDmBtn.addEventListener('click', () => {
     openDmWith(openedChatUserId, openedChatDisplayName, openedChatAvatarUrl);
   });
 }
 
 if(dmPhotoBtn){
-  dmPhotoBtn.addEventListener(&#x27;click&#x27;,() =&gt; {
+  dmPhotoBtn.addEventListener('click',() => {
     if(!dmPhotoBtn.disabled) dmPhotoInput?.click();
   });
 }
 
 if(dmAttachBtn){
-  dmAttachBtn.addEventListener(&#x27;click&#x27;,() =&gt; {
+  dmAttachBtn.addEventListener('click',() => {
     if(!dmAttachBtn.disabled) dmFileInput?.click();
   });
 }
 
 if(dmPhotoInput){
-  dmPhotoInput.addEventListener(&#x27;change&#x27;,() =&gt; {
+  dmPhotoInput.addEventListener('change',() => {
     addDmPendingFiles(dmPhotoInput.files);
-    dmPhotoInput.value = &#x27;&#x27;;
+    dmPhotoInput.value = '';
   });
 }
 
 if(dmFileInput){
-  dmFileInput.addEventListener(&#x27;change&#x27;,() =&gt; {
+  dmFileInput.addEventListener('change',() => {
     addDmPendingFiles(dmFileInput.files);
-    dmFileInput.value = &#x27;&#x27;;
+    dmFileInput.value = '';
   });
 }
 
 if(dmAttachmentPreview){
-  dmAttachmentPreview.addEventListener(&#x27;click&#x27;,(e) =&gt; {
-    const removeBtn = e.target.closest(&#x27;[data-dm-remove-pending]&#x27;);
+  dmAttachmentPreview.addEventListener('click',(e) => {
+    const removeBtn = e.target.closest('[data-dm-remove-pending]');
     if(!removeBtn) return;
 
     e.preventDefault();
     e.stopPropagation();
 
     const index = Number(removeBtn.dataset.dmRemovePending);
-    if(!Number.isInteger(index) || index &lt; 0 || index &gt;= dmPendingFiles.length) return;
+    if(!Number.isInteger(index) || index < 0 || index >= dmPendingFiles.length) return;
 
     dmPendingFiles.splice(index,1);
     renderDmPendingFiles();
@@ -10773,38 +10351,13 @@ if(dmAttachmentPreview){
 }
 
 
-dmReplyCancel?.addEventListener(&#x27;click&#x27;,() =&gt; {
+dmReplyCancel?.addEventListener('click',() => {
   clearDmReply();
   dmInput?.focus();
 });
 
-dmEditCancel?.addEventListener(&#x27;click&#x27;,() =&gt; {
-  clearDmEdit();
-  dmInput?.focus();
-});
-
-dmMessages?.addEventListener(&#x27;click&#x27;,async (e) =&gt; {
-  const editBtn = e.target.closest(&#x27;[data-dm-edit]&#x27;);
-  if(editBtn){
-    e.preventDefault();
-    e.stopPropagation();
-
-    const row = dmRowsById.get(Number(editBtn.dataset.dmEdit));
-    if(row) await beginDmEdit(row);
-    return;
-  }
-
-  const deleteBtn = e.target.closest(&#x27;[data-dm-delete]&#x27;);
-  if(deleteBtn){
-    e.preventDefault();
-    e.stopPropagation();
-
-    const row = dmRowsById.get(Number(deleteBtn.dataset.dmDelete));
-    if(row) await deleteDmMessage(row);
-    return;
-  }
-
-  const replyBtn = e.target.closest(&#x27;[data-dm-reply]&#x27;);
+dmMessages?.addEventListener('click',(e) => {
+  const replyBtn = e.target.closest('[data-dm-reply]');
   if(replyBtn){
     e.preventDefault();
     e.stopPropagation();
@@ -10814,7 +10367,7 @@ dmMessages?.addEventListener(&#x27;click&#x27;,async (e) =&gt; {
     return;
   }
 
-  const jumpBtn = e.target.closest(&#x27;[data-dm-jump-message]&#x27;);
+  const jumpBtn = e.target.closest('[data-dm-jump-message]');
   if(jumpBtn){
     e.preventDefault();
     e.stopPropagation();
@@ -10822,29 +10375,23 @@ dmMessages?.addEventListener(&#x27;click&#x27;,async (e) =&gt; {
   }
 });
 
-if(dmSendBtn) dmSendBtn.addEventListener(&#x27;click&#x27;, sendDm);
+if(dmSendBtn) dmSendBtn.addEventListener('click', sendDm);
 
 if(dmInput){
-  dmInput.addEventListener(&#x27;input&#x27;,scheduleOwnDmTyping);
+  dmInput.addEventListener('input',scheduleOwnDmTyping);
 
-  dmInput.addEventListener(&#x27;blur&#x27;,() =&gt; {
+  dmInput.addEventListener('blur',() => {
     clearOwnDmTyping();
   });
 
-  dmInput.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
-    if(e.key === &#x27;Escape&#x27; &amp;&amp; dmEditTarget){
-      e.preventDefault();
-      clearDmEdit();
-      return;
-    }
-
-    if(e.key === &#x27;Escape&#x27; &amp;&amp; dmReplyTarget){
+  dmInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && dmReplyTarget){
       e.preventDefault();
       clearDmReply();
       return;
     }
 
-    if(e.key === &#x27;Enter&#x27; &amp;&amp; !e.shiftKey){
+    if(e.key === 'Enter' && !e.shiftKey){
       e.preventDefault();
       sendDm();
     }
@@ -10852,19 +10399,19 @@ if(dmInput){
 }
 
 if(dmRefreshBtn){
-  dmRefreshBtn.addEventListener(&#x27;click&#x27;, async () =&gt; {
+  dmRefreshBtn.addEventListener('click', async () => {
     await loadDmFriends();
     if(dmActiveUserId) await loadDmConversation(false);
   });
 }
 
 if(navDmsOutside){
-  navDmsOutside.addEventListener(&#x27;click&#x27;, () =&gt; {
+  navDmsOutside.addEventListener('click', () => {
     setTimeout(loadDmFriends, 50);
   });
 }
 
-fpDb.auth.onAuthStateChange((_event, session) =&gt; {
+fpDb.auth.onAuthStateChange((_event, session) => {
   startPrivateCallSystem(session);
   if(session?.user){
     setTimeout(loadDmFriends, 0);
@@ -10876,11 +10423,10 @@ fpDb.auth.onAuthStateChange((_event, session) =&gt; {
 
     clearOwnDmTyping(dmActiveUserId);
     dmActiveUserId = null;
-    dmLastRenderConversation = &#x27;&#x27;;
-    dmLastRenderSignature = &#x27;&#x27;;
+    dmLastRenderConversation = '';
+    dmLastRenderSignature = '';
     dmRowsById = new Map();
     clearDmReply();
-    clearDmEdit();
     hideDmTypingIndicator();
     dmClearPendingFiles();
 
@@ -10888,62 +10434,62 @@ fpDb.auth.onAuthStateChange((_event, session) =&gt; {
     if(dmSendBtn) dmSendBtn.disabled = true;
     if(dmPhotoBtn) dmPhotoBtn.disabled = true;
     if(dmAttachBtn) dmAttachBtn.disabled = true;
-    if(dmCallBtn) dmCallBtn.classList.add(&#x27;hidden&#x27;);
-    if(dmSection) dmSection.style.display = &#x27;none&#x27;;
+    if(dmCallBtn) dmCallBtn.classList.add('hidden');
+    if(dmSection) dmSection.style.display = 'none';
   }
 });
 
 setTimeout(loadDmFriends, 250);
 setTimeout(updateDmScrollControls, 300);
-setTimeout(async () =&gt; {
+setTimeout(async () => {
   try{
     const session = await getChatSession();
     await startPrivateCallSystem(session);
   }catch(err){
-    console.error(&#x27;Private call startup error:&#x27;,err);
+    console.error('Private call startup error:',err);
   }
 },350);
 
 async function uploadProfilePhoto(){
   const file = profilePhotoInput?.files?.[0];
   if(!file){
-    profileMessage.textContent = &#x27;Choose a photo first.&#x27;;
+    profileMessage.textContent = 'Choose a photo first.';
     return;
   }
-  if(file.size &gt; 5 * 1024 * 1024){
-    profileMessage.textContent = &#x27;Photo must be under 5 MB.&#x27;;
+  if(file.size > 5 * 1024 * 1024){
+    profileMessage.textContent = 'Photo must be under 5 MB.';
     return;
   }
 
-  const allowed = [&#x27;image/jpeg&#x27;,&#x27;image/png&#x27;,&#x27;image/webp&#x27;];
+  const allowed = ['image/jpeg','image/png','image/webp'];
   if(!allowed.includes(file.type)){
-    profileMessage.textContent = &#x27;Use a JPG, PNG, or WebP image.&#x27;;
+    profileMessage.textContent = 'Use a JPG, PNG, or WebP image.';
     return;
   }
 
   const { data: { session } } = await fpDb.auth.getSession();
   if(!session?.user){
-    profileMessage.textContent = &#x27;Log in first.&#x27;;
+    profileMessage.textContent = 'Log in first.';
     return;
   }
 
-  profileMessage.textContent = &#x27;Uploading photo...&#x27;;
+  profileMessage.textContent = 'Uploading photo...';
 
-  const ext = (file.name.split(&#x27;.&#x27;).pop() || &#x27;jpg&#x27;).toLowerCase();
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
   const filePath = `${session.user.id}/avatar-${Date.now()}.${ext}`;
 
   const { error: uploadError } = await fpDb.storage
-    .from(&#x27;avatars&#x27;)
+    .from('avatars')
     .upload(filePath, file, { contentType: file.type });
 
   if(uploadError){
     profileMessage.textContent = uploadError.message;
-    profileMessage.style.color = &#x27;#ff5a6b&#x27;;
-    profileMessage.style.fontWeight = &#x27;700&#x27;;
+    profileMessage.style.color = '#ff5a6b';
+    profileMessage.style.fontWeight = '700';
     return;
   }
 
-  const { data: publicData } = fpDb.storage.from(&#x27;avatars&#x27;).getPublicUrl(filePath);
+  const { data: publicData } = fpDb.storage.from('avatars').getPublicUrl(filePath);
   const avatar_url = publicData.publicUrl;
 
   const { error: updateError } = await fpDb.auth.updateUser({
@@ -10955,15 +10501,15 @@ async function uploadProfilePhoto(){
     return;
   }
 
-  profileMessage.textContent = &#x27;✓ PROFILE PHOTO UPDATED&#x27;;
+  profileMessage.textContent = '✓ PROFILE PHOTO UPDATED';
   updateOwnPresence();
-  profileMessage.style.fontWeight = &#x27;900&#x27;;
-  profileMessage.style.color = &#x27;#67e8a5&#x27;;
+  profileMessage.style.fontWeight = '900';
+  profileMessage.style.color = '#67e8a5';
   await fpDb
-    .from(&#x27;messages&#x27;)
+    .from('messages')
     .update({ avatar_url })
-    .eq(&#x27;user_id&#x27;, session.user.id); // Sync avatar into old chat messages
-  profilePhotoInput.value = &#x27;&#x27;;
+    .eq('user_id', session.user.id); // Sync avatar into old chat messages
+  profilePhotoInput.value = '';
   await refreshMemberProfile();
 }
 
@@ -10974,13 +10520,13 @@ async function removePhysiquePhoto(){
 
   const user = session.user;
   const meta = user.user_metadata || {};
-  const currentPath = meta.physique_path || &#x27;&#x27;;
+  const currentPath = meta.physique_path || '';
 
-  profileMessage.textContent = &#x27;Removing physique photo...&#x27;;
-  profileMessage.style.color = &#x27;#9aa1ad&#x27;;
+  profileMessage.textContent = 'Removing physique photo...';
+  profileMessage.style.color = '#9aa1ad';
 
   if(currentPath){
-    await fpDb.storage.from(&#x27;physiques&#x27;).remove([currentPath]);
+    await fpDb.storage.from('physiques').remove([currentPath]);
   }
 
   const { error } = await fpDb.auth.updateUser({
@@ -10989,35 +10535,35 @@ async function removePhysiquePhoto(){
 
   if(error){
     profileMessage.textContent = error.message;
-    profileMessage.style.color = &#x27;#ff5a6b&#x27;;
+    profileMessage.style.color = '#ff5a6b';
     return;
   }
 
   await fpDb
-    .from(&#x27;member_presence&#x27;)
+    .from('member_presence')
     .update({ physique_url:null })
-    .eq(&#x27;user_id&#x27;, user.id);
+    .eq('user_id', user.id);
 
-  if(profilePhysiqueInput) profilePhysiqueInput.value = &#x27;&#x27;;
+  if(profilePhysiqueInput) profilePhysiqueInput.value = '';
   if(pendingPhysiquePreviewUrl){
     URL.revokeObjectURL(pendingPhysiquePreviewUrl);
     pendingPhysiquePreviewUrl = null;
   }
 
   if(profilePhysiqueNote){
-    profilePhysiqueNote.textContent = &#x27;Optional public physique photo. JPG, PNG, or WebP under 8 MB. Click Save Profile to apply it.&#x27;;
-    profilePhysiqueNote.classList.remove(&#x27;ready&#x27;);
+    profilePhysiqueNote.textContent = 'Optional public physique photo. JPG, PNG, or WebP under 8 MB. Click Save Profile to apply it.';
+    profilePhysiqueNote.classList.remove('ready');
   }
 
-  profileMessage.textContent = &#x27;✓ Physique photo removed.&#x27;;
-  profileMessage.style.color = &#x27;#67e8a5&#x27;;
-  profileMessage.style.fontWeight = &#x27;900&#x27;;
-  renderOwnPhysique(&#x27;&#x27;);
+  profileMessage.textContent = '✓ Physique photo removed.';
+  profileMessage.style.color = '#67e8a5';
+  profileMessage.style.fontWeight = '900';
+  renderOwnPhysique('');
   await refreshMemberProfile();
 }
 
 if(removePhysiqueBtn){
-  removePhysiqueBtn.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
+  removePhysiqueBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
     await removePhysiquePhoto();
@@ -11028,13 +10574,13 @@ async function removeProfilePhoto(){
   const { data: { session } } = await fpDb.auth.getSession();
   if(!session?.user) return;
 
-  profileMessage.textContent = &#x27;Removing photo...&#x27;;
+  profileMessage.textContent = 'Removing photo...';
 
   const meta = session.user.user_metadata || {};
-  const currentPath = meta.avatar_path || &#x27;&#x27;;
+  const currentPath = meta.avatar_path || '';
 
   if(currentPath){
-    await fpDb.storage.from(&#x27;avatars&#x27;).remove([currentPath]);
+    await fpDb.storage.from('avatars').remove([currentPath]);
   }
 
   const { error } = await fpDb.auth.updateUser({
@@ -11046,25 +10592,25 @@ async function removeProfilePhoto(){
     return;
   }
 
-  profileMessage.textContent = &#x27;✓ Profile photo removed.&#x27;;
+  profileMessage.textContent = '✓ Profile photo removed.';
   updateOwnPresence();
-  profileMessage.style.color = &#x27;#67e8a5&#x27;;
+  profileMessage.style.color = '#67e8a5';
   await fpDb
-    .from(&#x27;messages&#x27;)
+    .from('messages')
     .update({ avatar_url: null })
-    .eq(&#x27;user_id&#x27;, session.user.id); // Remove avatar from old chat messages
+    .eq('user_id', session.user.id); // Remove avatar from old chat messages
   await refreshMemberProfile();
 }
 
 if(uploadProfilePhotoBtn){
-  uploadProfilePhotoBtn.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
+  uploadProfilePhotoBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
     await uploadProfilePhoto();
   });
 }
 if(removeProfilePhotoBtn){
-  removeProfilePhotoBtn.addEventListener(&#x27;click&#x27;, async (e) =&gt; {
+  removeProfilePhotoBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
     await removeProfilePhoto();
@@ -11073,29 +10619,29 @@ if(removeProfilePhotoBtn){
 
 
 // ---- Clean mobile navigation ----
-const mobileBottomNav = document.getElementById(&#x27;mobileBottomNav&#x27;);
-const mobileMoreBtn = document.getElementById(&#x27;mobileMoreBtn&#x27;);
-const mobileMoreTopBtn = document.getElementById(&#x27;mobileMoreTopBtn&#x27;);
-const mobileNavDrawer = document.getElementById(&#x27;mobileNavDrawer&#x27;);
-const mobileNavBackdrop = document.getElementById(&#x27;mobileNavBackdrop&#x27;);
-const mobileNavClose = document.getElementById(&#x27;mobileNavClose&#x27;);
-const mobileNotificationBtn = document.getElementById(&#x27;mobileNotificationBtn&#x27;);
-const mobileNotificationBadge = document.getElementById(&#x27;mobileNotificationBadge&#x27;);
+const mobileBottomNav = document.getElementById('mobileBottomNav');
+const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+const mobileMoreTopBtn = document.getElementById('mobileMoreTopBtn');
+const mobileNavDrawer = document.getElementById('mobileNavDrawer');
+const mobileNavBackdrop = document.getElementById('mobileNavBackdrop');
+const mobileNavClose = document.getElementById('mobileNavClose');
+const mobileNotificationBtn = document.getElementById('mobileNotificationBtn');
+const mobileNotificationBadge = document.getElementById('mobileNotificationBadge');
 
 function openMobileNavDrawer(){
-  mobileNavDrawer?.classList.add(&#x27;open&#x27;);
-  mobileNavBackdrop?.classList.add(&#x27;open&#x27;);
-  mobileNavDrawer?.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
-  mobileNavBackdrop?.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
-  mobileMoreBtn?.classList.add(&#x27;active&#x27;);
+  mobileNavDrawer?.classList.add('open');
+  mobileNavBackdrop?.classList.add('open');
+  mobileNavDrawer?.setAttribute('aria-hidden','false');
+  mobileNavBackdrop?.setAttribute('aria-hidden','false');
+  mobileMoreBtn?.classList.add('active');
 }
 
 function closeMobileNavDrawer(){
-  mobileNavDrawer?.classList.remove(&#x27;open&#x27;);
-  mobileNavBackdrop?.classList.remove(&#x27;open&#x27;);
-  mobileNavDrawer?.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
-  mobileNavBackdrop?.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
-  mobileMoreBtn?.classList.remove(&#x27;active&#x27;);
+  mobileNavDrawer?.classList.remove('open');
+  mobileNavBackdrop?.classList.remove('open');
+  mobileNavDrawer?.setAttribute('aria-hidden','true');
+  mobileNavBackdrop?.setAttribute('aria-hidden','true');
+  mobileMoreBtn?.classList.remove('active');
 }
 
 function activateExistingNav(sourceId){
@@ -11103,9 +10649,9 @@ function activateExistingNav(sourceId){
 
   // Auth-only controls are hidden by the existing site logic.
   // If tapped while hidden, send the user to the normal login control.
-  if(!source || source.classList.contains(&#x27;hidden&#x27;)){
-    const login = document.getElementById(&#x27;navLogin&#x27;);
-    if(login &amp;&amp; !login.classList.contains(&#x27;hidden&#x27;)) login.click();
+  if(!source || source.classList.contains('hidden')){
+    const login = document.getElementById('navLogin');
+    if(login && !login.classList.contains('hidden')) login.click();
     closeMobileNavDrawer();
     return;
   }
@@ -11114,75 +10660,75 @@ function activateExistingNav(sourceId){
   closeMobileNavDrawer();
 }
 
-document.querySelectorAll(&#x27;[data-mobile-proxy]&#x27;).forEach(btn =&gt; {
-  btn.addEventListener(&#x27;click&#x27;,e =&gt; {
+document.querySelectorAll('[data-mobile-proxy]').forEach(btn => {
+  btn.addEventListener('click',e => {
     e.preventDefault();
     activateExistingNav(btn.dataset.mobileProxy);
   });
 });
 
-mobileMoreBtn?.addEventListener(&#x27;click&#x27;,() =&gt; {
-  if(mobileNavDrawer?.classList.contains(&#x27;open&#x27;)) closeMobileNavDrawer();
+mobileMoreBtn?.addEventListener('click',() => {
+  if(mobileNavDrawer?.classList.contains('open')) closeMobileNavDrawer();
   else openMobileNavDrawer();
 });
 
-mobileMoreTopBtn?.addEventListener(&#x27;click&#x27;,() =&gt; {
-  if(mobileNavDrawer?.classList.contains(&#x27;open&#x27;)) closeMobileNavDrawer();
+mobileMoreTopBtn?.addEventListener('click',() => {
+  if(mobileNavDrawer?.classList.contains('open')) closeMobileNavDrawer();
   else openMobileNavDrawer();
 });
 
-mobileNavClose?.addEventListener(&#x27;click&#x27;,closeMobileNavDrawer);
-mobileNavBackdrop?.addEventListener(&#x27;click&#x27;,closeMobileNavDrawer);
+mobileNavClose?.addEventListener('click',closeMobileNavDrawer);
+mobileNavBackdrop?.addEventListener('click',closeMobileNavDrawer);
 
-document.addEventListener(&#x27;keydown&#x27;,e =&gt; {
-  if(e.key === &#x27;Escape&#x27;) closeMobileNavDrawer();
+document.addEventListener('keydown',e => {
+  if(e.key === 'Escape') closeMobileNavDrawer();
 });
 
-mobileNotificationBtn?.addEventListener(&#x27;click&#x27;,(e) =&gt; {
+mobileNotificationBtn?.addEventListener('click',(e) => {
   // Prevent this mobile tap from bubbling to the global outside-click
   // handler, which would otherwise open and instantly close the panel.
   e.preventDefault();
   e.stopPropagation();
 
-  const source = document.getElementById(&#x27;navNotifications&#x27;);
-  if(source &amp;&amp; !source.classList.contains(&#x27;hidden&#x27;)){
+  const source = document.getElementById('navNotifications');
+  if(source && !source.classList.contains('hidden')){
     source.click();
   }
 });
 
 function syncMobileNavState(){
-  const notificationSource = document.getElementById(&#x27;navNotifications&#x27;);
-  const desktopBadge = document.getElementById(&#x27;notificationBadge&#x27;);
+  const notificationSource = document.getElementById('navNotifications');
+  const desktopBadge = document.getElementById('notificationBadge');
 
-  if(mobileNotificationBtn &amp;&amp; notificationSource){
-    mobileNotificationBtn.classList.toggle(&#x27;hidden&#x27;,notificationSource.classList.contains(&#x27;hidden&#x27;));
+  if(mobileNotificationBtn && notificationSource){
+    mobileNotificationBtn.classList.toggle('hidden',notificationSource.classList.contains('hidden'));
   }
 
-  if(mobileNotificationBadge &amp;&amp; desktopBadge){
-    const count = desktopBadge.textContent || &#x27;0&#x27;;
+  if(mobileNotificationBadge && desktopBadge){
+    const count = desktopBadge.textContent || '0';
     mobileNotificationBadge.textContent = count;
     mobileNotificationBadge.classList.toggle(
-      &#x27;hidden&#x27;,
-      desktopBadge.classList.contains(&#x27;hidden&#x27;) || Number(count) &lt;= 0
+      'hidden',
+      desktopBadge.classList.contains('hidden') || Number(count) <= 0
     );
   }
 
-  document.querySelectorAll(&#x27;.mobile-drawer-link[data-mobile-proxy]&#x27;).forEach(proxy =&gt; {
+  document.querySelectorAll('.mobile-drawer-link[data-mobile-proxy]').forEach(proxy => {
     const source = document.getElementById(proxy.dataset.mobileProxy);
-    proxy.classList.toggle(&#x27;mobile-source-hidden&#x27;,!!source?.classList.contains(&#x27;hidden&#x27;));
+    proxy.classList.toggle('mobile-source-hidden',!!source?.classList.contains('hidden'));
   });
 }
 
 const mobileNavWatchTargets = [
-  &#x27;navNotifications&#x27;,&#x27;notificationBadge&#x27;,&#x27;navLogin&#x27;,&#x27;navSignup&#x27;,
-  &#x27;navEditProfile&#x27;,&#x27;navWorkouts&#x27;,&#x27;navLogout&#x27;
-].map(id =&gt; document.getElementById(id)).filter(Boolean);
+  'navNotifications','notificationBadge','navLogin','navSignup',
+  'navEditProfile','navWorkouts','navLogout'
+].map(id => document.getElementById(id)).filter(Boolean);
 
 const mobileNavMutationObserver = new MutationObserver(syncMobileNavState);
-mobileNavWatchTargets.forEach(el =&gt; {
+mobileNavWatchTargets.forEach(el => {
   mobileNavMutationObserver.observe(el,{
     attributes:true,
-    attributeFilter:[&#x27;class&#x27;],
+    attributeFilter:['class'],
     childList:true,
     characterData:true,
     subtree:true
@@ -11191,50 +10737,50 @@ mobileNavWatchTargets.forEach(el =&gt; {
 
 syncMobileNavState();
 
-const mobileSectionButtons = [...document.querySelectorAll(&#x27;.mobile-bottom-item[data-mobile-section]&#x27;)];
+const mobileSectionButtons = [...document.querySelectorAll('.mobile-bottom-item[data-mobile-section]')];
 
 function updateMobileActiveNav(){
-  if(window.innerWidth &gt; 800) return;
+  if(window.innerWidth > 800) return;
 
   let best = null;
   let bestDistance = Infinity;
   const anchorY = 110;
 
-  mobileSectionButtons.forEach(btn =&gt; {
+  mobileSectionButtons.forEach(btn => {
     const section = document.getElementById(btn.dataset.mobileSection);
-    if(!section || getComputedStyle(section).display === &#x27;none&#x27;) return;
+    if(!section || getComputedStyle(section).display === 'none') return;
 
     const rect = section.getBoundingClientRect();
-    const visible = rect.bottom &gt; anchorY &amp;&amp; rect.top &lt; window.innerHeight;
+    const visible = rect.bottom > anchorY && rect.top < window.innerHeight;
 
     if(visible){
       const distance = Math.abs(rect.top - anchorY);
-      if(distance &lt; bestDistance){
+      if(distance < bestDistance){
         bestDistance = distance;
         best = btn;
       }
     }
   });
 
-  mobileSectionButtons.forEach(btn =&gt; btn.classList.toggle(&#x27;active&#x27;,btn === best));
+  mobileSectionButtons.forEach(btn => btn.classList.toggle('active',btn === best));
 }
 
 let mobileNavScrollTick = false;
-window.addEventListener(&#x27;scroll&#x27;,() =&gt; {
+window.addEventListener('scroll',() => {
   if(mobileNavScrollTick) return;
   mobileNavScrollTick = true;
-  requestAnimationFrame(() =&gt; {
+  requestAnimationFrame(() => {
     updateMobileActiveNav();
     mobileNavScrollTick = false;
   });
 },{passive:true});
 
-window.addEventListener(&#x27;resize&#x27;,() =&gt; {
-  if(window.innerWidth &gt; 800) closeMobileNavDrawer();
+window.addEventListener('resize',() => {
+  if(window.innerWidth > 800) closeMobileNavDrawer();
   updateMobileActiveNav();
 });
 
-setTimeout(() =&gt; {
+setTimeout(() => {
   syncMobileNavState();
   updateMobileActiveNav();
 },300);
@@ -11250,25 +10796,25 @@ setTimeout(() =&gt; {
     const db = window.gymcelsLolDb;
     if(!db?.auth) return;
 
-    const reportOverlay = document.getElementById(&#x27;contentReportOverlay&#x27;);
-    const reportClose = document.getElementById(&#x27;contentReportClose&#x27;);
-    const reportCancel = document.getElementById(&#x27;contentReportCancel&#x27;);
-    const reportTarget = document.getElementById(&#x27;contentReportTarget&#x27;);
-    const reportReason = document.getElementById(&#x27;contentReportReason&#x27;);
-    const reportDetails = document.getElementById(&#x27;contentReportDetails&#x27;);
-    const reportSubmit = document.getElementById(&#x27;contentReportSubmit&#x27;);
-    const reportStatus = document.getElementById(&#x27;contentReportStatus&#x27;);
+    const reportOverlay = document.getElementById('contentReportOverlay');
+    const reportClose = document.getElementById('contentReportClose');
+    const reportCancel = document.getElementById('contentReportCancel');
+    const reportTarget = document.getElementById('contentReportTarget');
+    const reportReason = document.getElementById('contentReportReason');
+    const reportDetails = document.getElementById('contentReportDetails');
+    const reportSubmit = document.getElementById('contentReportSubmit');
+    const reportStatus = document.getElementById('contentReportStatus');
 
-    const reportsPanel = document.getElementById(&#x27;staffReportsPanel&#x27;);
-    const reportsCount = document.getElementById(&#x27;staffReportsCount&#x27;);
-    const reportsRefresh = document.getElementById(&#x27;staffReportsRefresh&#x27;);
-    const reportsList = document.getElementById(&#x27;staffReportsList&#x27;);
-    const reportsStatus = document.getElementById(&#x27;staffReportsStatus&#x27;);
-    const reportsFab = document.getElementById(&#x27;staffReportsFab&#x27;);
-    const reportsFabCount = document.getElementById(&#x27;staffReportsFabCount&#x27;);
+    const reportsPanel = document.getElementById('staffReportsPanel');
+    const reportsCount = document.getElementById('staffReportsCount');
+    const reportsRefresh = document.getElementById('staffReportsRefresh');
+    const reportsList = document.getElementById('staffReportsList');
+    const reportsStatus = document.getElementById('staffReportsStatus');
+    const reportsFab = document.getElementById('staffReportsFab');
+    const reportsFabCount = document.getElementById('staffReportsFabCount');
 
-    const threadReportBtn = document.getElementById(&#x27;threadReportBtn&#x27;);
-    const profileReportBtn = document.getElementById(&#x27;chatReportUserBtn&#x27;);
+    const threadReportBtn = document.getElementById('threadReportBtn');
+    const profileReportBtn = document.getElementById('chatReportUserBtn');
 
     let reportDraft = null;
     let reportRowsById = new Map();
@@ -11276,50 +10822,50 @@ setTimeout(() =&gt; {
     let staffCanReview = false;
 
     function reportEscape(value){
-      return String(value ?? &#x27;&#x27;)
-        .replaceAll(&#x27;&amp;&#x27;,&#x27;&amp;amp;&#x27;)
-        .replaceAll(&#x27;&lt;&#x27;,&#x27;&amp;lt;&#x27;)
-        .replaceAll(&#x27;&gt;&#x27;,&#x27;&amp;gt;&#x27;)
-        .replaceAll(&#x27;&quot;&#x27;,&#x27;&amp;quot;&#x27;)
-        .replaceAll(&quot;&#x27;&quot;,&#x27;&amp;#039;&#x27;);
+      return String(value ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#039;');
     }
 
     function reportTime(value){
-      if(!value) return &#x27;&#x27;;
+      if(!value) return '';
       const d = new Date(value);
       const ms = Date.now() - d.getTime();
 
-      if(ms &lt; 60000) return &#x27;now&#x27;;
-      if(ms &lt; 3600000) return `${Math.floor(ms/60000)}m ago`;
-      if(ms &lt; 86400000) return `${Math.floor(ms/3600000)}h ago`;
-      if(ms &lt; 604800000) return `${Math.floor(ms/86400000)}d ago`;
+      if(ms < 60000) return 'now';
+      if(ms < 3600000) return `${Math.floor(ms/60000)}m ago`;
+      if(ms < 86400000) return `${Math.floor(ms/3600000)}h ago`;
+      if(ms < 604800000) return `${Math.floor(ms/86400000)}d ago`;
 
       return d.toLocaleDateString([],{
-        month:&#x27;short&#x27;,
-        day:&#x27;numeric&#x27;,
-        year:&#x27;numeric&#x27;
+        month:'short',
+        day:'numeric',
+        year:'numeric'
       });
     }
 
     function reportTypeLabel(type){
       return ({
-        chat:&#x27;Public chat message&#x27;,
-        thread:&#x27;Thread&#x27;,
-        thread_reply:&#x27;Thread reply&#x27;,
-        user:&#x27;Member profile&#x27;
-      })[type] || &#x27;Report&#x27;;
+        chat:'Public chat message',
+        thread:'Thread',
+        thread_reply:'Thread reply',
+        user:'Member profile'
+      })[type] || 'Report';
     }
 
-    function setReportStatus(text=&#x27;&#x27;,type=&#x27;&#x27;){
+    function setReportStatus(text='',type=''){
       if(!reportStatus) return;
       reportStatus.textContent = text;
-      reportStatus.className = `content-report-status ${type || &#x27;&#x27;}`;
+      reportStatus.className = `content-report-status ${type || ''}`;
     }
 
-    function setStaffReportStatus(text=&#x27;&#x27;,type=&#x27;&#x27;){
+    function setStaffReportStatus(text='',type=''){
       if(!reportsStatus) return;
       reportsStatus.textContent = text;
-      reportsStatus.className = `staff-reports-status ${type || &#x27;&#x27;}`;
+      reportsStatus.className = `staff-reports-status ${type || ''}`;
     }
 
     async function currentReportSession(){
@@ -11328,33 +10874,33 @@ setTimeout(() =&gt; {
         if(error) throw error;
         return data?.session || null;
       }catch(err){
-        console.warn(&#x27;Report session check failed:&#x27;,err);
+        console.warn('Report session check failed:',err);
         return null;
       }
     }
 
-    function openReportDialog({type,id=null,userId=null,label=&#x27;Content&#x27;}){
+    function openReportDialog({type,id=null,userId=null,label='Content'}){
       reportDraft = {
-        type:String(type || &#x27;&#x27;),
+        type:String(type || ''),
         id:id ? Number(id) : null,
         userId:userId || null,
-        label:String(label || &#x27;Content&#x27;)
+        label:String(label || 'Content')
       };
 
       if(reportTarget) reportTarget.textContent = reportDraft.label;
-      if(reportReason) reportReason.value = &#x27;Spam&#x27;;
-      if(reportDetails) reportDetails.value = &#x27;&#x27;;
-      setReportStatus(&#x27;&#x27;);
+      if(reportReason) reportReason.value = 'Spam';
+      if(reportDetails) reportDetails.value = '';
+      setReportStatus('');
 
-      reportOverlay?.classList.add(&#x27;show&#x27;);
-      reportOverlay?.setAttribute(&#x27;aria-hidden&#x27;,&#x27;false&#x27;);
+      reportOverlay?.classList.add('show');
+      reportOverlay?.setAttribute('aria-hidden','false');
     }
 
     function closeReportDialog(){
       reportDraft = null;
-      reportOverlay?.classList.remove(&#x27;show&#x27;);
-      reportOverlay?.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
-      setReportStatus(&#x27;&#x27;);
+      reportOverlay?.classList.remove('show');
+      reportOverlay?.setAttribute('aria-hidden','true');
+      setReportStatus('');
     }
 
     async function submitReport(){
@@ -11362,34 +10908,34 @@ setTimeout(() =&gt; {
 
       const session = await currentReportSession();
       if(!session?.user){
-        setReportStatus(&#x27;Log in to send a report.&#x27;,&#x27;error&#x27;);
+        setReportStatus('Log in to send a report.','error');
         return;
       }
 
       reportSubmit.disabled = true;
-      setReportStatus(&#x27;Sending report...&#x27;);
+      setReportStatus('Sending report...');
 
       try{
-        const {error} = await db.rpc(&#x27;submit_gymcels_report&#x27;,{
+        const {error} = await db.rpc('submit_gymcels_report',{
           report_target_type:reportDraft.type,
           report_target_id:reportDraft.id,
           report_target_user:reportDraft.userId,
-          report_reason:String(reportReason?.value || &#x27;Other&#x27;),
-          report_details:String(reportDetails?.value || &#x27;&#x27;).trim() || null
+          report_reason:String(reportReason?.value || 'Other'),
+          report_details:String(reportDetails?.value || '').trim() || null
         });
 
         if(error) throw error;
 
-        setReportStatus(&#x27;✓ Report sent privately to the moderation team.&#x27;,&#x27;success&#x27;);
+        setReportStatus('✓ Report sent privately to the moderation team.','success');
 
         // Staff who report something themselves see the inbox update immediately.
         if(staffCanReview){
-          loadStaffReports().catch(()=&gt;{});
+          loadStaffReports().catch(()=>{});
         }
 
         setTimeout(closeReportDialog,800);
       }catch(err){
-        setReportStatus(err?.message || String(err),&#x27;error&#x27;);
+        setReportStatus(err?.message || String(err),'error');
       }finally{
         reportSubmit.disabled = false;
       }
@@ -11400,66 +10946,66 @@ setTimeout(() =&gt; {
 
       if(reportsCount) reportsCount.textContent = String(n);
       if(reportsFabCount) reportsFabCount.textContent = String(n);
-      reportsFab?.classList.toggle(&#x27;has-reports&#x27;,n &gt; 0);
+      reportsFab?.classList.toggle('has-reports',n > 0);
     }
 
     async function loadStaffReports(){
       if(!staffCanReview || !reportsPanel || !reportsList) return;
 
       try{
-        const {data,error} = await db.rpc(&#x27;staff_list_gymcels_reports&#x27;);
+        const {data,error} = await db.rpc('staff_list_gymcels_reports');
         if(error) throw error;
 
         const rows = Array.isArray(data) ? data : [];
         reportRowsById = new Map(
-          rows.map(row =&gt; [Number(row.id),row])
+          rows.map(row => [Number(row.id),row])
         );
 
         updateStaffReportCount(rows.length);
 
         if(!rows.length){
           reportsList.innerHTML =
-            &#x27;&lt;div class=&quot;staff-report-empty&quot;&gt;No open reports. Everything is clear.&lt;/div&gt;&#x27;;
-          setStaffReportStatus(&#x27;&#x27;);
+            '<div class="staff-report-empty">No open reports. Everything is clear.</div>';
+          setStaffReportStatus('');
           return;
         }
 
-        reportsList.innerHTML = rows.map(row =&gt; `
-          &lt;div class=&quot;staff-report-card&quot; data-staff-report=&quot;${Number(row.id)}&quot;&gt;
-            &lt;div class=&quot;staff-report-top&quot;&gt;
-              &lt;div class=&quot;staff-report-type&quot;&gt;${reportEscape(reportTypeLabel(row.target_type))}&lt;/div&gt;
-              &lt;div class=&quot;staff-report-time&quot;&gt;${reportEscape(reportTime(row.created_at))}&lt;/div&gt;
-            &lt;/div&gt;
+        reportsList.innerHTML = rows.map(row => `
+          <div class="staff-report-card" data-staff-report="${Number(row.id)}">
+            <div class="staff-report-top">
+              <div class="staff-report-type">${reportEscape(reportTypeLabel(row.target_type))}</div>
+              <div class="staff-report-time">${reportEscape(reportTime(row.created_at))}</div>
+            </div>
 
-            &lt;div class=&quot;staff-report-meta&quot;&gt;
-              Reported by &lt;strong&gt;${reportEscape(row.reporter_name || &#x27;Member&#x27;)}&lt;/strong&gt;
-              · Reported member: &lt;strong&gt;${reportEscape(row.target_name || &#x27;Member&#x27;)}&lt;/strong&gt;
-            &lt;/div&gt;
+            <div class="staff-report-meta">
+              Reported by <strong>${reportEscape(row.reporter_name || 'Member')}</strong>
+              · Reported member: <strong>${reportEscape(row.target_name || 'Member')}</strong>
+            </div>
 
-            &lt;span class=&quot;staff-report-reason&quot;&gt;${reportEscape(row.reason || &#x27;Other&#x27;)}&lt;/span&gt;
+            <span class="staff-report-reason">${reportEscape(row.reason || 'Other')}</span>
 
             ${row.target_preview
-              ? `&lt;div class=&quot;staff-report-preview&quot;&gt;${reportEscape(row.target_preview)}&lt;/div&gt;`
-              : &#x27;&#x27;}
+              ? `<div class="staff-report-preview">${reportEscape(row.target_preview)}</div>`
+              : ''}
 
             ${row.details
-              ? `&lt;div class=&quot;staff-report-details&quot;&gt;Reporter note: ${reportEscape(row.details)}&lt;/div&gt;`
-              : &#x27;&#x27;}
+              ? `<div class="staff-report-details">Reporter note: ${reportEscape(row.details)}</div>`
+              : ''}
 
-            &lt;div class=&quot;staff-report-actions&quot;&gt;
-              &lt;button type=&quot;button&quot; data-staff-report-open=&quot;${Number(row.id)}&quot;&gt;Open&lt;/button&gt;
-              &lt;button class=&quot;resolve&quot; type=&quot;button&quot; data-staff-report-resolve=&quot;${Number(row.id)}&quot;&gt;✓ Resolved&lt;/button&gt;
-              &lt;button class=&quot;dismiss&quot; type=&quot;button&quot; data-staff-report-dismiss=&quot;${Number(row.id)}&quot;&gt;Dismiss&lt;/button&gt;
-            &lt;/div&gt;
-          &lt;/div&gt;
-        `).join(&#x27;&#x27;);
+            <div class="staff-report-actions">
+              <button type="button" data-staff-report-open="${Number(row.id)}">Open</button>
+              <button class="resolve" type="button" data-staff-report-resolve="${Number(row.id)}">✓ Resolved</button>
+              <button class="dismiss" type="button" data-staff-report-dismiss="${Number(row.id)}">Dismiss</button>
+            </div>
+          </div>
+        `).join('');
 
-        setStaffReportStatus(&#x27;&#x27;);
+        setStaffReportStatus('');
       }catch(err){
-        console.warn(&#x27;Report inbox load failed:&#x27;,err);
+        console.warn('Report inbox load failed:',err);
         setStaffReportStatus(
-          &#x27;Could not refresh reports. The rest of the site is unaffected.&#x27;,
-          &#x27;error&#x27;
+          'Could not refresh reports. The rest of the site is unaffected.',
+          'error'
         );
       }
     }
@@ -11468,9 +11014,9 @@ setTimeout(() =&gt; {
       if(!staffCanReview) return;
 
       try{
-        setStaffReportStatus(&#x27;Updating report...&#x27;);
+        setStaffReportStatus('Updating report...');
 
-        const {error} = await db.rpc(&#x27;staff_review_gymcels_report&#x27;,{
+        const {error} = await db.rpc('staff_review_gymcels_report',{
           target_report_id:Number(reportId),
           new_status:String(newStatus)
         });
@@ -11478,15 +11024,15 @@ setTimeout(() =&gt; {
         if(error) throw error;
 
         setStaffReportStatus(
-          newStatus === &#x27;resolved&#x27;
-            ? &#x27;✓ Report marked resolved.&#x27;
-            : &#x27;Report dismissed.&#x27;,
-          &#x27;success&#x27;
+          newStatus === 'resolved'
+            ? '✓ Report marked resolved.'
+            : 'Report dismissed.',
+          'success'
         );
 
         await loadStaffReports();
       }catch(err){
-        setStaffReportStatus(err?.message || String(err),&#x27;error&#x27;);
+        setStaffReportStatus(err?.message || String(err),'error');
       }
     }
 
@@ -11494,66 +11040,66 @@ setTimeout(() =&gt; {
       if(!row) return;
 
       try{
-        if(row.target_type === &#x27;chat&#x27;){
-          document.getElementById(&#x27;communityChat&#x27;)
-            ?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;start&#x27;});
+        if(row.target_type === 'chat'){
+          document.getElementById('communityChat')
+            ?.scrollIntoView({behavior:'smooth',block:'start'});
 
-          if(typeof loadCommunityChat === &#x27;function&#x27;){
+          if(typeof loadCommunityChat === 'function'){
             await loadCommunityChat(false);
           }
 
-          setTimeout(() =&gt; {
-            if(typeof jumpToChatMessage === &#x27;function&#x27;){
+          setTimeout(() => {
+            if(typeof jumpToChatMessage === 'function'){
               const found = jumpToChatMessage(Number(row.target_id));
               if(found === false){
-                setStaffReportStatus(&#x27;The reported chat message may already be deleted.&#x27;,&#x27;error&#x27;);
+                setStaffReportStatus('The reported chat message may already be deleted.','error');
               }
             }
           },160);
           return;
         }
 
-        if(row.target_type === &#x27;thread&#x27;){
-          document.getElementById(&#x27;threadsSection&#x27;)
-            ?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;start&#x27;});
+        if(row.target_type === 'thread'){
+          document.getElementById('threadsSection')
+            ?.scrollIntoView({behavior:'smooth',block:'start'});
 
-          if(typeof openThread === &#x27;function&#x27;){
+          if(typeof openThread === 'function'){
             await openThread(Number(row.thread_id || row.target_id));
           }
           return;
         }
 
-        if(row.target_type === &#x27;thread_reply&#x27;){
+        if(row.target_type === 'thread_reply'){
           const threadId = Number(row.thread_id);
           if(!threadId) return;
 
-          document.getElementById(&#x27;threadsSection&#x27;)
-            ?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;start&#x27;});
+          document.getElementById('threadsSection')
+            ?.scrollIntoView({behavior:'smooth',block:'start'});
 
-          if(typeof openThread === &#x27;function&#x27;){
+          if(typeof openThread === 'function'){
             await openThread(threadId);
           }
 
-          setTimeout(() =&gt; {
-            if(typeof jumpToThreadReply === &#x27;function&#x27;){
+          setTimeout(() => {
+            if(typeof jumpToThreadReply === 'function'){
               jumpToThreadReply(Number(row.target_id));
             }
           },180);
           return;
         }
 
-        if(row.target_type === &#x27;user&#x27; &amp;&amp; row.target_user_id){
-          if(typeof openChatPublicProfile === &#x27;function&#x27;){
+        if(row.target_type === 'user' && row.target_user_id){
+          if(typeof openChatPublicProfile === 'function'){
             openChatPublicProfile(
               row.target_user_id,
-              row.target_name || &#x27;Member&#x27;,
-              &#x27;&#x27;
+              row.target_name || 'Member',
+              ''
             );
           }
         }
       }catch(err){
-        console.warn(&#x27;Could not open reported target:&#x27;,err);
-        setStaffReportStatus(&#x27;Could not open that reported item.&#x27;,&#x27;error&#x27;);
+        console.warn('Could not open reported target:',err);
+        setStaffReportStatus('Could not open that reported item.','error');
       }
     }
 
@@ -11562,38 +11108,38 @@ setTimeout(() =&gt; {
       reportPollTimer = null;
       staffCanReview = false;
 
-      reportsPanel?.classList.add(&#x27;hidden&#x27;);
-      reportsFab?.classList.add(&#x27;hidden&#x27;);
+      reportsPanel?.classList.add('hidden');
+      reportsFab?.classList.add('hidden');
       updateStaffReportCount(0);
 
       if(!session?.user) return;
 
       try{
-        const {data,error} = await db.rpc(&#x27;staff_can_view_reports&#x27;);
+        const {data,error} = await db.rpc('staff_can_view_reports');
         if(error) throw error;
 
         staffCanReview = data === true;
 
         if(!staffCanReview) return;
 
-        reportsPanel?.classList.remove(&#x27;hidden&#x27;);
-        reportsFab?.classList.remove(&#x27;hidden&#x27;);
+        reportsPanel?.classList.remove('hidden');
+        reportsFab?.classList.remove('hidden');
 
         await loadStaffReports();
 
         // Independent polling. Errors are caught inside loadStaffReports().
-        reportPollTimer = setInterval(() =&gt; {
-          loadStaffReports().catch(()=&gt;{});
+        reportPollTimer = setInterval(() => {
+          loadStaffReports().catch(()=>{});
         },12000);
       }catch(err){
         // Fail closed: never let report setup break the rest of Gymcels.
-        console.warn(&#x27;Report inbox unavailable:&#x27;,err);
+        console.warn('Report inbox unavailable:',err);
       }
     }
 
     // Dynamic chat + reply report buttons.
-    document.addEventListener(&#x27;click&#x27;,(e)=&gt;{
-      const btn = e.target.closest(&#x27;[data-content-report]&#x27;);
+    document.addEventListener('click',(e)=>{
+      const btn = e.target.closest('[data-content-report]');
       if(!btn) return;
 
       e.preventDefault();
@@ -11603,106 +11149,106 @@ setTimeout(() =&gt; {
         type:btn.dataset.contentReport,
         id:btn.dataset.reportId || null,
         userId:btn.dataset.reportUser || null,
-        label:btn.dataset.reportLabel || &#x27;Reported content&#x27;
+        label:btn.dataset.reportLabel || 'Reported content'
       });
     });
 
-    threadReportBtn?.addEventListener(&#x27;click&#x27;,()=&gt;{
+    threadReportBtn?.addEventListener('click',()=>{
       try{
         if(!activeThread) return;
 
         openReportDialog({
-          type:&#x27;thread&#x27;,
+          type:'thread',
           id:Number(activeThread.id),
           userId:activeThread.author_id || null,
-          label:`Thread: ${activeThread.title || &#x27;Untitled&#x27;}`
+          label:`Thread: ${activeThread.title || 'Untitled'}`
         });
       }catch(err){
-        console.warn(&#x27;Thread report button error:&#x27;,err);
+        console.warn('Thread report button error:',err);
       }
     });
 
-    profileReportBtn?.addEventListener(&#x27;click&#x27;,()=&gt;{
+    profileReportBtn?.addEventListener('click',()=>{
       try{
         if(!openedChatUserId) return;
 
         openReportDialog({
-          type:&#x27;user&#x27;,
+          type:'user',
           userId:openedChatUserId,
-          label:`Member: ${openedChatDisplayName || &#x27;Member&#x27;}`
+          label:`Member: ${openedChatDisplayName || 'Member'}`
         });
       }catch(err){
-        console.warn(&#x27;Profile report button error:&#x27;,err);
+        console.warn('Profile report button error:',err);
       }
     });
 
-    reportClose?.addEventListener(&#x27;click&#x27;,closeReportDialog);
-    reportCancel?.addEventListener(&#x27;click&#x27;,closeReportDialog);
-    reportSubmit?.addEventListener(&#x27;click&#x27;,submitReport);
+    reportClose?.addEventListener('click',closeReportDialog);
+    reportCancel?.addEventListener('click',closeReportDialog);
+    reportSubmit?.addEventListener('click',submitReport);
 
-    reportOverlay?.addEventListener(&#x27;click&#x27;,(e)=&gt;{
+    reportOverlay?.addEventListener('click',(e)=>{
       if(e.target === reportOverlay) closeReportDialog();
     });
 
-    document.addEventListener(&#x27;keydown&#x27;,(e)=&gt;{
+    document.addEventListener('keydown',(e)=>{
       if(
-        e.key === &#x27;Escape&#x27; &amp;&amp;
-        reportOverlay?.classList.contains(&#x27;show&#x27;)
+        e.key === 'Escape' &&
+        reportOverlay?.classList.contains('show')
       ){
         closeReportDialog();
       }
     });
 
-    reportsRefresh?.addEventListener(&#x27;click&#x27;,()=&gt;{
-      loadStaffReports().catch(()=&gt;{});
+    reportsRefresh?.addEventListener('click',()=>{
+      loadStaffReports().catch(()=>{});
     });
 
-    reportsFab?.addEventListener(&#x27;click&#x27;,()=&gt;{
-      reportsPanel?.scrollIntoView({behavior:&#x27;smooth&#x27;,block:&#x27;center&#x27;});
+    reportsFab?.addEventListener('click',()=>{
+      reportsPanel?.scrollIntoView({behavior:'smooth',block:'center'});
     });
 
-    reportsList?.addEventListener(&#x27;click&#x27;,(e)=&gt;{
-      const openBtn = e.target.closest(&#x27;[data-staff-report-open]&#x27;);
+    reportsList?.addEventListener('click',(e)=>{
+      const openBtn = e.target.closest('[data-staff-report-open]');
       if(openBtn){
         const row = reportRowsById.get(Number(openBtn.dataset.staffReportOpen));
         if(row) openReportedTarget(row);
         return;
       }
 
-      const resolveBtn = e.target.closest(&#x27;[data-staff-report-resolve]&#x27;);
+      const resolveBtn = e.target.closest('[data-staff-report-resolve]');
       if(resolveBtn){
         reviewStaffReport(
           Number(resolveBtn.dataset.staffReportResolve),
-          &#x27;resolved&#x27;
+          'resolved'
         );
         return;
       }
 
-      const dismissBtn = e.target.closest(&#x27;[data-staff-report-dismiss]&#x27;);
+      const dismissBtn = e.target.closest('[data-staff-report-dismiss]');
       if(dismissBtn){
         reviewStaffReport(
           Number(dismissBtn.dataset.staffReportDismiss),
-          &#x27;dismissed&#x27;
+          'dismissed'
         );
       }
     });
 
     // This auth listener exists only for the report inbox and is fully isolated.
-    db.auth.onAuthStateChange((_event,session)=&gt;{
-      setTimeout(()=&gt;{
-        configureStaffReportInbox(session).catch(()=&gt;{});
+    db.auth.onAuthStateChange((_event,session)=>{
+      setTimeout(()=>{
+        configureStaffReportInbox(session).catch(()=>{});
       },0);
     });
 
     // Initial report inbox check happens after the page has initialized.
-    setTimeout(async ()=&gt;{
+    setTimeout(async ()=>{
       const session = await currentReportSession();
       await configureStaffReportInbox(session);
     },1200);
 
   }catch(err){
     // Last-resort containment: reporting can fail without freezing Gymcels.
-    console.warn(&#x27;Gymcels report module disabled:&#x27;,err);
+    console.warn('Gymcels report module disabled:',err);
   }
 })();
 
@@ -11711,35 +11257,32 @@ setTimeout(() =&gt; {
 // ---- Desktop Buy Products dropdown ----
 (function initDesktopBuyProductsMenu(){
   try{
-    const btn=document.getElementById(&#x27;desktopBuyProductsBtn&#x27;);
-    const menu=document.getElementById(&#x27;desktopBuyProductsMenu&#x27;);
+    const btn=document.getElementById('desktopBuyProductsBtn');
+    const menu=document.getElementById('desktopBuyProductsMenu');
 
     if(!btn || !menu) return;
 
     function setOpen(open){
-      menu.classList.toggle(&#x27;hidden&#x27;,!open);
-      btn.classList.toggle(&#x27;open&#x27;,open);
-      btn.setAttribute(&#x27;aria-expanded&#x27;,open ? &#x27;true&#x27; : &#x27;false&#x27;);
+      menu.classList.toggle('hidden',!open);
+      btn.classList.toggle('open',open);
+      btn.setAttribute('aria-expanded',open ? 'true' : 'false');
     }
 
-    btn.addEventListener(&#x27;click&#x27;,(e)=&gt;{
+    btn.addEventListener('click',(e)=>{
       e.stopPropagation();
-      setOpen(menu.classList.contains(&#x27;hidden&#x27;));
+      setOpen(menu.classList.contains('hidden'));
     });
 
-    menu.addEventListener(&#x27;click&#x27;,(e)=&gt;e.stopPropagation());
+    menu.addEventListener('click',(e)=>e.stopPropagation());
 
-    document.addEventListener(&#x27;click&#x27;,()=&gt;{
-      if(!menu.classList.contains(&#x27;hidden&#x27;)) setOpen(false);
+    document.addEventListener('click',()=>{
+      if(!menu.classList.contains('hidden')) setOpen(false);
     });
 
-    document.addEventListener(&#x27;keydown&#x27;,(e)=&gt;{
-      if(e.key===&#x27;Escape&#x27;) setOpen(false);
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==='Escape') setOpen(false);
     });
   }catch(err){
-    console.warn(&#x27;Buy Products menu disabled:&#x27;,err);
+    console.warn('Buy Products menu disabled:',err);
   }
 })();
-</pre>
-</body>
-</html>
