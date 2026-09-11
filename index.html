@@ -3362,6 +3362,316 @@ section{background:rgba(8,9,11,.60)}
   .nutrition-scan-serving-quick{grid-column:auto}
 }
 
+
+/* FAVORITE FOODS */
+.nutrition-favorites-card{
+  margin:10px 0;
+  padding:14px;
+  border:1px solid #252c34;
+  border-radius:13px;
+  background:#0d1115;
+}
+.nutrition-favorite-count{
+  flex:0 0 auto;
+  padding:4px 7px;
+  border:1px solid #2b323b;
+  border-radius:999px;
+  background:#11171d;
+  color:#8f99a5 !important;
+  font-size:8px !important;
+  font-weight:900;
+}
+.nutrition-favorites-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin-top:10px;
+}
+.nutrition-favorite-item{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:9px;
+  padding:10px;
+  border:1px solid #272e36;
+  border-radius:10px;
+  background:#10151a;
+}
+.nutrition-favorite-name{
+  color:#fff;
+  font-size:10px;
+  font-weight:950;
+  line-height:1.3;
+}
+.nutrition-favorite-meta{
+  display:flex;
+  gap:4px;
+  flex-wrap:wrap;
+  margin-top:5px;
+}
+.nutrition-favorite-meta span{
+  padding:3px 5px;
+  border:1px solid #293039;
+  border-radius:999px;
+  background:#0a0e12;
+  color:#8d97a2;
+  font-size:7px;
+}
+.nutrition-favorite-actions{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.nutrition-favorite-actions button{
+  border:1px solid #303741;
+  border-radius:7px;
+  background:#191f26;
+  color:#d5dbe2;
+  padding:6px 8px;
+  font:inherit;
+  font-size:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.nutrition-favorite-actions button[data-favorite-log]{
+  border-color:rgba(239,67,85,.45);
+  background:rgba(239,67,85,.12);
+  color:#ff9ca6;
+}
+.nutrition-favorite-actions button[data-favorite-delete]{
+  color:#ff8794;
+}
+.nutrition-meal-actions .nutrition-favorite-active{
+  color:#ffd96a;
+  border-color:rgba(255,217,106,.35);
+  background:rgba(255,217,106,.08);
+}
+
+/* BODYWEIGHT TRACKER */
+.bodyweight-card{
+  margin-top:10px;
+  padding:14px;
+  border:1px solid #252c34;
+  border-radius:13px;
+  background:#0d1115;
+}
+.bodyweight-private{
+  flex:0 0 auto;
+  padding:4px 7px;
+  border:1px solid rgba(103,232,165,.28);
+  border-radius:999px;
+  background:rgba(103,232,165,.07);
+  color:#96ebbc !important;
+  font-size:8px !important;
+  font-weight:900;
+}
+.bodyweight-entry{
+  display:grid;
+  grid-template-columns:minmax(150px,.75fr) minmax(170px,1fr) auto;
+  gap:8px;
+  align-items:end;
+  margin-top:12px;
+}
+.bodyweight-entry label{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.bodyweight-entry label>span{
+  color:#aeb6c0;
+  font-size:9px;
+  font-weight:850;
+}
+.bodyweight-entry input{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #303741;
+  border-radius:9px;
+  background:#090c10;
+  color:#fff;
+  padding:10px 11px;
+  font:inherit;
+  font-size:11px;
+  outline:none;
+  color-scheme:dark;
+}
+.bodyweight-entry input:focus{border-color:#ef4355}
+.bodyweight-entry button{
+  min-height:39px;
+  border:0;
+  border-radius:9px;
+  background:#ef4355;
+  color:#fff;
+  padding:0 14px;
+  font:inherit;
+  font-size:9px;
+  font-weight:950;
+  cursor:pointer;
+}
+.bodyweight-entry button:disabled{opacity:.55;cursor:not-allowed}
+.bodyweight-status{
+  min-height:15px;
+  margin-top:7px;
+  color:#818b96;
+  font-size:9px;
+}
+.bodyweight-status.success{color:#67e8a5}
+.bodyweight-status.error{color:#ff7c89}
+.bodyweight-stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:10px;
+}
+.bodyweight-stats>div{
+  padding:10px;
+  border:1px solid #252c34;
+  border-radius:10px;
+  background:#10151a;
+}
+.bodyweight-stats span{
+  display:block;
+  color:#747f8a;
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  font-weight:850;
+}
+.bodyweight-stats strong{
+  display:block;
+  margin-top:4px;
+  color:#fff;
+  font-size:15px;
+}
+.bodyweight-stats strong.up{color:#ff9f75}
+.bodyweight-stats strong.down{color:#76dca7}
+.bodyweight-chart-wrap{
+  margin-top:10px;
+  padding:10px;
+  border:1px solid #252c34;
+  border-radius:11px;
+  background:#090d11;
+}
+.bodyweight-chart-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:7px;
+}
+.bodyweight-chart-head span{
+  color:#dce1e6;
+  font-size:9px;
+  font-weight:900;
+}
+.bodyweight-chart-head small{
+  color:#67717c;
+  font-size:7px;
+}
+.bodyweight-chart{
+  min-height:150px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.bodyweight-chart svg{
+  display:block;
+  width:100%;
+  height:170px;
+  overflow:visible;
+}
+.bodyweight-chart-grid{
+  stroke:#222a32;
+  stroke-width:1;
+}
+.bodyweight-chart-line{
+  fill:none;
+  stroke:#ef4355;
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.bodyweight-chart-point{
+  fill:#0d1115;
+  stroke:#ff6574;
+  stroke-width:2.2;
+}
+.bodyweight-chart-label{
+  fill:#697480;
+  font-size:10px;
+  font-family:Arial,sans-serif;
+}
+.bodyweight-history-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:12px;
+}
+.bodyweight-history-head strong{
+  color:#fff;
+  font-size:10px;
+}
+.bodyweight-history-head span{
+  color:#69737e;
+  font-size:7px;
+}
+.bodyweight-history{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-top:7px;
+}
+.bodyweight-history-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:8px;
+  padding:8px 9px;
+  border:1px solid #242b33;
+  border-radius:9px;
+  background:#10151a;
+}
+.bodyweight-history-date{
+  color:#a7b0bb;
+  font-size:9px;
+}
+.bodyweight-history-weight{
+  color:#fff;
+  font-size:10px;
+  font-weight:950;
+}
+.bodyweight-history button{
+  border:0;
+  border-radius:6px;
+  background:#1d232a;
+  color:#ff8794;
+  padding:5px 7px;
+  font:inherit;
+  font-size:7px;
+  font-weight:900;
+  cursor:pointer;
+}
+.bodyweight-empty{
+  width:100%;
+  padding:20px 10px;
+  color:#727c87;
+  text-align:center;
+  font-size:9px;
+}
+
+@media(max-width:800px){
+  .nutrition-favorites-list{grid-template-columns:1fr}
+  .bodyweight-entry{grid-template-columns:1fr 1fr}
+  .bodyweight-entry button{grid-column:1/-1}
+}
+@media(max-width:520px){
+  .bodyweight-entry{grid-template-columns:1fr}
+  .bodyweight-entry button{grid-column:auto}
+  .bodyweight-stats{grid-template-columns:1fr 1fr}
+  .bodyweight-history-head{display:block}
+  .bodyweight-history-head span{display:block;margin-top:3px}
+}
+
 </style>
 </head>
 <body>
@@ -4299,6 +4609,21 @@ section{background:rgba(8,9,11,.60)}
         </div>
       </div>
 
+
+      <div class="nutrition-favorites-card">
+        <div class="nutrition-card-head">
+          <div>
+            <strong>⭐ Favorite Foods</strong>
+            <span>Save foods you eat often, then log them again in one tap.</span>
+          </div>
+          <span id="nutritionFavoriteCount" class="nutrition-favorite-count">0 saved</span>
+        </div>
+
+        <div id="nutritionFavoritesList" class="nutrition-favorites-list">
+          <div class="nutrition-empty">Tap ☆ Favorite on a logged meal to save it here.</div>
+        </div>
+      </div>
+
       <div class="nutrition-layout">
         <div class="nutrition-add-card">
           <div class="nutrition-card-head">
@@ -4391,6 +4716,67 @@ section{background:rgba(8,9,11,.60)}
           <div id="nutritionMealsList" class="nutrition-meals-list">
             <div class="nutrition-empty">No meals logged for this day yet.</div>
           </div>
+        </div>
+      </div>
+
+
+      <div id="bodyweightTracker" class="bodyweight-card">
+        <div class="nutrition-card-head">
+          <div>
+            <strong>⚖️ Bodyweight Tracker</strong>
+            <span>Log your bodyweight and watch the trend over time. Your entries are private.</span>
+          </div>
+          <span class="bodyweight-private">🔒 Private</span>
+        </div>
+
+        <div class="bodyweight-entry">
+          <label>
+            <span>Date</span>
+            <input id="bodyweightDate" type="date">
+          </label>
+          <label>
+            <span>Bodyweight (lb)</span>
+            <input id="bodyweightInput" type="number" min="40" max="1500" step="0.1" inputmode="decimal" placeholder="180.0">
+          </label>
+          <button id="bodyweightSaveBtn" type="button">Save weight</button>
+        </div>
+        <div id="bodyweightStatus" class="bodyweight-status"></div>
+
+        <div class="bodyweight-stats">
+          <div>
+            <span>Latest</span>
+            <strong id="bodyweightLatest">—</strong>
+          </div>
+          <div>
+            <span>7-day avg</span>
+            <strong id="bodyweightAverage">—</strong>
+          </div>
+          <div>
+            <span>Trend</span>
+            <strong id="bodyweightTrend">—</strong>
+          </div>
+          <div>
+            <span>Entries</span>
+            <strong id="bodyweightEntryCount">0</strong>
+          </div>
+        </div>
+
+        <div class="bodyweight-chart-wrap">
+          <div class="bodyweight-chart-head">
+            <span>Recent trend</span>
+            <small>Last 30 entries</small>
+          </div>
+          <div id="bodyweightChart" class="bodyweight-chart">
+            <div class="bodyweight-empty">Log your first bodyweight to start the chart.</div>
+          </div>
+        </div>
+
+        <div class="bodyweight-history-head">
+          <strong>Recent weigh-ins</strong>
+          <span>Saving another weight on the same date updates that day.</span>
+        </div>
+        <div id="bodyweightHistory" class="bodyweight-history">
+          <div class="bodyweight-empty">No bodyweight entries yet.</div>
         </div>
       </div>
 
@@ -4957,6 +5343,20 @@ const nutritionCancelEditBtn = document.getElementById('nutritionCancelEditBtn')
 const nutritionFormStatus = document.getElementById('nutritionFormStatus');
 const nutritionMealsList = document.getElementById('nutritionMealsList');
 const nutritionMealCount = document.getElementById('nutritionMealCount');
+const nutritionFavoritesList = document.getElementById('nutritionFavoritesList');
+const nutritionFavoriteCount = document.getElementById('nutritionFavoriteCount');
+
+const bodyweightDate = document.getElementById('bodyweightDate');
+const bodyweightInput = document.getElementById('bodyweightInput');
+const bodyweightSaveBtn = document.getElementById('bodyweightSaveBtn');
+const bodyweightStatus = document.getElementById('bodyweightStatus');
+const bodyweightLatest = document.getElementById('bodyweightLatest');
+const bodyweightAverage = document.getElementById('bodyweightAverage');
+const bodyweightTrend = document.getElementById('bodyweightTrend');
+const bodyweightEntryCount = document.getElementById('bodyweightEntryCount');
+const bodyweightChart = document.getElementById('bodyweightChart');
+const bodyweightHistory = document.getElementById('bodyweightHistory');
+
 const nutritionMealSearchInput = document.getElementById('nutritionMealSearchInput');
 const nutritionMealSearchBtn = document.getElementById('nutritionMealSearchBtn');
 const nutritionMealSearchResults = document.getElementById('nutritionMealSearchResults');
@@ -4986,6 +5386,8 @@ let nutritionTargets = {
   fat_target:0
 };
 let nutritionRows = [];
+let nutritionFavorites = [];
+let bodyweightRows = [];
 let nutritionMealEditId = null;
 
 function nutritionLocalDateString(date=new Date()){
@@ -5209,6 +5611,156 @@ const NUTRITION_MEAL_GROUPS = [
   ['snack','Snacks']
 ];
 
+
+function nutritionFavoriteKey(row){
+  return [
+    String(row?.food_name || row?.product_name || '').trim().toLowerCase(),
+    nutritionFormat(row?.calories || 0,1),
+    nutritionFormat(row?.protein_g || 0,1),
+    nutritionFormat(row?.carbs_g || 0,1),
+    nutritionFormat(row?.fat_g || 0,1)
+  ].join('|');
+}
+
+function isNutritionFavorite(row){
+  const key = nutritionFavoriteKey(row);
+  return nutritionFavorites.some(fav => nutritionFavoriteKey(fav) === key);
+}
+
+function renderNutritionFavorites(){
+  if(!nutritionFavoritesList) return;
+
+  if(nutritionFavoriteCount){
+    nutritionFavoriteCount.textContent =
+      `${nutritionFavorites.length} saved`;
+  }
+
+  if(!nutritionFavorites.length){
+    nutritionFavoritesList.innerHTML =
+      '<div class="nutrition-empty">Tap ☆ Favorite on a logged meal to save it here.</div>';
+    return;
+  }
+
+  nutritionFavoritesList.innerHTML = nutritionFavorites.map(fav => `
+    <div class="nutrition-favorite-item" data-favorite-id="${Number(fav.id)}">
+      <div>
+        <div class="nutrition-favorite-name">${nutritionEscape(fav.food_name || 'Favorite food')}</div>
+        <div class="nutrition-favorite-meta">
+          <span>${nutritionFormat(fav.calories,0)} cal</span>
+          <span>${nutritionFormat(fav.protein_g)}g P</span>
+          <span>${nutritionFormat(fav.carbs_g)}g C</span>
+          <span>${nutritionFormat(fav.fat_g)}g F</span>
+        </div>
+      </div>
+
+      <div class="nutrition-favorite-actions">
+        <button type="button" data-favorite-log="${Number(fav.id)}">Log</button>
+        <button type="button" data-favorite-use="${Number(fav.id)}">Use</button>
+        <button type="button" data-favorite-delete="${Number(fav.id)}">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadNutritionFavorites(){
+  if(!nutritionDb || !nutritionSession?.user) return;
+
+  const {data,error} = await nutritionDb
+    .from('favorite_foods')
+    .select('id,user_id,food_name,meal_type,calories,protein_g,carbs_g,fat_g,notes,created_at')
+    .eq('user_id',nutritionSession.user.id)
+    .order('created_at',{ascending:false});
+
+  if(error){
+    console.error('Favorite foods load error:',error);
+    return;
+  }
+
+  nutritionFavorites = data || [];
+  renderNutritionFavorites();
+}
+
+async function saveNutritionFavoriteFromMeal(row){
+  if(!nutritionDb || !nutritionSession?.user || !row) return;
+
+  const existing = nutritionFavorites.find(
+    fav => nutritionFavoriteKey(fav) === nutritionFavoriteKey(row)
+  );
+
+  if(existing){
+    setNutritionStatus('That food is already in your favorites.','success');
+    return;
+  }
+
+  const {error} = await nutritionDb
+    .from('favorite_foods')
+    .insert({
+      user_id:nutritionSession.user.id,
+      food_name:String(row.food_name || 'Favorite food').slice(0,120),
+      meal_type:row.meal_type || 'snack',
+      calories:nutritionNumber(row.calories),
+      protein_g:nutritionNumber(row.protein_g),
+      carbs_g:nutritionNumber(row.carbs_g),
+      fat_g:nutritionNumber(row.fat_g),
+      notes:String(row.notes || '').slice(0,160) || null,
+      updated_at:new Date().toISOString()
+    });
+
+  if(error){
+    setNutritionStatus(error.message,'error');
+    return;
+  }
+
+  await loadNutritionFavorites();
+  renderNutritionMeals();
+  setNutritionStatus('★ Added to Favorite Foods.','success');
+}
+
+async function deleteNutritionFavorite(id){
+  if(!nutritionDb || !nutritionSession?.user || !id) return;
+
+  const {error} = await nutritionDb
+    .from('favorite_foods')
+    .delete()
+    .eq('id',Number(id))
+    .eq('user_id',nutritionSession.user.id);
+
+  if(error){
+    setNutritionStatus(error.message,'error');
+    return;
+  }
+
+  await loadNutritionFavorites();
+  renderNutritionMeals();
+}
+
+async function logNutritionFavorite(fav){
+  if(!nutritionDb || !nutritionSession?.user || !fav) return;
+
+  const {error} = await nutritionDb
+    .from('meal_logs')
+    .insert({
+      user_id:nutritionSession.user.id,
+      meal_date:nutritionDate.value || nutritionLocalDateString(),
+      meal_type:fav.meal_type || nutritionAutoMealType(),
+      food_name:fav.food_name,
+      calories:nutritionNumber(fav.calories),
+      protein_g:nutritionNumber(fav.protein_g),
+      carbs_g:nutritionNumber(fav.carbs_g),
+      fat_g:nutritionNumber(fav.fat_g),
+      notes:fav.notes || null,
+      updated_at:new Date().toISOString()
+    });
+
+  if(error){
+    setNutritionStatus(error.message,'error');
+    return;
+  }
+
+  await loadNutritionMeals();
+  setNutritionStatus(`✓ Logged ${fav.food_name}.`,'success');
+}
+
 function renderNutritionMeals(){
   if(!nutritionMealsList) return;
 
@@ -5250,6 +5802,11 @@ function renderNutritionMeals(){
           </div>
 
           <div class="nutrition-meal-actions">
+            <button type="button"
+              class="${isNutritionFavorite(row) ? 'nutrition-favorite-active' : ''}"
+              data-nutrition-favorite="${Number(row.id)}">
+              ${isNutritionFavorite(row) ? '★ Saved' : '☆ Favorite'}
+            </button>
             <button type="button" data-nutrition-edit="${Number(row.id)}">Edit</button>
             <button type="button" data-nutrition-delete="${Number(row.id)}">Delete</button>
           </div>
@@ -5309,9 +5866,246 @@ async function loadNutritionMeals(){
   renderNutritionMeals();
 }
 
+
+function setBodyweightStatus(text='',type=''){
+  if(!bodyweightStatus) return;
+  bodyweightStatus.textContent = text;
+  bodyweightStatus.className = `bodyweight-status ${type || ''}`;
+}
+
+function bodyweightFormat(value){
+  const n = Number(value);
+  if(!Number.isFinite(n)) return '—';
+  return `${n.toFixed(1).replace(/\.0$/,'')} lb`;
+}
+
+function renderBodyweightChart(){
+  if(!bodyweightChart) return;
+
+  const rows = [...bodyweightRows]
+    .sort((a,b) => String(a.log_date).localeCompare(String(b.log_date)))
+    .slice(-30);
+
+  if(!rows.length){
+    bodyweightChart.innerHTML =
+      '<div class="bodyweight-empty">Log your first bodyweight to start the chart.</div>';
+    return;
+  }
+
+  if(rows.length === 1){
+    bodyweightChart.innerHTML =
+      `<div class="bodyweight-empty">First entry: <strong>${bodyweightFormat(rows[0].weight_lb)}</strong>. Add more weigh-ins to build the trend.</div>`;
+    return;
+  }
+
+  const width = 600;
+  const height = 170;
+  const left = 42;
+  const right = 16;
+  const top = 14;
+  const bottom = 28;
+  const chartW = width-left-right;
+  const chartH = height-top-bottom;
+
+  const weights = rows.map(r => Number(r.weight_lb)).filter(Number.isFinite);
+  let min = Math.min(...weights);
+  let max = Math.max(...weights);
+  const spread = Math.max(1,max-min);
+  min -= spread * .18;
+  max += spread * .18;
+
+  const xFor = index =>
+    left + (rows.length === 1 ? chartW/2 : (index/(rows.length-1))*chartW);
+  const yFor = value =>
+    top + ((max-value)/(max-min || 1))*chartH;
+
+  const points = rows.map((row,index) =>
+    `${xFor(index).toFixed(1)},${yFor(Number(row.weight_lb)).toFixed(1)}`
+  ).join(' ');
+
+  const horizontalLines = [0,.25,.5,.75,1].map(step => {
+    const y = top + chartH*step;
+    const labelValue = max-(max-min)*step;
+
+    return `
+      <line class="bodyweight-chart-grid" x1="${left}" y1="${y}" x2="${width-right}" y2="${y}"></line>
+      <text class="bodyweight-chart-label" x="2" y="${y+3}">${nutritionFormat(labelValue,1)}</text>
+    `;
+  }).join('');
+
+  const pointDots = rows.map((row,index) => `
+    <circle class="bodyweight-chart-point"
+      cx="${xFor(index).toFixed(1)}"
+      cy="${yFor(Number(row.weight_lb)).toFixed(1)}"
+      r="3.2">
+      <title>${row.log_date}: ${bodyweightFormat(row.weight_lb)}</title>
+    </circle>
+  `).join('');
+
+  const firstDate = nutritionDateFromIso(rows[0].log_date)
+    .toLocaleDateString([],{month:'short',day:'numeric'});
+  const lastDate = nutritionDateFromIso(rows[rows.length-1].log_date)
+    .toLocaleDateString([],{month:'short',day:'numeric'});
+
+  bodyweightChart.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Bodyweight trend">
+      ${horizontalLines}
+      <polyline class="bodyweight-chart-line" points="${points}"></polyline>
+      ${pointDots}
+      <text class="bodyweight-chart-label" x="${left}" y="${height-5}">${nutritionEscape(firstDate)}</text>
+      <text class="bodyweight-chart-label" x="${width-right-42}" y="${height-5}">${nutritionEscape(lastDate)}</text>
+    </svg>
+  `;
+}
+
+function renderBodyweight(){
+  const rows = [...bodyweightRows]
+    .sort((a,b) => String(b.log_date).localeCompare(String(a.log_date)));
+
+  if(bodyweightEntryCount) bodyweightEntryCount.textContent = String(rows.length);
+
+  const latest = rows[0];
+  if(bodyweightLatest){
+    bodyweightLatest.textContent = latest ? bodyweightFormat(latest.weight_lb) : '—';
+  }
+
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getFullYear(),now.getMonth(),now.getDate()-6,0,0,0);
+  const weekRows = rows.filter(row => nutritionDateFromIso(row.log_date) >= sevenDaysAgo);
+  const weekAvg = weekRows.length
+    ? weekRows.reduce((sum,row) => sum + Number(row.weight_lb),0) / weekRows.length
+    : null;
+
+  if(bodyweightAverage){
+    bodyweightAverage.textContent = weekAvg !== null ? bodyweightFormat(weekAvg) : '—';
+  }
+
+  if(bodyweightTrend){
+    bodyweightTrend.classList.remove('up','down');
+
+    if(rows.length >= 2){
+      const chronological = [...rows].sort(
+        (a,b) => String(a.log_date).localeCompare(String(b.log_date))
+      );
+      const first = Number(chronological[0].weight_lb);
+      const last = Number(chronological[chronological.length-1].weight_lb);
+      const delta = last-first;
+
+      bodyweightTrend.textContent =
+        `${delta > 0 ? '+' : ''}${delta.toFixed(1).replace(/\.0$/,'')} lb`;
+
+      if(delta > .05) bodyweightTrend.classList.add('up');
+      if(delta < -.05) bodyweightTrend.classList.add('down');
+    }else{
+      bodyweightTrend.textContent = '—';
+    }
+  }
+
+  if(bodyweightHistory){
+    bodyweightHistory.innerHTML = rows.length
+      ? rows.slice(0,8).map(row => `
+          <div class="bodyweight-history-row">
+            <span class="bodyweight-history-date">
+              ${nutritionEscape(
+                nutritionDateFromIso(row.log_date).toLocaleDateString([],{
+                  weekday:'short',month:'short',day:'numeric'
+                })
+              )}
+            </span>
+            <strong class="bodyweight-history-weight">${bodyweightFormat(row.weight_lb)}</strong>
+            <button type="button" data-bodyweight-delete="${Number(row.id)}">Delete</button>
+          </div>
+        `).join('')
+      : '<div class="bodyweight-empty">No bodyweight entries yet.</div>';
+  }
+
+  renderBodyweightChart();
+}
+
+async function loadBodyweight(){
+  if(!nutritionDb || !nutritionSession?.user) return;
+
+  const {data,error} = await nutritionDb
+    .from('bodyweight_logs')
+    .select('id,user_id,log_date,weight_lb,created_at,updated_at')
+    .eq('user_id',nutritionSession.user.id)
+    .order('log_date',{ascending:false})
+    .limit(90);
+
+  if(error){
+    console.error('Bodyweight load error:',error);
+    setBodyweightStatus(error.message,'error');
+    return;
+  }
+
+  bodyweightRows = data || [];
+  renderBodyweight();
+}
+
+async function saveBodyweight(){
+  if(!nutritionDb || !nutritionSession?.user) return;
+
+  const date = bodyweightDate?.value || nutritionLocalDateString();
+  const weight = Number(bodyweightInput?.value);
+
+  if(!Number.isFinite(weight) || weight < 40 || weight > 1500){
+    setBodyweightStatus('Enter a valid bodyweight in pounds.','error');
+    bodyweightInput?.focus();
+    return;
+  }
+
+  bodyweightSaveBtn.disabled = true;
+  setBodyweightStatus('Saving...');
+
+  const {error} = await nutritionDb
+    .from('bodyweight_logs')
+    .upsert({
+      user_id:nutritionSession.user.id,
+      log_date:date,
+      weight_lb:weight,
+      updated_at:new Date().toISOString()
+    },{
+      onConflict:'user_id,log_date'
+    });
+
+  bodyweightSaveBtn.disabled = false;
+
+  if(error){
+    setBodyweightStatus(error.message,'error');
+    return;
+  }
+
+  bodyweightInput.value = '';
+  setBodyweightStatus('✓ Bodyweight saved.','success');
+  await loadBodyweight();
+}
+
+async function deleteBodyweight(id){
+  if(!nutritionDb || !nutritionSession?.user || !id) return;
+  if(!confirm('Delete this bodyweight entry?')) return;
+
+  const {error} = await nutritionDb
+    .from('bodyweight_logs')
+    .delete()
+    .eq('id',Number(id))
+    .eq('user_id',nutritionSession.user.id);
+
+  if(error){
+    setBodyweightStatus(error.message,'error');
+    return;
+  }
+
+  await loadBodyweight();
+}
+
 async function refreshNutritionTracker(){
   if(!nutritionSession?.user) return;
-  await Promise.all([loadNutritionTargets(),loadNutritionMeals()]);
+  await Promise.all([
+    loadNutritionTargets(),
+    loadNutritionMeals(),
+    loadNutritionFavorites(),
+    loadBodyweight()
+  ]);
 }
 
 async function setNutritionSession(session){
@@ -5322,6 +6116,10 @@ async function setNutritionSession(session){
   if(!nutritionSession?.user){
     nutritionSection.classList.add('hidden');
     nutritionRows = [];
+    nutritionFavorites = [];
+    bodyweightRows = [];
+    renderNutritionFavorites();
+    renderBodyweight();
     resetNutritionMealForm();
     nutritionMealSearchResults?.classList.add('hidden');
     if(nutritionMealSearchInput) nutritionMealSearchInput.value = '';
@@ -5493,6 +6291,15 @@ nutritionSaveMealBtn?.addEventListener('click',saveNutritionMeal);
 nutritionCancelEditBtn?.addEventListener('click',resetNutritionMealForm);
 
 nutritionMealsList?.addEventListener('click',(e) => {
+  const favorite = e.target.closest('[data-nutrition-favorite]');
+  if(favorite){
+    const row = nutritionRows.find(
+      x => Number(x.id) === Number(favorite.dataset.nutritionFavorite)
+    );
+    if(row) saveNutritionFavoriteFromMeal(row);
+    return;
+  }
+
   const edit = e.target.closest('[data-nutrition-edit]');
   if(edit){
     const row = nutritionRows.find(x => Number(x.id) === Number(edit.dataset.nutritionEdit));
@@ -6150,6 +6957,52 @@ document.addEventListener('keydown',(e) => {
   }
 });
 
+
+
+nutritionFavoritesList?.addEventListener('click',(e) => {
+  const logBtn = e.target.closest('[data-favorite-log]');
+  if(logBtn){
+    const fav = nutritionFavorites.find(
+      x => Number(x.id) === Number(logBtn.dataset.favoriteLog)
+    );
+    if(fav) logNutritionFavorite(fav);
+    return;
+  }
+
+  const useBtn = e.target.closest('[data-favorite-use]');
+  if(useBtn){
+    const fav = nutritionFavorites.find(
+      x => Number(x.id) === Number(useBtn.dataset.favoriteUse)
+    );
+
+    if(fav){
+      fillNutritionFormFromMeal(fav,'Favorite food');
+      document.querySelector('.nutrition-add-card')?.scrollIntoView({
+        behavior:'smooth',block:'center'
+      });
+    }
+    return;
+  }
+
+  const deleteBtn = e.target.closest('[data-favorite-delete]');
+  if(deleteBtn){
+    deleteNutritionFavorite(Number(deleteBtn.dataset.favoriteDelete));
+  }
+});
+
+bodyweightSaveBtn?.addEventListener('click',saveBodyweight);
+bodyweightInput?.addEventListener('keydown',(e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    saveBodyweight();
+  }
+});
+bodyweightHistory?.addEventListener('click',(e) => {
+  const btn = e.target.closest('[data-bodyweight-delete]');
+  if(btn) deleteBodyweight(Number(btn.dataset.bodyweightDelete));
+});
+
+if(bodyweightDate) bodyweightDate.value = nutritionLocalDateString();
 
 if(nutritionDate) nutritionDate.value = nutritionLocalDateString();
 
