@@ -15882,16 +15882,21 @@ async function loadDmConversation(scrollBottom=false){
 
     const me = session.user.id;
 
+    // Always fetch the NEWEST messages first. The old query sorted oldest-first
+    // and then limited to 200, which meant long conversations got stuck showing
+    // only the first 200 messages while new DMs still triggered notifications.
     const { data, error } = await client
       .from('direct_messages')
       .select('id,sender_id,recipient_id,message,created_at')
       .or(`and(sender_id.eq.${me},recipient_id.eq.${dmActiveUserId}),and(sender_id.eq.${dmActiveUserId},recipient_id.eq.${me})`)
-      .order('created_at',{ascending:true})
+      .order('created_at',{ascending:false})
+      .order('id',{ascending:false})
       .limit(200);
 
     if(error) throw error;
 
-    const rows = data || [];
+    // Render oldest -> newest inside the fetched recent window.
+    const rows = (data || []).slice().reverse();
     if(!rows.length){
       dmMessages.innerHTML = '<div class="dm-empty">No messages yet. Say something.</div>';
       dmMessages.scrollTop = 0;
