@@ -2837,6 +2837,81 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* GYMCELS STAFF / MODERATOR SYSTEM */
+.staff-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-left:5px;padding:2px 6px;border-radius:999px;
+  font-size:7px;line-height:1.2;font-weight:950;
+  letter-spacing:.055em;text-transform:uppercase;vertical-align:middle;white-space:nowrap;
+}
+.staff-badge.admin{
+  color:#ffe39a;border:1px solid rgba(255,193,68,.52);background:rgba(255,193,68,.12);
+}
+.staff-badge.moderator{
+  color:#a9dcff;border:1px solid rgba(70,174,255,.48);background:rgba(70,174,255,.11);
+}
+.chat-public-name-row{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+.chat-public-staff-badge .staff-badge,
+.thread-view-author #threadViewAuthorStaff .staff-badge{margin-left:0}
+.thread-reply-author-wrap{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+
+.staff-admin-panel{
+  margin:18px 0;padding:16px;border:1px solid #2b323b;border-radius:15px;
+  background:linear-gradient(180deg,#101419,#0b0e12);
+}
+.staff-admin-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.staff-admin-kicker{color:#ef4355;font-size:8px;font-weight:950;text-transform:uppercase;letter-spacing:.1em}
+.staff-admin-title{margin-top:3px;color:#fff;font-size:18px;font-weight:950}
+.staff-admin-sub{max-width:650px;margin-top:4px;color:#858f9b;font-size:10px;line-height:1.5}
+.staff-owner-badge{
+  flex:0 0 auto;padding:5px 8px;border:1px solid rgba(255,194,72,.4);border-radius:999px;
+  background:rgba(255,194,72,.09);color:#ffd879;font-size:7px;font-weight:950;letter-spacing:.08em;
+}
+.staff-admin-search{display:flex;gap:8px;margin-top:14px}
+.staff-admin-search input{
+  flex:1;min-width:0;border:1px solid #303741;border-radius:10px;background:#090c10;
+  color:#fff;padding:11px 12px;font:inherit;outline:none;
+}
+.staff-admin-search input:focus{border-color:#ef4355}
+.staff-admin-search button,.staff-current-head button{
+  border:0;border-radius:10px;background:#ef4355;color:#fff;padding:0 14px;font-weight:900;cursor:pointer;
+}
+.staff-current-head button{background:#222831;padding:8px 11px;font-size:9px}
+.staff-admin-results{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.staff-admin-card{padding:12px;border:1px solid #252c34;border-radius:11px;background:#0d1115}
+.staff-admin-name{color:#fff;font-size:12px;font-weight:950}
+.staff-admin-role{margin-top:2px;color:#747e8a;font-size:8px}
+.staff-permission-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+.staff-permission-option{
+  display:flex;align-items:flex-start;gap:8px;min-width:0;padding:9px;
+  border:1px solid #252c34;border-radius:9px;background:#11161b;cursor:pointer;
+}
+.staff-permission-option input{margin-top:2px;accent-color:#ef4355}
+.staff-permission-option strong{display:block;color:#e8ebef;font-size:9px}
+.staff-permission-option span span{display:block;margin-top:2px;color:#777f8a;font-size:8px;line-height:1.35}
+.staff-admin-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.staff-admin-save{
+  border:0;border-radius:9px;background:#ef4355;color:#fff;padding:8px 12px;
+  font-size:9px;font-weight:950;cursor:pointer;
+}
+.staff-admin-save:disabled{opacity:.55;cursor:not-allowed}
+.staff-admin-note{color:#747e8a;font-size:8px}
+.staff-admin-divider{height:1px;margin:16px 0 12px;background:#252b32}
+.staff-current-head{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;font-size:11px}
+.staff-admin-empty{
+  padding:12px;border:1px dashed #292f37;border-radius:10px;color:#717b87;text-align:center;font-size:9px;
+}
+.staff-panel-status{min-height:15px;margin-top:8px;color:#8b95a1;font-size:9px}
+.staff-panel-status.success{color:#67e8a5}
+.staff-panel-status.error{color:#ff7c89}
+@media(max-width:700px){
+  .staff-admin-head{flex-direction:column}
+  .staff-permission-grid{grid-template-columns:1fr}
+  .staff-admin-search{flex-direction:column}
+  .staff-admin-search button{padding:11px}
+}
+
 </style>
 </head>
 <body>
@@ -3128,6 +3203,7 @@ section{background:rgba(8,9,11,.60)}
     <h3 id="threadViewTitle" class="thread-view-title">Thread</h3>
     <div class="thread-view-author">
       <span id="threadViewAuthor">Member</span>
+      <span id="threadViewAuthorStaff"></span>
       <span>·</span>
       <span id="threadViewTime"></span>
     </div>
@@ -3442,6 +3518,39 @@ section{background:rgba(8,9,11,.60)}
 </div>
 
 
+<div id="staffAdminPanel" class="staff-admin-panel hidden">
+  <div class="staff-admin-head">
+    <div>
+      <div class="staff-admin-kicker">Owner controls</div>
+      <div class="staff-admin-title">Moderator Permissions</div>
+      <div class="staff-admin-sub">Search a member, make them a Moderator, and choose exactly what they are allowed to moderate.</div>
+    </div>
+    <span class="staff-owner-badge">ADMIN ONLY</span>
+  </div>
+
+  <div class="staff-admin-search">
+    <input id="staffSearchInput" type="text" maxlength="40" autocomplete="off" placeholder="Search username...">
+    <button id="staffSearchBtn" type="button">Search</button>
+  </div>
+
+  <div id="staffSearchResults" class="staff-admin-results">
+    <div class="staff-admin-empty">Search for a member to manage their permissions.</div>
+  </div>
+
+  <div class="staff-admin-divider"></div>
+
+  <div class="staff-current-head">
+    <strong>Current Moderators</strong>
+    <button id="staffRefreshBtn" type="button">Refresh</button>
+  </div>
+
+  <div id="staffMembersList" class="staff-admin-results">
+    <div class="staff-admin-empty">No moderators yet.</div>
+  </div>
+
+  <div id="staffPanelStatus" class="staff-panel-status"></div>
+</div>
+
 <div id="dmSection" class="dm-shell" style="display:none">
   <div class="dm-head">
     <div>
@@ -3685,7 +3794,10 @@ section{background:rgba(8,9,11,.60)}
     <div class="chat-public-head">
       <div id="chatPublicAvatar" class="chat-public-avatar">GL</div>
       <div class="chat-public-identity">
-        <div id="chatPublicName" class="chat-public-name">Member</div>
+        <div class="chat-public-name-row">
+          <div id="chatPublicName" class="chat-public-name">Member</div>
+          <div id="chatPublicStaffBadge" class="chat-public-staff-badge"></div>
+        </div>
         <div id="chatPublicVipBadge" class="public-vip-badge">Gymcel VIP 🔱</div>
         <div id="chatPublicStatus" class="chat-public-status offline">
           <span class="status-dot"></span><span>Offline</span>
@@ -4600,6 +4712,12 @@ const chatPublicBio = document.getElementById('chatPublicBio');
 const chatPublicPhysique = document.getElementById('chatPublicPhysique');
 const chatDmBtn = document.getElementById('chatDmBtn');
 let chatIsSiteAdmin = false;
+let currentStaffPermissions = {
+  is_admin:false,
+  chat_moderation:false,
+  thread_moderation:false,
+  voice_moderation:false
+};
 let chatReplyTarget = null;
 let chatRowsById = new Map();
 let notificationPollTimer = null;
@@ -4611,6 +4729,7 @@ let openedChatDisplayName = 'Member';
 let openedChatAvatarUrl = '';
 
 const chatPublicStatus = document.getElementById('chatPublicStatus');
+const chatPublicStaffBadge = document.getElementById('chatPublicStaffBadge');
 const chatFriendArea = document.getElementById('chatFriendArea');
 const chatFriendBtn = document.getElementById('chatFriendBtn');
 const chatFriendNote = document.getElementById('chatFriendNote');
@@ -4634,6 +4753,15 @@ const friendSearchStatus = document.getElementById('friendSearchStatus');
 
 
 const chatPublicAchievements = document.getElementById('chatPublicAchievements');
+const staffAdminPanel = document.getElementById('staffAdminPanel');
+const staffSearchInput = document.getElementById('staffSearchInput');
+const staffSearchBtn = document.getElementById('staffSearchBtn');
+const staffSearchResults = document.getElementById('staffSearchResults');
+const staffMembersList = document.getElementById('staffMembersList');
+const staffRefreshBtn = document.getElementById('staffRefreshBtn');
+const staffPanelStatus = document.getElementById('staffPanelStatus');
+let staffPanelLoadedForUser = null;
+
 
 
 
@@ -4678,6 +4806,207 @@ async function getPublicVipStatus(userId, force=false){
 function vipBadgeMarkup(isVip){
   return isVip ? '<span class="chat-vip-badge">Gymcel VIP 🔱</span>' : '';
 }
+
+
+function staffBadgeMarkup(role){
+  if(role === 'admin') return '<span class="staff-badge admin">Admin</span>';
+  if(role === 'moderator') return '<span class="staff-badge moderator">Moderator</span>';
+  return '';
+}
+
+async function loadPublicStaffRoles(userIds){
+  const ids = [...new Set((userIds || []).filter(Boolean))];
+  if(!ids.length) return {};
+
+  try{
+    const client = window.gymcelsLolDb;
+    if(!client) return {};
+
+    const {data,error} = await client.rpc('public_staff_roles',{target_users:ids});
+    if(error) throw error;
+
+    return Object.fromEntries((data || []).map(row => [row.user_id,row.role]));
+  }catch(err){
+    console.error('Staff badge load error:',err);
+    return {};
+  }
+}
+
+function canModerateChat(){
+  return !!(chatIsSiteAdmin || currentStaffPermissions.chat_moderation);
+}
+function canModerateThreads(){
+  return !!(chatIsSiteAdmin || currentStaffPermissions.thread_moderation);
+}
+function canModerateVoice(){
+  return !!(chatIsSiteAdmin || currentStaffPermissions.voice_moderation);
+}
+
+function setStaffPanelStatus(text='',type=''){
+  if(!staffPanelStatus) return;
+  staffPanelStatus.textContent = text;
+  staffPanelStatus.className = `staff-panel-status ${type || ''}`;
+}
+
+function staffEditorCard(row){
+  const isAdmin = row.role === 'admin';
+  const roleText = isAdmin ? 'Administrator · all permissions'
+    : (row.role === 'moderator' ? 'Moderator' : 'Member');
+  const disabled = isAdmin ? ' disabled' : '';
+
+  return `<div class="staff-admin-card" data-staff-user="${escapeChat(row.user_id || '')}">
+    <div class="staff-admin-name">
+      ${escapeChat(row.display_name || 'Member')}${staffBadgeMarkup(row.role)}
+    </div>
+    <div class="staff-admin-role">${escapeChat(roleText)}</div>
+
+    <div class="staff-permission-grid">
+      <label class="staff-permission-option">
+        <input type="checkbox" data-staff-permission="chat_moderation"
+          ${row.chat_moderation || isAdmin ? 'checked' : ''}${disabled}>
+        <span><strong>Public Chat</strong><span>Delete any public chat message.</span></span>
+      </label>
+
+      <label class="staff-permission-option">
+        <input type="checkbox" data-staff-permission="thread_moderation"
+          ${row.thread_moderation || isAdmin ? 'checked' : ''}${disabled}>
+        <span><strong>Threads</strong><span>Delete threads/replies and lock or unlock threads.</span></span>
+      </label>
+
+      <label class="staff-permission-option">
+        <input type="checkbox" data-staff-permission="voice_moderation"
+          ${row.voice_moderation || isAdmin ? 'checked' : ''}${disabled}>
+        <span><strong>Voice</strong><span>Kick members from Gymcel Crew voice rooms.</span></span>
+      </label>
+    </div>
+
+    <div class="staff-admin-actions">
+      <span class="staff-admin-note">
+        ${isAdmin ? 'Admin permissions cannot be changed here.' : 'Uncheck everything and save to remove Moderator.'}
+      </span>
+      ${isAdmin ? '' : '<button class="staff-admin-save" type="button" data-save-staff-permissions>Save permissions</button>'}
+    </div>
+  </div>`;
+}
+
+async function loadCurrentStaffMembers(){
+  if(!chatIsSiteAdmin || !staffMembersList) return;
+
+  setStaffPanelStatus('Loading moderators...');
+
+  try{
+    const client = window.gymcelsLolDb;
+    const {data,error} = await client.rpc('admin_list_staff_members');
+    if(error) throw error;
+
+    const rows = data || [];
+    staffMembersList.innerHTML = rows.length
+      ? rows.map(staffEditorCard).join('')
+      : '<div class="staff-admin-empty">No moderators yet.</div>';
+
+    setStaffPanelStatus('');
+  }catch(err){
+    staffMembersList.innerHTML = '<div class="staff-admin-empty">Could not load moderators.</div>';
+    setStaffPanelStatus(err?.message || String(err),'error');
+  }
+}
+
+async function searchStaffMembers(){
+  if(!chatIsSiteAdmin || !staffSearchResults) return;
+
+  const query = String(staffSearchInput?.value || '').trim();
+  if(!query){
+    staffSearchResults.innerHTML = '<div class="staff-admin-empty">Type a username first.</div>';
+    return;
+  }
+
+  staffSearchResults.innerHTML = '<div class="staff-admin-empty">Searching...</div>';
+
+  try{
+    const client = window.gymcelsLolDb;
+    const {data,error} = await client.rpc('admin_search_staff_members',{search_text:query});
+    if(error) throw error;
+
+    const rows = data || [];
+    staffSearchResults.innerHTML = rows.length
+      ? rows.map(staffEditorCard).join('')
+      : '<div class="staff-admin-empty">No member found with that username.</div>';
+  }catch(err){
+    staffSearchResults.innerHTML = '<div class="staff-admin-empty">Search failed.</div>';
+    setStaffPanelStatus(err?.message || String(err),'error');
+  }
+}
+
+async function saveStaffPermissions(card){
+  if(!chatIsSiteAdmin || !card) return;
+
+  const userId = card.dataset.staffUser;
+  const saveBtn = card.querySelector('[data-save-staff-permissions]');
+  if(!userId || !saveBtn) return;
+
+  const checked = name => !!card.querySelector(`[data-staff-permission="${name}"]`)?.checked;
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving...';
+
+  try{
+    const client = window.gymcelsLolDb;
+    const {error} = await client.rpc('set_member_moderator_permissions',{
+      target_user:userId,
+      allow_chat:checked('chat_moderation'),
+      allow_threads:checked('thread_moderation'),
+      allow_voice:checked('voice_moderation')
+    });
+    if(error) throw error;
+
+    setStaffPanelStatus('✓ Moderator permissions updated.','success');
+    await loadCurrentStaffMembers();
+    if(staffSearchInput?.value.trim()) await searchStaffMembers();
+
+    await loadCommunityChat(false);
+    await loadThreads();
+    if(activeThread) await openThread(activeThread.id);
+  }catch(err){
+    setStaffPanelStatus(err?.message || String(err),'error');
+  }finally{
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save permissions';
+  }
+}
+
+async function refreshStaffPanel(){
+  if(!staffAdminPanel) return;
+
+  if(!chatIsSiteAdmin){
+    staffAdminPanel.classList.add('hidden');
+    return;
+  }
+
+  staffAdminPanel.classList.remove('hidden');
+
+  const session = await getChatSession();
+  if(staffPanelLoadedForUser !== session?.user?.id){
+    staffPanelLoadedForUser = session?.user?.id || null;
+    await loadCurrentStaffMembers();
+  }
+}
+
+staffSearchBtn?.addEventListener('click',searchStaffMembers);
+staffSearchInput?.addEventListener('keydown',(e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    searchStaffMembers();
+  }
+});
+staffRefreshBtn?.addEventListener('click',loadCurrentStaffMembers);
+
+[staffSearchResults,staffMembersList].forEach(container => {
+  container?.addEventListener('click',(e) => {
+    const btn = e.target.closest('[data-save-staff-permissions]');
+    if(btn) saveStaffPermissions(btn.closest('[data-staff-user]'));
+  });
+});
+
 
 function chatDisplayName(user){
   return user?.user_metadata?.display_name ||
@@ -5406,6 +5735,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
   const name = displayName || 'Member';
   chatPublicName.textContent = name;
   chatPublicSub.textContent = 'Gymcels.lol Community Member';
+  if(chatPublicStaffBadge) chatPublicStaffBadge.innerHTML = '';
   if(chatPublicVipBadge) chatPublicVipBadge.classList.remove('show');
 
   if(avatarUrl){
@@ -5437,7 +5767,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
     const client = window.gymcelsLolDb;
     if(!client) throw new Error('Database connection is not ready.');
 
-    const [statRes, workoutRes, streakRes, presenceRes, isVip] = await Promise.all([
+    const [statRes, workoutRes, streakRes, presenceRes, isVip, staffRoles] = await Promise.all([
       client
         .from('chat_stats')
         .select('lifetime_messages')
@@ -5458,7 +5788,8 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
         .eq('user_id', userId)
         .maybeSingle(),
 
-      getPublicVipStatus(userId, true)
+      getPublicVipStatus(userId, true),
+      loadPublicStaffRoles([userId])
     ]);
 
     if(statRes.error) throw statRes.error;
@@ -5467,6 +5798,9 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
     if(presenceRes.error) throw presenceRes.error;
 
     if(chatPublicVipBadge) chatPublicVipBadge.classList.toggle('show', !!isVip);
+    if(chatPublicStaffBadge){
+      chatPublicStaffBadge.innerHTML = staffBadgeMarkup(staffRoles?.[userId] || null);
+    }
 
     const total = Number(statRes.data?.lifetime_messages || 0);
     const info = getChatLevelInfo(total);
@@ -6127,7 +6461,15 @@ async function refreshChatAdminStatus(session){
 
   if(!client || !session?.user){
     chatIsSiteAdmin = false;
+    currentStaffPermissions = {
+      is_admin:false,
+      chat_moderation:false,
+      thread_moderation:false,
+      voice_moderation:false
+    };
     chatAdminCheckedUserId = null;
+    staffPanelLoadedForUser = null;
+    staffAdminPanel?.classList.add('hidden');
     return false;
   }
 
@@ -6136,15 +6478,37 @@ async function refreshChatAdminStatus(session){
   }
 
   try{
-    const { data, error } = await client.rpc('is_site_admin');
-    if(error) throw error;
+    const [adminRes,permissionsRes] = await Promise.all([
+      client.rpc('is_site_admin'),
+      client.rpc('my_staff_permissions')
+    ]);
 
-    chatIsSiteAdmin = data === true;
+    if(adminRes.error) throw adminRes.error;
+    if(permissionsRes.error) throw permissionsRes.error;
+
+    chatIsSiteAdmin = adminRes.data === true;
+    const p = permissionsRes.data || {};
+
+    currentStaffPermissions = {
+      is_admin:chatIsSiteAdmin || p.is_admin === true,
+      chat_moderation:chatIsSiteAdmin || p.chat_moderation === true,
+      thread_moderation:chatIsSiteAdmin || p.thread_moderation === true,
+      voice_moderation:chatIsSiteAdmin || p.voice_moderation === true
+    };
+
     chatAdminCheckedUserId = session.user.id;
+    await refreshStaffPanel();
   }catch(err){
     chatIsSiteAdmin = false;
+    currentStaffPermissions = {
+      is_admin:false,
+      chat_moderation:false,
+      thread_moderation:false,
+      voice_moderation:false
+    };
     chatAdminCheckedUserId = session.user.id;
-    console.error('Admin status check failed:', err);
+    staffAdminPanel?.classList.add('hidden');
+    console.error('Staff status check failed:', err);
   }
 
   return chatIsSiteAdmin;
@@ -6443,6 +6807,11 @@ async function loadCommunityChat(scrollToBottom=false){
       row.is_vip = !!vipMap[row.user_id];
     });
 
+    const chatStaffRoleMap = await loadPublicStaffRoles(userIds);
+    rows.forEach(row => {
+      row.staff_role = chatStaffRoleMap[row.user_id] || null;
+    });
+
     const chatReactionMap = await loadReactionState(
       'chat',
       rows.map(row => row.id),
@@ -6457,7 +6826,7 @@ async function loadCommunityChat(scrollToBottom=false){
 
     chatMessages.innerHTML = rows.map(row => {
       const mine = signedIn && row.user_id === session.user.id;
-      const canDeleteMessage = mine || (signedIn && chatIsSiteAdmin);
+      const canDeleteMessage = mine || (signedIn && canModerateChat());
       const when = row.created_at
         ? new Date(row.created_at).toLocaleTimeString([], {
             hour:'numeric',
@@ -6480,13 +6849,13 @@ async function loadCommunityChat(scrollToBottom=false){
             <div class="chat-message-body">
               <div class="chat-meta">
                 <div>
-                  <button class="chat-user-button" type="button" data-chat-user="${escapeChat(row.user_id || '')}" data-chat-name="${escapeChat(row.display_name || 'Member')}" data-chat-avatar="${escapeChat(row.avatar_url || '')}"><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span></button>${vipBadgeMarkup(row.is_vip)}
+                  <button class="chat-user-button" type="button" data-chat-user="${escapeChat(row.user_id || '')}" data-chat-name="${escapeChat(row.display_name || 'Member')}" data-chat-avatar="${escapeChat(row.avatar_url || '')}"><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span></button>${staffBadgeMarkup(row.staff_role)}${vipBadgeMarkup(row.is_vip)}
                   <span class="chat-time"> · ${escapeChat(when)}</span>
                 </div>
                 <div class="chat-message-actions">
                   ${signedIn ? `<button class="chat-reply-btn" type="button" data-chat-reply="${row.id}">Reply</button>` : ''}
                   ${canDeleteMessage
-                    ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}"${!mine && chatIsSiteAdmin ? ' title="Moderator delete"' : ''}>Delete</button>`
+                    ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}"${!mine && canModerateChat() ? ' title="Moderator delete"' : ''}>Delete</button>`
                     : ''}
                 </div>
               </div>
@@ -6715,7 +7084,7 @@ if(chatMessages){
       if(!id) return;
 
       const rowEl = btn.closest('.chat-message');
-      const isModeratorDelete = chatIsSiteAdmin && btn.getAttribute('title') === 'Moderator delete';
+      const isModeratorDelete = canModerateChat() && btn.getAttribute('title') === 'Moderator delete';
 
       if(isModeratorDelete && !confirm("Delete this member's message?")){
         return;
@@ -6858,7 +7227,15 @@ function startCommunityChat(session){
 if(window.gymcelsLolDb){
   window.gymcelsLolDb.auth.onAuthStateChange((_event, session) => {
     chatIsSiteAdmin = false;
+    currentStaffPermissions = {
+      is_admin:false,
+      chat_moderation:false,
+      thread_moderation:false,
+      voice_moderation:false
+    };
     chatAdminCheckedUserId = null;
+    staffPanelLoadedForUser = null;
+    staffAdminPanel?.classList.add('hidden');
     startCommunityChat(session);
   });
 
@@ -6896,6 +7273,7 @@ const threadCloseBtn = document.getElementById('threadCloseBtn');
 const threadViewCategory = document.getElementById('threadViewCategory');
 const threadViewTitle = document.getElementById('threadViewTitle');
 const threadViewAuthor = document.getElementById('threadViewAuthor');
+const threadViewAuthorStaff = document.getElementById('threadViewAuthorStaff');
 const threadViewTime = document.getElementById('threadViewTime');
 const threadViewBody = document.getElementById('threadViewBody');
 const threadViewReactions = document.getElementById('threadViewReactions');
@@ -7014,6 +7392,9 @@ async function loadThreads(){
   }
 
   const threadSession = await getChatSession();
+  const threadStaffRoleMap = await loadPublicStaffRoles(
+    threadRows.map(row => row.author_id)
+  );
   const threadReactionMap = await loadReactionState(
     'thread',
     ids,
@@ -7031,7 +7412,7 @@ async function loadThreads(){
         <div class="thread-card-title">${escapeChat(row.title || 'Untitled')}</div>
         <div class="thread-card-preview">${escapeChat(preview)}</div>
         <div class="thread-card-meta">
-          <span class="thread-card-author">by ${escapeChat(row.author_name || 'Member')}</span>
+          <span class="thread-card-author">by ${escapeChat(row.author_name || 'Member')}${staffBadgeMarkup(threadStaffRoleMap[row.author_id] || null)}</span>
           <span>${Number(counts[row.id] || 0)} ${Number(counts[row.id] || 0) === 1 ? 'reply' : 'replies'}</span>
           ${row.is_locked ? '<span class="thread-card-locked">🔒 Locked</span>' : ''}
         </div>
@@ -7205,6 +7586,10 @@ async function loadThreadReplies(threadId){
   const rowMap = new Map(rows.map(row => [Number(row.id),row]));
   const canReply = !!me && !activeThread?.is_locked;
 
+  const threadReplyStaffRoleMap = await loadPublicStaffRoles(
+    rows.map(row => row.author_id)
+  );
+
   const threadReplyReactionMap = await loadReactionState(
     'thread_reply',
     rows.map(row => row.id),
@@ -7212,7 +7597,7 @@ async function loadThreadReplies(threadId){
   );
 
   threadReplies.innerHTML = rows.map(row => {
-    const canDelete = !!me && (row.author_id === me || chatIsSiteAdmin);
+    const canDelete = !!me && (row.author_id === me || canModerateThreads());
     const quoted = row.reply_to_id ? rowMap.get(Number(row.reply_to_id)) : null;
     const quotedPreview = quoted
       ? String(quoted.body || '').replace(/\s+/g,' ').trim()
@@ -7229,7 +7614,10 @@ async function loadThreadReplies(threadId){
           </button>` : ''}
 
         <div class="thread-reply-head">
-          <span class="thread-reply-author">${escapeChat(row.author_name || 'Member')}</span>
+          <span class="thread-reply-author-wrap">
+            <span class="thread-reply-author">${escapeChat(row.author_name || 'Member')}</span>
+            ${staffBadgeMarkup(threadReplyStaffRoleMap[row.author_id] || null)}
+          </span>
           <span class="thread-reply-time">${escapeChat(threadTime(row.created_at))}</span>
         </div>
 
@@ -7288,6 +7676,11 @@ async function openThread(threadId){
   threadViewTime.textContent = threadTime(data.created_at);
   threadViewBody.textContent = data.body || '';
 
+  const openedThreadStaffRoles = await loadPublicStaffRoles([data.author_id]);
+  if(threadViewAuthorStaff){
+    threadViewAuthorStaff.innerHTML = staffBadgeMarkup(openedThreadStaffRoles[data.author_id] || null);
+  }
+
   const threadViewReactionMap = await loadReactionState(
     'thread',
     [data.id],
@@ -7303,7 +7696,7 @@ async function openThread(threadId){
     );
   }
 
-  const canManage = !!session?.user && (data.author_id === session.user.id || chatIsSiteAdmin);
+  const canManage = !!session?.user && (data.author_id === session.user.id || canModerateThreads());
   threadOwnerActions.classList.toggle('hidden', !canManage);
 
   if(threadLockBtn){
@@ -7657,7 +8050,7 @@ function voiceMemberHtml(entry, myId, allowLocalMute=false){
                title="${locallyMuted ? 'Hear this person again' : 'Mute only this person for you'}">${locallyMuted ? 'Unmute' : 'Mute'}</button>`
     : '';
 
-  const kickButton = allowLocalMute && !mine && chatIsSiteAdmin
+  const kickButton = allowLocalMute && !mine && canModerateVoice()
     ? `<button class="voice-kick-btn"
                type="button"
                data-voice-kick="${escapeChat(userId)}"
