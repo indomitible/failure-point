@@ -1326,6 +1326,148 @@ section{background:rgba(8,9,11,.60)}
   .mention-suggestions{right:0}
 }
 
+
+/* GYMCEL THREADS */
+.threads-section{padding:50px 0 58px}
+.threads-shell{
+  border:1px solid #292d34;
+  border-radius:20px;
+  background:rgba(13,15,19,.92);
+  padding:20px;
+  backdrop-filter:blur(10px);
+}
+.threads-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.threads-head h2{margin-top:4px}
+.threads-head p{max-width:650px;margin:8px 0 0;color:#9aa2ad;font-size:13px}
+.thread-create-btn,.thread-primary-btn,.thread-secondary-btn,.thread-danger-btn{
+  border:0;border-radius:10px;padding:10px 14px;
+  font-weight:900;cursor:pointer;font-family:inherit;
+}
+.thread-create-btn,.thread-primary-btn{background:#ef4355;color:#fff}
+.thread-create-btn:hover,.thread-primary-btn:hover{filter:brightness(1.08)}
+.thread-secondary-btn{background:#242830;color:#fff}
+.thread-danger-btn{background:#561b24;color:#ff9ba5}
+.thread-create-btn:disabled,.thread-primary-btn:disabled{opacity:.55;cursor:not-allowed}
+.thread-guest-note{
+  margin:0 0 14px;padding:10px 12px;border:1px solid #262b33;border-radius:10px;
+  background:#0b0d11;color:#858e99;font-size:11px;
+}
+.thread-composer{
+  margin:0 0 16px;padding:14px;border:1px solid #303640;border-radius:14px;background:#0b0d11;
+}
+.thread-composer-grid{display:grid;grid-template-columns:180px 1fr;gap:10px}
+.thread-composer select,.thread-composer input,.thread-composer textarea,
+.thread-reply-composer textarea{
+  width:100%;box-sizing:border-box;background:#0a0c0f;color:#fff;
+  border:1px solid #303640;border-radius:10px;padding:11px;font:inherit;outline:none;
+}
+.thread-composer textarea{min-height:110px;resize:vertical}
+.thread-composer select:focus,.thread-composer input:focus,.thread-composer textarea:focus,
+.thread-reply-composer textarea:focus{border-color:#ef4355}
+.thread-composer-actions{display:flex;gap:8px;flex-wrap:wrap}
+.thread-filter-row{
+  display:flex;gap:7px;overflow-x:auto;padding:1px 0 12px;margin-bottom:2px;
+}
+.thread-filter{
+  white-space:nowrap;border:1px solid #2a3038;background:#11151a;color:#9ba3ae;
+  border-radius:999px;padding:7px 10px;font-size:10px;font-weight:900;cursor:pointer;
+}
+.thread-filter.active,.thread-filter:hover{
+  border-color:rgba(239,67,85,.55);color:#fff;background:rgba(239,67,85,.12)
+}
+.threads-list{display:flex;flex-direction:column;gap:9px}
+.thread-card{
+  width:100%;display:block;text-align:left;border:1px solid #252b33;border-radius:13px;
+  background:#0c0f13;color:#fff;padding:14px;cursor:pointer;font-family:inherit;
+}
+.thread-card:hover{border-color:#3a424d;background:#10141a}
+.thread-card-top{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px
+}
+.thread-category{
+  display:inline-flex;padding:4px 7px;border-radius:999px;background:rgba(239,67,85,.12);
+  border:1px solid rgba(239,67,85,.3);color:#ff6675;font-size:8px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.07em;
+}
+.thread-card-time{font-size:8px;color:#6f7884}
+.thread-card-title{font-size:16px;font-weight:950;line-height:1.25;color:#fff}
+.thread-card-preview{
+  margin-top:5px;color:#9ca5b0;font-size:11px;line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.thread-card-meta{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px;color:#777f8b;font-size:9px
+}
+.thread-card-author{color:#c8cdd4;font-weight:800}
+.thread-card-locked{color:#ff9ba5}
+.thread-empty{padding:24px 12px;color:#747d89;text-align:center;font-size:11px}
+.thread-status{min-height:16px;margin-top:8px;color:#8c95a1;font-size:10px}
+.thread-overlay{
+  display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.76);
+  align-items:center;justify-content:center;padding:18px;
+}
+.thread-overlay.show{display:flex}
+.thread-dialog{
+  position:relative;width:min(760px,100%);max-height:calc(100vh - 36px);overflow:auto;
+  border:1px solid #303640;border-radius:18px;background:#101216;
+  box-shadow:0 24px 90px rgba(0,0,0,.58);padding:20px;
+}
+.thread-close-btn{
+  position:absolute;right:13px;top:12px;width:34px;height:34px;border:1px solid #2b3038;
+  border-radius:9px;background:#171a1f;color:#fff;font-size:18px;cursor:pointer
+}
+.thread-view-category{
+  display:inline-flex;margin-right:45px;padding:5px 8px;border-radius:999px;
+  background:rgba(239,67,85,.12);border:1px solid rgba(239,67,85,.4);
+  color:#ff6675;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em
+}
+.thread-view-title{margin:10px 45px 3px 0;color:#fff;font-size:26px;line-height:1.15}
+.thread-view-author{display:flex;gap:6px;color:#7e8793;font-size:9px}
+.thread-view-author span:first-child{color:#d2d7de;font-weight:900}
+.thread-view-body{
+  margin-top:14px;padding:14px;border:1px solid #252a31;border-radius:12px;background:#0b0d10;
+  color:#e7eaee;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word
+}
+.thread-owner-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.thread-replies-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin:18px 0 9px;color:#fff;font-size:12px
+}
+.thread-replies{display:flex;flex-direction:column;gap:8px}
+.thread-reply{
+  border:1px solid #252b33;border-radius:11px;background:#0b0e12;padding:11px
+}
+.thread-reply-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:5px
+}
+.thread-reply-author{font-size:10px;font-weight:900;color:#ff6675}
+.thread-reply-time{font-size:8px;color:#6e7783}
+.thread-reply-body{color:#dfe3e8;font-size:11px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.thread-reply-actions{display:flex;justify-content:flex-end;margin-top:6px}
+.thread-reply-delete{
+  border:0;background:transparent;color:#7a838e;font-size:9px;cursor:pointer;padding:0
+}
+.thread-reply-delete:hover{color:#ff6675}
+.thread-reply-composer{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}
+.thread-reply-composer textarea{min-height:74px;resize:vertical}
+.thread-locked-note{
+  margin-top:10px;padding:10px;border:1px solid rgba(239,67,85,.3);border-radius:10px;
+  background:rgba(239,67,85,.08);color:#ff9ba5;font-size:10px;font-weight:800
+}
+@media(max-width:700px){
+  .thread-composer-grid{grid-template-columns:1fr}
+  .thread-reply-composer{grid-template-columns:1fr}
+  .threads-shell{padding:15px}
+  .thread-view-title{font-size:22px}
+}
+
 </style>
 </head>
 <body>
@@ -1343,6 +1485,7 @@ section{background:rgba(8,9,11,.60)}
     <div class="nav-actions">
       <a class="nav-link" id="navSupport" href="mailto:brandonssillyalt@gmail.com?subject=Gymcels.lol%20Support&body=Hey%20Brandon%2C%20I%20need%20help%20with%20Gymcels.lol.">Customer Support</a>
       <a class="nav-link" id="navChat" href="#login-card">Chat</a>
+      <a class="nav-link" id="navThreads" href="#threadsSection">Threads</a>
       <a class="nav-link" id="navFriends" href="#login-card">Friends</a>
       <a class="nav-link" id="navDms" href="#login-card">DMs</a>
       <a class="nav-link" id="navVip" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">VIP</a>
@@ -1453,6 +1596,107 @@ section{background:rgba(8,9,11,.60)}
 </div>
   </div>
 </section>
+
+
+<section id="threadsSection" class="threads-section">
+  <div class="wrap">
+    <div class="threads-shell">
+      <div class="threads-head">
+        <div>
+          <div class="kicker">Community</div>
+          <h2>Gymcel Threads</h2>
+          <p>Open a topic, ask a question, share progress, or talk training with the community.</p>
+        </div>
+        <button id="openThreadComposerBtn" class="thread-create-btn" type="button">+ New Thread</button>
+      </div>
+
+      <div id="threadGuestNote" class="thread-guest-note">
+        Anyone can read threads. Log in to create one or reply.
+      </div>
+
+      <div id="threadComposer" class="thread-composer hidden">
+        <div class="thread-composer-grid">
+          <div class="field">
+            <label for="threadCategory">Category</label>
+            <select id="threadCategory">
+              <option value="General">General</option>
+              <option value="Training">Training</option>
+              <option value="Progress">Progress</option>
+              <option value="Nutrition">Nutrition</option>
+              <option value="Questions">Questions</option>
+              <option value="Off Topic">Off Topic</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="threadTitle">Thread title</label>
+            <input id="threadTitle" type="text" maxlength="100" placeholder="What do you want to talk about?">
+          </div>
+        </div>
+        <div class="field">
+          <label for="threadBody">Post</label>
+          <textarea id="threadBody" maxlength="3000" placeholder="Start the discussion..."></textarea>
+        </div>
+        <div class="thread-composer-actions">
+          <button id="createThreadBtn" class="thread-primary-btn" type="button">Post Thread</button>
+          <button id="cancelThreadBtn" class="thread-secondary-btn" type="button">Cancel</button>
+        </div>
+        <div id="threadComposerStatus" class="thread-status"></div>
+      </div>
+
+      <div class="thread-filter-row" id="threadFilters">
+        <button class="thread-filter active" type="button" data-thread-filter="All">All</button>
+        <button class="thread-filter" type="button" data-thread-filter="Training">Training</button>
+        <button class="thread-filter" type="button" data-thread-filter="Progress">Progress</button>
+        <button class="thread-filter" type="button" data-thread-filter="Questions">Questions</button>
+        <button class="thread-filter" type="button" data-thread-filter="Nutrition">Nutrition</button>
+        <button class="thread-filter" type="button" data-thread-filter="Off Topic">Off Topic</button>
+      </div>
+
+      <div id="threadsList" class="threads-list">
+        <div class="thread-empty">Loading threads...</div>
+      </div>
+      <div id="threadsStatus" class="thread-status"></div>
+    </div>
+  </div>
+</section>
+
+<div id="threadOverlay" class="thread-overlay" aria-hidden="true">
+  <div class="thread-dialog" role="dialog" aria-modal="true" aria-labelledby="threadViewTitle">
+    <button id="threadCloseBtn" class="thread-close-btn" type="button" aria-label="Close">×</button>
+
+    <div id="threadViewCategory" class="thread-view-category">General</div>
+    <h3 id="threadViewTitle" class="thread-view-title">Thread</h3>
+    <div class="thread-view-author">
+      <span id="threadViewAuthor">Member</span>
+      <span>·</span>
+      <span id="threadViewTime"></span>
+    </div>
+    <div id="threadViewBody" class="thread-view-body"></div>
+
+    <div id="threadOwnerActions" class="thread-owner-actions hidden">
+      <button id="threadLockBtn" class="thread-secondary-btn" type="button">Lock Thread</button>
+      <button id="threadDeleteBtn" class="thread-danger-btn" type="button">Delete Thread</button>
+    </div>
+
+    <div class="thread-replies-head">
+      <strong>Replies</strong>
+      <span id="threadReplyCount">0</span>
+    </div>
+
+    <div id="threadReplies" class="thread-replies">
+      <div class="thread-empty">Loading replies...</div>
+    </div>
+
+    <div id="threadReplyLocked" class="thread-locked-note hidden">This thread is locked.</div>
+
+    <div id="threadReplyComposer" class="thread-reply-composer">
+      <textarea id="threadReplyInput" maxlength="2000" placeholder="Log in to reply..." disabled></textarea>
+      <button id="threadReplyBtn" class="thread-primary-btn" type="button" disabled>Log in to reply</button>
+    </div>
+    <div id="threadReplyStatus" class="thread-status"></div>
+  </div>
+</div>
+
 
   <section><div class='wrap'><div class='section-head'><div><div class='kicker'>Creator progress</div><h2>5+ years still progressing rapidly</h2></div><p>These are my own physique progress photos. They show my experience with the training approach, not a guarantee that every buyer will get the same result.</p></div><div class='results'>
       <figure class="progress-card">
@@ -1980,6 +2224,7 @@ window.fpVerificationCallback = (() => {
   const logList = $('logList');
   const navSignup = $('navSignup');
   const navChat = $('navChat');
+  const navThreads = $('navThreads');
   const navFriends = $('navFriends');
   const navDms = $('navDms');
   const navVip = $('navVip');
@@ -2087,6 +2332,8 @@ window.fpVerificationCallback = (() => {
       navWorkouts.classList.remove('hidden');
       navLogout.classList.remove('hidden');
       if (navChat) navChat.setAttribute('href', '#communityChat');
+      if (navThreads) navThreads.setAttribute('href', '#threadsSection');
+      if (navThreads) navThreads.setAttribute('href', '#threadsSection');
       if (navFriends) navFriends.setAttribute('href', '#friendsSection');
       if (navDms) navDms.setAttribute('href', '#dmSection');
       await loadLogs();
@@ -3731,7 +3978,7 @@ async function loadNotifications(){
 
   const { data, error } = await client
     .from('notifications')
-    .select('id,actor_id,actor_display_name,type,message_id,reply_to_id,preview,is_read,created_at')
+    .select('id,actor_id,actor_display_name,type,message_id,reply_to_id,thread_id,preview,is_read,created_at')
     .order('created_at',{ascending:false})
     .limit(30);
 
@@ -3776,6 +4023,11 @@ async function loadNotifications(){
       copy = preview
         ? `sent you a DM: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
         : 'sent you a direct message.';
+    }else if(n.type === 'thread_reply'){
+      icon = '💬';
+      copy = preview
+        ? `replied to your thread: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
+        : 'replied to your thread.';
     }
 
     return `
@@ -3784,7 +4036,8 @@ async function loadNotifications(){
               data-notification-id="${n.id}"
               data-notification-message="${n.message_id || ''}"
               data-notification-type="${escapeChat(n.type || '')}"
-              data-notification-actor="${escapeChat(n.actor_id || '')}">
+              data-notification-actor="${escapeChat(n.actor_id || '')}"
+              data-notification-thread="${n.thread_id || ''}">
         <div class="notification-item-top">
           <span class="notification-item-name"><span class="notification-item-icon">${icon}</span>${escapeChat(n.actor_display_name || 'Member')}</span>
           <span class="notification-item-time">${escapeChat(notificationTime(n.created_at))}</span>
@@ -4251,6 +4504,7 @@ if(notificationList){
     const messageId = Number(item.dataset.notificationMessage);
     const type = item.dataset.notificationType || '';
     const actorId = item.dataset.notificationActor || '';
+    const notificationThreadId = Number(item.dataset.notificationThread);
 
     await markNotificationRead(notificationId);
     await loadNotifications();
@@ -4258,6 +4512,13 @@ if(notificationList){
     if(notificationPanel){
       notificationPanel.classList.add('hidden');
       notificationPanel.setAttribute('aria-hidden','true');
+    }
+
+    if(type === 'thread_reply' && notificationThreadId){
+      threadsSection?.scrollIntoView({behavior:'smooth',block:'start'});
+      await loadThreads();
+      await openThread(notificationThreadId);
+      return;
     }
 
     if(type === 'friend_request' || type === 'friend_accepted'){
@@ -4306,6 +4567,7 @@ function startCommunityChat(session){
   clearInterval(chatPollTimer);
   setCommunityChatAuthState(session);
   startNotifications(session);
+  startThreads(session);
 
   if(session?.user){
     startPresenceHeartbeat();
@@ -4335,6 +4597,553 @@ if(window.gymcelsLolDb){
 } else {
   setChatStatus('Chat database connection is not ready.', 'error');
 }
+
+
+// ---- Gymcel Threads ----
+const navThreadsOutside = document.getElementById('navThreads');
+const threadsSection = document.getElementById('threadsSection');
+const openThreadComposerBtn = document.getElementById('openThreadComposerBtn');
+const threadGuestNote = document.getElementById('threadGuestNote');
+const threadComposer = document.getElementById('threadComposer');
+const threadCategory = document.getElementById('threadCategory');
+const threadTitle = document.getElementById('threadTitle');
+const threadBody = document.getElementById('threadBody');
+const createThreadBtn = document.getElementById('createThreadBtn');
+const cancelThreadBtn = document.getElementById('cancelThreadBtn');
+const threadComposerStatus = document.getElementById('threadComposerStatus');
+const threadFilters = document.getElementById('threadFilters');
+const threadsList = document.getElementById('threadsList');
+const threadsStatus = document.getElementById('threadsStatus');
+
+const threadOverlay = document.getElementById('threadOverlay');
+const threadCloseBtn = document.getElementById('threadCloseBtn');
+const threadViewCategory = document.getElementById('threadViewCategory');
+const threadViewTitle = document.getElementById('threadViewTitle');
+const threadViewAuthor = document.getElementById('threadViewAuthor');
+const threadViewTime = document.getElementById('threadViewTime');
+const threadViewBody = document.getElementById('threadViewBody');
+const threadOwnerActions = document.getElementById('threadOwnerActions');
+const threadLockBtn = document.getElementById('threadLockBtn');
+const threadDeleteBtn = document.getElementById('threadDeleteBtn');
+const threadReplyCount = document.getElementById('threadReplyCount');
+const threadReplies = document.getElementById('threadReplies');
+const threadReplyLocked = document.getElementById('threadReplyLocked');
+const threadReplyComposer = document.getElementById('threadReplyComposer');
+const threadReplyInput = document.getElementById('threadReplyInput');
+const threadReplyBtn = document.getElementById('threadReplyBtn');
+const threadReplyStatus = document.getElementById('threadReplyStatus');
+
+let threadFilter = 'All';
+let threadRows = [];
+let activeThread = null;
+let threadsPollTimer = null;
+let threadPosting = false;
+let threadReplyPosting = false;
+
+function setThreadStatus(el, text='', type='normal'){
+  if(!el) return;
+  el.textContent = text;
+  el.style.color =
+    type === 'error' ? '#ff7c89' :
+    type === 'success' ? '#67e8a5' :
+    '#8c95a1';
+  el.style.fontWeight = type === 'error' || type === 'success' ? '800' : '';
+}
+
+function threadTime(value){
+  if(!value) return '';
+  const d = new Date(value);
+  const diff = Date.now() - d.getTime();
+  if(diff < 60000) return 'now';
+  if(diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if(diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+  if(diff < 604800000) return `${Math.floor(diff/86400000)}d ago`;
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+}
+
+function setThreadsAuthState(session){
+  const signedIn = !!session?.user;
+
+  if(openThreadComposerBtn){
+    openThreadComposerBtn.disabled = !signedIn;
+    openThreadComposerBtn.textContent = signedIn ? '+ New Thread' : 'Log in to post';
+  }
+
+  if(threadGuestNote){
+    threadGuestNote.textContent = signedIn
+      ? 'Start a topic or jump into an existing discussion.'
+      : 'Anyone can read threads. Log in to create one or reply.';
+  }
+
+  if(!signedIn && threadComposer){
+    threadComposer.classList.add('hidden');
+  }
+
+  if(activeThread) updateThreadReplyComposer(session);
+}
+
+async function loadThreads(){
+  const client = window.gymcelsLolDb;
+  if(!client || !threadsList) return;
+
+  setThreadStatus(threadsStatus, 'Loading threads...');
+
+  let query = client
+    .from('forum_threads')
+    .select('id,author_id,author_name,title,body,category,is_locked,created_at')
+    .order('created_at',{ascending:false})
+    .limit(50);
+
+  if(threadFilter !== 'All'){
+    query = query.eq('category', threadFilter);
+  }
+
+  const { data, error } = await query;
+
+  if(error){
+    threadsList.innerHTML = `<div class="thread-empty">${escapeChat(error.message)}</div>`;
+    setThreadStatus(threadsStatus, '', 'normal');
+    return;
+  }
+
+  threadRows = data || [];
+
+  if(!threadRows.length){
+    threadsList.innerHTML = '<div class="thread-empty">No threads here yet. Be the first to start one.</div>';
+    setThreadStatus(threadsStatus, '');
+    return;
+  }
+
+  const ids = threadRows.map(x => x.id);
+  let counts = {};
+
+  if(ids.length){
+    const { data: replyRows, error: replyCountError } = await client
+      .from('forum_replies')
+      .select('thread_id')
+      .in('thread_id', ids);
+
+    if(!replyCountError){
+      counts = (replyRows || []).reduce((acc,row) => {
+        acc[row.thread_id] = (acc[row.thread_id] || 0) + 1;
+        return acc;
+      }, {});
+    }
+  }
+
+  threadsList.innerHTML = threadRows.map(row => {
+    const preview = String(row.body || '').replace(/\s+/g,' ').trim();
+    return `
+      <button class="thread-card" type="button" data-open-thread="${row.id}">
+        <div class="thread-card-top">
+          <span class="thread-category">${escapeChat(row.category || 'General')}</span>
+          <span class="thread-card-time">${escapeChat(threadTime(row.created_at))}</span>
+        </div>
+        <div class="thread-card-title">${escapeChat(row.title || 'Untitled')}</div>
+        <div class="thread-card-preview">${escapeChat(preview)}</div>
+        <div class="thread-card-meta">
+          <span class="thread-card-author">by ${escapeChat(row.author_name || 'Member')}</span>
+          <span>${Number(counts[row.id] || 0)} ${Number(counts[row.id] || 0) === 1 ? 'reply' : 'replies'}</span>
+          ${row.is_locked ? '<span class="thread-card-locked">🔒 Locked</span>' : ''}
+        </div>
+      </button>`;
+  }).join('');
+
+  setThreadStatus(threadsStatus, '');
+}
+
+async function createThread(){
+  if(threadPosting) return;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client || !session?.user){
+    setThreadStatus(threadComposerStatus,'Log in to create a thread.','error');
+    return;
+  }
+
+  const title = String(threadTitle?.value || '').trim();
+  const body = String(threadBody?.value || '').trim();
+  const category = String(threadCategory?.value || 'General');
+
+  if(title.length < 3){
+    setThreadStatus(threadComposerStatus,'Give your thread a title.','error');
+    return;
+  }
+  if(body.length < 2){
+    setThreadStatus(threadComposerStatus,'Write something in the post.','error');
+    return;
+  }
+
+  threadPosting = true;
+  if(createThreadBtn) createThreadBtn.disabled = true;
+  setThreadStatus(threadComposerStatus,'Posting...');
+
+  try{
+    const { data, error } = await client
+      .from('forum_threads')
+      .insert({
+        author_id:session.user.id,
+        author_name:chatDisplayName(session.user),
+        title,
+        body,
+        category
+      })
+      .select('id')
+      .single();
+
+    if(error) throw error;
+
+    if(threadTitle) threadTitle.value = '';
+    if(threadBody) threadBody.value = '';
+    if(threadComposer) threadComposer.classList.add('hidden');
+    setThreadStatus(threadComposerStatus,'✓ THREAD POSTED','success');
+
+    await loadThreads();
+    if(data?.id) await openThread(Number(data.id));
+  }catch(err){
+    setThreadStatus(threadComposerStatus, err?.message || String(err), 'error');
+  }finally{
+    threadPosting = false;
+    if(createThreadBtn) createThreadBtn.disabled = false;
+  }
+}
+
+function updateThreadReplyComposer(session){
+  if(!threadReplyInput || !threadReplyBtn || !threadReplyLocked) return;
+
+  const signedIn = !!session?.user;
+  const locked = !!activeThread?.is_locked;
+
+  threadReplyLocked.classList.toggle('hidden', !locked);
+
+  if(locked){
+    threadReplyInput.disabled = true;
+    threadReplyBtn.disabled = true;
+    threadReplyInput.placeholder = 'This thread is locked.';
+    threadReplyBtn.textContent = 'Locked';
+  }else if(!signedIn){
+    threadReplyInput.disabled = true;
+    threadReplyBtn.disabled = true;
+    threadReplyInput.placeholder = 'Log in to reply...';
+    threadReplyBtn.textContent = 'Log in to reply';
+  }else{
+    threadReplyInput.disabled = false;
+    threadReplyBtn.disabled = false;
+    threadReplyInput.placeholder = 'Write a reply...';
+    threadReplyBtn.textContent = 'Reply';
+  }
+}
+
+async function loadThreadReplies(threadId){
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client || !threadReplies) return;
+
+  const { data, error } = await client
+    .from('forum_replies')
+    .select('id,thread_id,author_id,author_name,body,created_at')
+    .eq('thread_id', threadId)
+    .order('created_at',{ascending:true})
+    .limit(300);
+
+  if(error){
+    threadReplies.innerHTML = `<div class="thread-empty">${escapeChat(error.message)}</div>`;
+    return;
+  }
+
+  const rows = data || [];
+  if(threadReplyCount) threadReplyCount.textContent = String(rows.length);
+
+  if(!rows.length){
+    threadReplies.innerHTML = '<div class="thread-empty">No replies yet. Start the conversation.</div>';
+    return;
+  }
+
+  const me = session?.user?.id || null;
+
+  threadReplies.innerHTML = rows.map(row => {
+    const canDelete = !!me && (row.author_id === me || chatIsSiteAdmin);
+    return `
+      <div class="thread-reply" data-thread-reply-id="${row.id}">
+        <div class="thread-reply-head">
+          <span class="thread-reply-author">${escapeChat(row.author_name || 'Member')}</span>
+          <span class="thread-reply-time">${escapeChat(threadTime(row.created_at))}</span>
+        </div>
+        <div class="thread-reply-body">${chatTextWithMentions(row.body || '')}</div>
+        ${canDelete ? `
+          <div class="thread-reply-actions">
+            <button class="thread-reply-delete" type="button" data-delete-thread-reply="${row.id}">Delete</button>
+          </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+async function openThread(threadId){
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client || !threadOverlay) return;
+
+  if(session?.user){
+    await refreshChatAdminStatus(session);
+  }
+
+  const { data, error } = await client
+    .from('forum_threads')
+    .select('id,author_id,author_name,title,body,category,is_locked,created_at')
+    .eq('id', threadId)
+    .maybeSingle();
+
+  if(error || !data){
+    setThreadStatus(threadsStatus, error?.message || 'Thread not found.', 'error');
+    return;
+  }
+
+  activeThread = data;
+
+  threadViewCategory.textContent = data.category || 'General';
+  threadViewTitle.textContent = data.title || 'Thread';
+  threadViewAuthor.textContent = data.author_name || 'Member';
+  threadViewTime.textContent = threadTime(data.created_at);
+  threadViewBody.textContent = data.body || '';
+
+  const canManage = !!session?.user && (data.author_id === session.user.id || chatIsSiteAdmin);
+  threadOwnerActions.classList.toggle('hidden', !canManage);
+
+  if(threadLockBtn){
+    threadLockBtn.textContent = data.is_locked ? 'Unlock Thread' : 'Lock Thread';
+  }
+
+  setThreadStatus(threadReplyStatus,'');
+  updateThreadReplyComposer(session);
+
+  threadOverlay.classList.add('show');
+  threadOverlay.setAttribute('aria-hidden','false');
+
+  await loadThreadReplies(data.id);
+}
+
+function closeThread(){
+  if(!threadOverlay) return;
+  threadOverlay.classList.remove('show');
+  threadOverlay.setAttribute('aria-hidden','true');
+  activeThread = null;
+  if(threadReplyInput) threadReplyInput.value = '';
+  setThreadStatus(threadReplyStatus,'');
+}
+
+async function postThreadReply(){
+  if(threadReplyPosting || !activeThread) return;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client || !session?.user){
+    setThreadStatus(threadReplyStatus,'Log in to reply.','error');
+    return;
+  }
+
+  if(activeThread.is_locked){
+    setThreadStatus(threadReplyStatus,'This thread is locked.','error');
+    return;
+  }
+
+  const body = String(threadReplyInput?.value || '').trim();
+  if(!body){
+    setThreadStatus(threadReplyStatus,'Write a reply first.','error');
+    return;
+  }
+
+  threadReplyPosting = true;
+  if(threadReplyBtn) threadReplyBtn.disabled = true;
+  setThreadStatus(threadReplyStatus,'Posting reply...');
+
+  try{
+    const { error } = await client
+      .from('forum_replies')
+      .insert({
+        thread_id:activeThread.id,
+        author_id:session.user.id,
+        author_name:chatDisplayName(session.user),
+        body
+      });
+
+    if(error) throw error;
+
+    threadReplyInput.value = '';
+    setThreadStatus(threadReplyStatus,'✓ REPLY POSTED','success');
+
+    await loadThreadReplies(activeThread.id);
+    await loadThreads();
+    setTimeout(() => setThreadStatus(threadReplyStatus,''), 2000);
+  }catch(err){
+    setThreadStatus(threadReplyStatus,err?.message || String(err),'error');
+  }finally{
+    threadReplyPosting = false;
+    updateThreadReplyComposer(session);
+  }
+}
+
+async function deleteThread(threadId){
+  const client = window.gymcelsLolDb;
+  if(!client || !threadId) return;
+
+  if(!confirm('Delete this entire thread and all of its replies?')) return;
+
+  const { error } = await client
+    .from('forum_threads')
+    .delete()
+    .eq('id', threadId);
+
+  if(error){
+    setThreadStatus(threadReplyStatus,error.message,'error');
+    return;
+  }
+
+  closeThread();
+  await loadThreads();
+}
+
+async function toggleThreadLock(){
+  if(!activeThread) return;
+
+  const client = window.gymcelsLolDb;
+  if(!client) return;
+
+  const nextLocked = !activeThread.is_locked;
+  const { error } = await client.rpc('set_thread_locked', {
+    target_thread_id:activeThread.id,
+    locked_value:nextLocked
+  });
+
+  if(error){
+    setThreadStatus(threadReplyStatus,error.message,'error');
+    return;
+  }
+
+  activeThread.is_locked = nextLocked;
+  threadLockBtn.textContent = nextLocked ? 'Unlock Thread' : 'Lock Thread';
+
+  const session = await getChatSession();
+  updateThreadReplyComposer(session);
+  await loadThreads();
+}
+
+async function deleteThreadReply(replyId){
+  const client = window.gymcelsLolDb;
+  if(!client || !replyId || !activeThread) return;
+
+  if(!confirm('Delete this reply?')) return;
+
+  const { error } = await client
+    .from('forum_replies')
+    .delete()
+    .eq('id', replyId);
+
+  if(error){
+    setThreadStatus(threadReplyStatus,error.message,'error');
+    return;
+  }
+
+  await loadThreadReplies(activeThread.id);
+  await loadThreads();
+}
+
+if(navThreadsOutside){
+  navThreadsOutside.addEventListener('click', () => {
+    setTimeout(loadThreads, 100);
+  });
+}
+
+if(openThreadComposerBtn){
+  openThreadComposerBtn.addEventListener('click', async () => {
+    const session = await getChatSession();
+    if(!session?.user){
+      document.getElementById('login-card')?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+    threadComposer.classList.remove('hidden');
+    threadTitle?.focus();
+  });
+}
+
+if(cancelThreadBtn){
+  cancelThreadBtn.addEventListener('click', () => {
+    threadComposer.classList.add('hidden');
+    setThreadStatus(threadComposerStatus,'');
+  });
+}
+
+if(createThreadBtn) createThreadBtn.addEventListener('click', createThread);
+
+if(threadFilters){
+  threadFilters.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-thread-filter]');
+    if(!btn) return;
+
+    threadFilter = btn.dataset.threadFilter || 'All';
+
+    threadFilters.querySelectorAll('.thread-filter').forEach(x =>
+      x.classList.toggle('active', x === btn)
+    );
+
+    loadThreads();
+  });
+}
+
+if(threadsList){
+  threadsList.addEventListener('click', (e) => {
+    const card = e.target.closest('[data-open-thread]');
+    if(card) openThread(Number(card.dataset.openThread));
+  });
+}
+
+if(threadCloseBtn) threadCloseBtn.addEventListener('click', closeThread);
+if(threadOverlay){
+  threadOverlay.addEventListener('click', (e) => {
+    if(e.target === threadOverlay) closeThread();
+  });
+}
+
+if(threadReplyBtn) threadReplyBtn.addEventListener('click', postThreadReply);
+if(threadReplyInput){
+  threadReplyInput.addEventListener('keydown', (e) => {
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      e.preventDefault();
+      postThreadReply();
+    }
+  });
+}
+
+if(threadDeleteBtn){
+  threadDeleteBtn.addEventListener('click', () => {
+    if(activeThread) deleteThread(activeThread.id);
+  });
+}
+
+if(threadLockBtn) threadLockBtn.addEventListener('click', toggleThreadLock);
+
+if(threadReplies){
+  threadReplies.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-delete-thread-reply]');
+    if(btn) deleteThreadReply(Number(btn.dataset.deleteThreadReply));
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && threadOverlay?.classList.contains('show')) closeThread();
+});
+
+function startThreads(session){
+  clearInterval(threadsPollTimer);
+  setThreadsAuthState(session);
+  loadThreads();
+  threadsPollTimer = setInterval(loadThreads, 15000);
+}
+
 
 // ---- Private Direct Messages ----
 const dmSection = document.getElementById('dmSection');
