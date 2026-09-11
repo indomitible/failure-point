@@ -11980,49 +11980,47 @@ async function startModerationReports(session){
 
 function startCommunityChat(session){
   clearInterval(chatPollTimer);
-  setCommunityChatAuthState(session);
-  startNotifications(session);
-  startThreads(session);
-  startVoiceSystem(session);
-  startSiteUpdateBoard();
-  startModerationReports(session);
+
+  const safeStart = (label,fn) => {
+    try{
+      const result = fn();
+      if(result && typeof result.catch === 'function'){
+        result.catch(err => console.error(`${label} startup error:`,err));
+      }
+    }catch(err){
+      console.error(`${label} startup error:`,err);
+    }
+  };
+
+  safeStart('Chat auth UI',() => setCommunityChatAuthState(session));
+  safeStart('Notifications',() => startNotifications(session));
+  safeStart('Threads',() => startThreads(session));
+  safeStart('Voice',() => startVoiceSystem(session));
+  safeStart('Update board',() => startSiteUpdateBoard());
+  safeStart('Moderation reports',() => startModerationReports(session));
 
   if(session?.user){
-    startPresenceHeartbeat();
-    loadFriendsSection();
-    refreshChatLevel();
+    safeStart('Presence',() => startPresenceHeartbeat());
+    safeStart('Friends',() => loadFriendsSection());
+    safeStart('Achievements',() => refreshChatLevel());
   }
 
-  loadCommunityChat(true);
-  chatPollTimer = setInterval(() => loadCommunityChat(false), 3000);
-}
-
-if(window.gymcelsLolDb){
-  window.gymcelsLolDb.auth.onAuthStateChange((_event, session) => {
-    chatIsSiteAdmin = false;
-    currentStaffPermissions = {
-      is_admin:false,
-      chat_moderation:false,
-      thread_moderation:false,
-      voice_moderation:false
-    };
-    chatAdminCheckedUserId = null;
-    staffPanelLoadedForUser = null;
-    staffAdminPanel?.classList.add('hidden');
-    startCommunityChat(session);
-  });
-
-  setTimeout(async () => {
+  safeStart('Public chat',() => loadCommunityChat(true));
+  chatPollTimer = setInterval(() => {
     try{
-      const session = await getChatSession();
-      startCommunityChat(session);
-    } catch(err){
-      setChatStatus('Chat error: ' + (err?.message || String(err)), 'error');
+      const result = loadCommunityChat(false);
+      if(result && typeof result.catch === 'function'){
+        result.catch(err => console.error('Chat refresh error:',err));
+      }
+    }catch(err){
+      console.error('Chat refresh error:',err);
     }
-  }, 250);
-} else {
-  setChatStatus('Chat database connection is not ready.', 'error');
+  },3000);
 }
+
+// Community startup is intentionally deferred until the END of this script.
+// That keeps later modules (Threads, Voice, Polls, Reports, Nutrition, etc.)
+// fully initialized before any auth callback can start using them.
 
 
 // ---- Gymcel Threads ----
@@ -15724,6 +15722,48 @@ setTimeout(() => {
   syncMobileNavState();
   updateMobileActiveNav();
 },300);
+
+
+
+// ---- Stable community bootstrap: run only after every module above is initialized ----
+(function bootstrapGymcelsCommunity(){
+  const client = window.gymcelsLolDb;
+
+  if(!client?.auth){
+    setChatStatus('Chat database connection is not ready.','error');
+    return;
+  }
+
+  client.auth.onAuthStateChange((_event,session) => {
+    try{
+      chatIsSiteAdmin = false;
+      currentStaffPermissions = {
+        is_admin:false,
+        chat_moderation:false,
+        thread_moderation:false,
+        voice_moderation:false
+      };
+      chatAdminCheckedUserId = null;
+      staffPanelLoadedForUser = null;
+      staffAdminPanel?.classList.add('hidden');
+
+      startCommunityChat(session);
+    }catch(err){
+      console.error('Gymcels auth refresh error:',err);
+      setChatStatus('Community refresh error. Reload the page if needed.','error');
+    }
+  });
+
+  setTimeout(async () => {
+    try{
+      const session = await getChatSession();
+      startCommunityChat(session);
+    }catch(err){
+      console.error('Gymcels community startup error:',err);
+      setChatStatus('Community startup error: ' + (err?.message || String(err)),'error');
+    }
+  },350);
+})();
 
 </script>
 
