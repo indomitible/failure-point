@@ -7,6 +7,9 @@
 <title>Gymcels.lol</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#0b0c0e">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="/gymcels-icon-192.png">
@@ -11192,7 +11195,14 @@ function pushUrlBase64ToUint8Array(base64String){
 async function getGymcelsServiceWorker(){
   if(!('serviceWorker' in navigator)) throw new Error('Service workers are not supported in this browser.');
 
-  const registration = await navigator.serviceWorker.register('/sw.js',{scope:'/'});
+  const registration = await navigator.serviceWorker.register('/sw.js',{
+    scope:'/',
+    updateViaCache:'none'
+  });
+
+  // Force an update check whenever Gymcels opens, including Home Screen installs.
+  try{ await registration.update(); }catch(_){}
+
   await navigator.serviceWorker.ready;
   return registration;
 }
