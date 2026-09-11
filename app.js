@@ -14,6 +14,18 @@ window.fpVerificationCallback = (() => {
   const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   window.gymcelsLolDb = db;
 
+  const recoveryRequestedFromUrl = (() => {
+    try {
+      const hashParams = new URLSearchParams(
+        window.location.hash.startsWith('#') ? window.location.hash.slice(1) : ''
+      );
+      const queryParams = new URLSearchParams(window.location.search);
+      return hashParams.get('type') === 'recovery' || queryParams.get('type') === 'recovery';
+    } catch (_) {
+      return false;
+    }
+  })();
+
   const verificationSuccess = document.getElementById('verificationSuccess');
   const verificationCallback = window.fpVerificationCallback || {};
 
@@ -188,6 +200,256 @@ window.fpVerificationCallback = (() => {
     else msg($('signupMsg'),'Verification email sent! Check your inbox (and spam/junk folder), open the email from Gymcels.lol, and click the verification link. After verifying, come back here and log in.','success');
   });
 
+  // ---- Forgot password / account recovery ----
+  function installPasswordRecoveryUi() {
+    const loginBtn = $('loginBtn');
+    const loginCard = $('login-card');
+    if (!loginBtn || !loginCard) return;
+
+    if (!document.getElementById('gymcelsRecoveryStyles')) {
+      const style = document.createElement('style');
+      style.id = 'gymcelsRecoveryStyles';
+      style.textContent = `
+        .gymcels-forgot-btn{
+          margin-top:10px;
+          padding:0;
+          border:0;
+          background:transparent;
+          color:#aeb6c2;
+          font:inherit;
+          font-size:12px;
+          font-weight:700;
+          cursor:pointer;
+          text-decoration:underline;
+          text-underline-offset:3px;
+        }
+        .gymcels-forgot-btn:hover{color:#fff}
+        .gymcels-recovery-overlay{
+          position:fixed;
+          inset:0;
+          z-index:100000;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:18px;
+          background:rgba(5,7,10,.82);
+          backdrop-filter:blur(7px);
+        }
+        .gymcels-recovery-overlay.hidden{display:none}
+        .gymcels-recovery-card{
+          width:min(430px,100%);
+          border:1px solid #2d333c;
+          border-radius:16px;
+          background:#101319;
+          box-shadow:0 24px 70px rgba(0,0,0,.55);
+          padding:22px;
+          color:#f4f6f8;
+        }
+        .gymcels-recovery-card h3{margin:0 0 6px;font-size:22px}
+        .gymcels-recovery-card p{margin:0 0 16px;color:#9ea7b3;font-size:13px;line-height:1.45}
+        .gymcels-recovery-card label{
+          display:block;
+          margin:12px 0 6px;
+          color:#cfd5dc;
+          font-size:12px;
+          font-weight:800;
+        }
+        .gymcels-recovery-card input{
+          width:100%;
+          box-sizing:border-box;
+          min-height:44px;
+          border:1px solid #303640;
+          border-radius:9px;
+          background:#0b0e13;
+          color:#fff;
+          padding:10px 12px;
+          font-size:16px;
+          outline:none;
+        }
+        .gymcels-recovery-card input:focus{border-color:#ef4355}
+        .gymcels-recovery-actions{
+          display:flex;
+          gap:10px;
+          margin-top:16px;
+        }
+        .gymcels-recovery-actions button{
+          min-height:42px;
+          border-radius:9px;
+          padding:0 14px;
+          font-weight:900;
+          cursor:pointer;
+        }
+        #gymcelsRecoverySave{
+          flex:1;
+          border:0;
+          background:#ef4355;
+          color:#fff;
+        }
+        #gymcelsRecoveryClose{
+          border:1px solid #343b46;
+          background:#171b22;
+          color:#cfd5dc;
+        }
+        #gymcelsRecoveryMsg{
+          min-height:18px;
+          margin-top:12px;
+          font-size:12px;
+          color:#9ea7b3;
+        }
+        #gymcelsRecoveryMsg.error{color:#ff7b88}
+        #gymcelsRecoveryMsg.success{color:#67e8a5}
+      `;
+      document.head.appendChild(style);
+    }
+
+    if (!document.getElementById('forgotPasswordBtn')) {
+      const forgot = document.createElement('button');
+      forgot.id = 'forgotPasswordBtn';
+      forgot.type = 'button';
+      forgot.className = 'gymcels-forgot-btn';
+      forgot.textContent = 'Forgot password?';
+      loginBtn.insertAdjacentElement('afterend', forgot);
+
+      forgot.addEventListener('click', async () => {
+        const email = $('loginEmail')?.value.trim() || '';
+        const loginMsg = $('loginMsg');
+
+        if (!email) {
+          msg(loginMsg, 'Enter your email above first, then click “Forgot password?”.', 'error');
+          $('loginEmail')?.focus();
+          return;
+        }
+
+        forgot.disabled = true;
+        forgot.textContent = 'Sending reset email…';
+        msg(loginMsg, '');
+
+        try {
+          const { error } = await db.auth.resetPasswordForEmail(email, {
+            redirectTo: 'https://gymcels.lol/'
+          });
+
+          if (error) throw error;
+
+          msg(
+            loginMsg,
+            'If that email is registered, a password reset link was sent. Check your inbox and spam/junk folder.',
+            'success'
+          );
+        } catch (error) {
+          msg(loginMsg, error?.message || 'Could not send reset email. Try again in a moment.', 'error');
+        } finally {
+          forgot.disabled = false;
+          forgot.textContent = 'Forgot password?';
+        }
+      });
+    }
+
+    if (!document.getElementById('gymcelsRecoveryOverlay')) {
+      const overlay = document.createElement('div');
+      overlay.id = 'gymcelsRecoveryOverlay';
+      overlay.className = 'gymcels-recovery-overlay hidden';
+      overlay.innerHTML = `
+        <div class="gymcels-recovery-card" role="dialog" aria-modal="true" aria-labelledby="gymcelsRecoveryTitle">
+          <h3 id="gymcelsRecoveryTitle">Set a new password</h3>
+          <p>Your reset link worked. Enter your new Gymcels.lol password below.</p>
+
+          <label for="gymcelsRecoveryPassword">New password</label>
+          <input id="gymcelsRecoveryPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters">
+
+          <label for="gymcelsRecoveryConfirm">Confirm new password</label>
+          <input id="gymcelsRecoveryConfirm" type="password" autocomplete="new-password" minlength="6" placeholder="Type it again">
+
+          <div id="gymcelsRecoveryMsg" role="status"></div>
+
+          <div class="gymcels-recovery-actions">
+            <button id="gymcelsRecoveryClose" type="button">Cancel</button>
+            <button id="gymcelsRecoverySave" type="button">Save new password</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const passwordInput = document.getElementById('gymcelsRecoveryPassword');
+      const confirmInput = document.getElementById('gymcelsRecoveryConfirm');
+      const recoveryMsg = document.getElementById('gymcelsRecoveryMsg');
+      const saveBtn = document.getElementById('gymcelsRecoverySave');
+      const closeBtn = document.getElementById('gymcelsRecoveryClose');
+
+      const setRecoveryMsg = (text, type='') => {
+        recoveryMsg.textContent = text || '';
+        recoveryMsg.className = type || '';
+      };
+
+      closeBtn.addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        setRecoveryMsg('');
+        history.replaceState(null, '', window.location.pathname + '#members');
+      });
+
+      saveBtn.addEventListener('click', async () => {
+        const password = passwordInput.value;
+        const confirm = confirmInput.value;
+
+        if (password.length < 6) {
+          setRecoveryMsg('Use at least 6 characters.', 'error');
+          passwordInput.focus();
+          return;
+        }
+
+        if (password !== confirm) {
+          setRecoveryMsg('Those passwords do not match.', 'error');
+          confirmInput.focus();
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving…';
+        setRecoveryMsg('');
+
+        try {
+          const { error } = await db.auth.updateUser({ password });
+          if (error) throw error;
+
+          setRecoveryMsg('Password changed successfully. You are signed in.', 'success');
+          passwordInput.value = '';
+          confirmInput.value = '';
+
+          history.replaceState(null, '', window.location.pathname + '#members');
+
+          setTimeout(() => {
+            overlay.classList.add('hidden');
+            setRecoveryMsg('');
+          }, 1400);
+        } catch (error) {
+          setRecoveryMsg(error?.message || 'Could not change password. Please request a new reset link.', 'error');
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save new password';
+        }
+      });
+
+      const maybeSubmit = (event) => {
+        if (event.key === 'Enter') saveBtn.click();
+      };
+      passwordInput.addEventListener('keydown', maybeSubmit);
+      confirmInput.addEventListener('keydown', maybeSubmit);
+    }
+  }
+
+  function showPasswordRecoveryPanel() {
+    installPasswordRecoveryUi();
+
+    const overlay = document.getElementById('gymcelsRecoveryOverlay');
+    const passwordInput = document.getElementById('gymcelsRecoveryPassword');
+    if (!overlay) return;
+
+    overlay.classList.remove('hidden');
+    setTimeout(() => passwordInput?.focus(), 50);
+  }
+
+  installPasswordRecoveryUi();
+
   $('loginBtn').addEventListener('click', async () => {
     const email = $('loginEmail').value.trim();
     const password = $('loginPassword').value;
@@ -294,9 +556,22 @@ window.fpVerificationCallback = (() => {
     }
   }
 
-  db.auth.onAuthStateChange(() => refreshSession());
+  db.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      setTimeout(showPasswordRecoveryPanel, 0);
+    }
+    refreshSession();
+  });
+
   refreshSession();
   handleVerificationCallback();
+
+  if (recoveryRequestedFromUrl) {
+    setTimeout(async () => {
+      const { data: { session } } = await db.auth.getSession();
+      if (session?.user) showPasswordRecoveryPanel();
+    }, 450);
+  }
 })();
 
 
