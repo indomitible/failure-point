@@ -3881,6 +3881,209 @@ section{background:rgba(8,9,11,.60)}
   .thread-view-media img{max-height:72vh}
 }
 
+
+/* OFFICIAL UPDATE BOARD */
+.site-update-board{
+  margin-bottom:14px;
+  padding:14px;
+  border:1px solid #2a3139;
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(18,23,29,.96),rgba(10,14,18,.96));
+  box-shadow:0 18px 50px rgba(0,0,0,.2);
+}
+.site-update-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.site-update-kicker{
+  color:#ef4355;
+  font-size:8px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+}
+.site-update-title{
+  margin-top:3px;
+  color:#fff;
+  font-size:17px;
+  font-weight:950;
+}
+.site-update-sub{
+  margin-top:3px;
+  color:#7f8995;
+  font-size:9px;
+  line-height:1.45;
+}
+.site-update-readonly{
+  flex:0 0 auto;
+  padding:5px 8px;
+  border:1px solid #303842;
+  border-radius:999px;
+  background:#121820;
+  color:#929da8;
+  font-size:7px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.site-update-admin-composer{
+  margin-top:12px;
+  padding:10px;
+  border:1px solid rgba(239,67,85,.25);
+  border-radius:10px;
+  background:rgba(239,67,85,.045);
+}
+.site-update-admin-label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:7px;
+}
+.site-update-admin-label>span{
+  color:#fff;
+  font-size:9px;
+  font-weight:950;
+}
+.site-update-admin-label small{
+  color:#757f8a;
+  font-size:7px;
+}
+.site-update-admin-composer textarea{
+  display:block;
+  width:100%;
+  min-height:90px;
+  box-sizing:border-box;
+  resize:vertical;
+  border:1px solid #303741;
+  border-radius:9px;
+  background:#090c10;
+  color:#fff;
+  padding:10px 11px;
+  font:inherit;
+  font-size:10px;
+  line-height:1.5;
+  outline:none;
+}
+.site-update-admin-composer textarea:focus{border-color:#ef4355}
+.site-update-compose-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:7px;
+}
+.site-update-compose-actions>span{
+  color:#68737f;
+  font-size:7px;
+}
+.site-update-compose-actions button{
+  border:0;
+  border-radius:8px;
+  background:#ef4355;
+  color:#fff;
+  padding:8px 12px;
+  font:inherit;
+  font-size:8px;
+  font-weight:950;
+  cursor:pointer;
+}
+.site-update-compose-actions button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+.site-update-status{
+  min-height:14px;
+  margin-top:6px;
+  color:#7f8995;
+  font-size:8px;
+}
+.site-update-status.success{color:#67e8a5}
+.site-update-status.error{color:#ff7c89}
+.site-updates-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:11px;
+}
+.site-update-item{
+  position:relative;
+  padding:11px 12px;
+  border:1px solid #272e36;
+  border-radius:10px;
+  background:#0d1217;
+}
+.site-update-item.latest{
+  border-color:rgba(239,67,85,.32);
+  box-shadow:inset 3px 0 0 #ef4355;
+}
+.site-update-item-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:5px;
+}
+.site-update-author{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#fff;
+  font-size:8px;
+  font-weight:950;
+}
+.site-update-admin-badge{
+  display:inline-flex;
+  padding:2px 5px;
+  border:1px solid rgba(255,194,72,.45);
+  border-radius:999px;
+  background:rgba(255,194,72,.1);
+  color:#ffd978;
+  font-size:6px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.site-update-time{
+  color:#626d78;
+  font-size:7px;
+  white-space:nowrap;
+}
+.site-update-message{
+  color:#d8dde3;
+  font-size:10px;
+  line-height:1.55;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.site-update-delete{
+  margin-top:8px;
+  border:1px solid #343b45;
+  border-radius:7px;
+  background:#171c22;
+  color:#ff8995;
+  padding:5px 7px;
+  font:inherit;
+  font-size:7px;
+  font-weight:900;
+  cursor:pointer;
+}
+.site-update-empty{
+  padding:16px 10px;
+  border:1px dashed #2a3139;
+  border-radius:9px;
+  color:#717b86;
+  text-align:center;
+  font-size:9px;
+}
+
+@media(max-width:600px){
+  .site-update-head{display:block}
+  .site-update-readonly{display:inline-flex;margin-top:8px}
+  .site-update-admin-label{display:block}
+  .site-update-admin-label small{display:block;margin-top:3px}
+}
+
 </style>
 </head>
 <body>
@@ -4052,6 +4255,37 @@ section{background:rgba(8,9,11,.60)}
 
   <section id="communitySection" class="community-home-section">
   <div class="wrap">
+
+<div id="siteUpdateBoard" class="site-update-board">
+  <div class="site-update-head">
+    <div>
+      <div class="site-update-kicker">Official updates</div>
+      <div class="site-update-title">Gymcels Update Board</div>
+      <div class="site-update-sub">Site changes, new features, fixes, and announcements from the admin.</div>
+    </div>
+    <span class="site-update-readonly">📢 Read only</span>
+  </div>
+
+  <div id="siteUpdateAdminComposer" class="site-update-admin-composer hidden">
+    <div class="site-update-admin-label">
+      <span>Admin announcement</span>
+      <small>Only your Admin account can post here.</small>
+    </div>
+
+    <textarea id="siteUpdateInput" maxlength="1000" placeholder="Hey guys, I've improved the new UI..."></textarea>
+
+    <div class="site-update-compose-actions">
+      <span id="siteUpdateCharCount">0 / 1000</span>
+      <button id="siteUpdatePostBtn" type="button">Post update</button>
+    </div>
+    <div id="siteUpdateAdminStatus" class="site-update-status"></div>
+  </div>
+
+  <div id="siteUpdatesList" class="site-updates-list">
+    <div class="site-update-empty">Loading updates...</div>
+  </div>
+</div>
+
 <div id="communityChat" class="chat-shell">
   <div class="chat-head">
     <div>
@@ -7760,6 +7994,16 @@ if(document.getElementById('workoutForm')){
 // ---- Gymcels.lol Community Chat ----
 const communityChat = document.getElementById('communityChat');
 const communitySection = document.getElementById('communitySection');
+
+const siteUpdateBoard = document.getElementById('siteUpdateBoard');
+const siteUpdateAdminComposer = document.getElementById('siteUpdateAdminComposer');
+const siteUpdateInput = document.getElementById('siteUpdateInput');
+const siteUpdatePostBtn = document.getElementById('siteUpdatePostBtn');
+const siteUpdateCharCount = document.getElementById('siteUpdateCharCount');
+const siteUpdateAdminStatus = document.getElementById('siteUpdateAdminStatus');
+const siteUpdatesList = document.getElementById('siteUpdatesList');
+let siteUpdatesPollTimer = null;
+let siteUpdatePosting = false;
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
@@ -10299,12 +10543,199 @@ document.addEventListener('click', (e) => {
   notificationPanel.setAttribute('aria-hidden','true');
 });
 
+
+function setSiteUpdateStatus(text='',type=''){
+  if(!siteUpdateAdminStatus) return;
+  siteUpdateAdminStatus.textContent = text;
+  siteUpdateAdminStatus.className = `site-update-status ${type || ''}`;
+}
+
+function siteUpdateTime(value){
+  if(!value) return '';
+  const d = new Date(value);
+  const diff = Date.now()-d.getTime();
+
+  if(diff < 60000) return 'just now';
+  if(diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if(diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+  if(diff < 604800000) return `${Math.floor(diff/86400000)}d ago`;
+
+  return d.toLocaleDateString([],{
+    month:'short',
+    day:'numeric',
+    year:d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+  });
+}
+
+async function refreshSiteUpdateAdminUi(){
+  if(!siteUpdateAdminComposer) return false;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client || !session?.user){
+    siteUpdateAdminComposer.classList.add('hidden');
+    return false;
+  }
+
+  try{
+    const {data,error} = await client.rpc('is_site_admin');
+    if(error) throw error;
+
+    const isAdmin = data === true;
+    siteUpdateAdminComposer.classList.toggle('hidden',!isAdmin);
+    return isAdmin;
+  }catch(err){
+    console.error('Update board admin check error:',err);
+    siteUpdateAdminComposer.classList.add('hidden');
+    return false;
+  }
+}
+
+async function loadSiteUpdates(){
+  const client = window.gymcelsLolDb;
+  if(!client || !siteUpdatesList) return;
+
+  try{
+    const [updatesRes,isAdmin] = await Promise.all([
+      client
+        .from('site_updates')
+        .select('id,message,created_at')
+        .order('created_at',{ascending:false})
+        .limit(20),
+      refreshSiteUpdateAdminUi()
+    ]);
+
+    if(updatesRes.error) throw updatesRes.error;
+
+    const rows = updatesRes.data || [];
+
+    if(!rows.length){
+      siteUpdatesList.innerHTML =
+        '<div class="site-update-empty">No official updates yet.</div>';
+      return;
+    }
+
+    siteUpdatesList.innerHTML = rows.map((row,index) => `
+      <div class="site-update-item ${index === 0 ? 'latest' : ''}" data-site-update-id="${Number(row.id)}">
+        <div class="site-update-item-head">
+          <div class="site-update-author">
+            Gymcels.lol
+            <span class="site-update-admin-badge">Admin</span>
+          </div>
+          <div class="site-update-time">${escapeChat(siteUpdateTime(row.created_at))}</div>
+        </div>
+
+        <div class="site-update-message">${escapeChat(row.message || '')}</div>
+
+        ${isAdmin ? `
+          <button class="site-update-delete" type="button" data-delete-site-update="${Number(row.id)}">
+            Delete update
+          </button>` : ''}
+      </div>
+    `).join('');
+  }catch(err){
+    console.error('Update board load error:',err);
+    siteUpdatesList.innerHTML =
+      `<div class="site-update-empty">${escapeChat(err?.message || 'Could not load updates.')}</div>`;
+  }
+}
+
+async function postSiteUpdate(){
+  if(siteUpdatePosting) return;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  const message = String(siteUpdateInput?.value || '').trim();
+
+  if(!client || !session?.user){
+    setSiteUpdateStatus('Log in to post.','error');
+    return;
+  }
+
+  if(!message){
+    setSiteUpdateStatus('Write an update first.','error');
+    siteUpdateInput?.focus();
+    return;
+  }
+
+  siteUpdatePosting = true;
+  siteUpdatePostBtn.disabled = true;
+  setSiteUpdateStatus('Posting update...');
+
+  try{
+    const {error} = await client.rpc('post_site_update',{
+      update_message:message
+    });
+
+    if(error) throw error;
+
+    siteUpdateInput.value = '';
+    if(siteUpdateCharCount) siteUpdateCharCount.textContent = '0 / 1000';
+    setSiteUpdateStatus('✓ Update posted.','success');
+    await loadSiteUpdates();
+  }catch(err){
+    setSiteUpdateStatus(err?.message || String(err),'error');
+  }finally{
+    siteUpdatePosting = false;
+    siteUpdatePostBtn.disabled = false;
+  }
+}
+
+async function deleteSiteUpdate(id){
+  if(!id || !confirm('Delete this update from the board?')) return;
+
+  const client = window.gymcelsLolDb;
+  if(!client) return;
+
+  try{
+    const {error} = await client.rpc('delete_site_update',{
+      update_id:Number(id)
+    });
+    if(error) throw error;
+
+    await loadSiteUpdates();
+    setSiteUpdateStatus('✓ Update deleted.','success');
+  }catch(err){
+    setSiteUpdateStatus(err?.message || String(err),'error');
+  }
+}
+
+siteUpdateInput?.addEventListener('input',() => {
+  if(siteUpdateCharCount){
+    siteUpdateCharCount.textContent =
+      `${siteUpdateInput.value.length} / 1000`;
+  }
+});
+
+siteUpdateInput?.addEventListener('keydown',(e) => {
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+    e.preventDefault();
+    postSiteUpdate();
+  }
+});
+
+siteUpdatePostBtn?.addEventListener('click',postSiteUpdate);
+
+siteUpdatesList?.addEventListener('click',(e) => {
+  const btn = e.target.closest('[data-delete-site-update]');
+  if(btn) deleteSiteUpdate(Number(btn.dataset.deleteSiteUpdate));
+});
+
+function startSiteUpdateBoard(){
+  clearInterval(siteUpdatesPollTimer);
+  loadSiteUpdates();
+  siteUpdatesPollTimer = setInterval(loadSiteUpdates,15000);
+}
+
+
 function startCommunityChat(session){
   clearInterval(chatPollTimer);
   setCommunityChatAuthState(session);
   startNotifications(session);
   startThreads(session);
   startVoiceSystem(session);
+  startSiteUpdateBoard();
 
   if(session?.user){
     startPresenceHeartbeat();
