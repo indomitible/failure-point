@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="The Gymcels.lol — a focused 12-week hypertrophy program built around 2 hard working sets, 8–12 reps, progression, and tracking.">
 <title>Gymcels.lol</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0b0c0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/gymcels-icon-192.png">
+
 <style>
 :root {
   --bg:#0b0c0e; --panel:#121419; --panel2:#171a20; --text:#f4f4f2;
@@ -2046,6 +2052,51 @@ section{background:rgba(8,9,11,.60)}
   color:#fff;
 }
 
+
+/* PHONE PUSH NOTIFICATIONS */
+.push-alert-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 14px;
+  border-bottom:1px solid #252a31;
+  background:#0b0e12;
+}
+.push-alert-row strong{
+  display:block;
+  color:#fff;
+  font-size:10px;
+}
+.push-alert-row span{
+  display:block;
+  margin-top:2px;
+  color:#7f8894;
+  font-size:8px;
+}
+.push-alert-row span.on{color:#67e8a5}
+.push-alert-row span.blocked{color:#ff7c89}
+.push-alert-row button{
+  border:1px solid rgba(103,232,165,.3);
+  border-radius:9px;
+  background:rgba(103,232,165,.1);
+  color:#8ef0bc;
+  padding:7px 9px;
+  font-size:8px;
+  font-weight:950;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.push-alert-row button.off{
+  border-color:rgba(239,67,85,.3);
+  background:rgba(239,67,85,.1);
+  color:#ff8d98;
+}
+.push-alert-row button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
 </style>
 </head>
 <body>
@@ -2084,9 +2135,16 @@ section{background:rgba(8,9,11,.60)}
   <div class="notification-panel-head">
     <div>
       <strong>Notifications</strong>
-      <span id="notificationPanelSub">Replies to your chat messages</span>
+      <span id="notificationPanelSub">Replies, DMs, mentions, friends, threads & calls</span>
     </div>
     <button id="notificationMarkAll" type="button">Mark all read</button>
+  </div>
+  <div class="push-alert-row">
+    <div>
+      <strong>Phone notifications</strong>
+      <span id="pushAlertState">Off</span>
+    </div>
+    <button id="pushAlertBtn" type="button">Enable phone alerts</button>
   </div>
   <div id="notificationList" class="notification-list">
     <div class="notification-empty">No notifications yet.</div>
@@ -3690,6 +3748,8 @@ const notificationBadge = document.getElementById('notificationBadge');
 const notificationPanel = document.getElementById('notificationPanel');
 const notificationList = document.getElementById('notificationList');
 const notificationMarkAll = document.getElementById('notificationMarkAll');
+const pushAlertBtn = document.getElementById('pushAlertBtn');
+const pushAlertState = document.getElementById('pushAlertState');
 
 const chatLevelBadge = document.getElementById('chatLevelBadge');
 const chatLevelName = document.getElementById('chatLevelName');
@@ -4849,6 +4909,169 @@ function notificationTime(value){
   return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
 }
 
+
+// ---- Phone / desktop push notifications ----
+const GYMCELS_VAPID_PUBLIC_KEY = 'BD93jX_6gNDvbZrcKXfL6ml4p2mBjG-fccjPu4VEtllqmqCTcpDu3vmkBD8TvcE2crY1zt60YPIuPpgd_bkxorE';
+
+function pushUrlBase64ToUint8Array(base64String){
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g,'+').replace(/_/g,'/');
+  const rawData = atob(base64);
+  return Uint8Array.from([...rawData].map(ch => ch.charCodeAt(0)));
+}
+
+async function getGymcelsServiceWorker(){
+  if(!('serviceWorker' in navigator)) throw new Error('Service workers are not supported in this browser.');
+
+  const registration = await navigator.serviceWorker.register('/sw.js',{scope:'/'});
+  await navigator.serviceWorker.ready;
+  return registration;
+}
+
+async function currentPushSubscription(){
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
+  try{
+    const registration = await getGymcelsServiceWorker();
+    return await registration.pushManager.getSubscription();
+  }catch(_){
+    return null;
+  }
+}
+
+async function savePushSubscription(subscription){
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  if(!client || !session?.user) throw new Error('Log in first.');
+
+  const json = subscription.toJSON();
+  const endpoint = json.endpoint || subscription.endpoint;
+  const p256dh = json.keys?.p256dh || '';
+  const auth = json.keys?.auth || '';
+
+  if(!endpoint || !p256dh || !auth) throw new Error('Browser push subscription is incomplete.');
+
+  const {error} = await client.rpc('save_my_push_subscription',{
+    sub_endpoint:endpoint,
+    sub_p256dh:p256dh,
+    sub_auth:auth,
+    sub_user_agent:navigator.userAgent.slice(0,500)
+  });
+
+  if(error) throw error;
+}
+
+async function removePushSubscription(subscription){
+  const client = window.gymcelsLolDb;
+  if(!client || !subscription) return;
+
+  try{
+    await client.rpc('remove_my_push_subscription',{sub_endpoint:subscription.endpoint});
+  }catch(_){}
+
+  try{ await subscription.unsubscribe(); }catch(_){}
+}
+
+async function refreshPushButton(){
+  if(!pushAlertBtn || !pushAlertState) return;
+
+  const session = await getChatSession().catch(() => null);
+  if(!session?.user){
+    pushAlertBtn.disabled = true;
+    pushAlertBtn.textContent = 'Log in first';
+    pushAlertBtn.classList.remove('off');
+    pushAlertState.textContent = 'Log in to enable';
+    pushAlertState.className = '';
+    return;
+  }
+
+  if(!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)){
+    pushAlertBtn.disabled = true;
+    pushAlertBtn.textContent = 'Not supported';
+    pushAlertState.textContent = 'This browser does not support web push';
+    pushAlertState.className = 'blocked';
+    return;
+  }
+
+  if(Notification.permission === 'denied'){
+    pushAlertBtn.disabled = true;
+    pushAlertBtn.textContent = 'Blocked';
+    pushAlertState.textContent = 'Allow notifications in browser/site settings';
+    pushAlertState.className = 'blocked';
+    return;
+  }
+
+  const sub = await currentPushSubscription();
+  const enabled = Notification.permission === 'granted' && !!sub;
+
+  pushAlertBtn.disabled = false;
+  pushAlertBtn.textContent = enabled ? 'Disable phone alerts' : 'Enable phone alerts';
+  pushAlertBtn.classList.toggle('off',enabled);
+  pushAlertState.textContent = enabled ? 'On — system notifications enabled' : 'Off';
+  pushAlertState.className = enabled ? 'on' : '';
+}
+
+async function enableGymcelsPush(){
+  const session = await getChatSession();
+  if(!session?.user) throw new Error('Log in first.');
+
+  const permission = await Notification.requestPermission();
+  if(permission !== 'granted'){
+    throw new Error(permission === 'denied'
+      ? 'Notifications were blocked. Allow them in your browser/site settings.'
+      : 'Notification permission was not granted.');
+  }
+
+  const registration = await getGymcelsServiceWorker();
+
+  let subscription = await registration.pushManager.getSubscription();
+  if(!subscription){
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:pushUrlBase64ToUint8Array(GYMCELS_VAPID_PUBLIC_KEY)
+    });
+  }
+
+  await savePushSubscription(subscription);
+}
+
+async function toggleGymcelsPush(){
+  if(!pushAlertBtn) return;
+
+  pushAlertBtn.disabled = true;
+
+  try{
+    const sub = await currentPushSubscription();
+
+    if(Notification.permission === 'granted' && sub){
+      await removePushSubscription(sub);
+    }else{
+      await enableGymcelsPush();
+    }
+  }catch(err){
+    console.error('Push setup error:',err);
+    if(pushAlertState){
+      pushAlertState.textContent = err?.message || String(err);
+      pushAlertState.className = 'blocked';
+    }
+  }finally{
+    await refreshPushButton();
+  }
+}
+
+if(pushAlertBtn){
+  pushAlertBtn.addEventListener('click',toggleGymcelsPush);
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',() => {
+    getGymcelsServiceWorker().catch(err => console.warn('Service worker registration:',err));
+  });
+}
+
+document.addEventListener('visibilitychange',() => {
+  if(document.visibilityState === 'visible') refreshPushButton();
+});
+
 async function loadNotifications(){
   const client = window.gymcelsLolDb;
   const session = await getChatSession();
@@ -4914,6 +5137,9 @@ async function loadNotifications(){
       copy = preview
         ? `replied to your thread: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
         : 'replied to your thread.';
+    }else if(n.type === 'incoming_call'){
+      icon = '📞';
+      copy = 'is calling you privately.';
     }
 
     return `
@@ -4955,6 +5181,7 @@ async function markAllNotificationsRead(){
 
 function startNotifications(session){
   clearInterval(notificationPollTimer);
+  setTimeout(refreshPushButton,100);
 
   if(!session?.user){
     if(navNotifications) navNotifications.classList.add('hidden');
@@ -5398,6 +5625,12 @@ if(notificationList){
     if(notificationPanel){
       notificationPanel.classList.add('hidden');
       notificationPanel.setAttribute('aria-hidden','true');
+    }
+
+    if(type === 'incoming_call'){
+      dmSection?.scrollIntoView({behavior:'smooth',block:'start'});
+      await loadDmFriends();
+      return;
     }
 
     if(type === 'thread_reply' && notificationThreadId){
