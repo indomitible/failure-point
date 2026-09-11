@@ -807,14 +807,84 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
 .dm-thread-name{font-size:13px;font-weight:900;color:#fff}
 .dm-thread-state{font-size:9px;color:#818a96;margin-top:2px}
 .dm-thread-state.online{color:#67e8a5}
+.dm-message-stage{
+  position:relative;
+  flex:1;
+  min-height:0;
+  display:flex;
+}
 .dm-messages{
   flex:1;
   height:300px;
-  overflow:auto;
-  padding:12px;
+  min-height:0;
+  overflow-y:scroll;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:#4a535e #11151a;
+  padding:12px 54px 12px 12px;
   display:flex;
   flex-direction:column;
   gap:8px;
+  scroll-behavior:smooth;
+}
+.dm-messages::-webkit-scrollbar{
+  width:10px;
+}
+.dm-messages::-webkit-scrollbar-track{
+  background:#11151a;
+  border-left:1px solid #20262d;
+}
+.dm-messages::-webkit-scrollbar-thumb{
+  background:#4a535e;
+  border:2px solid #11151a;
+  border-radius:999px;
+}
+.dm-messages::-webkit-scrollbar-thumb:hover{
+  background:#65717d;
+}
+.dm-scroll-controls{
+  position:absolute;
+  right:15px;
+  top:50%;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  transform:translateY(-50%);
+  pointer-events:none;
+}
+.dm-scroll-controls button{
+  pointer-events:auto;
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid #343c46;
+  border-radius:999px;
+  background:rgba(20,25,31,.94);
+  color:#fff;
+  box-shadow:0 5px 16px rgba(0,0,0,.28);
+  font:inherit;
+  font-size:17px;
+  font-weight:950;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.dm-scroll-controls button:hover{
+  border-color:#ef4355;
+  background:#20262d;
+  transform:scale(1.05);
+}
+.dm-scroll-controls button:disabled{
+  opacity:.28;
+  cursor:default;
+  transform:none;
+}
+.dm-scroll-controls button span{
+  line-height:1;
+  transform:translateY(-1px);
 }
 .dm-empty{margin:auto;color:#727b87;font-size:12px;text-align:center;padding:20px}
 .dm-row{display:flex;flex-direction:column;align-items:flex-start;max-width:78%}
@@ -873,6 +943,19 @@ footer{padding:24px 0 90px;color:var(--muted);font-size:12px;border-top:1px soli
   .dm-layout{grid-template-columns:1fr}
   .dm-sidebar{max-height:190px}
   .dm-thread{min-height:390px}
+  .dm-messages{
+    height:360px;
+    padding-right:56px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .dm-scroll-controls{
+    right:14px;
+  }
+  .dm-scroll-controls button{
+    width:38px;
+    height:38px;
+    font-size:19px;
+  }
 }
 
 
@@ -5322,8 +5405,19 @@ section{background:rgba(8,9,11,.60)}
         <button id="dmCallBtn" class="dm-call-btn hidden" type="button" title="Private voice call">📞 Call</button>
       </div>
 
-      <div id="dmMessages" class="dm-messages">
-        <div class="dm-empty">Your private conversation will appear here.</div>
+      <div class="dm-message-stage">
+        <div id="dmMessages" class="dm-messages">
+          <div class="dm-empty">Your private conversation will appear here.</div>
+        </div>
+
+        <div id="dmScrollControls" class="dm-scroll-controls" aria-label="DM scroll controls">
+          <button id="dmJumpTopBtn" type="button" title="Jump to the top of this chat" aria-label="Jump to top">
+            <span>↑</span>
+          </button>
+          <button id="dmJumpBottomBtn" type="button" title="Jump to the newest message" aria-label="Jump to bottom">
+            <span>↓</span>
+          </button>
+        </div>
       </div>
 
       <div class="dm-compose">
@@ -13964,6 +14058,9 @@ const dmFriendList = document.getElementById('dmFriendList');
 const dmThreadName = document.getElementById('dmThreadName');
 const dmThreadState = document.getElementById('dmThreadState');
 const dmMessages = document.getElementById('dmMessages');
+const dmScrollControls = document.getElementById('dmScrollControls');
+const dmJumpTopBtn = document.getElementById('dmJumpTopBtn');
+const dmJumpBottomBtn = document.getElementById('dmJumpBottomBtn');
 const dmInput = document.getElementById('dmInput');
 const dmSendBtn = document.getElementById('dmSendBtn');
 const dmStatus = document.getElementById('dmStatus');
@@ -14912,6 +15009,64 @@ async function loadDmFriends(){
   }).join('');
 }
 
+
+function dmScrollPosition(){
+  if(!dmMessages){
+    return {atTop:true,atBottom:true,scrollable:false};
+  }
+
+  const maxScroll=Math.max(0,dmMessages.scrollHeight-dmMessages.clientHeight);
+  const top=Math.max(0,dmMessages.scrollTop);
+
+  return {
+    atTop:top<=4,
+    atBottom:maxScroll-top<=8,
+    scrollable:maxScroll>8
+  };
+}
+
+function updateDmScrollControls(){
+  if(!dmScrollControls || !dmMessages) return;
+
+  const state=dmScrollPosition();
+  dmScrollControls.style.display=state.scrollable ? '' : 'none';
+
+  if(dmJumpTopBtn) dmJumpTopBtn.disabled=!state.scrollable || state.atTop;
+  if(dmJumpBottomBtn) dmJumpBottomBtn.disabled=!state.scrollable || state.atBottom;
+}
+
+function jumpDmToTop(){
+  if(!dmMessages) return;
+
+  try{
+    dmMessages.scrollTo({top:0,behavior:'smooth'});
+  }catch(_){
+    dmMessages.scrollTop=0;
+  }
+
+  setTimeout(updateDmScrollControls,260);
+}
+
+function jumpDmToBottom(){
+  if(!dmMessages) return;
+
+  const bottom=dmMessages.scrollHeight;
+
+  try{
+    dmMessages.scrollTo({top:bottom,behavior:'smooth'});
+  }catch(_){
+    dmMessages.scrollTop=bottom;
+  }
+
+  setTimeout(updateDmScrollControls,260);
+}
+
+dmJumpTopBtn?.addEventListener('click',jumpDmToTop);
+dmJumpBottomBtn?.addEventListener('click',jumpDmToBottom);
+
+dmMessages?.addEventListener('scroll',updateDmScrollControls,{passive:true});
+window.addEventListener('resize',updateDmScrollControls);
+
 async function loadDmConversation(scrollBottom=false){
   if(!dmActiveUserId || !dmMessages) return;
 
@@ -14934,6 +15089,8 @@ async function loadDmConversation(scrollBottom=false){
     const rows = data || [];
     if(!rows.length){
       dmMessages.innerHTML = '<div class="dm-empty">No messages yet. Say something.</div>';
+      dmMessages.scrollTop = 0;
+      updateDmScrollControls();
       return;
     }
 
@@ -14954,6 +15111,8 @@ async function loadDmConversation(scrollBottom=false){
     if(scrollBottom || nearBottom){
       dmMessages.scrollTop = dmMessages.scrollHeight;
     }
+
+    requestAnimationFrame(updateDmScrollControls);
   }catch(err){
     setDmStatus('DM error: ' + (err?.message || String(err)), 'error');
   }
@@ -15097,6 +15256,7 @@ fpDb.auth.onAuthStateChange((_event, session) => {
 });
 
 setTimeout(loadDmFriends, 250);
+setTimeout(updateDmScrollControls, 300);
 setTimeout(async () => {
   try{
     const session = await getChatSession();
