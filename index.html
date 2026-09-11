@@ -4252,6 +4252,53 @@ section{background:rgba(8,9,11,.60)}
   .thread-view-bookmark{width:100%}
 }
 
+
+/* BODYWEIGHT LB / KG SWITCH */
+.bodyweight-head-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.bodyweight-unit-toggle{
+  display:inline-grid;
+  grid-template-columns:1fr 1fr;
+  overflow:hidden;
+  border:1px solid #303741;
+  border-radius:9px;
+  background:#0b0f13;
+}
+.bodyweight-unit-toggle button{
+  min-width:40px;
+  height:28px;
+  border:0;
+  border-right:1px solid #303741;
+  background:transparent;
+  color:#7f8995;
+  font:inherit;
+  font-size:8px;
+  font-weight:950;
+  cursor:pointer;
+}
+.bodyweight-unit-toggle button:last-child{border-right:0}
+.bodyweight-unit-toggle button.active{
+  background:#ef4355;
+  color:#fff;
+}
+.bodyweight-unit-toggle button:hover:not(.active){
+  background:#171c22;
+  color:#fff;
+}
+
+@media(max-width:520px){
+  .bodyweight-head-actions{
+    width:100%;
+    justify-content:space-between;
+    margin-top:8px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5418,7 +5465,14 @@ section{background:rgba(8,9,11,.60)}
             <strong>⚖️ Bodyweight Tracker</strong>
             <span>Log your bodyweight and watch the trend over time. Your entries are private.</span>
           </div>
-          <span class="bodyweight-private">🔒 Private</span>
+
+          <div class="bodyweight-head-actions">
+            <div class="bodyweight-unit-toggle" role="group" aria-label="Bodyweight unit">
+              <button id="bodyweightUnitLb" type="button" data-bodyweight-unit="lb">LB</button>
+              <button id="bodyweightUnitKg" type="button" data-bodyweight-unit="kg">KG</button>
+            </div>
+            <span class="bodyweight-private">🔒 Private</span>
+          </div>
         </div>
 
         <div class="bodyweight-entry">
@@ -5427,7 +5481,7 @@ section{background:rgba(8,9,11,.60)}
             <input id="bodyweightDate" type="date">
           </label>
           <label>
-            <span>Bodyweight (lb)</span>
+            <span id="bodyweightInputLabel">Bodyweight (lb)</span>
             <input id="bodyweightInput" type="number" min="40" max="1500" step="0.1" inputmode="decimal" placeholder="180.0">
           </label>
           <button id="bodyweightSaveBtn" type="button">Save weight</button>
@@ -5456,7 +5510,7 @@ section{background:rgba(8,9,11,.60)}
         <div class="bodyweight-chart-wrap">
           <div class="bodyweight-chart-head">
             <span>Recent trend</span>
-            <small>Last 30 entries</small>
+            <small id="bodyweightChartUnit">Last 30 entries · lb</small>
           </div>
           <div id="bodyweightChart" class="bodyweight-chart">
             <div class="bodyweight-empty">Log your first bodyweight to start the chart.</div>
@@ -6066,6 +6120,10 @@ const nutritionFavoriteCount = document.getElementById('nutritionFavoriteCount')
 
 const bodyweightDate = document.getElementById('bodyweightDate');
 const bodyweightInput = document.getElementById('bodyweightInput');
+const bodyweightInputLabel = document.getElementById('bodyweightInputLabel');
+const bodyweightUnitLb = document.getElementById('bodyweightUnitLb');
+const bodyweightUnitKg = document.getElementById('bodyweightUnitKg');
+const bodyweightChartUnit = document.getElementById('bodyweightChartUnit');
 const bodyweightSaveBtn = document.getElementById('bodyweightSaveBtn');
 const bodyweightStatus = document.getElementById('bodyweightStatus');
 const bodyweightLatest = document.getElementById('bodyweightLatest');
@@ -6106,6 +6164,15 @@ let nutritionTargets = {
 let nutritionRows = [];
 let nutritionFavorites = [];
 let bodyweightRows = [];
+
+let bodyweightUnit = (() => {
+  try{
+    return localStorage.getItem('gymcels_bodyweight_unit') === 'kg' ? 'kg' : 'lb';
+  }catch(_){
+    return 'lb';
+  }
+})();
+
 let nutritionMealEditId = null;
 
 function nutritionLocalDateString(date=new Date()){
@@ -6591,10 +6658,74 @@ function setBodyweightStatus(text='',type=''){
   bodyweightStatus.className = `bodyweight-status ${type || ''}`;
 }
 
-function bodyweightFormat(value){
+const LB_PER_KG = 2.2046226218;
+
+function bodyweightLbToKg(valueLb){
+  return Number(valueLb) / LB_PER_KG;
+}
+
+function bodyweightKgToLb(valueKg){
+  return Number(valueKg) * LB_PER_KG;
+}
+
+function bodyweightDisplayNumber(valueLb){
+  const n = Number(valueLb);
+  if(!Number.isFinite(n)) return NaN;
+  return bodyweightUnit === 'kg' ? bodyweightLbToKg(n) : n;
+}
+
+function bodyweightInputToLb(value){
   const n = Number(value);
+  if(!Number.isFinite(n)) return NaN;
+  return bodyweightUnit === 'kg' ? bodyweightKgToLb(n) : n;
+}
+
+function bodyweightFormat(valueLb){
+  const n = bodyweightDisplayNumber(valueLb);
   if(!Number.isFinite(n)) return '—';
-  return `${n.toFixed(1).replace(/\.0$/,'')} lb`;
+
+  const unit = bodyweightUnit === 'kg' ? 'kg' : 'lb';
+  return `${n.toFixed(1).replace(/\.0$/,'')} ${unit}`;
+}
+
+function bodyweightFormatDelta(deltaLb){
+  const displayDelta = bodyweightUnit === 'kg'
+    ? bodyweightLbToKg(deltaLb)
+    : Number(deltaLb);
+
+  if(!Number.isFinite(displayDelta)) return '—';
+
+  const unit = bodyweightUnit === 'kg' ? 'kg' : 'lb';
+  const value = displayDelta.toFixed(1).replace(/\.0$/,'');
+  return `${displayDelta > 0 ? '+' : ''}${value} ${unit}`;
+}
+
+function updateBodyweightUnitUi(){
+  const isKg = bodyweightUnit === 'kg';
+
+  bodyweightUnitLb?.classList.toggle('active',!isKg);
+  bodyweightUnitKg?.classList.toggle('active',isKg);
+
+  if(bodyweightInputLabel){
+    bodyweightInputLabel.textContent = `Bodyweight (${isKg ? 'kg' : 'lb'})`;
+  }
+
+  if(bodyweightInput){
+    bodyweightInput.min = isKg ? '18' : '40';
+    bodyweightInput.max = isKg ? '680' : '1500';
+    bodyweightInput.step = '0.1';
+    bodyweightInput.placeholder = isKg ? '81.6' : '180.0';
+  }
+
+  if(bodyweightChartUnit){
+    bodyweightChartUnit.textContent = `Last 30 entries · ${isKg ? 'kg' : 'lb'}`;
+  }
+
+  try{
+    localStorage.setItem('gymcels_bodyweight_unit',bodyweightUnit);
+  }catch(_){}
+
+  renderBodyweight();
 }
 
 function renderBodyweightChart(){
@@ -6625,7 +6756,10 @@ function renderBodyweightChart(){
   const chartW = width-left-right;
   const chartH = height-top-bottom;
 
-  const weights = rows.map(r => Number(r.weight_lb)).filter(Number.isFinite);
+  const weights = rows
+    .map(r => bodyweightDisplayNumber(r.weight_lb))
+    .filter(Number.isFinite);
+
   let min = Math.min(...weights);
   let max = Math.max(...weights);
   const spread = Math.max(1,max-min);
@@ -6638,7 +6772,7 @@ function renderBodyweightChart(){
     top + ((max-value)/(max-min || 1))*chartH;
 
   const points = rows.map((row,index) =>
-    `${xFor(index).toFixed(1)},${yFor(Number(row.weight_lb)).toFixed(1)}`
+    `${xFor(index).toFixed(1)},${yFor(bodyweightDisplayNumber(row.weight_lb)).toFixed(1)}`
   ).join(' ');
 
   const horizontalLines = [0,.25,.5,.75,1].map(step => {
@@ -6709,8 +6843,7 @@ function renderBodyweight(){
       const last = Number(chronological[chronological.length-1].weight_lb);
       const delta = last-first;
 
-      bodyweightTrend.textContent =
-        `${delta > 0 ? '+' : ''}${delta.toFixed(1).replace(/\.0$/,'')} lb`;
+      bodyweightTrend.textContent = bodyweightFormatDelta(delta);
 
       if(delta > .05) bodyweightTrend.classList.add('up');
       if(delta < -.05) bodyweightTrend.classList.add('down');
@@ -6764,10 +6897,14 @@ async function saveBodyweight(){
   if(!nutritionDb || !nutritionSession?.user) return;
 
   const date = bodyweightDate?.value || nutritionLocalDateString();
-  const weight = Number(bodyweightInput?.value);
+  const enteredWeight = Number(bodyweightInput?.value);
+  const weightLb = bodyweightInputToLb(enteredWeight);
 
-  if(!Number.isFinite(weight) || weight < 40 || weight > 1500){
-    setBodyweightStatus('Enter a valid bodyweight in pounds.','error');
+  if(!Number.isFinite(weightLb) || weightLb < 40 || weightLb > 1500){
+    setBodyweightStatus(
+      `Enter a valid bodyweight in ${bodyweightUnit === 'kg' ? 'kilograms' : 'pounds'}.`,
+      'error'
+    );
     bodyweightInput?.focus();
     return;
   }
@@ -6780,7 +6917,8 @@ async function saveBodyweight(){
     .upsert({
       user_id:nutritionSession.user.id,
       log_date:date,
-      weight_lb:weight,
+      // Keep the existing database column in pounds so old entries stay compatible.
+      weight_lb:Number(weightLb.toFixed(2)),
       updated_at:new Date().toISOString()
     },{
       onConflict:'user_id,log_date'
@@ -6794,7 +6932,10 @@ async function saveBodyweight(){
   }
 
   bodyweightInput.value = '';
-  setBodyweightStatus('✓ Bodyweight saved.','success');
+  setBodyweightStatus(
+    `✓ Bodyweight saved in ${bodyweightUnit === 'kg' ? 'kg' : 'lb'}.`,
+    'success'
+  );
   await loadBodyweight();
 }
 
@@ -7708,6 +7849,15 @@ nutritionFavoritesList?.addEventListener('click',(e) => {
   }
 });
 
+
+function setBodyweightUnit(unit){
+  bodyweightUnit = unit === 'kg' ? 'kg' : 'lb';
+  updateBodyweightUnitUi();
+}
+
+bodyweightUnitLb?.addEventListener('click',() => setBodyweightUnit('lb'));
+bodyweightUnitKg?.addEventListener('click',() => setBodyweightUnit('kg'));
+
 bodyweightSaveBtn?.addEventListener('click',saveBodyweight);
 bodyweightInput?.addEventListener('keydown',(e) => {
   if(e.key === 'Enter'){
@@ -7721,6 +7871,7 @@ bodyweightHistory?.addEventListener('click',(e) => {
 });
 
 if(bodyweightDate) bodyweightDate.value = nutritionLocalDateString();
+updateBodyweightUnitUi();
 
 if(nutritionDate) nutritionDate.value = nutritionLocalDateString();
 
