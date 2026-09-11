@@ -5353,6 +5353,213 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* PRIVATE DM PHOTOS + FILE ATTACHMENTS */
+.dm-hidden-file-input{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+.dm-compose .dm-attach-btn{
+  width:40px;
+  min-width:40px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:1px solid #303640;
+  background:#171b21;
+  color:#fff;
+  font-size:16px;
+}
+.dm-compose .dm-attach-btn:hover:not(:disabled){
+  border-color:#ef4355;
+  background:#20252c;
+}
+.dm-compose .dm-attach-btn:disabled{
+  opacity:.4;
+}
+
+.dm-attachment-preview{
+  padding:9px 10px 0;
+  border-top:1px solid #252a31;
+  background:#0a0c0f;
+}
+.dm-attachment-preview-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:7px;
+  color:#929ba7;
+  font-size:8px;
+}
+.dm-attachment-preview-head strong{
+  color:#dce1e7;
+  font-size:9px;
+}
+.dm-attachment-preview-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+.dm-pending-file{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  padding:7px;
+  border:1px solid #272e36;
+  border-radius:9px;
+  background:#11151a;
+}
+.dm-pending-thumb{
+  width:38px;
+  height:38px;
+  min-width:38px;
+  object-fit:cover;
+  border-radius:7px;
+  background:#080a0d;
+}
+.dm-pending-file-icon{
+  width:38px;
+  height:38px;
+  min-width:38px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  background:#1a1f25;
+  font-size:18px;
+}
+.dm-pending-file-copy{
+  flex:1;
+  min-width:0;
+}
+.dm-pending-file-copy strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#fff;
+  font-size:9px;
+}
+.dm-pending-file-copy span{
+  display:block;
+  margin-top:2px;
+  color:#78828e;
+  font-size:7px;
+}
+.dm-pending-file>button{
+  width:24px;
+  height:24px;
+  min-width:24px;
+  border:0;
+  border-radius:7px;
+  background:#242a31;
+  color:#fff;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.dm-message-attachments{
+  display:grid;
+  gap:6px;
+  margin-top:5px;
+}
+.dm-row .dm-message-attachments:first-child{
+  margin-top:0;
+}
+.dm-image-attachment{
+  display:block;
+  width:max-content;
+  max-width:100%;
+  overflow:hidden;
+  border:1px solid #2a313a;
+  border-radius:12px;
+  background:#0b0e12;
+  line-height:0;
+}
+.dm-image-attachment img{
+  display:block;
+  width:min(230px,58vw);
+  max-width:100%;
+  max-height:300px;
+  object-fit:cover;
+}
+.dm-row.mine .dm-image-attachment{
+  border-color:rgba(239,67,85,.5);
+}
+
+.dm-file-attachment{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:210px;
+  max-width:min(310px,68vw);
+  padding:9px 10px;
+  border:1px solid #2b323b;
+  border-radius:11px;
+  background:#151a20;
+  color:#fff;
+  text-decoration:none;
+}
+.dm-file-attachment>span{
+  font-size:19px;
+}
+.dm-file-attachment>div{
+  flex:1;
+  min-width:0;
+}
+.dm-file-attachment strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:9px;
+}
+.dm-file-attachment small{
+  display:block;
+  margin-top:2px;
+  color:#818b97;
+  font-size:7px;
+}
+.dm-file-attachment>b{
+  color:#818b97;
+  font-size:11px;
+}
+.dm-file-attachment.unavailable{
+  opacity:.65;
+}
+.dm-row.mine .dm-file-attachment{
+  border-color:rgba(239,67,85,.4);
+  background:rgba(239,67,85,.10);
+}
+
+@media(max-width:600px){
+  .dm-compose{
+    gap:6px;
+  }
+  .dm-compose .dm-attach-btn{
+    width:36px;
+    min-width:36px;
+  }
+  .dm-compose button#dmSendBtn{
+    padding:0 11px;
+  }
+  .dm-attachment-preview-list{
+    grid-template-columns:1fr;
+  }
+  .dm-file-attachment{
+    min-width:0;
+    max-width:72vw;
+  }
+  .dm-image-attachment img{
+    width:min(230px,64vw);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -6243,8 +6450,21 @@ section{background:rgba(8,9,11,.60)}
         </div>
       </div>
 
+      <div id="dmAttachmentPreview" class="dm-attachment-preview hidden"></div>
+
       <div class="dm-compose">
-        <input id="dmInput" type="text" maxlength="1000" autocomplete="off" placeholder="Message a friend..." disabled>
+        <button id="dmPhotoBtn" class="dm-attach-btn" type="button" disabled
+                title="Send photos" aria-label="Send photos">📷</button>
+        <button id="dmAttachBtn" class="dm-attach-btn" type="button" disabled
+                title="Attach a file" aria-label="Attach a file">📎</button>
+
+        <input id="dmPhotoInput" class="dm-hidden-file-input" type="file"
+               accept="image/*" multiple>
+        <input id="dmFileInput" class="dm-hidden-file-input" type="file"
+               accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" multiple>
+
+        <input id="dmInput" type="text" maxlength="1000" autocomplete="off"
+               placeholder="Message a friend..." disabled>
         <button id="dmSendBtn" type="button" disabled>Send</button>
       </div>
       <div id="dmStatus" class="dm-status"></div>
@@ -15051,6 +15271,12 @@ const dmInput = document.getElementById('dmInput');
 const dmSendBtn = document.getElementById('dmSendBtn');
 const dmStatus = document.getElementById('dmStatus');
 const dmRefreshBtn = document.getElementById('dmRefreshBtn');
+
+const dmPhotoBtn = document.getElementById('dmPhotoBtn');
+const dmAttachBtn = document.getElementById('dmAttachBtn');
+const dmPhotoInput = document.getElementById('dmPhotoInput');
+const dmFileInput = document.getElementById('dmFileInput');
+const dmAttachmentPreview = document.getElementById('dmAttachmentPreview');
 const dmCallBtn = document.getElementById('dmCallBtn');
 const navDmsOutside = document.getElementById('navDms');
 
@@ -15077,6 +15303,11 @@ let dmActiveName = '';
 let dmActiveAvatar = '';
 let dmPollTimer = null;
 let dmSending = false;
+
+const DM_MAX_ATTACHMENTS = 4;
+const DM_MAX_FILE_BYTES = 10 * 1024 * 1024;
+let dmPendingFiles = [];
+let dmPendingPreviewUrls = [];
 
 
 // ---- Private one-to-one DM calls ----
@@ -15923,6 +16154,273 @@ window.addEventListener('beforeunload',() => {
 });
 
 
+function dmFormatFileSize(bytes){
+  const n = Number(bytes || 0);
+  if(n < 1024) return `${n} B`;
+  if(n < 1024 * 1024) return `${(n / 1024).toFixed(n < 10 * 1024 ? 1 : 0)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function dmFileExtension(name=''){
+  const value = String(name || '').toLowerCase();
+  const dot = value.lastIndexOf('.');
+  return dot >= 0 ? value.slice(dot + 1) : '';
+}
+
+function dmMimeForFile(file){
+  const existing = String(file?.type || '').toLowerCase();
+  if(existing) return existing;
+
+  const ext = dmFileExtension(file?.name || '');
+  const map = {
+    jpg:'image/jpeg',
+    jpeg:'image/jpeg',
+    png:'image/png',
+    webp:'image/webp',
+    gif:'image/gif',
+    heic:'image/heic',
+    heif:'image/heif',
+    pdf:'application/pdf',
+    txt:'text/plain',
+    doc:'application/msword',
+    docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls:'application/vnd.ms-excel',
+    xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ppt:'application/vnd.ms-powerpoint',
+    pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    zip:'application/zip'
+  };
+
+  return map[ext] || '';
+}
+
+function dmAttachmentAllowed(file){
+  const mime = dmMimeForFile(file);
+
+  return [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/heic',
+    'image/heif',
+    'application/pdf',
+    'text/plain',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/zip',
+    'application/x-zip-compressed'
+  ].includes(mime);
+}
+
+function dmSafeStorageFileName(name='file'){
+  const cleaned = String(name || 'file')
+    .replace(/[^a-zA-Z0-9._-]+/g,'_')
+    .replace(/^_+|_+$/g,'')
+    .slice(-120);
+
+  return cleaned || 'file';
+}
+
+function dmAttachmentIcon(mime='',name=''){
+  if(String(mime).startsWith('image/')) return '🖼️';
+
+  const ext = dmFileExtension(name);
+  if(ext === 'pdf') return '📕';
+  if(['doc','docx'].includes(ext)) return '📘';
+  if(['xls','xlsx'].includes(ext)) return '📗';
+  if(['ppt','pptx'].includes(ext)) return '📙';
+  if(ext === 'zip') return '🗜️';
+  return '📄';
+}
+
+function dmClearPendingPreviewUrls(){
+  dmPendingPreviewUrls.forEach(url => {
+    try{ URL.revokeObjectURL(url); }catch(_){}
+  });
+  dmPendingPreviewUrls = [];
+}
+
+function dmClearPendingFiles(){
+  dmPendingFiles = [];
+  dmClearPendingPreviewUrls();
+
+  if(dmPhotoInput) dmPhotoInput.value = '';
+  if(dmFileInput) dmFileInput.value = '';
+
+  renderDmPendingFiles();
+}
+
+function renderDmPendingFiles(){
+  if(!dmAttachmentPreview) return;
+
+  dmClearPendingPreviewUrls();
+
+  if(!dmPendingFiles.length){
+    dmAttachmentPreview.innerHTML = '';
+    dmAttachmentPreview.classList.add('hidden');
+    return;
+  }
+
+  dmAttachmentPreview.classList.remove('hidden');
+
+  dmAttachmentPreview.innerHTML = `
+    <div class="dm-attachment-preview-head">
+      <strong>${dmPendingFiles.length} attachment${dmPendingFiles.length === 1 ? '' : 's'} ready</strong>
+      <span>Max 4 · 10 MB each</span>
+    </div>
+
+    <div class="dm-attachment-preview-list">
+      ${dmPendingFiles.map((file,index) => {
+        const mime = dmMimeForFile(file);
+        const isImage = mime.startsWith('image/');
+        let preview = `<span class="dm-pending-file-icon">${dmAttachmentIcon(mime,file.name)}</span>`;
+
+        if(isImage){
+          const objectUrl = URL.createObjectURL(file);
+          dmPendingPreviewUrls.push(objectUrl);
+          preview = `<img class="dm-pending-thumb" src="${escapeChat(objectUrl)}" alt="">`;
+        }
+
+        return `<div class="dm-pending-file">
+          ${preview}
+          <div class="dm-pending-file-copy">
+            <strong>${escapeChat(file.name || 'Attachment')}</strong>
+            <span>${escapeChat(dmFormatFileSize(file.size))}</span>
+          </div>
+          <button type="button" data-dm-remove-pending="${index}" aria-label="Remove attachment">×</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function addDmPendingFiles(fileList){
+  const incoming = Array.from(fileList || []);
+  if(!incoming.length) return;
+
+  for(const file of incoming){
+    if(dmPendingFiles.length >= DM_MAX_ATTACHMENTS){
+      setDmStatus('You can attach up to 4 files per message.','error');
+      break;
+    }
+
+    if(!file || !file.size){
+      continue;
+    }
+
+    if(file.size > DM_MAX_FILE_BYTES){
+      setDmStatus(`${file.name || 'That file'} is over 10 MB.`,'error');
+      continue;
+    }
+
+    if(!dmAttachmentAllowed(file)){
+      setDmStatus(`${file.name || 'That file'} type is not supported.`,'error');
+      continue;
+    }
+
+    dmPendingFiles.push(file);
+  }
+
+  renderDmPendingFiles();
+}
+
+function dmRenderStoredAttachment(attachment){
+  const url = attachment?.signed_url || '';
+  const name = attachment?.file_name || 'Attachment';
+  const mime = attachment?.mime_type || '';
+  const size = dmFormatFileSize(attachment?.file_size || 0);
+
+  if(!url){
+    return `<div class="dm-file-attachment unavailable">
+      <span>${dmAttachmentIcon(mime,name)}</span>
+      <div><strong>${escapeChat(name)}</strong><small>Attachment unavailable</small></div>
+    </div>`;
+  }
+
+  if(String(mime).startsWith('image/')){
+    return `<a class="dm-image-attachment" href="${escapeChat(url)}"
+              target="_blank" rel="noopener" title="Open full photo">
+      <img src="${escapeChat(url)}" alt="${escapeChat(name)}" loading="lazy">
+    </a>`;
+  }
+
+  return `<a class="dm-file-attachment" href="${escapeChat(url)}"
+            target="_blank" rel="noopener">
+    <span>${dmAttachmentIcon(mime,name)}</span>
+    <div>
+      <strong>${escapeChat(name)}</strong>
+      <small>${escapeChat(size)} · Tap to open</small>
+    </div>
+    <b>↗</b>
+  </a>`;
+}
+
+async function dmLoadAttachmentMap(client,rows){
+  const map = {};
+  const ids = (rows || []).map(row => Number(row.id)).filter(Boolean);
+  if(!ids.length) return map;
+
+  try{
+    const {data,error} = await client
+      .from('direct_message_attachments')
+      .select('id,message_id,storage_path,file_name,mime_type,file_size,created_at')
+      .in('message_id',ids)
+      .order('created_at',{ascending:true});
+
+    if(error) throw error;
+
+    const attachments = data || [];
+    if(!attachments.length) return map;
+
+    const paths = [...new Set(attachments.map(item => item.storage_path).filter(Boolean))];
+
+    let signedByPath = {};
+
+    if(paths.length){
+      const {data:signed,error:signedError} = await client
+        .storage
+        .from('dm-media')
+        .createSignedUrls(paths,60 * 60);
+
+      if(signedError) throw signedError;
+
+      for(const item of signed || []){
+        if(item?.path && item?.signedUrl){
+          signedByPath[item.path] = item.signedUrl;
+        }
+      }
+    }
+
+    for(const attachment of attachments){
+      const key = Number(attachment.message_id);
+      if(!map[key]) map[key] = [];
+
+      map[key].push({
+        ...attachment,
+        signed_url:signedByPath[attachment.storage_path] || ''
+      });
+    }
+  }catch(err){
+    // Keep normal text DMs working even if attachment storage has a problem.
+    console.warn('DM attachments could not load:',err);
+  }
+
+  return map;
+}
+
+function dmRandomToken(){
+  try{
+    if(crypto?.randomUUID) return crypto.randomUUID();
+  }catch(_){}
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
+}
+
+
 function setDmStatus(text='', type='normal'){
   if(!dmStatus) return;
   dmStatus.textContent = text;
@@ -16115,6 +16613,8 @@ async function loadDmConversation(scrollBottom=false){
 
     // Render oldest -> newest inside the fetched recent window.
     const rows = (data || []).slice().reverse();
+    const attachmentMap = await dmLoadAttachmentMap(client,rows);
+
     if(!rows.length){
       dmMessages.innerHTML = '<div class="dm-empty">No messages yet. Say something.</div>';
       dmMessages.scrollTop = 0;
@@ -16130,8 +16630,17 @@ async function loadDmConversation(scrollBottom=false){
         ? new Date(row.created_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})
         : '';
 
+      const attachments = attachmentMap[Number(row.id)] || [];
+      const attachmentHtml = attachments.length
+        ? `<div class="dm-message-attachments">${attachments.map(dmRenderStoredAttachment).join('')}</div>`
+        : '';
+
+      const text = String(row.message || '');
+      const showText = text && !(text === '📎 Attachment' && attachments.length);
+
       return `<div class="dm-row ${mine ? 'mine' : ''}">
-        <div class="dm-bubble">${escapeChat(row.message)}</div>
+        ${showText ? `<div class="dm-bubble">${escapeChat(text)}</div>` : ''}
+        ${attachmentHtml}
         <div class="dm-time">${escapeChat(when)}</div>
       </div>`;
     }).join('');
@@ -16168,6 +16677,8 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
   dmThreadState.textContent = 'Private conversation';
   dmInput.disabled = false;
   dmSendBtn.disabled = false;
+  if(dmPhotoBtn) dmPhotoBtn.disabled = false;
+  if(dmAttachBtn) dmAttachBtn.disabled = false;
   if(dmCallBtn) dmCallBtn.classList.remove('hidden');
   dmInput.placeholder = `Message ${dmActiveName}...`;
   setDmStatus('');
@@ -16191,39 +16702,147 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
 
 async function sendDm(){
   if(dmSending || !dmActiveUserId) return;
-  const text = dmInput?.value.trim();
-  if(!text) return;
+
+  const text = dmInput?.value.trim() || '';
+  const files = [...dmPendingFiles];
+
+  if(!text && !files.length) return;
 
   dmSending = true;
-  dmSendBtn.disabled = true;
-  setDmStatus('Sending...');
+  if(dmSendBtn) dmSendBtn.disabled = true;
+  if(dmPhotoBtn) dmPhotoBtn.disabled = true;
+  if(dmAttachBtn) dmAttachBtn.disabled = true;
+
+  setDmStatus(files.length ? 'Preparing attachments...' : 'Sending...');
+
+  const uploadedPaths = [];
+  let insertedMessageId = null;
 
   try{
     const client = window.gymcelsLolDb;
     const session = await getChatSession();
     if(!client || !session?.user) throw new Error('Log in first.');
 
-    const { error } = await client
+    const senderId = session.user.id;
+    const recipientId = dmActiveUserId;
+    const uploaded = [];
+
+    for(let i=0;i<files.length;i++){
+      const file = files[i];
+      const mime = dmMimeForFile(file);
+
+      if(!mime || !dmAttachmentAllowed(file)){
+        throw new Error(`${file.name || 'Attachment'} type is not supported.`);
+      }
+
+      if(file.size > DM_MAX_FILE_BYTES){
+        throw new Error(`${file.name || 'Attachment'} is over 10 MB.`);
+      }
+
+      setDmStatus(`Uploading attachment ${i + 1} of ${files.length}...`);
+
+      const safeName = dmSafeStorageFileName(file.name || `attachment-${i + 1}`);
+      const path = `${senderId}/${recipientId}/${Date.now()}-${dmRandomToken()}-${safeName}`;
+
+      const {error:uploadError} = await client
+        .storage
+        .from('dm-media')
+        .upload(path,file,{
+          contentType:mime,
+          upsert:false,
+          cacheControl:'3600'
+        });
+
+      if(uploadError) throw uploadError;
+
+      uploadedPaths.push(path);
+      uploaded.push({
+        storage_path:path,
+        file_name:String(file.name || safeName).slice(0,180),
+        mime_type:mime,
+        file_size:Number(file.size || 0)
+      });
+    }
+
+    setDmStatus('Sending...');
+
+    const {data:messageRow,error:messageError} = await client
       .from('direct_messages')
       .insert({
-        sender_id: session.user.id,
-        recipient_id: dmActiveUserId,
-        message: text
-      });
+        sender_id:senderId,
+        recipient_id:recipientId,
+        message:text || '📎 Attachment'
+      })
+      .select('id')
+      .single();
 
-    if(error) throw error;
+    if(messageError) throw messageError;
+    insertedMessageId = Number(messageRow?.id);
 
-    dmInput.value = '';
-    setDmStatus('✓ Sent', 'success');
+    if(!insertedMessageId){
+      throw new Error('Message was sent but its ID could not be loaded.');
+    }
+
+    if(uploaded.length){
+      const attachmentRows = uploaded.map(item => ({
+        message_id:insertedMessageId,
+        uploader_id:senderId,
+        storage_path:item.storage_path,
+        file_name:item.file_name,
+        mime_type:item.mime_type,
+        file_size:item.file_size
+      }));
+
+      const {error:attachmentError} = await client
+        .from('direct_message_attachments')
+        .insert(attachmentRows);
+
+      if(attachmentError) throw attachmentError;
+    }
+
+    if(dmInput) dmInput.value = '';
+    dmClearPendingFiles();
+
+    setDmStatus(files.length ? '✓ Sent with attachment' : '✓ Sent','success');
     await loadDmConversation(true);
+
     setTimeout(() => {
-      if(dmStatus?.textContent === '✓ Sent') setDmStatus('');
-    }, 1500);
+      if(dmStatus?.textContent?.startsWith('✓ Sent')) setDmStatus('');
+    },1500);
+
   }catch(err){
-    setDmStatus('Send failed: ' + (err?.message || String(err)), 'error');
+    console.error('DM send error:',err);
+
+    try{
+      const client = window.gymcelsLolDb;
+
+      if(insertedMessageId){
+        await client
+          .from('direct_messages')
+          .delete()
+          .eq('id',insertedMessageId);
+      }
+
+      if(uploadedPaths.length){
+        await client
+          .storage
+          .from('dm-media')
+          .remove(uploadedPaths);
+      }
+    }catch(cleanupErr){
+      console.warn('Could not fully clean up failed DM attachment:',cleanupErr);
+    }
+
+    setDmStatus('Send failed: ' + (err?.message || String(err)),'error');
+
   }finally{
     dmSending = false;
-    dmSendBtn.disabled = false;
+
+    if(dmActiveUserId){
+      if(dmSendBtn) dmSendBtn.disabled = false;
+      if(dmPhotoBtn) dmPhotoBtn.disabled = false;
+      if(dmAttachBtn) dmAttachBtn.disabled = false;
+    }
   }
 }
 
@@ -16244,6 +16863,48 @@ document.addEventListener('click', (e) => {
 if(chatDmBtn){
   chatDmBtn.addEventListener('click', () => {
     openDmWith(openedChatUserId, openedChatDisplayName, openedChatAvatarUrl);
+  });
+}
+
+if(dmPhotoBtn){
+  dmPhotoBtn.addEventListener('click',() => {
+    if(!dmPhotoBtn.disabled) dmPhotoInput?.click();
+  });
+}
+
+if(dmAttachBtn){
+  dmAttachBtn.addEventListener('click',() => {
+    if(!dmAttachBtn.disabled) dmFileInput?.click();
+  });
+}
+
+if(dmPhotoInput){
+  dmPhotoInput.addEventListener('change',() => {
+    addDmPendingFiles(dmPhotoInput.files);
+    dmPhotoInput.value = '';
+  });
+}
+
+if(dmFileInput){
+  dmFileInput.addEventListener('change',() => {
+    addDmPendingFiles(dmFileInput.files);
+    dmFileInput.value = '';
+  });
+}
+
+if(dmAttachmentPreview){
+  dmAttachmentPreview.addEventListener('click',(e) => {
+    const removeBtn = e.target.closest('[data-dm-remove-pending]');
+    if(!removeBtn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const index = Number(removeBtn.dataset.dmRemovePending);
+    if(!Number.isInteger(index) || index < 0 || index >= dmPendingFiles.length) return;
+
+    dmPendingFiles.splice(index,1);
+    renderDmPendingFiles();
   });
 }
 
@@ -16278,6 +16939,12 @@ fpDb.auth.onAuthStateChange((_event, session) => {
   }else{
     clearInterval(dmPollTimer);
     dmActiveUserId = null;
+    dmClearPendingFiles();
+
+    if(dmInput) dmInput.disabled = true;
+    if(dmSendBtn) dmSendBtn.disabled = true;
+    if(dmPhotoBtn) dmPhotoBtn.disabled = true;
+    if(dmAttachBtn) dmAttachBtn.disabled = true;
     if(dmCallBtn) dmCallBtn.classList.add('hidden');
     if(dmSection) dmSection.style.display = 'none';
   }
