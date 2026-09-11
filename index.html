@@ -1816,6 +1816,138 @@ section{background:rgba(8,9,11,.60)}
   color:#ff8b96;
 }
 
+
+/* PRIVATE DM VOICE CALLS */
+.dm-thread-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.dm-call-btn{
+  border:1px solid rgba(103,232,165,.28);
+  border-radius:9px;
+  background:rgba(103,232,165,.10);
+  color:#8ef0bc;
+  padding:8px 11px;
+  font-size:9px;
+  font-weight:950;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.dm-call-btn:hover{
+  background:rgba(103,232,165,.16);
+  border-color:rgba(103,232,165,.45);
+}
+.dm-call-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:12000;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.76);
+  backdrop-filter:blur(8px);
+}
+.dm-call-overlay.show{display:flex}
+.dm-call-card{
+  width:min(360px,100%);
+  border:1px solid #303640;
+  border-radius:20px;
+  background:#101318;
+  padding:25px 20px 20px;
+  text-align:center;
+  box-shadow:0 30px 100px rgba(0,0,0,.62);
+}
+.dm-call-card.incoming{
+  border-color:rgba(103,232,165,.26);
+}
+.dm-call-kicker{
+  color:#8f98a4;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.dm-call-avatar{
+  width:82px;
+  height:82px;
+  margin:17px auto 11px;
+  border-radius:50%;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#ef4355,#7e1520);
+  border:2px solid #ff6675;
+  color:#fff;
+  font-size:21px;
+  font-weight:950;
+}
+.dm-call-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.dm-call-name{
+  color:#fff;
+  font-size:20px;
+  font-weight:950;
+  line-height:1.2;
+}
+.dm-call-copy{
+  margin-top:4px;
+  color:#838c98;
+  font-size:10px;
+}
+.dm-call-timer{
+  margin-top:8px;
+  color:#8f98a4;
+  font-size:12px;
+  font-variant-numeric:tabular-nums;
+}
+.dm-call-actions{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-top:19px;
+}
+.dm-call-action{
+  min-width:105px;
+  border:0;
+  border-radius:11px;
+  padding:11px 14px;
+  color:#fff;
+  font-size:10px;
+  font-weight:950;
+  cursor:pointer;
+}
+.dm-call-action.accept{background:#238b58}
+.dm-call-action.decline{background:#d83c4b}
+.dm-call-action.neutral{
+  background:#252b33;
+  border:1px solid #343b45;
+}
+.dm-call-action:hover{filter:brightness(1.08)}
+.dm-call-action:disabled{opacity:.55;cursor:not-allowed}
+.dm-call-status{
+  min-height:16px;
+  margin-top:10px;
+  color:#7e8793;
+  font-size:9px;
+}
+#dmPrivateCallAudio{
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  pointer-events:none;
+}
+@media(max-width:520px){
+  .dm-thread-head{align-items:flex-start}
+  .dm-call-btn{padding:8px 9px}
+}
+
 </style>
 </head>
 <body>
@@ -2351,6 +2483,7 @@ section{background:rgba(8,9,11,.60)}
           <div id="dmThreadName" class="dm-thread-name">Select a friend</div>
           <div id="dmThreadState" class="dm-thread-state">Choose someone from your friends list.</div>
         </div>
+        <button id="dmCallBtn" class="dm-call-btn hidden" type="button" title="Private voice call">📞 Call</button>
       </div>
 
       <div id="dmMessages" class="dm-messages">
@@ -2607,6 +2740,35 @@ section{background:rgba(8,9,11,.60)}
 
     <div class="chat-public-achievements-title">Achievements</div>
     <div id="chatPublicAchievements" class="chat-public-achievements"></div>
+  </div>
+</div>
+
+
+<div id="dmIncomingCallOverlay" class="dm-call-overlay" aria-hidden="true">
+  <div class="dm-call-card incoming" role="dialog" aria-modal="true" aria-labelledby="dmIncomingCallName">
+    <div class="dm-call-kicker">Incoming private call</div>
+    <div id="dmIncomingCallAvatar" class="dm-call-avatar">GC</div>
+    <div id="dmIncomingCallName" class="dm-call-name">Gymcels.lol Member</div>
+    <div class="dm-call-copy">is calling you from DMs</div>
+    <div class="dm-call-actions">
+      <button id="dmDeclineCallBtn" class="dm-call-action decline" type="button">Decline</button>
+      <button id="dmAcceptCallBtn" class="dm-call-action accept" type="button">Accept</button>
+    </div>
+  </div>
+</div>
+
+<div id="dmActiveCallOverlay" class="dm-call-overlay" aria-hidden="true">
+  <div class="dm-call-card active" role="dialog" aria-modal="true" aria-labelledby="dmActiveCallName">
+    <div id="dmActiveCallState" class="dm-call-kicker">Calling...</div>
+    <div id="dmActiveCallAvatar" class="dm-call-avatar">GC</div>
+    <div id="dmActiveCallName" class="dm-call-name">Gymcels.lol Member</div>
+    <div id="dmActiveCallTimer" class="dm-call-timer">00:00</div>
+    <div class="dm-call-actions">
+      <button id="dmCallMuteBtn" class="dm-call-action neutral" type="button">Mute Mic</button>
+      <button id="dmEndCallBtn" class="dm-call-action decline" type="button">End Call</button>
+    </div>
+    <div id="dmCallStatus" class="dm-call-status"></div>
+    <audio id="dmPrivateCallAudio" autoplay playsinline></audio>
   </div>
 </div>
 
@@ -6423,13 +6585,724 @@ const dmInput = document.getElementById('dmInput');
 const dmSendBtn = document.getElementById('dmSendBtn');
 const dmStatus = document.getElementById('dmStatus');
 const dmRefreshBtn = document.getElementById('dmRefreshBtn');
+const dmCallBtn = document.getElementById('dmCallBtn');
 const navDmsOutside = document.getElementById('navDms');
+
+const dmIncomingCallOverlay = document.getElementById('dmIncomingCallOverlay');
+const dmIncomingCallAvatar = document.getElementById('dmIncomingCallAvatar');
+const dmIncomingCallName = document.getElementById('dmIncomingCallName');
+const dmAcceptCallBtn = document.getElementById('dmAcceptCallBtn');
+const dmDeclineCallBtn = document.getElementById('dmDeclineCallBtn');
+
+const dmActiveCallOverlay = document.getElementById('dmActiveCallOverlay');
+const dmActiveCallState = document.getElementById('dmActiveCallState');
+const dmActiveCallAvatar = document.getElementById('dmActiveCallAvatar');
+const dmActiveCallName = document.getElementById('dmActiveCallName');
+const dmActiveCallTimer = document.getElementById('dmActiveCallTimer');
+const dmCallMuteBtn = document.getElementById('dmCallMuteBtn');
+const dmEndCallBtn = document.getElementById('dmEndCallBtn');
+const dmCallStatus = document.getElementById('dmCallStatus');
+const dmPrivateCallAudio = document.getElementById('dmPrivateCallAudio');
 
 let dmActiveUserId = null;
 let dmActiveName = '';
 let dmActiveAvatar = '';
 let dmPollTimer = null;
 let dmSending = false;
+
+
+// ---- Private one-to-one DM calls ----
+let dmCallInboxChannel = null;
+let dmCallChannel = null;
+let dmCallPeer = null;
+let dmCallLocalStream = null;
+let dmCallRemoteUserId = null;
+let dmCallRemoteName = '';
+let dmCallRemoteAvatar = '';
+let dmCallTopic = '';
+let dmCallRole = null;
+let dmCallMuted = false;
+let dmCallOfferSent = false;
+let dmCallPendingIce = [];
+let dmIncomingInvite = null;
+let dmCallStartedAt = null;
+let dmCallTimerInterval = null;
+
+const DM_CALL_ICE_SERVERS = [
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'}
+];
+
+function dmCallSetStatus(text='', type='normal'){
+  if(!dmCallStatus) return;
+  dmCallStatus.textContent = text;
+  dmCallStatus.style.color =
+    type === 'error' ? '#ff7c89' :
+    type === 'success' ? '#67e8a5' :
+    '#7e8793';
+}
+
+function dmCallInitials(name){
+  const s = String(name || 'GC').trim();
+  const parts = s.split(/\s+/).filter(Boolean);
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return s.slice(0,2).toUpperCase();
+}
+
+function renderDmCallAvatar(el,name,url){
+  if(!el) return;
+  if(url){
+    el.innerHTML = `<img src="${escapeChat(url)}" alt="${escapeChat(name || 'Member')} profile photo">`;
+  }else{
+    el.textContent = dmCallInitials(name);
+  }
+}
+
+function buildDmCallTopic(a,b){
+  return `dmcall:${[String(a),String(b)].sort().join(':')}`;
+}
+
+function resetDmCallTimer(){
+  clearInterval(dmCallTimerInterval);
+  dmCallTimerInterval = null;
+  dmCallStartedAt = null;
+  if(dmActiveCallTimer) dmActiveCallTimer.textContent = '00:00';
+}
+
+function startDmCallTimer(){
+  if(dmCallStartedAt) return;
+  dmCallStartedAt = Date.now();
+
+  const tick = () => {
+    if(!dmActiveCallTimer || !dmCallStartedAt) return;
+    const seconds = Math.floor((Date.now() - dmCallStartedAt) / 1000);
+    const mins = String(Math.floor(seconds / 60)).padStart(2,'0');
+    const secs = String(seconds % 60).padStart(2,'0');
+    dmActiveCallTimer.textContent = `${mins}:${secs}`;
+  };
+
+  tick();
+  clearInterval(dmCallTimerInterval);
+  dmCallTimerInterval = setInterval(tick,1000);
+}
+
+async function sendDmCallInbox(targetUserId,event,payload={}){
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  if(!client || !session?.user || !targetUserId) return;
+
+  try{ client.realtime.setAuth(session.access_token); }catch(_){}
+
+  const temp = client.channel(`call-inbox:${targetUserId}`,{
+    config:{private:true,broadcast:{ack:true}}
+  });
+
+  await new Promise((resolve,reject) => {
+    let finished = false;
+    const timer = setTimeout(() => {
+      if(finished) return;
+      finished = true;
+      reject(new Error('Call signaling timed out.'));
+    },7000);
+
+    temp.subscribe(async (status,err) => {
+      if(finished) return;
+
+      if(status === 'SUBSCRIBED'){
+        try{
+          await temp.send({
+            type:'broadcast',
+            event,
+            payload:{
+              ...payload,
+              from_user_id:session.user.id,
+              from_name:chatDisplayName(session.user),
+              from_avatar:session.user.user_metadata?.avatar_url || ''
+            }
+          });
+          finished = true;
+          clearTimeout(timer);
+          resolve();
+        }catch(sendErr){
+          finished = true;
+          clearTimeout(timer);
+          reject(sendErr);
+        }
+      }else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
+        finished = true;
+        clearTimeout(timer);
+        reject(err || new Error('Call signaling failed.'));
+      }
+    });
+  });
+
+  try{ await client.removeChannel(temp); }catch(_){}
+}
+
+async function subscribeDmCallInbox(session){
+  const client = window.gymcelsLolDb;
+
+  if(dmCallInboxChannel){
+    try{ await client.removeChannel(dmCallInboxChannel); }catch(_){}
+    dmCallInboxChannel = null;
+  }
+
+  if(!client || !session?.user) return;
+
+  try{ client.realtime.setAuth(session.access_token); }catch(_){}
+
+  const channel = client.channel(`call-inbox:${session.user.id}`,{
+    config:{private:true,broadcast:{self:false}}
+  });
+
+  dmCallInboxChannel = channel;
+
+  channel
+    .on('broadcast',{event:'dm-call-invite'},({payload}) => {
+      handleDmIncomingInvite(payload);
+    })
+    .on('broadcast',{event:'dm-call-response'},({payload}) => {
+      handleDmCallResponse(payload);
+    });
+
+  channel.subscribe((status,err) => {
+    if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
+      console.error('Private call inbox error:',err);
+    }
+  });
+}
+
+async function handleDmIncomingInvite(payload){
+  const callerId = payload?.from_user_id;
+  if(!callerId) return;
+
+  // If already busy, tell the caller instead of opening a second call.
+  if(dmCallChannel || dmIncomingInvite){
+    try{
+      await sendDmCallInbox(callerId,'dm-call-response',{
+        response:'busy',
+        topic:payload?.topic || ''
+      });
+    }catch(_){}
+    return;
+  }
+
+  try{
+    const friendship = await getFriendshipState(callerId);
+    if(!friendship || friendship.status !== 'accepted') return;
+  }catch(_){
+    return;
+  }
+
+  dmIncomingInvite = {
+    callerId,
+    callerName:payload?.from_name || 'Member',
+    callerAvatar:payload?.from_avatar || '',
+    topic:payload?.topic || ''
+  };
+
+  if(dmIncomingCallName) dmIncomingCallName.textContent = dmIncomingInvite.callerName;
+  renderDmCallAvatar(dmIncomingCallAvatar,dmIncomingInvite.callerName,dmIncomingInvite.callerAvatar);
+
+  if(dmIncomingCallOverlay){
+    dmIncomingCallOverlay.classList.add('show');
+    dmIncomingCallOverlay.setAttribute('aria-hidden','false');
+  }
+}
+
+async function handleDmCallResponse(payload){
+  if(!payload || !dmCallChannel) return;
+  if(payload.from_user_id !== dmCallRemoteUserId) return;
+  if(payload.topic && payload.topic !== dmCallTopic) return;
+
+  if(payload.response === 'declined'){
+    dmCallSetStatus('Call declined.');
+    if(dmActiveCallState) dmActiveCallState.textContent = 'Call declined';
+    setTimeout(() => cleanupDmPrivateCall(false),900);
+  }else if(payload.response === 'busy'){
+    dmCallSetStatus('This member is already in another call.');
+    if(dmActiveCallState) dmActiveCallState.textContent = 'Busy';
+    setTimeout(() => cleanupDmPrivateCall(false),1100);
+  }
+}
+
+function closeIncomingDmCall(){
+  dmIncomingInvite = null;
+  if(dmIncomingCallOverlay){
+    dmIncomingCallOverlay.classList.remove('show');
+    dmIncomingCallOverlay.setAttribute('aria-hidden','true');
+  }
+}
+
+function createDmCallPeer(){
+  if(dmCallPeer || !dmCallRemoteUserId) return dmCallPeer;
+
+  const pc = new RTCPeerConnection({iceServers:DM_CALL_ICE_SERVERS});
+  dmCallPeer = pc;
+
+  if(dmCallLocalStream){
+    dmCallLocalStream.getAudioTracks().forEach(track => {
+      pc.addTrack(track,dmCallLocalStream);
+    });
+  }
+
+  pc.ontrack = (event) => {
+    const stream = event.streams?.[0] || new MediaStream([event.track]);
+    if(dmPrivateCallAudio){
+      dmPrivateCallAudio.srcObject = stream;
+      dmPrivateCallAudio.muted = false;
+      dmPrivateCallAudio.play().catch(() => {});
+    }
+  };
+
+  pc.onicecandidate = (event) => {
+    if(event.candidate){
+      sendDmCallSignal({
+        type:'ice',
+        candidate:event.candidate.toJSON ? event.candidate.toJSON() : event.candidate
+      });
+    }
+  };
+
+  pc.onconnectionstatechange = () => {
+    const state = pc.connectionState;
+
+    if(state === 'connected'){
+      if(dmActiveCallState) dmActiveCallState.textContent = 'Private call';
+      if(dmCallStatus) dmCallSetStatus('Connected','success');
+      startDmCallTimer();
+    }else if(state === 'failed'){
+      dmCallSetStatus('Call connection failed.','error');
+    }
+  };
+
+  return pc;
+}
+
+async function sendDmCallSignal(signal){
+  if(!dmCallChannel || !dmCallRemoteUserId) return;
+
+  await dmCallChannel.send({
+    type:'broadcast',
+    event:'dm-call-signal',
+    payload:{
+      from:voiceSessionUser?.id || (await getChatSession())?.user?.id,
+      to:dmCallRemoteUserId,
+      signal
+    }
+  });
+}
+
+async function flushDmCallIce(){
+  if(!dmCallPeer?.remoteDescription) return;
+
+  while(dmCallPendingIce.length){
+    const candidate = dmCallPendingIce.shift();
+    try{ await dmCallPeer.addIceCandidate(candidate); }catch(_){}
+  }
+}
+
+async function handleDmCallSignal(payload){
+  const session = await getChatSession();
+  if(!session?.user || !payload?.signal) return;
+  if(payload.to !== session.user.id) return;
+  if(payload.from !== dmCallRemoteUserId) return;
+
+  const pc = createDmCallPeer();
+  const signal = payload.signal;
+
+  try{
+    if(signal.type === 'offer'){
+      await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+      await flushDmCallIce();
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      await sendDmCallSignal({
+        type:'answer',
+        sdp:pc.localDescription
+      });
+      return;
+    }
+
+    if(signal.type === 'answer'){
+      await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+      await flushDmCallIce();
+      return;
+    }
+
+    if(signal.type === 'ice' && signal.candidate){
+      const candidate = new RTCIceCandidate(signal.candidate);
+      if(pc.remoteDescription){
+        await pc.addIceCandidate(candidate);
+      }else{
+        dmCallPendingIce.push(candidate);
+      }
+    }
+  }catch(err){
+    console.error('Private call WebRTC signal error:',err);
+    dmCallSetStatus('Call connection error.','error');
+  }
+}
+
+async function createDmCallOffer(){
+  if(dmCallOfferSent || dmCallRole !== 'caller') return;
+
+  const pc = createDmCallPeer();
+  if(!pc) return;
+
+  try{
+    dmCallOfferSent = true;
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await sendDmCallSignal({
+      type:'offer',
+      sdp:pc.localDescription
+    });
+  }catch(err){
+    dmCallOfferSent = false;
+    console.error('Private call offer error:',err);
+    dmCallSetStatus('Could not start call audio.','error');
+  }
+}
+
+async function joinDmCallTopic(topic,remoteUserId,remoteName,remoteAvatar,role){
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  if(!client || !session?.user) throw new Error('Log in first.');
+
+  try{ client.realtime.setAuth(session.access_token); }catch(_){}
+
+  dmCallRemoteUserId = remoteUserId;
+  dmCallRemoteName = remoteName || 'Member';
+  dmCallRemoteAvatar = remoteAvatar || '';
+  dmCallTopic = topic;
+  dmCallRole = role;
+  dmCallOfferSent = false;
+  dmCallPendingIce = [];
+
+  const channel = client.channel(topic,{
+    config:{
+      private:true,
+      broadcast:{self:false},
+      presence:{key:session.user.id}
+    }
+  });
+
+  dmCallChannel = channel;
+
+  channel
+    .on('broadcast',{event:'dm-call-signal'},({payload}) => {
+      handleDmCallSignal(payload);
+    })
+    .on('broadcast',{event:'dm-call-control'},({payload}) => {
+      if(payload?.from === dmCallRemoteUserId && payload?.action === 'hangup'){
+        dmCallSetStatus('Call ended.');
+        if(dmActiveCallState) dmActiveCallState.textContent = 'Call ended';
+        cleanupDmPrivateCall(false);
+      }
+    })
+    .on('presence',{event:'sync'},async () => {
+      if(channel !== dmCallChannel) return;
+
+      const rows = flattenVoicePresence(channel.presenceState() || {});
+      const remotePresent = rows.some(row => row.user_id === dmCallRemoteUserId);
+
+      if(remotePresent && dmCallRole === 'caller'){
+        await createDmCallOffer();
+      }
+    });
+
+  await new Promise((resolve,reject) => {
+    let done = false;
+    const timer = setTimeout(() => {
+      if(done) return;
+      done = true;
+      reject(new Error('Private call room timed out.'));
+    },8000);
+
+    channel.subscribe(async (status,err) => {
+      if(done) return;
+
+      if(status === 'SUBSCRIBED'){
+        try{
+          await channel.track({
+            user_id:session.user.id,
+            display_name:chatDisplayName(session.user),
+            joined_at:new Date().toISOString()
+          });
+          done = true;
+          clearTimeout(timer);
+          resolve();
+        }catch(trackErr){
+          done = true;
+          clearTimeout(timer);
+          reject(trackErr);
+        }
+      }else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
+        done = true;
+        clearTimeout(timer);
+        reject(err || new Error('Private call room failed.'));
+      }
+    });
+  });
+}
+
+async function prepareDmCallMicrophone(){
+  if(!window.isSecureContext) throw new Error('Private calls require HTTPS.');
+  if(!navigator.mediaDevices?.getUserMedia) throw new Error('This browser does not support microphone calls.');
+
+  dmCallLocalStream = await navigator.mediaDevices.getUserMedia({
+    audio:{
+      echoCancellation:true,
+      noiseSuppression:true,
+      autoGainControl:true
+    },
+    video:false
+  });
+
+  dmCallMuted = false;
+  if(dmCallMuteBtn) dmCallMuteBtn.textContent = 'Mute Mic';
+}
+
+function showActiveDmCall(name,avatar,state='Calling...'){
+  if(dmActiveCallName) dmActiveCallName.textContent = name || 'Member';
+  renderDmCallAvatar(dmActiveCallAvatar,name,avatar);
+  if(dmActiveCallState) dmActiveCallState.textContent = state;
+  if(dmActiveCallTimer) dmActiveCallTimer.textContent = '00:00';
+  if(dmActiveCallOverlay){
+    dmActiveCallOverlay.classList.add('show');
+    dmActiveCallOverlay.setAttribute('aria-hidden','false');
+  }
+}
+
+async function startPrivateDmCall(){
+  if(!dmActiveUserId || dmCallChannel || dmIncomingInvite) return;
+
+  const session = await getChatSession();
+  if(!session?.user){
+    setDmStatus('Log in first.','error');
+    return;
+  }
+
+  const friendship = await getFriendshipState(dmActiveUserId);
+  if(!friendship || friendship.status !== 'accepted'){
+    setDmStatus('You need to be friends before calling.','error');
+    return;
+  }
+
+  // A member can be in either a public crew room OR a private DM call, not both.
+  if(voiceRoomKey){
+    await leaveVoiceChannel(false,true);
+  }
+
+  showActiveDmCall(dmActiveName,dmActiveAvatar,'Calling...');
+  dmCallSetStatus('Requesting microphone...');
+
+  try{
+    await prepareDmCallMicrophone();
+
+    const topic = buildDmCallTopic(session.user.id,dmActiveUserId);
+
+    await joinDmCallTopic(
+      topic,
+      dmActiveUserId,
+      dmActiveName,
+      dmActiveAvatar,
+      'caller'
+    );
+
+    dmCallSetStatus('Ringing...');
+
+    await sendDmCallInbox(dmActiveUserId,'dm-call-invite',{
+      topic,
+      caller_name:chatDisplayName(session.user)
+    });
+  }catch(err){
+    console.error('Start private call error:',err);
+    const message = err?.name === 'NotAllowedError'
+      ? 'Microphone permission was blocked.'
+      : (err?.message || String(err));
+    dmCallSetStatus(message,'error');
+    setTimeout(() => cleanupDmPrivateCall(false),1200);
+  }
+}
+
+async function acceptPrivateDmCall(){
+  if(!dmIncomingInvite || dmCallChannel) return;
+
+  const invite = {...dmIncomingInvite};
+  closeIncomingDmCall();
+
+  // Leave public crew voice before taking a private call.
+  if(voiceRoomKey){
+    await leaveVoiceChannel(false,true);
+  }
+
+  showActiveDmCall(invite.callerName,invite.callerAvatar,'Connecting...');
+  dmCallSetStatus('Requesting microphone...');
+
+  try{
+    await prepareDmCallMicrophone();
+
+    await joinDmCallTopic(
+      invite.topic || buildDmCallTopic((await getChatSession()).user.id,invite.callerId),
+      invite.callerId,
+      invite.callerName,
+      invite.callerAvatar,
+      'callee'
+    );
+
+    await sendDmCallInbox(invite.callerId,'dm-call-response',{
+      response:'accepted',
+      topic:dmCallTopic
+    });
+
+    dmCallSetStatus('Connecting...');
+  }catch(err){
+    console.error('Accept private call error:',err);
+
+    try{
+      await sendDmCallInbox(invite.callerId,'dm-call-response',{
+        response:'declined',
+        topic:invite.topic || ''
+      });
+    }catch(_){}
+
+    const message = err?.name === 'NotAllowedError'
+      ? 'Microphone permission was blocked.'
+      : (err?.message || String(err));
+
+    dmCallSetStatus(message,'error');
+    setTimeout(() => cleanupDmPrivateCall(false),1200);
+  }
+}
+
+async function declinePrivateDmCall(){
+  if(!dmIncomingInvite) return;
+
+  const invite = {...dmIncomingInvite};
+  closeIncomingDmCall();
+
+  try{
+    await sendDmCallInbox(invite.callerId,'dm-call-response',{
+      response:'declined',
+      topic:invite.topic || ''
+    });
+  }catch(err){
+    console.error('Decline call response error:',err);
+  }
+}
+
+async function togglePrivateDmCallMute(){
+  if(!dmCallLocalStream) return;
+
+  dmCallMuted = !dmCallMuted;
+  dmCallLocalStream.getAudioTracks().forEach(track => {
+    track.enabled = !dmCallMuted;
+  });
+
+  if(dmCallMuteBtn) dmCallMuteBtn.textContent = dmCallMuted ? 'Unmute Mic' : 'Mute Mic';
+  dmCallSetStatus(dmCallMuted ? 'Your microphone is muted.' : 'Your microphone is live.');
+}
+
+async function cleanupDmPrivateCall(sendHangup=true){
+  const client = window.gymcelsLolDb;
+
+  if(sendHangup && dmCallChannel && dmCallRemoteUserId){
+    try{
+      const session = await getChatSession();
+      await dmCallChannel.send({
+        type:'broadcast',
+        event:'dm-call-control',
+        payload:{
+          from:session?.user?.id,
+          to:dmCallRemoteUserId,
+          action:'hangup'
+        }
+      });
+    }catch(_){}
+  }
+
+  if(dmCallChannel){
+    try{ await dmCallChannel.untrack(); }catch(_){}
+    try{ if(client) await client.removeChannel(dmCallChannel); }catch(_){}
+  }
+
+  if(dmCallPeer){
+    try{ dmCallPeer.ontrack = null; }catch(_){}
+    try{ dmCallPeer.onicecandidate = null; }catch(_){}
+    try{ dmCallPeer.close(); }catch(_){}
+  }
+
+  if(dmCallLocalStream){
+    dmCallLocalStream.getTracks().forEach(track => track.stop());
+  }
+
+  if(dmPrivateCallAudio){
+    try{ dmPrivateCallAudio.srcObject = null; }catch(_){}
+  }
+
+  dmCallChannel = null;
+  dmCallPeer = null;
+  dmCallLocalStream = null;
+  dmCallRemoteUserId = null;
+  dmCallRemoteName = '';
+  dmCallRemoteAvatar = '';
+  dmCallTopic = '';
+  dmCallRole = null;
+  dmCallMuted = false;
+  dmCallOfferSent = false;
+  dmCallPendingIce = [];
+
+  resetDmCallTimer();
+
+  if(dmActiveCallOverlay){
+    dmActiveCallOverlay.classList.remove('show');
+    dmActiveCallOverlay.setAttribute('aria-hidden','true');
+  }
+
+  if(dmCallMuteBtn) dmCallMuteBtn.textContent = 'Mute Mic';
+  dmCallSetStatus('');
+}
+
+async function startPrivateCallSystem(session){
+  if(!session?.user){
+    closeIncomingDmCall();
+    await cleanupDmPrivateCall(false);
+
+    const client = window.gymcelsLolDb;
+    if(dmCallInboxChannel && client){
+      try{ await client.removeChannel(dmCallInboxChannel); }catch(_){}
+    }
+    dmCallInboxChannel = null;
+    return;
+  }
+
+  await subscribeDmCallInbox(session);
+}
+
+if(dmCallBtn){
+  dmCallBtn.addEventListener('click',startPrivateDmCall);
+}
+if(dmAcceptCallBtn){
+  dmAcceptCallBtn.addEventListener('click',acceptPrivateDmCall);
+}
+if(dmDeclineCallBtn){
+  dmDeclineCallBtn.addEventListener('click',declinePrivateDmCall);
+}
+if(dmCallMuteBtn){
+  dmCallMuteBtn.addEventListener('click',togglePrivateDmCallMute);
+}
+if(dmEndCallBtn){
+  dmEndCallBtn.addEventListener('click',() => cleanupDmPrivateCall(true));
+}
+
+window.addEventListener('beforeunload',() => {
+  try{ dmCallLocalStream?.getTracks().forEach(track => track.stop()); }catch(_){}
+});
+
 
 function setDmStatus(text='', type='normal'){
   if(!dmStatus) return;
@@ -6572,6 +7445,7 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
   dmThreadState.textContent = 'Private conversation';
   dmInput.disabled = false;
   dmSendBtn.disabled = false;
+  if(dmCallBtn) dmCallBtn.classList.remove('hidden');
   dmInput.placeholder = `Message ${dmActiveName}...`;
   setDmStatus('');
 
@@ -6675,16 +7549,26 @@ if(navDmsOutside){
 }
 
 fpDb.auth.onAuthStateChange((_event, session) => {
+  startPrivateCallSystem(session);
   if(session?.user){
     setTimeout(loadDmFriends, 0);
   }else{
     clearInterval(dmPollTimer);
     dmActiveUserId = null;
+    if(dmCallBtn) dmCallBtn.classList.add('hidden');
     if(dmSection) dmSection.style.display = 'none';
   }
 });
 
 setTimeout(loadDmFriends, 250);
+setTimeout(async () => {
+  try{
+    const session = await getChatSession();
+    await startPrivateCallSystem(session);
+  }catch(err){
+    console.error('Private call startup error:',err);
+  }
+},350);
 
 async function uploadProfilePhoto(){
   const file = profilePhotoInput?.files?.[0];
