@@ -1,0 +1,22 @@
+{
+  "name": "Gymcels.lol",
+  "short_name": "Gymcels",
+  "description": "Gymcels.lol community, chat, threads, DMs, voice and training.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0c0e",
+  "theme_color": "#0b0c0e",
+  "icons": [
+    {
+      "src": "/gymcels-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/gymcels-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
