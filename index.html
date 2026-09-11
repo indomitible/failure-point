@@ -2228,6 +2228,8 @@ const chatPublicCurrentStreak = document.getElementById('chatPublicCurrentStreak
 const chatPublicBestStreak = document.getElementById('chatPublicBestStreak');
 const chatPublicBio = document.getElementById('chatPublicBio');
 const chatDmBtn = document.getElementById('chatDmBtn');
+let chatIsSiteAdmin = false;
+let chatAdminCheckedUserId = null;
 let openedChatDisplayName = 'Member';
 let openedChatAvatarUrl = '';
 
@@ -2968,6 +2970,35 @@ document.addEventListener('keydown', (e) => {
   if(e.key === 'Escape') closeChatPublicProfile();
 });
 
+
+async function refreshChatAdminStatus(session){
+  const client = window.gymcelsLolDb;
+
+  if(!client || !session?.user){
+    chatIsSiteAdmin = false;
+    chatAdminCheckedUserId = null;
+    return false;
+  }
+
+  if(chatAdminCheckedUserId === session.user.id){
+    return chatIsSiteAdmin;
+  }
+
+  try{
+    const { data, error } = await client.rpc('is_site_admin');
+    if(error) throw error;
+
+    chatIsSiteAdmin = data === true;
+    chatAdminCheckedUserId = session.user.id;
+  }catch(err){
+    chatIsSiteAdmin = false;
+    chatAdminCheckedUserId = session.user.id;
+    console.error('Admin status check failed:', err);
+  }
+
+  return chatIsSiteAdmin;
+}
+
 async function loadCommunityChat(scrollToBottom=false){
   try{
     const client = window.gymcelsLolDb;
@@ -2975,6 +3006,13 @@ async function loadCommunityChat(scrollToBottom=false){
 
     const session = await getChatSession();
     const signedIn = setCommunityChatAuthState(session);
+
+    if(signedIn){
+      await refreshChatAdminStatus(session);
+    }else{
+      chatIsSiteAdmin = false;
+      chatAdminCheckedUserId = null;
+    }
 
     if(!signedIn && friendsSection){
       friendsSection.style.display = 'none';
@@ -3032,6 +3070,7 @@ async function loadCommunityChat(scrollToBottom=false){
 
     chatMessages.innerHTML = rows.map(row => {
       const mine = signedIn && row.user_id === session.user.id;
+      const canDeleteMessage = mine || (signedIn && chatIsSiteAdmin);
       const when = row.created_at
         ? new Date(row.created_at).toLocaleTimeString([], {
             hour:'numeric',
@@ -3049,8 +3088,8 @@ async function loadCommunityChat(scrollToBottom=false){
                   <button class="chat-user-button" type="button" data-chat-user="${escapeChat(row.user_id || '')}" data-chat-name="${escapeChat(row.display_name || 'Member')}" data-chat-avatar="${escapeChat(row.avatar_url || '')}"><span class="chat-user">${escapeChat(row.display_name || 'Member')}</span></button>${vipBadgeMarkup(row.is_vip)}
                   <span class="chat-time"> · ${escapeChat(when)}</span>
                 </div>
-                ${mine
-                  ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}">Delete</button>`
+                ${canDeleteMessage
+                  ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}"${!mine && chatIsSiteAdmin ? ' title="Moderator delete"' : ''}>Delete</button>`
                   : ''}
               </div>
               <div class="chat-text">${escapeChat(row.message)}</div>
@@ -3172,6 +3211,13 @@ if(chatMessages){
       const id = Number(btn.dataset.chatDelete);
       if(!id) return;
 
+      const rowEl = btn.closest('.chat-message');
+      const isModeratorDelete = chatIsSiteAdmin && btn.getAttribute('title') === 'Moderator delete';
+
+      if(isModeratorDelete && !confirm("Delete this member's message?")){
+        return;
+      }
+
       const { error } = await client
         .from('messages')
         .delete()
@@ -3204,6 +3250,8 @@ function startCommunityChat(session){
 
 if(window.gymcelsLolDb){
   window.gymcelsLolDb.auth.onAuthStateChange((_event, session) => {
+    chatIsSiteAdmin = false;
+    chatAdminCheckedUserId = null;
     startCommunityChat(session);
   });
 
