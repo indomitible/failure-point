@@ -2912,6 +2912,164 @@ section{background:rgba(8,9,11,.60)}
   .staff-admin-search button{padding:11px}
 }
 
+
+/* GYMCELS NUTRITION / MACRO TRACKER */
+.nutrition-section{padding:38px 0 70px}
+.nutrition-shell{
+  padding:18px;border:1px solid #292f37;border-radius:17px;
+  background:rgba(9,12,16,.94);box-shadow:0 18px 55px rgba(0,0,0,.28);
+}
+.nutrition-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;
+}
+.nutrition-head h2{margin:3px 0 4px;color:#fff;font-size:28px;line-height:1.1}
+.nutrition-head p{margin:0;max-width:690px;color:#8f98a4;font-size:11px;line-height:1.55}
+.nutrition-private-pill{
+  flex:0 0 auto;padding:6px 9px;border:1px solid rgba(103,232,165,.32);border-radius:999px;
+  background:rgba(103,232,165,.08);color:#9bf1c1;font-size:8px;font-weight:950;letter-spacing:.05em;
+}
+.nutrition-datebar{
+  display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0;
+  padding:10px;border:1px solid #252b33;border-radius:13px;background:#0d1115;
+}
+.nutrition-datebar > button{
+  border:1px solid #2b323b;border-radius:9px;background:#171c22;color:#fff;
+  min-width:38px;height:38px;padding:0 10px;font-weight:900;cursor:pointer;
+}
+.nutrition-datebar > button:hover{border-color:#47515e}
+.nutrition-datebar .nutrition-today-btn{font-size:9px;min-width:58px}
+.nutrition-date-center{
+  min-width:190px;display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;
+}
+.nutrition-date-center label{display:none}
+.nutrition-date-center input{
+  border:1px solid #303741;border-radius:9px;background:#090c10;color:#fff;
+  padding:8px 9px;font:inherit;font-size:10px;color-scheme:dark;
+}
+.nutrition-date-center strong{color:#d9dee5;font-size:10px}
+
+.nutrition-target-card,.nutrition-add-card,.nutrition-day-card{
+  border:1px solid #252c34;border-radius:13px;background:#0d1115;padding:14px;
+}
+.nutrition-card-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.nutrition-card-head strong{display:block;color:#fff;font-size:13px}
+.nutrition-card-head span{display:block;margin-top:3px;color:#7f8995;font-size:9px;line-height:1.45}
+.nutrition-small-btn,.nutrition-secondary-btn{
+  border:1px solid #303741;border-radius:9px;background:#171c22;color:#d8dde3;
+  padding:8px 11px;font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;
+}
+.nutrition-small-btn:hover,.nutrition-secondary-btn:hover{border-color:#4a5562}
+.nutrition-target-form{margin-top:12px}
+.nutrition-target-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+}
+.nutrition-target-grid label,.nutrition-meal-form label{display:flex;flex-direction:column;gap:5px}
+.nutrition-target-grid label>span,.nutrition-meal-form label>span{
+  color:#aeb6c0;font-size:9px;font-weight:850;
+}
+.nutrition-target-grid input,.nutrition-meal-form input,.nutrition-meal-form select{
+  width:100%;box-sizing:border-box;border:1px solid #303741;border-radius:9px;
+  background:#090c10;color:#fff;padding:10px 11px;font:inherit;font-size:11px;outline:none;color-scheme:dark;
+}
+.nutrition-target-grid input:focus,.nutrition-meal-form input:focus,.nutrition-meal-form select:focus{
+  border-color:#ef4355;
+}
+.nutrition-form-actions{display:flex;gap:8px;align-items:center;margin-top:11px;flex-wrap:wrap}
+.nutrition-primary-btn{
+  border:0;border-radius:9px;background:#ef4355;color:#fff;padding:10px 14px;
+  font-family:inherit;font-size:9px;font-weight:950;cursor:pointer;
+}
+.nutrition-primary-btn:hover{filter:brightness(1.07)}
+.nutrition-primary-btn:disabled{opacity:.55;cursor:not-allowed}
+
+.nutrition-summary-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0;
+}
+.nutrition-summary-card{
+  padding:12px;border:1px solid #252c34;border-radius:12px;background:#0d1115;
+}
+.nutrition-summary-top{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.nutrition-summary-top>span{color:#9da6b1;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.nutrition-summary-top b{color:#fff;font-size:11px;white-space:nowrap}
+.nutrition-progress{
+  height:7px;overflow:hidden;margin-top:9px;border-radius:999px;background:#20262d;
+}
+.nutrition-progress span{
+  display:block;width:0;height:100%;border-radius:999px;background:#ef4355;transition:width .2s ease;
+}
+.nutrition-summary-card.over .nutrition-progress span{background:#ff9b44}
+.nutrition-summary-card small{display:block;margin-top:6px;color:#76808c;font-size:8px}
+.nutrition-summary-card.over small{color:#ffb36d}
+
+.nutrition-layout{
+  display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);gap:10px;
+}
+.nutrition-meal-form{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px;
+}
+.nutrition-meal-form .nutrition-wide{grid-column:1/-1}
+.nutrition-meal-form small{color:#68717c;font-size:8px}
+
+.nutrition-meals-list{display:flex;flex-direction:column;gap:12px;margin-top:11px}
+.nutrition-meal-group{display:flex;flex-direction:column;gap:6px}
+.nutrition-meal-group-title{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  color:#cdd3da;font-size:9px;font-weight:950;text-transform:uppercase;letter-spacing:.06em;
+}
+.nutrition-meal-group-title span:last-child{color:#69737e;font-size:8px}
+.nutrition-meal-item{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;
+  padding:10px;border:1px solid #242a31;border-radius:10px;background:#10151a;
+}
+.nutrition-meal-name{color:#fff;font-size:11px;font-weight:900;line-height:1.3}
+.nutrition-meal-note{margin-top:3px;color:#727c87;font-size:8px;line-height:1.35}
+.nutrition-meal-macros{
+  display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;color:#98a2ad;font-size:8px;
+}
+.nutrition-meal-macros span{
+  padding:3px 6px;border:1px solid #293039;border-radius:999px;background:#0b0f13;
+}
+.nutrition-meal-actions{display:flex;align-items:flex-start;gap:5px}
+.nutrition-meal-actions button{
+  border:0;border-radius:7px;background:#20262d;color:#bac2cc;padding:6px 8px;
+  font:inherit;font-size:8px;font-weight:850;cursor:pointer;
+}
+.nutrition-meal-actions button[data-nutrition-delete]{color:#ff8b97}
+.nutrition-empty{
+  padding:22px 12px;border:1px dashed #293039;border-radius:10px;
+  color:#727c87;text-align:center;font-size:9px;
+}
+.nutrition-status{min-height:16px;margin-top:8px;color:#858f9b;font-size:9px}
+.nutrition-status.success{color:#67e8a5}
+.nutrition-status.error{color:#ff7c89}
+.nutrition-footnote{
+  margin-top:10px;color:#66707c;font-size:8px;line-height:1.5;text-align:center;
+}
+
+@media(max-width:800px){
+  .nutrition-section{padding:26px 0 92px}
+  .nutrition-shell{padding:14px;border-radius:14px}
+  .nutrition-head{flex-direction:column}
+  .nutrition-head h2{font-size:24px}
+  .nutrition-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nutrition-layout{grid-template-columns:1fr}
+  .nutrition-target-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nutrition-datebar{flex-wrap:wrap}
+  .nutrition-date-center{order:-1;width:100%}
+}
+@media(max-width:480px){
+  .nutrition-summary-grid{grid-template-columns:1fr 1fr}
+  .nutrition-summary-top{display:block}
+  .nutrition-summary-top b{display:block;margin-top:3px}
+  .nutrition-meal-form{grid-template-columns:1fr}
+  .nutrition-meal-form .nutrition-wide{grid-column:auto}
+  .nutrition-target-grid{grid-template-columns:1fr 1fr}
+  .nutrition-meal-item{grid-template-columns:1fr}
+  .nutrition-meal-actions{justify-content:flex-end}
+}
+
 </style>
 </head>
 <body>
@@ -2941,6 +3099,7 @@ section{background:rgba(8,9,11,.60)}
       <a class="nav-link" id="navLogin" href="#login-card">Log In</a>
       <a class="nav-link hidden" id="navEditProfile" href="#members">Edit Profile</a>
       <a class="nav-link hidden" id="navWorkouts" href="#members">My Workouts</a>
+      <a class="nav-link hidden" id="navNutrition" href="#nutritionSection">Nutrition</a>
       <button class="nav-link hidden" id="navLogout" type="button" style="color:inherit;cursor:pointer;font-family:inherit">Log Out</button>
     </div>
 
@@ -3026,6 +3185,9 @@ section{background:rgba(8,9,11,.60)}
     </button>
     <button class="mobile-drawer-link" type="button" data-mobile-proxy="navWorkouts">
       <span>✓</span><b>My Workouts</b>
+    </button>
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navNutrition">
+      <span>🍽️</span><b>Nutrition</b>
     </button>
     <button class="mobile-drawer-link" type="button" data-mobile-proxy="navEditProfile">
       <span>◎</span><b>Edit Profile</b>
@@ -3748,6 +3910,184 @@ section{background:rgba(8,9,11,.60)}
     </div>
   </section>
 
+
+<section id="nutritionSection" class="nutrition-section hidden">
+  <div class="wrap">
+    <div class="nutrition-shell">
+      <div class="nutrition-head">
+        <div>
+          <div class="kicker">Private member tracker</div>
+          <h2>Gymcels Nutrition</h2>
+          <p>Track meals, calories, protein, carbs, and fat. Your nutrition log is private to your account.</p>
+        </div>
+        <div class="nutrition-private-pill">🔒 Private</div>
+      </div>
+
+      <div class="nutrition-datebar">
+        <button id="nutritionPrevDay" type="button" aria-label="Previous day">←</button>
+        <div class="nutrition-date-center">
+          <label for="nutritionDate">Tracking date</label>
+          <input id="nutritionDate" type="date">
+          <strong id="nutritionDateLabel">Today</strong>
+        </div>
+        <button id="nutritionNextDay" type="button" aria-label="Next day">→</button>
+        <button id="nutritionTodayBtn" class="nutrition-today-btn" type="button">Today</button>
+      </div>
+
+      <div class="nutrition-target-card">
+        <div class="nutrition-card-head">
+          <div>
+            <strong>Daily Targets</strong>
+            <span>Set your own daily macro goals.</span>
+          </div>
+          <button id="nutritionEditTargetsBtn" class="nutrition-small-btn" type="button">Edit targets</button>
+        </div>
+
+        <div id="nutritionTargetsForm" class="nutrition-target-form hidden">
+          <div class="nutrition-target-grid">
+            <label>
+              <span>Calories</span>
+              <input id="nutritionTargetCalories" type="number" min="0" max="20000" step="1" inputmode="numeric" placeholder="2800">
+            </label>
+            <label>
+              <span>Protein (g)</span>
+              <input id="nutritionTargetProtein" type="number" min="0" max="2000" step="1" inputmode="decimal" placeholder="200">
+            </label>
+            <label>
+              <span>Carbs (g)</span>
+              <input id="nutritionTargetCarbs" type="number" min="0" max="3000" step="1" inputmode="decimal" placeholder="320">
+            </label>
+            <label>
+              <span>Fat (g)</span>
+              <input id="nutritionTargetFat" type="number" min="0" max="1000" step="1" inputmode="decimal" placeholder="80">
+            </label>
+          </div>
+          <div class="nutrition-form-actions">
+            <button id="nutritionSaveTargetsBtn" class="nutrition-primary-btn" type="button">Save targets</button>
+            <button id="nutritionCancelTargetsBtn" class="nutrition-secondary-btn" type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nutrition-summary-grid">
+        <div class="nutrition-summary-card" data-macro="calories">
+          <div class="nutrition-summary-top">
+            <span>Calories</span>
+            <b><span id="nutritionCaloriesTotal">0</span> / <span id="nutritionCaloriesTarget">—</span></b>
+          </div>
+          <div class="nutrition-progress"><span id="nutritionCaloriesProgress"></span></div>
+          <small id="nutritionCaloriesRemaining">Set a target</small>
+        </div>
+
+        <div class="nutrition-summary-card" data-macro="protein">
+          <div class="nutrition-summary-top">
+            <span>Protein</span>
+            <b><span id="nutritionProteinTotal">0</span>g / <span id="nutritionProteinTarget">—</span>g</b>
+          </div>
+          <div class="nutrition-progress"><span id="nutritionProteinProgress"></span></div>
+          <small id="nutritionProteinRemaining">Set a target</small>
+        </div>
+
+        <div class="nutrition-summary-card" data-macro="carbs">
+          <div class="nutrition-summary-top">
+            <span>Carbs</span>
+            <b><span id="nutritionCarbsTotal">0</span>g / <span id="nutritionCarbsTarget">—</span>g</b>
+          </div>
+          <div class="nutrition-progress"><span id="nutritionCarbsProgress"></span></div>
+          <small id="nutritionCarbsRemaining">Set a target</small>
+        </div>
+
+        <div class="nutrition-summary-card" data-macro="fat">
+          <div class="nutrition-summary-top">
+            <span>Fat</span>
+            <b><span id="nutritionFatTotal">0</span>g / <span id="nutritionFatTarget">—</span>g</b>
+          </div>
+          <div class="nutrition-progress"><span id="nutritionFatProgress"></span></div>
+          <small id="nutritionFatRemaining">Set a target</small>
+        </div>
+      </div>
+
+      <div class="nutrition-layout">
+        <div class="nutrition-add-card">
+          <div class="nutrition-card-head">
+            <div>
+              <strong id="nutritionMealFormTitle">Add Meal</strong>
+              <span>Enter the macros from the food label or nutrition information.</span>
+            </div>
+          </div>
+
+          <div class="nutrition-meal-form">
+            <label class="nutrition-wide">
+              <span>Food / meal name</span>
+              <input id="nutritionFoodName" type="text" maxlength="120" autocomplete="off" placeholder="Chicken and rice">
+            </label>
+
+            <label>
+              <span>Meal</span>
+              <select id="nutritionMealType">
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snack">Snacks</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Calories</span>
+              <input id="nutritionCalories" type="number" min="0" max="20000" step="1" inputmode="numeric" placeholder="650">
+            </label>
+
+            <label>
+              <span>Protein (g)</span>
+              <input id="nutritionProtein" type="number" min="0" max="1000" step="0.1" inputmode="decimal" placeholder="55">
+            </label>
+
+            <label>
+              <span>Carbs (g)</span>
+              <input id="nutritionCarbs" type="number" min="0" max="2000" step="0.1" inputmode="decimal" placeholder="70">
+            </label>
+
+            <label>
+              <span>Fat (g)</span>
+              <input id="nutritionFat" type="number" min="0" max="1000" step="0.1" inputmode="decimal" placeholder="15">
+            </label>
+
+            <label class="nutrition-wide">
+              <span>Serving / notes <small>(optional)</small></span>
+              <input id="nutritionNotes" type="text" maxlength="160" autocomplete="off" placeholder="2 cups, homemade, etc.">
+            </label>
+          </div>
+
+          <div class="nutrition-form-actions">
+            <button id="nutritionSaveMealBtn" class="nutrition-primary-btn" type="button">Add meal</button>
+            <button id="nutritionCancelEditBtn" class="nutrition-secondary-btn hidden" type="button">Cancel edit</button>
+          </div>
+          <div id="nutritionFormStatus" class="nutrition-status"></div>
+        </div>
+
+        <div class="nutrition-day-card">
+          <div class="nutrition-card-head">
+            <div>
+              <strong>Meals for <span id="nutritionMealsDateLabel">today</span></strong>
+              <span id="nutritionMealCount">0 meals logged</span>
+            </div>
+          </div>
+
+          <div id="nutritionMealsList" class="nutrition-meals-list">
+            <div class="nutrition-empty">No meals logged for this day yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nutrition-footnote">
+        Gymcels Nutrition is a tracking tool only. Nutrition needs vary by person; this is not medical advice.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
   <section class="personal-buy" id="personal-buy">
     <div class="wrap">
       <div class="personal-card">
@@ -3923,6 +4263,7 @@ window.fpVerificationCallback = (() => {
   const navLogin = $('navLogin');
   const navEditProfile = $('navEditProfile');
   const navWorkouts = $('navWorkouts');
+  const navNutrition = $('navNutrition');
   const navLogout = $('navLogout');
   const beatLast = $('beatLast');
 
@@ -4022,6 +4363,7 @@ window.fpVerificationCallback = (() => {
       navLogin.classList.add('hidden');
       if (navEditProfile) navEditProfile.classList.remove('hidden');
       navWorkouts.classList.remove('hidden');
+      if (navNutrition) navNutrition.classList.remove('hidden');
       navLogout.classList.remove('hidden');
       if (navChat) navChat.setAttribute('href', '#communityChat');
       if (navThreads) navThreads.setAttribute('href', '#threadsSection');
@@ -4038,6 +4380,7 @@ window.fpVerificationCallback = (() => {
       navLogin.classList.remove('hidden');
       if (navEditProfile) navEditProfile.classList.add('hidden');
       navWorkouts.classList.add('hidden');
+      if (navNutrition) navNutrition.classList.add('hidden');
       navLogout.classList.add('hidden');
       if (navChat) navChat.setAttribute('href', '#communityChat');
       if (navFriends) navFriends.setAttribute('href', '#login-card');
@@ -4171,6 +4514,561 @@ window.fpVerificationCallback = (() => {
   refreshSession();
   handleVerificationCallback();
 })();
+
+
+
+// ---- Gymcels Nutrition: private per-account macro tracker ----
+const nutritionDb = window.gymcelsLolDb;
+const nutritionSection = document.getElementById('nutritionSection');
+const nutritionDate = document.getElementById('nutritionDate');
+const nutritionDateLabel = document.getElementById('nutritionDateLabel');
+const nutritionMealsDateLabel = document.getElementById('nutritionMealsDateLabel');
+const nutritionPrevDay = document.getElementById('nutritionPrevDay');
+const nutritionNextDay = document.getElementById('nutritionNextDay');
+const nutritionTodayBtn = document.getElementById('nutritionTodayBtn');
+
+const nutritionEditTargetsBtn = document.getElementById('nutritionEditTargetsBtn');
+const nutritionTargetsForm = document.getElementById('nutritionTargetsForm');
+const nutritionTargetCalories = document.getElementById('nutritionTargetCalories');
+const nutritionTargetProtein = document.getElementById('nutritionTargetProtein');
+const nutritionTargetCarbs = document.getElementById('nutritionTargetCarbs');
+const nutritionTargetFat = document.getElementById('nutritionTargetFat');
+const nutritionSaveTargetsBtn = document.getElementById('nutritionSaveTargetsBtn');
+const nutritionCancelTargetsBtn = document.getElementById('nutritionCancelTargetsBtn');
+
+const nutritionCaloriesTotal = document.getElementById('nutritionCaloriesTotal');
+const nutritionProteinTotal = document.getElementById('nutritionProteinTotal');
+const nutritionCarbsTotal = document.getElementById('nutritionCarbsTotal');
+const nutritionFatTotal = document.getElementById('nutritionFatTotal');
+
+const nutritionCaloriesTarget = document.getElementById('nutritionCaloriesTarget');
+const nutritionProteinTarget = document.getElementById('nutritionProteinTarget');
+const nutritionCarbsTarget = document.getElementById('nutritionCarbsTarget');
+const nutritionFatTarget = document.getElementById('nutritionFatTarget');
+
+const nutritionCaloriesProgress = document.getElementById('nutritionCaloriesProgress');
+const nutritionProteinProgress = document.getElementById('nutritionProteinProgress');
+const nutritionCarbsProgress = document.getElementById('nutritionCarbsProgress');
+const nutritionFatProgress = document.getElementById('nutritionFatProgress');
+
+const nutritionCaloriesRemaining = document.getElementById('nutritionCaloriesRemaining');
+const nutritionProteinRemaining = document.getElementById('nutritionProteinRemaining');
+const nutritionCarbsRemaining = document.getElementById('nutritionCarbsRemaining');
+const nutritionFatRemaining = document.getElementById('nutritionFatRemaining');
+
+const nutritionMealFormTitle = document.getElementById('nutritionMealFormTitle');
+const nutritionFoodName = document.getElementById('nutritionFoodName');
+const nutritionMealType = document.getElementById('nutritionMealType');
+const nutritionCalories = document.getElementById('nutritionCalories');
+const nutritionProtein = document.getElementById('nutritionProtein');
+const nutritionCarbs = document.getElementById('nutritionCarbs');
+const nutritionFat = document.getElementById('nutritionFat');
+const nutritionNotes = document.getElementById('nutritionNotes');
+const nutritionSaveMealBtn = document.getElementById('nutritionSaveMealBtn');
+const nutritionCancelEditBtn = document.getElementById('nutritionCancelEditBtn');
+const nutritionFormStatus = document.getElementById('nutritionFormStatus');
+const nutritionMealsList = document.getElementById('nutritionMealsList');
+const nutritionMealCount = document.getElementById('nutritionMealCount');
+
+let nutritionSession = null;
+let nutritionTargets = {
+  calorie_target:0,
+  protein_target:0,
+  carbs_target:0,
+  fat_target:0
+};
+let nutritionRows = [];
+let nutritionMealEditId = null;
+
+function nutritionLocalDateString(date=new Date()){
+  const year = date.getFullYear();
+  const month = String(date.getMonth()+1).padStart(2,'0');
+  const day = String(date.getDate()).padStart(2,'0');
+  return `${year}-${month}-${day}`;
+}
+
+function nutritionDateFromIso(iso){
+  const parts = String(iso || '').split('-').map(Number);
+  if(parts.length !== 3 || parts.some(x => !Number.isFinite(x))) return new Date();
+  return new Date(parts[0],parts[1]-1,parts[2],12,0,0);
+}
+
+function nutritionShiftDate(iso,days){
+  const d = nutritionDateFromIso(iso);
+  d.setDate(d.getDate()+days);
+  return nutritionLocalDateString(d);
+}
+
+function nutritionNumber(value){
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+function nutritionFormat(value,maxDecimals=1){
+  const n = nutritionNumber(value);
+  if(Math.abs(n-Math.round(n)) < 0.00001) return String(Math.round(n));
+  return n.toFixed(maxDecimals).replace(/\.0$/,'');
+}
+
+function nutritionEscape(value){
+  return String(value ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#039;');
+}
+
+function setNutritionStatus(text='',type=''){
+  if(!nutritionFormStatus) return;
+  nutritionFormStatus.textContent = text;
+  nutritionFormStatus.className = `nutrition-status ${type || ''}`;
+}
+
+function updateNutritionDateLabels(){
+  if(!nutritionDate) return;
+
+  const selected = nutritionDate.value;
+  const today = nutritionLocalDateString();
+  const selectedDate = nutritionDateFromIso(selected);
+
+  const pretty = selectedDate.toLocaleDateString([],{
+    weekday:'short',month:'short',day:'numeric',year:selectedDate.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+  });
+
+  if(nutritionDateLabel){
+    nutritionDateLabel.textContent = selected === today ? 'Today' : pretty;
+  }
+  if(nutritionMealsDateLabel){
+    nutritionMealsDateLabel.textContent = selected === today ? 'today' : pretty;
+  }
+}
+
+function resetNutritionMealForm(){
+  nutritionMealEditId = null;
+  if(nutritionMealFormTitle) nutritionMealFormTitle.textContent = 'Add Meal';
+  if(nutritionFoodName) nutritionFoodName.value = '';
+  if(nutritionMealType) nutritionMealType.value = 'breakfast';
+  if(nutritionCalories) nutritionCalories.value = '';
+  if(nutritionProtein) nutritionProtein.value = '';
+  if(nutritionCarbs) nutritionCarbs.value = '';
+  if(nutritionFat) nutritionFat.value = '';
+  if(nutritionNotes) nutritionNotes.value = '';
+  if(nutritionSaveMealBtn) nutritionSaveMealBtn.textContent = 'Add meal';
+  nutritionCancelEditBtn?.classList.add('hidden');
+  setNutritionStatus('');
+}
+
+function renderNutritionTargets(){
+  const calories = nutritionNumber(nutritionTargets.calorie_target);
+  const protein = nutritionNumber(nutritionTargets.protein_target);
+  const carbs = nutritionNumber(nutritionTargets.carbs_target);
+  const fat = nutritionNumber(nutritionTargets.fat_target);
+
+  if(nutritionCaloriesTarget) nutritionCaloriesTarget.textContent = calories ? nutritionFormat(calories,0) : '—';
+  if(nutritionProteinTarget) nutritionProteinTarget.textContent = protein ? nutritionFormat(protein) : '—';
+  if(nutritionCarbsTarget) nutritionCarbsTarget.textContent = carbs ? nutritionFormat(carbs) : '—';
+  if(nutritionFatTarget) nutritionFatTarget.textContent = fat ? nutritionFormat(fat) : '—';
+
+  if(nutritionTargetCalories) nutritionTargetCalories.value = calories || '';
+  if(nutritionTargetProtein) nutritionTargetProtein.value = protein || '';
+  if(nutritionTargetCarbs) nutritionTargetCarbs.value = carbs || '';
+  if(nutritionTargetFat) nutritionTargetFat.value = fat || '';
+}
+
+function updateNutritionMacroCard(key,total,target,totalEl,progressEl,remainingEl){
+  if(totalEl) totalEl.textContent = nutritionFormat(total,key === 'calories' ? 0 : 1);
+
+  const card = progressEl?.closest('.nutrition-summary-card');
+  const hasTarget = target > 0;
+  const percent = hasTarget ? Math.min(100,(total/target)*100) : 0;
+  if(progressEl) progressEl.style.width = `${Math.max(0,percent)}%`;
+
+  card?.classList.toggle('over',hasTarget && total > target);
+
+  if(!remainingEl) return;
+
+  if(!hasTarget){
+    remainingEl.textContent = 'Set a target';
+    return;
+  }
+
+  const difference = target-total;
+  if(difference >= 0){
+    remainingEl.textContent =
+      `${nutritionFormat(difference,key === 'calories' ? 0 : 1)}${key === 'calories' ? '' : 'g'} remaining`;
+  }else{
+    remainingEl.textContent =
+      `${nutritionFormat(Math.abs(difference),key === 'calories' ? 0 : 1)}${key === 'calories' ? '' : 'g'} over target`;
+  }
+}
+
+function renderNutritionSummary(){
+  const totals = nutritionRows.reduce((sum,row) => {
+    sum.calories += nutritionNumber(row.calories);
+    sum.protein += nutritionNumber(row.protein_g);
+    sum.carbs += nutritionNumber(row.carbs_g);
+    sum.fat += nutritionNumber(row.fat_g);
+    return sum;
+  },{calories:0,protein:0,carbs:0,fat:0});
+
+  updateNutritionMacroCard(
+    'calories',
+    totals.calories,
+    nutritionNumber(nutritionTargets.calorie_target),
+    nutritionCaloriesTotal,
+    nutritionCaloriesProgress,
+    nutritionCaloriesRemaining
+  );
+  updateNutritionMacroCard(
+    'protein',
+    totals.protein,
+    nutritionNumber(nutritionTargets.protein_target),
+    nutritionProteinTotal,
+    nutritionProteinProgress,
+    nutritionProteinRemaining
+  );
+  updateNutritionMacroCard(
+    'carbs',
+    totals.carbs,
+    nutritionNumber(nutritionTargets.carbs_target),
+    nutritionCarbsTotal,
+    nutritionCarbsProgress,
+    nutritionCarbsRemaining
+  );
+  updateNutritionMacroCard(
+    'fat',
+    totals.fat,
+    nutritionNumber(nutritionTargets.fat_target),
+    nutritionFatTotal,
+    nutritionFatProgress,
+    nutritionFatRemaining
+  );
+}
+
+const NUTRITION_MEAL_GROUPS = [
+  ['breakfast','Breakfast'],
+  ['lunch','Lunch'],
+  ['dinner','Dinner'],
+  ['snack','Snacks']
+];
+
+function renderNutritionMeals(){
+  if(!nutritionMealsList) return;
+
+  if(nutritionMealCount){
+    nutritionMealCount.textContent =
+      `${nutritionRows.length} meal${nutritionRows.length === 1 ? '' : 's'} logged`;
+  }
+
+  if(!nutritionRows.length){
+    nutritionMealsList.innerHTML =
+      '<div class="nutrition-empty">No meals logged for this day yet.</div>';
+    renderNutritionSummary();
+    return;
+  }
+
+  nutritionMealsList.innerHTML = NUTRITION_MEAL_GROUPS.map(([key,label]) => {
+    const rows = nutritionRows.filter(row => row.meal_type === key);
+    if(!rows.length) return '';
+
+    const groupCalories = rows.reduce((sum,row) => sum + nutritionNumber(row.calories),0);
+
+    return `<div class="nutrition-meal-group">
+      <div class="nutrition-meal-group-title">
+        <span>${label}</span>
+        <span>${nutritionFormat(groupCalories,0)} cal</span>
+      </div>
+
+      ${rows.map(row => `
+        <div class="nutrition-meal-item" data-nutrition-meal-id="${Number(row.id)}">
+          <div>
+            <div class="nutrition-meal-name">${nutritionEscape(row.food_name || 'Meal')}</div>
+            ${row.notes ? `<div class="nutrition-meal-note">${nutritionEscape(row.notes)}</div>` : ''}
+            <div class="nutrition-meal-macros">
+              <span>${nutritionFormat(row.calories,0)} cal</span>
+              <span>${nutritionFormat(row.protein_g)}g protein</span>
+              <span>${nutritionFormat(row.carbs_g)}g carbs</span>
+              <span>${nutritionFormat(row.fat_g)}g fat</span>
+            </div>
+          </div>
+
+          <div class="nutrition-meal-actions">
+            <button type="button" data-nutrition-edit="${Number(row.id)}">Edit</button>
+            <button type="button" data-nutrition-delete="${Number(row.id)}">Delete</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+
+  renderNutritionSummary();
+}
+
+async function loadNutritionTargets(){
+  if(!nutritionDb || !nutritionSession?.user) return;
+
+  const {data,error} = await nutritionDb
+    .from('nutrition_targets')
+    .select('calorie_target,protein_target,carbs_target,fat_target')
+    .eq('user_id',nutritionSession.user.id)
+    .maybeSingle();
+
+  if(error){
+    console.error('Nutrition targets load error:',error);
+    return;
+  }
+
+  nutritionTargets = {
+    calorie_target:nutritionNumber(data?.calorie_target),
+    protein_target:nutritionNumber(data?.protein_target),
+    carbs_target:nutritionNumber(data?.carbs_target),
+    fat_target:nutritionNumber(data?.fat_target)
+  };
+
+  renderNutritionTargets();
+}
+
+async function loadNutritionMeals(){
+  if(!nutritionDb || !nutritionSession?.user || !nutritionDate?.value) return;
+
+  updateNutritionDateLabels();
+
+  const {data,error} = await nutritionDb
+    .from('meal_logs')
+    .select('id,user_id,meal_date,meal_type,food_name,calories,protein_g,carbs_g,fat_g,notes,created_at')
+    .eq('user_id',nutritionSession.user.id)
+    .eq('meal_date',nutritionDate.value)
+    .order('created_at',{ascending:true});
+
+  if(error){
+    console.error('Meal load error:',error);
+    if(nutritionMealsList){
+      nutritionMealsList.innerHTML = `<div class="nutrition-empty">${nutritionEscape(error.message)}</div>`;
+    }
+    return;
+  }
+
+  nutritionRows = data || [];
+  renderNutritionMeals();
+}
+
+async function refreshNutritionTracker(){
+  if(!nutritionSession?.user) return;
+  await Promise.all([loadNutritionTargets(),loadNutritionMeals()]);
+}
+
+async function setNutritionSession(session){
+  nutritionSession = session || null;
+
+  if(!nutritionSection) return;
+
+  if(!nutritionSession?.user){
+    nutritionSection.classList.add('hidden');
+    nutritionRows = [];
+    resetNutritionMealForm();
+    return;
+  }
+
+  nutritionSection.classList.remove('hidden');
+
+  if(!nutritionDate.value){
+    nutritionDate.value = nutritionLocalDateString();
+  }
+
+  await refreshNutritionTracker();
+}
+
+async function saveNutritionTargets(){
+  if(!nutritionSession?.user || !nutritionDb) return;
+
+  const values = {
+    user_id:nutritionSession.user.id,
+    calorie_target:nutritionNumber(nutritionTargetCalories?.value),
+    protein_target:nutritionNumber(nutritionTargetProtein?.value),
+    carbs_target:nutritionNumber(nutritionTargetCarbs?.value),
+    fat_target:nutritionNumber(nutritionTargetFat?.value),
+    updated_at:new Date().toISOString()
+  };
+
+  nutritionSaveTargetsBtn.disabled = true;
+
+  const {error} = await nutritionDb
+    .from('nutrition_targets')
+    .upsert(values,{onConflict:'user_id'});
+
+  nutritionSaveTargetsBtn.disabled = false;
+
+  if(error){
+    setNutritionStatus('Could not save targets: ' + error.message,'error');
+    return;
+  }
+
+  nutritionTargets = values;
+  renderNutritionTargets();
+  renderNutritionSummary();
+  nutritionTargetsForm?.classList.add('hidden');
+  setNutritionStatus('✓ Daily targets saved.','success');
+  setTimeout(() => {
+    if(nutritionFormStatus?.textContent === '✓ Daily targets saved.') setNutritionStatus('');
+  },2200);
+}
+
+function beginNutritionEdit(row){
+  if(!row) return;
+
+  nutritionMealEditId = Number(row.id);
+  nutritionMealFormTitle.textContent = 'Edit Meal';
+  nutritionFoodName.value = row.food_name || '';
+  nutritionMealType.value = row.meal_type || 'snack';
+  nutritionCalories.value = nutritionNumber(row.calories);
+  nutritionProtein.value = nutritionNumber(row.protein_g);
+  nutritionCarbs.value = nutritionNumber(row.carbs_g);
+  nutritionFat.value = nutritionNumber(row.fat_g);
+  nutritionNotes.value = row.notes || '';
+  nutritionSaveMealBtn.textContent = 'Update meal';
+  nutritionCancelEditBtn.classList.remove('hidden');
+  setNutritionStatus('');
+
+  document.querySelector('.nutrition-add-card')?.scrollIntoView({
+    behavior:'smooth',block:'center'
+  });
+}
+
+async function saveNutritionMeal(){
+  if(!nutritionSession?.user || !nutritionDb) return;
+
+  const foodName = String(nutritionFoodName?.value || '').trim();
+  if(!foodName){
+    setNutritionStatus('Add a food or meal name first.','error');
+    nutritionFoodName?.focus();
+    return;
+  }
+
+  const row = {
+    user_id:nutritionSession.user.id,
+    meal_date:nutritionDate.value || nutritionLocalDateString(),
+    meal_type:nutritionMealType.value || 'snack',
+    food_name:foodName,
+    calories:nutritionNumber(nutritionCalories.value),
+    protein_g:nutritionNumber(nutritionProtein.value),
+    carbs_g:nutritionNumber(nutritionCarbs.value),
+    fat_g:nutritionNumber(nutritionFat.value),
+    notes:String(nutritionNotes?.value || '').trim() || null,
+    updated_at:new Date().toISOString()
+  };
+
+  nutritionSaveMealBtn.disabled = true;
+  setNutritionStatus(nutritionMealEditId ? 'Updating meal...' : 'Adding meal...');
+
+  let result;
+
+  if(nutritionMealEditId){
+    result = await nutritionDb
+      .from('meal_logs')
+      .update(row)
+      .eq('id',nutritionMealEditId)
+      .eq('user_id',nutritionSession.user.id);
+  }else{
+    result = await nutritionDb
+      .from('meal_logs')
+      .insert(row);
+  }
+
+  nutritionSaveMealBtn.disabled = false;
+
+  if(result.error){
+    setNutritionStatus(result.error.message,'error');
+    return;
+  }
+
+  const wasEditing = !!nutritionMealEditId;
+  resetNutritionMealForm();
+  setNutritionStatus(wasEditing ? '✓ Meal updated.' : '✓ Meal added.','success');
+  await loadNutritionMeals();
+
+  setTimeout(() => {
+    if(nutritionFormStatus?.classList.contains('success')) setNutritionStatus('');
+  },1800);
+}
+
+async function deleteNutritionMeal(id){
+  if(!nutritionSession?.user || !nutritionDb || !id) return;
+  if(!confirm('Delete this meal from your nutrition log?')) return;
+
+  const {error} = await nutritionDb
+    .from('meal_logs')
+    .delete()
+    .eq('id',Number(id))
+    .eq('user_id',nutritionSession.user.id);
+
+  if(error){
+    setNutritionStatus(error.message,'error');
+    return;
+  }
+
+  if(Number(nutritionMealEditId) === Number(id)) resetNutritionMealForm();
+  await loadNutritionMeals();
+}
+
+nutritionEditTargetsBtn?.addEventListener('click',() => {
+  renderNutritionTargets();
+  nutritionTargetsForm?.classList.toggle('hidden');
+});
+nutritionCancelTargetsBtn?.addEventListener('click',() => {
+  nutritionTargetsForm?.classList.add('hidden');
+  renderNutritionTargets();
+});
+nutritionSaveTargetsBtn?.addEventListener('click',saveNutritionTargets);
+
+nutritionSaveMealBtn?.addEventListener('click',saveNutritionMeal);
+nutritionCancelEditBtn?.addEventListener('click',resetNutritionMealForm);
+
+nutritionMealsList?.addEventListener('click',(e) => {
+  const edit = e.target.closest('[data-nutrition-edit]');
+  if(edit){
+    const row = nutritionRows.find(x => Number(x.id) === Number(edit.dataset.nutritionEdit));
+    if(row) beginNutritionEdit(row);
+    return;
+  }
+
+  const del = e.target.closest('[data-nutrition-delete]');
+  if(del) deleteNutritionMeal(Number(del.dataset.nutritionDelete));
+});
+
+nutritionDate?.addEventListener('change',async () => {
+  resetNutritionMealForm();
+  await loadNutritionMeals();
+});
+nutritionPrevDay?.addEventListener('click',async () => {
+  nutritionDate.value = nutritionShiftDate(nutritionDate.value || nutritionLocalDateString(),-1);
+  resetNutritionMealForm();
+  await loadNutritionMeals();
+});
+nutritionNextDay?.addEventListener('click',async () => {
+  nutritionDate.value = nutritionShiftDate(nutritionDate.value || nutritionLocalDateString(),1);
+  resetNutritionMealForm();
+  await loadNutritionMeals();
+});
+nutritionTodayBtn?.addEventListener('click',async () => {
+  nutritionDate.value = nutritionLocalDateString();
+  resetNutritionMealForm();
+  await loadNutritionMeals();
+});
+
+if(nutritionDate) nutritionDate.value = nutritionLocalDateString();
+
+if(nutritionDb){
+  nutritionDb.auth.onAuthStateChange((_event,session) => {
+    setNutritionSession(session);
+  });
+
+  setTimeout(async () => {
+    const {data} = await nutritionDb.auth.getSession();
+    await setNutritionSession(data?.session || null);
+  },300);
+}
+
 
 
 const fpDb = window.gymcelsLolDb;
