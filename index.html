@@ -4084,6 +4084,110 @@ section{background:rgba(8,9,11,.60)}
   .site-update-admin-label small{display:block;margin-top:3px}
 }
 
+
+/* UPDATE BOARD TEXT FORMATTING */
+.site-update-format-toolbar{
+  display:grid;
+  grid-template-columns:minmax(150px,.7fr) minmax(210px,1.3fr);
+  gap:10px;
+  margin-top:9px;
+}
+.site-update-format-group{
+  padding:9px;
+  border:1px solid #292f37;
+  border-radius:9px;
+  background:#0b0f13;
+}
+.site-update-format-group>label{
+  display:block;
+  margin-bottom:6px;
+  color:#89939e;
+  font-size:7px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.site-update-format-group select{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #303741;
+  border-radius:8px;
+  background:#11161c;
+  color:#fff;
+  padding:8px 9px;
+  font:inherit;
+  font-size:9px;
+  font-weight:850;
+  outline:none;
+}
+.site-update-color-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.site-update-color-row input[type="color"]{
+  flex:0 0 auto;
+  width:42px;
+  height:33px;
+  padding:2px;
+  border:1px solid #343b45;
+  border-radius:8px;
+  background:#11161c;
+  cursor:pointer;
+}
+.site-update-color-presets{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.site-update-color-presets button{
+  width:25px;
+  height:25px;
+  padding:0;
+  border:2px solid #262d35;
+  border-radius:999px;
+  background:var(--swatch);
+  cursor:pointer;
+  box-shadow:0 0 0 1px rgba(255,255,255,.04);
+}
+.site-update-color-presets button:hover,
+.site-update-color-presets button.active{
+  border-color:#fff;
+  transform:scale(1.06);
+}
+.site-update-live-preview{
+  margin-top:9px;
+  padding:9px 10px;
+  border:1px dashed #2d353e;
+  border-radius:9px;
+  background:#0a0e12;
+}
+.site-update-live-preview>span{
+  display:block;
+  margin-bottom:5px;
+  color:#626d78;
+  font-size:7px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+#siteUpdatePreview{
+  color:#d8dde3;
+  font-size:16px;
+  line-height:1.5;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.site-update-message{
+  /* Inline safe admin-selected color/size overrides these defaults. */
+  color:#d8dde3;
+  font-size:16px;
+}
+
+@media(max-width:600px){
+  .site-update-format-toolbar{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -4273,6 +4377,37 @@ section{background:rgba(8,9,11,.60)}
     </div>
 
     <textarea id="siteUpdateInput" maxlength="1000" placeholder="Hey guys, I've improved the new UI..."></textarea>
+
+    <div class="site-update-format-toolbar">
+      <div class="site-update-format-group">
+        <label for="siteUpdateFontSize">Text size</label>
+        <select id="siteUpdateFontSize">
+          <option value="13">Small</option>
+          <option value="16" selected>Normal</option>
+          <option value="20">Large</option>
+          <option value="26">Extra Large</option>
+        </select>
+      </div>
+
+      <div class="site-update-format-group">
+        <label for="siteUpdateColor">Text color</label>
+        <div class="site-update-color-row">
+          <input id="siteUpdateColor" type="color" value="#d8dde3" aria-label="Update text color">
+          <div class="site-update-color-presets" aria-label="Quick colors">
+            <button type="button" data-update-color="#d8dde3" title="White" style="--swatch:#d8dde3"></button>
+            <button type="button" data-update-color="#ef4355" title="Gymcels red" style="--swatch:#ef4355"></button>
+            <button type="button" data-update-color="#ffd86b" title="Yellow" style="--swatch:#ffd86b"></button>
+            <button type="button" data-update-color="#67e8a5" title="Green" style="--swatch:#67e8a5"></button>
+            <button type="button" data-update-color="#7dd3fc" title="Blue" style="--swatch:#7dd3fc"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-update-live-preview">
+      <span>Preview</span>
+      <div id="siteUpdatePreview">Your update will look like this.</div>
+    </div>
 
     <div class="site-update-compose-actions">
       <span id="siteUpdateCharCount">0 / 1000</span>
@@ -7998,6 +8133,9 @@ const communitySection = document.getElementById('communitySection');
 const siteUpdateBoard = document.getElementById('siteUpdateBoard');
 const siteUpdateAdminComposer = document.getElementById('siteUpdateAdminComposer');
 const siteUpdateInput = document.getElementById('siteUpdateInput');
+const siteUpdateFontSize = document.getElementById('siteUpdateFontSize');
+const siteUpdateColor = document.getElementById('siteUpdateColor');
+const siteUpdatePreview = document.getElementById('siteUpdatePreview');
 const siteUpdatePostBtn = document.getElementById('siteUpdatePostBtn');
 const siteUpdateCharCount = document.getElementById('siteUpdateCharCount');
 const siteUpdateAdminStatus = document.getElementById('siteUpdateAdminStatus');
@@ -10592,6 +10730,38 @@ async function refreshSiteUpdateAdminUi(){
   }
 }
 
+
+function safeSiteUpdateFontSize(value){
+  const size = Number(value);
+  const allowed = [13,16,20,26];
+  return allowed.includes(size) ? size : 16;
+}
+
+function safeSiteUpdateColor(value){
+  const color = String(value || '').trim();
+  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#d8dde3';
+}
+
+function updateSiteUpdatePreview(){
+  if(!siteUpdatePreview) return;
+
+  const text = String(siteUpdateInput?.value || '').trim() ||
+    'Your update will look like this.';
+  const size = safeSiteUpdateFontSize(siteUpdateFontSize?.value);
+  const color = safeSiteUpdateColor(siteUpdateColor?.value);
+
+  siteUpdatePreview.textContent = text;
+  siteUpdatePreview.style.fontSize = `${size}px`;
+  siteUpdatePreview.style.color = color;
+
+  document.querySelectorAll('[data-update-color]').forEach(btn => {
+    btn.classList.toggle(
+      'active',
+      String(btn.dataset.updateColor || '').toLowerCase() === color.toLowerCase()
+    );
+  });
+}
+
 async function loadSiteUpdates(){
   const client = window.gymcelsLolDb;
   if(!client || !siteUpdatesList) return;
@@ -10600,7 +10770,7 @@ async function loadSiteUpdates(){
     const [updatesRes,isAdmin] = await Promise.all([
       client
         .from('site_updates')
-        .select('id,message,created_at')
+        .select('id,message,text_color,font_size,created_at')
         .order('created_at',{ascending:false})
         .limit(20),
       refreshSiteUpdateAdminUi()
@@ -10626,7 +10796,10 @@ async function loadSiteUpdates(){
           <div class="site-update-time">${escapeChat(siteUpdateTime(row.created_at))}</div>
         </div>
 
-        <div class="site-update-message">${escapeChat(row.message || '')}</div>
+        <div class="site-update-message"
+          style="color:${safeSiteUpdateColor(row.text_color)};font-size:${safeSiteUpdateFontSize(row.font_size)}px">
+          ${escapeChat(row.message || '')}
+        </div>
 
         ${isAdmin ? `
           <button class="site-update-delete" type="button" data-delete-site-update="${Number(row.id)}">
@@ -10647,6 +10820,8 @@ async function postSiteUpdate(){
   const client = window.gymcelsLolDb;
   const session = await getChatSession();
   const message = String(siteUpdateInput?.value || '').trim();
+  const textColor = safeSiteUpdateColor(siteUpdateColor?.value);
+  const fontSize = safeSiteUpdateFontSize(siteUpdateFontSize?.value);
 
   if(!client || !session?.user){
     setSiteUpdateStatus('Log in to post.','error');
@@ -10664,14 +10839,19 @@ async function postSiteUpdate(){
   setSiteUpdateStatus('Posting update...');
 
   try{
-    const {error} = await client.rpc('post_site_update',{
-      update_message:message
+    const {error} = await client.rpc('post_site_update_styled',{
+      update_message:message,
+      update_color:textColor,
+      update_font_size:fontSize
     });
 
     if(error) throw error;
 
     siteUpdateInput.value = '';
+    if(siteUpdateFontSize) siteUpdateFontSize.value = '16';
+    if(siteUpdateColor) siteUpdateColor.value = '#d8dde3';
     if(siteUpdateCharCount) siteUpdateCharCount.textContent = '0 / 1000';
+    updateSiteUpdatePreview();
     setSiteUpdateStatus('✓ Update posted.','success');
     await loadSiteUpdates();
   }catch(err){
@@ -10706,7 +10886,22 @@ siteUpdateInput?.addEventListener('input',() => {
     siteUpdateCharCount.textContent =
       `${siteUpdateInput.value.length} / 1000`;
   }
+  updateSiteUpdatePreview();
 });
+
+siteUpdateFontSize?.addEventListener('change',updateSiteUpdatePreview);
+siteUpdateColor?.addEventListener('input',updateSiteUpdatePreview);
+
+document.querySelectorAll('[data-update-color]').forEach(btn => {
+  btn.addEventListener('click',() => {
+    if(siteUpdateColor){
+      siteUpdateColor.value = safeSiteUpdateColor(btn.dataset.updateColor);
+      updateSiteUpdatePreview();
+    }
+  });
+});
+
+updateSiteUpdatePreview();
 
 siteUpdateInput?.addEventListener('keydown',(e) => {
   if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
