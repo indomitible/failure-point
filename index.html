@@ -2682,6 +2682,74 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* GYMCELS REACTIONS */
+.reaction-bar{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.reaction-btn{
+  min-width:34px;
+  height:29px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  border:1px solid #292f37;
+  border-radius:999px;
+  background:#11151a;
+  color:#abb3bd;
+  padding:0 8px;
+  font-family:inherit;
+  font-size:13px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:border-color .15s ease,background .15s ease,transform .15s ease;
+}
+.reaction-btn:hover{
+  border-color:#454e59;
+  background:#171c22;
+  transform:translateY(-1px);
+}
+.reaction-btn.active{
+  border-color:rgba(239,67,85,.62);
+  background:rgba(239,67,85,.13);
+  color:#fff;
+}
+.reaction-btn .reaction-count{
+  font-size:9px;
+  font-weight:900;
+  color:#89929e;
+}
+.reaction-btn.active .reaction-count{color:#ff9aa4}
+.reaction-btn.zero .reaction-count{display:none}
+.chat-reactions{margin-top:7px}
+.thread-card-reactions{margin-top:10px}
+.thread-card-reactions .reaction-btn{
+  height:27px;
+  min-width:32px;
+  padding:0 7px;
+  font-size:12px;
+}
+.reaction-bar-thread{
+  margin:9px 0 2px;
+}
+.thread-reply .reaction-bar{
+  margin-top:8px;
+}
+@media(max-width:650px){
+  .reaction-bar{gap:4px}
+  .reaction-btn{
+    min-width:32px;
+    height:28px;
+    padding:0 7px;
+    font-size:12px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2977,6 +3045,7 @@ section{background:rgba(8,9,11,.60)}
       <span id="threadViewTime"></span>
     </div>
     <div id="threadViewBody" class="thread-view-body"></div>
+    <div id="threadViewReactions" class="reaction-bar reaction-bar-thread"></div>
 
     <div id="threadOwnerActions" class="thread-owner-actions hidden">
       <button id="threadLockBtn" class="thread-secondary-btn" type="button">Lock Thread</button>
@@ -5994,6 +6063,154 @@ async function refreshChatAdminStatus(session){
   return chatIsSiteAdmin;
 }
 
+
+// ---- Reactions: chat messages, threads, and thread replies ----
+const GYMCELS_REACTIONS = ['❤️','🔥','💪','⬆️','👍','👎'];
+
+async function loadReactionState(targetType, targetIds, currentUserId=null){
+  const ids = [...new Set((targetIds || []).map(Number).filter(Boolean))];
+  const state = {};
+
+  ids.forEach(id => {
+    state[id] = {counts:{}, mine:null};
+    GYMCELS_REACTIONS.forEach(reaction => {
+      state[id].counts[reaction] = 0;
+    });
+  });
+
+  if(!ids.length) return state;
+
+  const client = window.gymcelsLolDb;
+  if(!client) return state;
+
+  const {data,error} = await client
+    .from('content_reactions')
+    .select('target_id,user_id,reaction')
+    .eq('target_type',targetType)
+    .in('target_id',ids);
+
+  if(error){
+    console.error('Reaction load error:',error);
+    return state;
+  }
+
+  (data || []).forEach(row => {
+    const id = Number(row.target_id);
+    if(!state[id]) return;
+
+    const reaction = String(row.reaction || '');
+    if(GYMCELS_REACTIONS.includes(reaction)){
+      state[id].counts[reaction] = Number(state[id].counts[reaction] || 0) + 1;
+      if(currentUserId && row.user_id === currentUserId){
+        state[id].mine = reaction;
+      }
+    }
+  });
+
+  return state;
+}
+
+function reactionBarHtml(targetType,targetId,reactionState={},extraClass=''){
+  const counts = reactionState?.counts || {};
+  const mine = reactionState?.mine || '';
+
+  return `<div class="reaction-bar ${extraClass}" data-reaction-bar="${escapeChat(targetType)}:${Number(targetId)}">
+    ${GYMCELS_REACTIONS.map(reaction => {
+      const count = Number(counts[reaction] || 0);
+      const active = mine === reaction;
+
+      return `<button
+        class="reaction-btn ${active ? 'active' : ''} ${count ? '' : 'zero'}"
+        type="button"
+        data-react-type="${escapeChat(targetType)}"
+        data-react-id="${Number(targetId)}"
+        data-react-value="${reaction}"
+        aria-pressed="${active ? 'true' : 'false'}"
+        title="${active ? 'Remove your reaction' : 'React'}">
+          <span>${reaction}</span>
+          <span class="reaction-count">${count}</span>
+        </button>`;
+    }).join('')}
+  </div>`;
+}
+
+async function toggleGymcelsReaction(targetType,targetId,reaction){
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client) return;
+
+  if(!session?.user){
+    const login = document.getElementById('login-card');
+    login?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  const {error} = await client.rpc('toggle_content_reaction',{
+    reaction_target_type:targetType,
+    reaction_target_id:Number(targetId),
+    reaction_value:reaction
+  });
+
+  if(error){
+    console.error('Reaction update error:',error);
+
+    if(targetType === 'chat'){
+      setChatStatus('Reaction failed: ' + error.message,'error');
+    }else{
+      setThreadStatus(threadReplyStatus || threadsStatus,'Reaction failed: ' + error.message,'error');
+    }
+    return;
+  }
+
+  if(targetType === 'chat'){
+    await loadCommunityChat(false);
+    return;
+  }
+
+  if(targetType === 'thread'){
+    await loadThreads();
+
+    if(activeThread && Number(activeThread.id) === Number(targetId)){
+      const reactionMap = await loadReactionState('thread',[targetId],session.user.id);
+      if(threadViewReactions){
+        threadViewReactions.innerHTML = reactionBarHtml(
+          'thread',
+          targetId,
+          reactionMap[Number(targetId)] || {},
+          'reaction-bar-thread'
+        );
+      }
+    }
+    return;
+  }
+
+  if(targetType === 'thread_reply' && activeThread){
+    await loadThreadReplies(activeThread.id);
+  }
+}
+
+document.addEventListener('click',async (e) => {
+  const btn = e.target.closest('[data-react-type][data-react-id][data-react-value]');
+  if(!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  btn.disabled = true;
+
+  try{
+    await toggleGymcelsReaction(
+      btn.dataset.reactType,
+      Number(btn.dataset.reactId),
+      btn.dataset.reactValue
+    );
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+
 async function loadCommunityChat(scrollToBottom=false){
   try{
     const client = window.gymcelsLolDb;
@@ -6075,6 +6292,12 @@ async function loadCommunityChat(scrollToBottom=false){
       row.is_vip = !!vipMap[row.user_id];
     });
 
+    const chatReactionMap = await loadReactionState(
+      'chat',
+      rows.map(row => row.id),
+      signedIn ? session.user.id : null
+    );
+
     if(!rows.length){
       chatMessages.innerHTML =
         '<div class="chat-empty">No messages yet — start the conversation.</div>';
@@ -6118,6 +6341,12 @@ async function loadCommunityChat(scrollToBottom=false){
               </div>
               ${quotedReply}
               <div class="chat-text">${chatTextWithMentions(row.message)}</div>
+              ${reactionBarHtml(
+                'chat',
+                row.id,
+                chatReactionMap[Number(row.id)] || {},
+                'chat-reactions'
+              )}
             </div>
           </div>
         </div>`;
@@ -6518,6 +6747,7 @@ const threadViewTitle = document.getElementById('threadViewTitle');
 const threadViewAuthor = document.getElementById('threadViewAuthor');
 const threadViewTime = document.getElementById('threadViewTime');
 const threadViewBody = document.getElementById('threadViewBody');
+const threadViewReactions = document.getElementById('threadViewReactions');
 const threadOwnerActions = document.getElementById('threadOwnerActions');
 const threadLockBtn = document.getElementById('threadLockBtn');
 const threadDeleteBtn = document.getElementById('threadDeleteBtn');
@@ -6632,10 +6862,17 @@ async function loadThreads(){
     }
   }
 
+  const threadSession = await getChatSession();
+  const threadReactionMap = await loadReactionState(
+    'thread',
+    ids,
+    threadSession?.user?.id || null
+  );
+
   threadsList.innerHTML = threadRows.map(row => {
     const preview = String(row.body || '').replace(/\s+/g,' ').trim();
     return `
-      <button class="thread-card" type="button" data-open-thread="${row.id}">
+      <div class="thread-card" role="button" tabindex="0" data-open-thread="${row.id}">
         <div class="thread-card-top">
           <span class="thread-category">${escapeChat(row.category || 'General')}</span>
           <span class="thread-card-time">${escapeChat(threadTime(row.created_at))}</span>
@@ -6647,7 +6884,13 @@ async function loadThreads(){
           <span>${Number(counts[row.id] || 0)} ${Number(counts[row.id] || 0) === 1 ? 'reply' : 'replies'}</span>
           ${row.is_locked ? '<span class="thread-card-locked">🔒 Locked</span>' : ''}
         </div>
-      </button>`;
+        ${reactionBarHtml(
+          'thread',
+          row.id,
+          threadReactionMap[Number(row.id)] || {},
+          'thread-card-reactions'
+        )}
+      </div>`;
   }).join('');
 
   setThreadStatus(threadsStatus, '');
@@ -6811,6 +7054,12 @@ async function loadThreadReplies(threadId){
   const rowMap = new Map(rows.map(row => [Number(row.id),row]));
   const canReply = !!me && !activeThread?.is_locked;
 
+  const threadReplyReactionMap = await loadReactionState(
+    'thread_reply',
+    rows.map(row => row.id),
+    me
+  );
+
   threadReplies.innerHTML = rows.map(row => {
     const canDelete = !!me && (row.author_id === me || chatIsSiteAdmin);
     const quoted = row.reply_to_id ? rowMap.get(Number(row.reply_to_id)) : null;
@@ -6834,6 +7083,12 @@ async function loadThreadReplies(threadId){
         </div>
 
         <div class="thread-reply-body">${chatTextWithMentions(row.body || '')}</div>
+
+        ${reactionBarHtml(
+          'thread_reply',
+          row.id,
+          threadReplyReactionMap[Number(row.id)] || {}
+        )}
 
         ${(canReply || canDelete) ? `
           <div class="thread-reply-actions">
@@ -6881,6 +7136,21 @@ async function openThread(threadId){
   threadViewAuthor.textContent = data.author_name || 'Member';
   threadViewTime.textContent = threadTime(data.created_at);
   threadViewBody.textContent = data.body || '';
+
+  const threadViewReactionMap = await loadReactionState(
+    'thread',
+    [data.id],
+    session?.user?.id || null
+  );
+
+  if(threadViewReactions){
+    threadViewReactions.innerHTML = reactionBarHtml(
+      'thread',
+      data.id,
+      threadViewReactionMap[Number(data.id)] || {},
+      'reaction-bar-thread'
+    );
+  }
 
   const canManage = !!session?.user && (data.author_id === session.user.id || chatIsSiteAdmin);
   threadOwnerActions.classList.toggle('hidden', !canManage);
@@ -7071,8 +7341,21 @@ if(threadFilters){
 
 if(threadsList){
   threadsList.addEventListener('click', (e) => {
+    if(e.target.closest('[data-react-type]')) return;
+
     const card = e.target.closest('[data-open-thread]');
     if(card) openThread(Number(card.dataset.openThread));
+  });
+
+  threadsList.addEventListener('keydown',(e) => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    if(e.target.closest('[data-react-type]')) return;
+
+    const card = e.target.closest('[data-open-thread]');
+    if(card){
+      e.preventDefault();
+      openThread(Number(card.dataset.openThread));
+    }
   });
 }
 
