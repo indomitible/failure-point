@@ -2097,6 +2097,421 @@ section{background:rgba(8,9,11,.60)}
   cursor:not-allowed;
 }
 
+
+/* CLEAN MOBILE APP NAVIGATION */
+.mobile-header-actions,
+.mobile-bottom-nav,
+.mobile-nav-backdrop,
+.mobile-nav-drawer{
+  display:none;
+}
+
+@media(max-width:800px){
+  :root{
+    --mobile-nav-h:68px;
+  }
+
+  body{
+    padding-bottom:calc(var(--mobile-nav-h) + env(safe-area-inset-bottom,0px));
+  }
+
+  .wrap{
+    width:min(100% - 22px,var(--max));
+  }
+
+  .topbar{
+    z-index:180;
+    background:rgba(10,11,14,.94);
+    border-bottom-color:#22262d;
+    backdrop-filter:blur(18px) saturate(135%);
+  }
+
+  .topbar .nav{
+    min-height:58px;
+    padding:0;
+    align-items:center;
+  }
+
+  .brand{
+    font-size:17px;
+    letter-spacing:-.025em;
+  }
+
+  /* Desktop links collapse into a clean app-style mobile nav. */
+  .topbar .nav-actions{
+    display:none!important;
+  }
+
+  .mobile-header-actions{
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+
+  .mobile-header-btn{
+    position:relative;
+    width:38px;
+    height:38px;
+    display:grid;
+    place-items:center;
+    border:1px solid #292e36;
+    border-radius:12px;
+    background:#14171c;
+    color:#f4f4f2;
+    font:inherit;
+    font-size:15px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  .mobile-header-badge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    min-width:18px;
+    height:18px;
+    padding:0 4px;
+    display:grid;
+    place-items:center;
+    border-radius:999px;
+    background:var(--red);
+    border:2px solid #0b0c0e;
+    color:#fff;
+    font-size:8px;
+    font-weight:950;
+  }
+
+  .mobile-bottom-nav{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    position:fixed;
+    z-index:175;
+    left:8px;
+    right:8px;
+    bottom:max(8px,env(safe-area-inset-bottom,0px));
+    min-height:58px;
+    padding:5px;
+    border:1px solid rgba(54,60,70,.78);
+    border-radius:18px;
+    background:rgba(13,15,19,.94);
+    box-shadow:0 18px 50px rgba(0,0,0,.50);
+    backdrop-filter:blur(18px) saturate(140%);
+  }
+
+  .mobile-bottom-item{
+    min-width:0;
+    border:0;
+    border-radius:13px;
+    background:transparent;
+    color:#7f8792;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    padding:5px 2px;
+    font-family:inherit;
+    font-size:8px;
+    font-weight:850;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  .mobile-bottom-icon{
+    height:21px;
+    display:grid;
+    place-items:center;
+    color:#aab0b9;
+    font-size:17px;
+    line-height:1;
+    font-weight:900;
+  }
+
+  .mobile-bottom-item.active{
+    background:rgba(239,67,85,.11);
+    color:#fff;
+  }
+
+  .mobile-bottom-item.active .mobile-bottom-icon{
+    color:#ff6977;
+  }
+
+  .mobile-dots{
+    letter-spacing:1px;
+    font-size:15px;
+  }
+
+  .mobile-nav-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:188;
+    background:rgba(0,0,0,.56);
+    backdrop-filter:blur(3px);
+  }
+
+  .mobile-nav-backdrop.open{
+    display:block;
+  }
+
+  .mobile-nav-drawer{
+    display:block;
+    position:fixed;
+    z-index:190;
+    left:8px;
+    right:8px;
+    bottom:calc(max(8px,env(safe-area-inset-bottom,0px)) + 64px);
+    max-height:min(72vh,560px);
+    overflow:auto;
+    padding:9px 12px 14px;
+    border:1px solid #303640;
+    border-radius:21px;
+    background:rgba(15,17,21,.985);
+    box-shadow:0 24px 90px rgba(0,0,0,.72);
+    transform:translateY(calc(100% + 100px));
+    opacity:0;
+    pointer-events:none;
+    transition:transform .22s ease,opacity .18s ease;
+  }
+
+  .mobile-nav-drawer.open{
+    transform:translateY(0);
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  .mobile-drawer-handle{
+    width:34px;
+    height:4px;
+    margin:1px auto 10px;
+    border-radius:999px;
+    background:#3c424b;
+  }
+
+  .mobile-drawer-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:2px 2px 12px;
+  }
+
+  .mobile-drawer-head strong{
+    display:block;
+    font-size:16px;
+    letter-spacing:-.02em;
+  }
+
+  .mobile-drawer-head strong span{
+    color:var(--red);
+  }
+
+  .mobile-drawer-head small{
+    display:block;
+    margin-top:1px;
+    color:#747d88;
+    font-size:9px;
+  }
+
+  .mobile-drawer-head button{
+    width:34px;
+    height:34px;
+    border:1px solid #303640;
+    border-radius:11px;
+    background:#1a1e24;
+    color:#fff;
+    font-size:18px;
+    cursor:pointer;
+  }
+
+  .mobile-drawer-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+  }
+
+  .mobile-drawer-link{
+    min-height:51px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:1px solid #262b32;
+    border-radius:13px;
+    background:#12151a;
+    color:#f1f3f6;
+    padding:10px 11px;
+    text-align:left;
+    font-family:inherit;
+    cursor:pointer;
+  }
+
+  .mobile-drawer-link span{
+    width:27px;
+    height:27px;
+    display:grid;
+    place-items:center;
+    flex:0 0 auto;
+    border-radius:9px;
+    background:#1c2026;
+    color:#aab2bd;
+    font-size:13px;
+    font-weight:900;
+  }
+
+  .mobile-drawer-link b{
+    font-size:10px;
+    font-weight:900;
+  }
+
+  .mobile-drawer-link.danger{
+    color:#ff8b96;
+  }
+
+  .mobile-drawer-link.mobile-source-hidden{
+    display:none;
+  }
+
+  .mobile-drawer-buy{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:9px;
+    min-height:44px;
+    border-radius:13px;
+    background:var(--red);
+    color:#fff;
+    text-decoration:none;
+    font-size:10px;
+    font-weight:950;
+    box-shadow:0 10px 28px rgba(228,63,77,.17);
+  }
+
+  /* Replace the old floating buy bar with the new navigation. */
+  .mobile-buy{
+    display:none!important;
+  }
+
+  footer{
+    padding-bottom:24px;
+  }
+
+  /* Cleaner mobile content spacing / card language */
+  section{
+    padding:38px 0;
+  }
+
+  .hero{
+    padding-top:34px;
+    padding-bottom:28px;
+    gap:20px;
+  }
+
+  h1{
+    font-size:clamp(43px,15vw,68px);
+    margin-bottom:14px;
+  }
+
+  h2{
+    font-size:clamp(29px,10vw,42px);
+  }
+
+  .hero p{
+    margin-bottom:18px;
+  }
+
+  .hero-actions{
+    gap:9px;
+  }
+
+  .hero-actions .btn{
+    min-height:46px;
+    padding:12px 15px;
+    border-radius:13px;
+    font-size:12px;
+  }
+
+  .chat-shell,
+  .threads-shell,
+  .voice-shell,
+  .friends-shell,
+  .dm-shell,
+  .member-shell,
+  .profile-shell,
+  .final-inner,
+  .personal-card{
+    border-radius:17px!important;
+  }
+
+  .chat-shell,
+  .threads-shell,
+  .voice-shell{
+    padding:15px!important;
+  }
+
+  .member-shell{
+    padding:16px 13px!important;
+  }
+
+  .notification-panel{
+    z-index:220;
+    top:64px;
+    left:8px;
+    right:8px;
+    width:auto;
+    max-height:calc(100dvh - 148px);
+    border-radius:18px;
+  }
+
+  .notification-list{
+    max-height:calc(100dvh - 285px);
+  }
+
+  .chat-messages,
+  .dm-messages{
+    scrollbar-width:thin;
+  }
+
+  input,textarea,select,button{
+    font-size:16px;
+  }
+
+  /* Avoid iOS zoom while retaining the site's compact labels. */
+  .chat-compose input,
+  .dm-compose input,
+  .field input,
+  .field textarea,
+  .thread-composer input,
+  .thread-composer textarea{
+    font-size:16px!important;
+  }
+}
+
+@media(max-width:420px){
+  .wrap{
+    width:calc(100% - 18px);
+  }
+
+  .mobile-bottom-nav{
+    left:6px;
+    right:6px;
+  }
+
+  .mobile-bottom-item{
+    font-size:7.5px;
+  }
+
+  .mobile-drawer-grid{
+    gap:6px;
+  }
+
+  .mobile-drawer-link{
+    padding:9px;
+  }
+
+  .mobile-drawer-link b{
+    font-size:9px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2128,6 +2543,14 @@ section{background:rgba(8,9,11,.60)}
       <a class="nav-link hidden" id="navWorkouts" href="#members">My Workouts</a>
       <button class="nav-link hidden" id="navLogout" type="button" style="color:inherit;cursor:pointer;font-family:inherit">Log Out</button>
     </div>
+
+    <div class="mobile-header-actions" aria-label="Mobile actions">
+      <button id="mobileNotificationBtn" class="mobile-header-btn hidden" type="button" aria-label="Notifications">
+        <span aria-hidden="true">🔔</span>
+        <span id="mobileNotificationBadge" class="mobile-header-badge hidden">0</span>
+      </button>
+      <button id="mobileMoreTopBtn" class="mobile-header-btn" type="button" aria-label="Open menu">☰</button>
+    </div>
   </div>
 </header>
 
@@ -2150,6 +2573,71 @@ section{background:rgba(8,9,11,.60)}
     <div class="notification-empty">No notifications yet.</div>
   </div>
 </div>
+
+<nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="Mobile navigation">
+  <button class="mobile-bottom-item" type="button" data-mobile-proxy="navChat" data-mobile-section="communitySection">
+    <span class="mobile-bottom-icon" aria-hidden="true">💬</span>
+    <span>Chat</span>
+  </button>
+  <button class="mobile-bottom-item" type="button" data-mobile-proxy="navThreads" data-mobile-section="threadsSection">
+    <span class="mobile-bottom-icon" aria-hidden="true">▤</span>
+    <span>Threads</span>
+  </button>
+  <button class="mobile-bottom-item" type="button" data-mobile-proxy="navDms" data-mobile-section="dmSection">
+    <span class="mobile-bottom-icon" aria-hidden="true">✉</span>
+    <span>DMs</span>
+  </button>
+  <button class="mobile-bottom-item" type="button" data-mobile-proxy="navVoice" data-mobile-section="voiceSection">
+    <span class="mobile-bottom-icon" aria-hidden="true">◉</span>
+    <span>Voice</span>
+  </button>
+  <button id="mobileMoreBtn" class="mobile-bottom-item" type="button">
+    <span class="mobile-bottom-icon mobile-dots" aria-hidden="true">•••</span>
+    <span>More</span>
+  </button>
+</nav>
+
+<div id="mobileNavBackdrop" class="mobile-nav-backdrop" aria-hidden="true"></div>
+
+<aside id="mobileNavDrawer" class="mobile-nav-drawer" aria-hidden="true" aria-label="More navigation">
+  <div class="mobile-drawer-handle" aria-hidden="true"></div>
+  <div class="mobile-drawer-head">
+    <div>
+      <strong>GYMCELS<span>.LOL</span></strong>
+      <small>Community menu</small>
+    </div>
+    <button id="mobileNavClose" type="button" aria-label="Close menu">×</button>
+  </div>
+
+  <div class="mobile-drawer-grid">
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navFriends">
+      <span>👥</span><b>Friends</b>
+    </button>
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navWorkouts">
+      <span>✓</span><b>My Workouts</b>
+    </button>
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navEditProfile">
+      <span>◎</span><b>Edit Profile</b>
+    </button>
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navVip">
+      <span>🔱</span><b>VIP</b>
+    </button>
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navSupport">
+      <span>?</span><b>Support</b>
+    </button>
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navLogin">
+      <span>→</span><b>Log In</b>
+    </button>
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navSignup">
+      <span>＋</span><b>Sign Up</b>
+    </button>
+    <button class="mobile-drawer-link danger" type="button" data-mobile-proxy="navLogout">
+      <span>↪</span><b>Log Out</b>
+    </button>
+  </div>
+
+  <a class="mobile-drawer-buy" href="https://payhip.com/b/ijVdM">Get the Gymcel Protocol →</a>
+</aside>
 
 <main>
   <section style="border-top:0">
@@ -8367,6 +8855,167 @@ if(removeProfilePhotoBtn){
     await removeProfilePhoto();
   });
 }
+
+
+// ---- Clean mobile navigation ----
+const mobileBottomNav = document.getElementById('mobileBottomNav');
+const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+const mobileMoreTopBtn = document.getElementById('mobileMoreTopBtn');
+const mobileNavDrawer = document.getElementById('mobileNavDrawer');
+const mobileNavBackdrop = document.getElementById('mobileNavBackdrop');
+const mobileNavClose = document.getElementById('mobileNavClose');
+const mobileNotificationBtn = document.getElementById('mobileNotificationBtn');
+const mobileNotificationBadge = document.getElementById('mobileNotificationBadge');
+
+function openMobileNavDrawer(){
+  mobileNavDrawer?.classList.add('open');
+  mobileNavBackdrop?.classList.add('open');
+  mobileNavDrawer?.setAttribute('aria-hidden','false');
+  mobileNavBackdrop?.setAttribute('aria-hidden','false');
+  mobileMoreBtn?.classList.add('active');
+}
+
+function closeMobileNavDrawer(){
+  mobileNavDrawer?.classList.remove('open');
+  mobileNavBackdrop?.classList.remove('open');
+  mobileNavDrawer?.setAttribute('aria-hidden','true');
+  mobileNavBackdrop?.setAttribute('aria-hidden','true');
+  mobileMoreBtn?.classList.remove('active');
+}
+
+function activateExistingNav(sourceId){
+  const source = document.getElementById(sourceId);
+
+  // Auth-only controls are hidden by the existing site logic.
+  // If tapped while hidden, send the user to the normal login control.
+  if(!source || source.classList.contains('hidden')){
+    const login = document.getElementById('navLogin');
+    if(login && !login.classList.contains('hidden')) login.click();
+    closeMobileNavDrawer();
+    return;
+  }
+
+  source.click();
+  closeMobileNavDrawer();
+}
+
+document.querySelectorAll('[data-mobile-proxy]').forEach(btn => {
+  btn.addEventListener('click',e => {
+    e.preventDefault();
+    activateExistingNav(btn.dataset.mobileProxy);
+  });
+});
+
+mobileMoreBtn?.addEventListener('click',() => {
+  if(mobileNavDrawer?.classList.contains('open')) closeMobileNavDrawer();
+  else openMobileNavDrawer();
+});
+
+mobileMoreTopBtn?.addEventListener('click',() => {
+  if(mobileNavDrawer?.classList.contains('open')) closeMobileNavDrawer();
+  else openMobileNavDrawer();
+});
+
+mobileNavClose?.addEventListener('click',closeMobileNavDrawer);
+mobileNavBackdrop?.addEventListener('click',closeMobileNavDrawer);
+
+document.addEventListener('keydown',e => {
+  if(e.key === 'Escape') closeMobileNavDrawer();
+});
+
+mobileNotificationBtn?.addEventListener('click',() => {
+  const source = document.getElementById('navNotifications');
+  if(source && !source.classList.contains('hidden')) source.click();
+});
+
+function syncMobileNavState(){
+  const notificationSource = document.getElementById('navNotifications');
+  const desktopBadge = document.getElementById('notificationBadge');
+
+  if(mobileNotificationBtn && notificationSource){
+    mobileNotificationBtn.classList.toggle('hidden',notificationSource.classList.contains('hidden'));
+  }
+
+  if(mobileNotificationBadge && desktopBadge){
+    const count = desktopBadge.textContent || '0';
+    mobileNotificationBadge.textContent = count;
+    mobileNotificationBadge.classList.toggle(
+      'hidden',
+      desktopBadge.classList.contains('hidden') || Number(count) <= 0
+    );
+  }
+
+  document.querySelectorAll('.mobile-drawer-link[data-mobile-proxy]').forEach(proxy => {
+    const source = document.getElementById(proxy.dataset.mobileProxy);
+    proxy.classList.toggle('mobile-source-hidden',!!source?.classList.contains('hidden'));
+  });
+}
+
+const mobileNavWatchTargets = [
+  'navNotifications','notificationBadge','navLogin','navSignup',
+  'navEditProfile','navWorkouts','navLogout'
+].map(id => document.getElementById(id)).filter(Boolean);
+
+const mobileNavMutationObserver = new MutationObserver(syncMobileNavState);
+mobileNavWatchTargets.forEach(el => {
+  mobileNavMutationObserver.observe(el,{
+    attributes:true,
+    attributeFilter:['class'],
+    childList:true,
+    characterData:true,
+    subtree:true
+  });
+});
+
+syncMobileNavState();
+
+const mobileSectionButtons = [...document.querySelectorAll('.mobile-bottom-item[data-mobile-section]')];
+
+function updateMobileActiveNav(){
+  if(window.innerWidth > 800) return;
+
+  let best = null;
+  let bestDistance = Infinity;
+  const anchorY = 110;
+
+  mobileSectionButtons.forEach(btn => {
+    const section = document.getElementById(btn.dataset.mobileSection);
+    if(!section || getComputedStyle(section).display === 'none') return;
+
+    const rect = section.getBoundingClientRect();
+    const visible = rect.bottom > anchorY && rect.top < window.innerHeight;
+
+    if(visible){
+      const distance = Math.abs(rect.top - anchorY);
+      if(distance < bestDistance){
+        bestDistance = distance;
+        best = btn;
+      }
+    }
+  });
+
+  mobileSectionButtons.forEach(btn => btn.classList.toggle('active',btn === best));
+}
+
+let mobileNavScrollTick = false;
+window.addEventListener('scroll',() => {
+  if(mobileNavScrollTick) return;
+  mobileNavScrollTick = true;
+  requestAnimationFrame(() => {
+    updateMobileActiveNav();
+    mobileNavScrollTick = false;
+  });
+},{passive:true});
+
+window.addEventListener('resize',() => {
+  if(window.innerWidth > 800) closeMobileNavDrawer();
+  updateMobileActiveNav();
+});
+
+setTimeout(() => {
+  syncMobileNavState();
+  updateMobileActiveNav();
+},300);
 
 </script>
 
