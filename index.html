@@ -4590,6 +4590,377 @@ section{background:rgba(8,9,11,.60)}
   font-size:7px;
 }
 
+
+/* REPORTING SYSTEM — isolated from community startup */
+.content-report-btn{
+  border:1px solid #343b45;
+  border-radius:8px;
+  background:#171c22;
+  color:#9ca6b1;
+  padding:6px 9px;
+  font:inherit;
+  font-size:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.content-report-btn:hover{
+  border-color:rgba(239,67,85,.48);
+  color:#ff929d;
+}
+.chat-message-actions .content-report-btn,
+.thread-reply-actions .content-report-btn{
+  border:0;
+  background:transparent;
+  padding:0;
+  color:#747e89;
+  font-size:9px;
+}
+.chat-message-actions .content-report-btn:hover,
+.thread-reply-actions .content-report-btn:hover{
+  color:#ff929d;
+}
+.thread-view-social-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex:0 0 auto;
+}
+
+.content-report-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:25000;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.80);
+}
+.content-report-overlay.show{display:flex}
+.content-report-dialog{
+  position:relative;
+  width:min(470px,100%);
+  box-sizing:border-box;
+  border:1px solid #303741;
+  border-radius:16px;
+  background:#101419;
+  padding:18px;
+  box-shadow:0 28px 100px rgba(0,0,0,.62);
+}
+.content-report-close{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:32px;
+  height:32px;
+  border:1px solid #303741;
+  border-radius:8px;
+  background:#171c22;
+  color:#fff;
+  font-size:17px;
+  cursor:pointer;
+}
+.content-report-kicker{
+  color:#ef4355;
+  font-size:7px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+}
+.content-report-dialog h3{
+  margin:4px 42px 2px 0;
+  color:#fff;
+  font-size:19px;
+}
+.content-report-target{
+  margin-bottom:12px;
+  color:#7e8894;
+  font-size:9px;
+}
+.content-report-dialog label{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-top:9px;
+}
+.content-report-dialog label>span{
+  color:#afb7c0;
+  font-size:8px;
+  font-weight:900;
+}
+.content-report-dialog label small{
+  color:#68737e;
+  font-weight:700;
+}
+.content-report-dialog select,
+.content-report-dialog textarea{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #303741;
+  border-radius:9px;
+  background:#090c10;
+  color:#fff;
+  padding:10px;
+  font:inherit;
+  font-size:10px;
+  outline:none;
+}
+.content-report-dialog textarea{
+  min-height:92px;
+  resize:vertical;
+}
+.content-report-dialog select:focus,
+.content-report-dialog textarea:focus{border-color:#ef4355}
+.content-report-note{
+  margin-top:8px;
+  color:#697480;
+  font-size:8px;
+}
+.content-report-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
+  margin-top:12px;
+}
+.content-report-actions button{
+  border:1px solid #303741;
+  border-radius:8px;
+  background:#171c22;
+  color:#d5dbe2;
+  padding:8px 11px;
+  font:inherit;
+  font-size:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.content-report-actions button.primary{
+  border-color:#ef4355;
+  background:#ef4355;
+  color:#fff;
+}
+.content-report-actions button:disabled{opacity:.55;cursor:default}
+.content-report-status{
+  min-height:14px;
+  margin-top:7px;
+  color:#7f8995;
+  font-size:8px;
+}
+.content-report-status.success{color:#67e8a5}
+.content-report-status.error{color:#ff7c89}
+
+/* Staff report inbox */
+.staff-reports-panel{
+  margin-top:16px;
+  padding:15px;
+  border:1px solid #2b323a;
+  border-radius:14px;
+  background:linear-gradient(180deg,#11151a,#0b0e12);
+}
+.staff-reports-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.staff-reports-kicker{
+  color:#ef4355;
+  font-size:8px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+}
+.staff-reports-title{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:3px;
+  color:#fff;
+  font-size:17px;
+  font-weight:950;
+}
+.staff-reports-count{
+  display:inline-grid;
+  place-items:center;
+  min-width:21px;
+  height:21px;
+  box-sizing:border-box;
+  padding:0 6px;
+  border-radius:999px;
+  background:#ef4355;
+  color:#fff;
+  font-size:8px;
+}
+.staff-reports-sub{
+  margin-top:4px;
+  color:#7f8995;
+  font-size:9px;
+}
+.staff-reports-head>button{
+  border:1px solid #303741;
+  border-radius:8px;
+  background:#191f25;
+  color:#fff;
+  padding:8px 10px;
+  font:inherit;
+  font-size:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.staff-reports-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:11px;
+}
+.staff-report-card{
+  padding:11px;
+  border:1px solid #282f37;
+  border-radius:10px;
+  background:#0c1014;
+}
+.staff-report-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.staff-report-type{
+  color:#fff;
+  font-size:10px;
+  font-weight:950;
+}
+.staff-report-time{
+  color:#66717c;
+  font-size:7px;
+  white-space:nowrap;
+}
+.staff-report-meta{
+  margin-top:3px;
+  color:#818b96;
+  font-size:8px;
+}
+.staff-report-reason{
+  display:inline-flex;
+  margin-top:7px;
+  padding:3px 6px;
+  border:1px solid rgba(239,67,85,.28);
+  border-radius:999px;
+  background:rgba(239,67,85,.07);
+  color:#ff929d;
+  font-size:7px;
+  font-weight:900;
+}
+.staff-report-preview{
+  margin-top:7px;
+  padding:8px;
+  border:1px solid #242b33;
+  border-radius:8px;
+  background:#080b0e;
+  color:#aeb6c0;
+  font-size:8px;
+  line-height:1.45;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.staff-report-details{
+  margin-top:6px;
+  color:#909aa5;
+  font-size:8px;
+}
+.staff-report-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.staff-report-actions button{
+  border:1px solid #303741;
+  border-radius:7px;
+  background:#171c22;
+  color:#d7dde3;
+  padding:6px 8px;
+  font:inherit;
+  font-size:7px;
+  font-weight:900;
+  cursor:pointer;
+}
+.staff-report-actions button.resolve{
+  border-color:rgba(103,232,165,.28);
+  color:#7fe5ad;
+}
+.staff-report-actions button.dismiss{
+  color:#9099a4;
+}
+.staff-report-empty{
+  padding:16px 10px;
+  border:1px dashed #2c333c;
+  border-radius:9px;
+  color:#727c87;
+  text-align:center;
+  font-size:9px;
+}
+.staff-reports-status{
+  min-height:14px;
+  margin-top:7px;
+  color:#7f8995;
+  font-size:8px;
+}
+.staff-reports-status.success{color:#67e8a5}
+.staff-reports-status.error{color:#ff7c89}
+
+.staff-reports-fab{
+  position:fixed;
+  right:18px;
+  bottom:20px;
+  z-index:9000;
+  border:1px solid rgba(239,67,85,.45);
+  border-radius:999px;
+  background:#171c22;
+  color:#fff;
+  padding:9px 12px;
+  box-shadow:0 8px 26px rgba(0,0,0,.38);
+  font:inherit;
+  font-size:9px;
+  font-weight:950;
+  cursor:pointer;
+}
+.staff-reports-fab span{
+  display:inline-grid;
+  place-items:center;
+  min-width:19px;
+  height:19px;
+  margin-left:4px;
+  padding:0 4px;
+  border-radius:999px;
+  background:#ef4355;
+  font-size:7px;
+}
+.staff-reports-fab.has-reports{
+  animation:staffReportPulse 1.8s ease-in-out infinite;
+}
+@keyframes staffReportPulse{
+  0%,100%{box-shadow:0 8px 26px rgba(0,0,0,.38)}
+  50%{box-shadow:0 8px 32px rgba(239,67,85,.25)}
+}
+
+@media(max-width:800px){
+  .staff-reports-fab{
+    right:12px;
+    bottom:78px;
+  }
+}
+@media(max-width:600px){
+  .thread-view-social-actions{
+    width:100%;
+  }
+  .thread-view-social-actions button{
+    flex:1;
+  }
+  .staff-reports-head{
+    flex-direction:column;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5018,7 +5389,10 @@ section{background:rgba(8,9,11,.60)}
     <div id="threadViewPoll" class="thread-poll-card hidden"></div>
     <div class="thread-view-social-row">
       <div id="threadViewReactions" class="reaction-bar reaction-bar-thread"></div>
-      <button id="threadViewBookmarkBtn" class="thread-view-bookmark hidden" type="button">🔖 Save</button>
+      <div class="thread-view-social-actions">
+        <button id="threadViewBookmarkBtn" class="thread-view-bookmark hidden" type="button">🔖 Save</button>
+        <button id="threadReportBtn" class="content-report-btn hidden" type="button">⚑ Report</button>
+      </div>
     </div>
 
     <div id="threadOwnerActions" class="thread-owner-actions hidden">
@@ -5381,6 +5755,33 @@ section{background:rgba(8,9,11,.60)}
 
   <div id="staffPanelStatus" class="staff-panel-status"></div>
 </div>
+
+
+<div id="staffReportsPanel" class="staff-reports-panel hidden">
+  <div class="staff-reports-head">
+    <div>
+      <div class="staff-reports-kicker">Staff inbox</div>
+      <div class="staff-reports-title">
+        Moderation Reports
+        <span id="staffReportsCount" class="staff-reports-count">0</span>
+      </div>
+      <div class="staff-reports-sub">
+        Member reports show here for the Admin and Moderators.
+      </div>
+    </div>
+    <button id="staffReportsRefresh" type="button">Refresh</button>
+  </div>
+
+  <div id="staffReportsList" class="staff-reports-list">
+    <div class="staff-report-empty">No open reports.</div>
+  </div>
+
+  <div id="staffReportsStatus" class="staff-reports-status"></div>
+</div>
+
+<button id="staffReportsFab" class="staff-reports-fab hidden" type="button" aria-label="Open moderation reports">
+  🚨 Reports <span id="staffReportsFabCount">0</span>
+</button>
 
 <div id="dmSection" class="dm-shell" style="display:none">
   <div class="dm-head">
@@ -6020,6 +6421,7 @@ section{background:rgba(8,9,11,.60)}
     <div id="chatFriendArea" class="chat-friend-area">
       <button id="chatFriendBtn" class="chat-friend-btn" type="button">Add Friend</button>
       <button id="chatDmBtn" class="dm-message-btn hidden" type="button">Message</button>
+      <button id="chatReportUserBtn" class="content-report-btn hidden" type="button">⚑ Report</button>
       <div id="chatFriendNote" class="chat-friend-note"></div>
     </div>
 
@@ -6054,6 +6456,45 @@ section{background:rgba(8,9,11,.60)}
   </div>
 </div>
 
+
+
+<div id="contentReportOverlay" class="content-report-overlay" aria-hidden="true">
+  <div class="content-report-dialog" role="dialog" aria-modal="true" aria-labelledby="contentReportTitle">
+    <button id="contentReportClose" class="content-report-close" type="button" aria-label="Close report">×</button>
+
+    <div class="content-report-kicker">Community safety</div>
+    <h3 id="contentReportTitle">Report content</h3>
+    <div id="contentReportTarget" class="content-report-target">Reporting content</div>
+
+    <label>
+      <span>Reason</span>
+      <select id="contentReportReason">
+        <option value="Spam">Spam</option>
+        <option value="Harassment">Harassment / bullying</option>
+        <option value="Inappropriate content">Inappropriate content or photo</option>
+        <option value="Scam">Scam / suspicious behavior</option>
+        <option value="Other">Other</option>
+      </select>
+    </label>
+
+    <label>
+      <span>Details <small>(optional)</small></span>
+      <textarea id="contentReportDetails" maxlength="500"
+                placeholder="Tell the moderators what happened..."></textarea>
+    </label>
+
+    <div class="content-report-note">
+      This report is private and goes to Gymcels Admins and Moderators.
+    </div>
+
+    <div class="content-report-actions">
+      <button id="contentReportCancel" type="button">Cancel</button>
+      <button id="contentReportSubmit" class="primary" type="button">Send report</button>
+    </div>
+
+    <div id="contentReportStatus" class="content-report-status"></div>
+  </div>
+</div>
 
 <div id="dmIncomingCallOverlay" class="dm-call-overlay" aria-hidden="true">
   <div class="dm-call-card incoming" role="dialog" aria-modal="true" aria-labelledby="dmIncomingCallName">
@@ -10070,6 +10511,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
     chatPublicPhysique.innerHTML = '<div class="chat-public-physique-empty">No physique photo added yet.</div>';
   }
   chatPublicAchievements.innerHTML = '';
+  document.getElementById('chatReportUserBtn')?.classList.add('hidden');
   if(chatPublicPostHistory){
     chatPublicPostHistory.innerHTML = '<div class="chat-public-history-empty">Loading activity...</div>';
   }
@@ -10087,6 +10529,14 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
 
     const viewerSession = await getChatSession();
     if(viewerSession?.user) await refreshChatAdminStatus(viewerSession);
+
+    const chatReportUserBtn = document.getElementById('chatReportUserBtn');
+    if(chatReportUserBtn){
+      chatReportUserBtn.classList.toggle(
+        'hidden',
+        !viewerSession?.user || viewerSession.user.id === userId
+      );
+    }
 
     const [statRes, workoutRes, streakRes, presenceRes, isVip, staffRoles, historyStats] = await Promise.all([
       client
@@ -11186,6 +11636,14 @@ async function loadCommunityChat(scrollToBottom=false){
                 </div>
                 <div class="chat-message-actions">
                   ${signedIn ? `<button class="chat-reply-btn" type="button" data-chat-reply="${row.id}">Reply</button>` : ''}
+                  ${signedIn && !mine
+                    ? `<button class="content-report-btn"
+                               type="button"
+                               data-content-report="chat"
+                               data-report-id="${row.id}"
+                               data-report-user="${escapeChat(row.user_id || '')}"
+                               data-report-label="Chat message by ${escapeChat(row.display_name || 'Member')}">Report</button>`
+                    : ''}
                   ${canDeleteMessage
                     ? `<button class="chat-delete" type="button" data-chat-delete="${row.id}"${!mine && canModerateChat() ? ' title="Moderator delete"' : ''}>Delete</button>`
                     : ''}
@@ -12802,6 +13260,7 @@ async function loadThreadReplies(threadId){
 
   threadReplies.innerHTML = rows.map(row => {
     const canDelete = !!me && (row.author_id === me || canModerateThreads());
+    const canReport = !!me && row.author_id !== me;
     const quoted = row.reply_to_id ? rowMap.get(Number(row.reply_to_id)) : null;
     const quotedPreview = quoted
       ? String(quoted.body || '').replace(/\s+/g,' ').trim()
@@ -12837,12 +13296,19 @@ async function loadThreadReplies(threadId){
           threadReplyReactionMap[Number(row.id)] || {}
         )}
 
-        ${(canReply || canDelete) ? `
+        ${(canReply || canDelete || canReport) ? `
           <div class="thread-reply-actions">
             ${canReply ? `
               <button class="thread-reply-reply"
                       type="button"
                       data-reply-thread-user="${row.id}">Reply</button>` : ''}
+            ${canReport ? `
+              <button class="content-report-btn"
+                      type="button"
+                      data-content-report="thread_reply"
+                      data-report-id="${row.id}"
+                      data-report-user="${escapeChat(row.author_id || '')}"
+                      data-report-label="Reply by ${escapeChat(row.author_name || 'Member')}">Report</button>` : ''}
             ${canDelete ? `
               <button class="thread-reply-delete"
                       type="button"
@@ -12918,6 +13384,15 @@ async function openThread(threadId){
 
   const canManage = !!session?.user && (data.author_id === session.user.id || canModerateThreads());
   threadOwnerActions.classList.toggle('hidden', !canManage);
+
+  const threadReportBtn = document.getElementById('threadReportBtn');
+  if(threadReportBtn){
+    threadReportBtn.classList.toggle(
+      'hidden',
+      !session?.user || data.author_id === session.user.id
+    );
+  }
+
   await loadThreadBookmarks(session);
   updateThreadViewBookmark(session);
 
@@ -12940,6 +13415,7 @@ function closeThread(){
   threadOverlay.classList.remove('show');
   threadOverlay.setAttribute('aria-hidden','true');
   activeThread = null;
+  document.getElementById('threadReportBtn')?.classList.add('hidden');
   if(threadViewPoll){
     threadViewPoll.innerHTML='';
     threadViewPoll.classList.add('hidden');
@@ -15600,6 +16076,473 @@ setTimeout(() => {
   syncMobileNavState();
   updateMobileActiveNav();
 },300);
+
+
+
+// ---- Gymcels Reporting System (isolated module) ----
+// This feature intentionally does not hook into startCommunityChat().
+// If the report SQL is unavailable, this module fails closed without
+// interrupting the rest of the site.
+(function initGymcelsReportingSystem(){
+  try{
+    const db = window.gymcelsLolDb;
+    if(!db?.auth) return;
+
+    const reportOverlay = document.getElementById('contentReportOverlay');
+    const reportClose = document.getElementById('contentReportClose');
+    const reportCancel = document.getElementById('contentReportCancel');
+    const reportTarget = document.getElementById('contentReportTarget');
+    const reportReason = document.getElementById('contentReportReason');
+    const reportDetails = document.getElementById('contentReportDetails');
+    const reportSubmit = document.getElementById('contentReportSubmit');
+    const reportStatus = document.getElementById('contentReportStatus');
+
+    const reportsPanel = document.getElementById('staffReportsPanel');
+    const reportsCount = document.getElementById('staffReportsCount');
+    const reportsRefresh = document.getElementById('staffReportsRefresh');
+    const reportsList = document.getElementById('staffReportsList');
+    const reportsStatus = document.getElementById('staffReportsStatus');
+    const reportsFab = document.getElementById('staffReportsFab');
+    const reportsFabCount = document.getElementById('staffReportsFabCount');
+
+    const threadReportBtn = document.getElementById('threadReportBtn');
+    const profileReportBtn = document.getElementById('chatReportUserBtn');
+
+    let reportDraft = null;
+    let reportRowsById = new Map();
+    let reportPollTimer = null;
+    let staffCanReview = false;
+
+    function reportEscape(value){
+      return String(value ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#039;');
+    }
+
+    function reportTime(value){
+      if(!value) return '';
+      const d = new Date(value);
+      const ms = Date.now() - d.getTime();
+
+      if(ms < 60000) return 'now';
+      if(ms < 3600000) return `${Math.floor(ms/60000)}m ago`;
+      if(ms < 86400000) return `${Math.floor(ms/3600000)}h ago`;
+      if(ms < 604800000) return `${Math.floor(ms/86400000)}d ago`;
+
+      return d.toLocaleDateString([],{
+        month:'short',
+        day:'numeric',
+        year:'numeric'
+      });
+    }
+
+    function reportTypeLabel(type){
+      return ({
+        chat:'Public chat message',
+        thread:'Thread',
+        thread_reply:'Thread reply',
+        user:'Member profile'
+      })[type] || 'Report';
+    }
+
+    function setReportStatus(text='',type=''){
+      if(!reportStatus) return;
+      reportStatus.textContent = text;
+      reportStatus.className = `content-report-status ${type || ''}`;
+    }
+
+    function setStaffReportStatus(text='',type=''){
+      if(!reportsStatus) return;
+      reportsStatus.textContent = text;
+      reportsStatus.className = `staff-reports-status ${type || ''}`;
+    }
+
+    async function currentReportSession(){
+      try{
+        const {data,error} = await db.auth.getSession();
+        if(error) throw error;
+        return data?.session || null;
+      }catch(err){
+        console.warn('Report session check failed:',err);
+        return null;
+      }
+    }
+
+    function openReportDialog({type,id=null,userId=null,label='Content'}){
+      reportDraft = {
+        type:String(type || ''),
+        id:id ? Number(id) : null,
+        userId:userId || null,
+        label:String(label || 'Content')
+      };
+
+      if(reportTarget) reportTarget.textContent = reportDraft.label;
+      if(reportReason) reportReason.value = 'Spam';
+      if(reportDetails) reportDetails.value = '';
+      setReportStatus('');
+
+      reportOverlay?.classList.add('show');
+      reportOverlay?.setAttribute('aria-hidden','false');
+    }
+
+    function closeReportDialog(){
+      reportDraft = null;
+      reportOverlay?.classList.remove('show');
+      reportOverlay?.setAttribute('aria-hidden','true');
+      setReportStatus('');
+    }
+
+    async function submitReport(){
+      if(!reportDraft || !reportSubmit) return;
+
+      const session = await currentReportSession();
+      if(!session?.user){
+        setReportStatus('Log in to send a report.','error');
+        return;
+      }
+
+      reportSubmit.disabled = true;
+      setReportStatus('Sending report...');
+
+      try{
+        const {error} = await db.rpc('submit_gymcels_report',{
+          report_target_type:reportDraft.type,
+          report_target_id:reportDraft.id,
+          report_target_user:reportDraft.userId,
+          report_reason:String(reportReason?.value || 'Other'),
+          report_details:String(reportDetails?.value || '').trim() || null
+        });
+
+        if(error) throw error;
+
+        setReportStatus('✓ Report sent privately to the moderation team.','success');
+
+        // Staff who report something themselves see the inbox update immediately.
+        if(staffCanReview){
+          loadStaffReports().catch(()=>{});
+        }
+
+        setTimeout(closeReportDialog,800);
+      }catch(err){
+        setReportStatus(err?.message || String(err),'error');
+      }finally{
+        reportSubmit.disabled = false;
+      }
+    }
+
+    function updateStaffReportCount(count){
+      const n = Number(count || 0);
+
+      if(reportsCount) reportsCount.textContent = String(n);
+      if(reportsFabCount) reportsFabCount.textContent = String(n);
+      reportsFab?.classList.toggle('has-reports',n > 0);
+    }
+
+    async function loadStaffReports(){
+      if(!staffCanReview || !reportsPanel || !reportsList) return;
+
+      try{
+        const {data,error} = await db.rpc('staff_list_gymcels_reports');
+        if(error) throw error;
+
+        const rows = Array.isArray(data) ? data : [];
+        reportRowsById = new Map(
+          rows.map(row => [Number(row.id),row])
+        );
+
+        updateStaffReportCount(rows.length);
+
+        if(!rows.length){
+          reportsList.innerHTML =
+            '<div class="staff-report-empty">No open reports. Everything is clear.</div>';
+          setStaffReportStatus('');
+          return;
+        }
+
+        reportsList.innerHTML = rows.map(row => `
+          <div class="staff-report-card" data-staff-report="${Number(row.id)}">
+            <div class="staff-report-top">
+              <div class="staff-report-type">${reportEscape(reportTypeLabel(row.target_type))}</div>
+              <div class="staff-report-time">${reportEscape(reportTime(row.created_at))}</div>
+            </div>
+
+            <div class="staff-report-meta">
+              Reported by <strong>${reportEscape(row.reporter_name || 'Member')}</strong>
+              · Reported member: <strong>${reportEscape(row.target_name || 'Member')}</strong>
+            </div>
+
+            <span class="staff-report-reason">${reportEscape(row.reason || 'Other')}</span>
+
+            ${row.target_preview
+              ? `<div class="staff-report-preview">${reportEscape(row.target_preview)}</div>`
+              : ''}
+
+            ${row.details
+              ? `<div class="staff-report-details">Reporter note: ${reportEscape(row.details)}</div>`
+              : ''}
+
+            <div class="staff-report-actions">
+              <button type="button" data-staff-report-open="${Number(row.id)}">Open</button>
+              <button class="resolve" type="button" data-staff-report-resolve="${Number(row.id)}">✓ Resolved</button>
+              <button class="dismiss" type="button" data-staff-report-dismiss="${Number(row.id)}">Dismiss</button>
+            </div>
+          </div>
+        `).join('');
+
+        setStaffReportStatus('');
+      }catch(err){
+        console.warn('Report inbox load failed:',err);
+        setStaffReportStatus(
+          'Could not refresh reports. The rest of the site is unaffected.',
+          'error'
+        );
+      }
+    }
+
+    async function reviewStaffReport(reportId,newStatus){
+      if(!staffCanReview) return;
+
+      try{
+        setStaffReportStatus('Updating report...');
+
+        const {error} = await db.rpc('staff_review_gymcels_report',{
+          target_report_id:Number(reportId),
+          new_status:String(newStatus)
+        });
+
+        if(error) throw error;
+
+        setStaffReportStatus(
+          newStatus === 'resolved'
+            ? '✓ Report marked resolved.'
+            : 'Report dismissed.',
+          'success'
+        );
+
+        await loadStaffReports();
+      }catch(err){
+        setStaffReportStatus(err?.message || String(err),'error');
+      }
+    }
+
+    async function openReportedTarget(row){
+      if(!row) return;
+
+      try{
+        if(row.target_type === 'chat'){
+          document.getElementById('communityChat')
+            ?.scrollIntoView({behavior:'smooth',block:'start'});
+
+          if(typeof loadCommunityChat === 'function'){
+            await loadCommunityChat(false);
+          }
+
+          setTimeout(() => {
+            if(typeof jumpToChatMessage === 'function'){
+              const found = jumpToChatMessage(Number(row.target_id));
+              if(found === false){
+                setStaffReportStatus('The reported chat message may already be deleted.','error');
+              }
+            }
+          },160);
+          return;
+        }
+
+        if(row.target_type === 'thread'){
+          document.getElementById('threadsSection')
+            ?.scrollIntoView({behavior:'smooth',block:'start'});
+
+          if(typeof openThread === 'function'){
+            await openThread(Number(row.thread_id || row.target_id));
+          }
+          return;
+        }
+
+        if(row.target_type === 'thread_reply'){
+          const threadId = Number(row.thread_id);
+          if(!threadId) return;
+
+          document.getElementById('threadsSection')
+            ?.scrollIntoView({behavior:'smooth',block:'start'});
+
+          if(typeof openThread === 'function'){
+            await openThread(threadId);
+          }
+
+          setTimeout(() => {
+            if(typeof jumpToThreadReply === 'function'){
+              jumpToThreadReply(Number(row.target_id));
+            }
+          },180);
+          return;
+        }
+
+        if(row.target_type === 'user' && row.target_user_id){
+          if(typeof openChatPublicProfile === 'function'){
+            openChatPublicProfile(
+              row.target_user_id,
+              row.target_name || 'Member',
+              ''
+            );
+          }
+        }
+      }catch(err){
+        console.warn('Could not open reported target:',err);
+        setStaffReportStatus('Could not open that reported item.','error');
+      }
+    }
+
+    async function configureStaffReportInbox(session){
+      clearInterval(reportPollTimer);
+      reportPollTimer = null;
+      staffCanReview = false;
+
+      reportsPanel?.classList.add('hidden');
+      reportsFab?.classList.add('hidden');
+      updateStaffReportCount(0);
+
+      if(!session?.user) return;
+
+      try{
+        const {data,error} = await db.rpc('staff_can_view_reports');
+        if(error) throw error;
+
+        staffCanReview = data === true;
+
+        if(!staffCanReview) return;
+
+        reportsPanel?.classList.remove('hidden');
+        reportsFab?.classList.remove('hidden');
+
+        await loadStaffReports();
+
+        // Independent polling. Errors are caught inside loadStaffReports().
+        reportPollTimer = setInterval(() => {
+          loadStaffReports().catch(()=>{});
+        },12000);
+      }catch(err){
+        // Fail closed: never let report setup break the rest of Gymcels.
+        console.warn('Report inbox unavailable:',err);
+      }
+    }
+
+    // Dynamic chat + reply report buttons.
+    document.addEventListener('click',(e)=>{
+      const btn = e.target.closest('[data-content-report]');
+      if(!btn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      openReportDialog({
+        type:btn.dataset.contentReport,
+        id:btn.dataset.reportId || null,
+        userId:btn.dataset.reportUser || null,
+        label:btn.dataset.reportLabel || 'Reported content'
+      });
+    });
+
+    threadReportBtn?.addEventListener('click',()=>{
+      try{
+        if(!activeThread) return;
+
+        openReportDialog({
+          type:'thread',
+          id:Number(activeThread.id),
+          userId:activeThread.author_id || null,
+          label:`Thread: ${activeThread.title || 'Untitled'}`
+        });
+      }catch(err){
+        console.warn('Thread report button error:',err);
+      }
+    });
+
+    profileReportBtn?.addEventListener('click',()=>{
+      try{
+        if(!openedChatUserId) return;
+
+        openReportDialog({
+          type:'user',
+          userId:openedChatUserId,
+          label:`Member: ${openedChatDisplayName || 'Member'}`
+        });
+      }catch(err){
+        console.warn('Profile report button error:',err);
+      }
+    });
+
+    reportClose?.addEventListener('click',closeReportDialog);
+    reportCancel?.addEventListener('click',closeReportDialog);
+    reportSubmit?.addEventListener('click',submitReport);
+
+    reportOverlay?.addEventListener('click',(e)=>{
+      if(e.target === reportOverlay) closeReportDialog();
+    });
+
+    document.addEventListener('keydown',(e)=>{
+      if(
+        e.key === 'Escape' &&
+        reportOverlay?.classList.contains('show')
+      ){
+        closeReportDialog();
+      }
+    });
+
+    reportsRefresh?.addEventListener('click',()=>{
+      loadStaffReports().catch(()=>{});
+    });
+
+    reportsFab?.addEventListener('click',()=>{
+      reportsPanel?.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+
+    reportsList?.addEventListener('click',(e)=>{
+      const openBtn = e.target.closest('[data-staff-report-open]');
+      if(openBtn){
+        const row = reportRowsById.get(Number(openBtn.dataset.staffReportOpen));
+        if(row) openReportedTarget(row);
+        return;
+      }
+
+      const resolveBtn = e.target.closest('[data-staff-report-resolve]');
+      if(resolveBtn){
+        reviewStaffReport(
+          Number(resolveBtn.dataset.staffReportResolve),
+          'resolved'
+        );
+        return;
+      }
+
+      const dismissBtn = e.target.closest('[data-staff-report-dismiss]');
+      if(dismissBtn){
+        reviewStaffReport(
+          Number(dismissBtn.dataset.staffReportDismiss),
+          'dismissed'
+        );
+      }
+    });
+
+    // This auth listener exists only for the report inbox and is fully isolated.
+    db.auth.onAuthStateChange((_event,session)=>{
+      setTimeout(()=>{
+        configureStaffReportInbox(session).catch(()=>{});
+      },0);
+    });
+
+    // Initial report inbox check happens after the page has initialized.
+    setTimeout(async ()=>{
+      const session = await currentReportSession();
+      await configureStaffReportInbox(session);
+    },1200);
+
+  }catch(err){
+    // Last-resort containment: reporting can fail without freezing Gymcels.
+    console.warn('Gymcels report module disabled:',err);
+  }
+})();
 
 </script>
 
