@@ -2547,6 +2547,106 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* THREAD REPLY-TO-USER */
+.thread-reply-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:7px;
+}
+.thread-reply-reply,
+.thread-reply-delete{
+  border:0;
+  background:transparent;
+  color:#7a838e;
+  font-size:9px;
+  cursor:pointer;
+  padding:0;
+  font-family:inherit;
+}
+.thread-reply-reply:hover,
+.thread-reply-delete:hover{color:#ff6675}
+
+.thread-quoted-reply{
+  width:100%;
+  display:block;
+  margin:0 0 8px;
+  padding:8px 10px;
+  border:0;
+  border-left:3px solid #ef4355;
+  border-radius:8px;
+  background:#10141a;
+  color:#98a1ad;
+  text-align:left;
+  cursor:pointer;
+  font-family:inherit;
+}
+.thread-quoted-reply strong{
+  display:block;
+  color:#dce1e7;
+  font-size:9px;
+  margin-bottom:2px;
+}
+.thread-quoted-reply span{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:9px;
+}
+.thread-reply.reply-highlight{
+  animation:threadReplyFlash 1.45s ease;
+}
+@keyframes threadReplyFlash{
+  0%,100%{background:#0b0e12}
+  20%,65%{background:rgba(239,67,85,.14)}
+}
+
+.thread-reply-target{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:11px;
+  padding:9px 11px;
+  border:1px solid #2b3038;
+  border-left:3px solid #ef4355;
+  border-radius:10px;
+  background:#0d1014;
+}
+.thread-reply-target-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.thread-reply-target-copy span{
+  color:#aeb5bf;
+  font-size:10px;
+}
+.thread-reply-target-copy strong{color:#ff6675}
+.thread-reply-target-copy small{
+  max-width:600px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#777f8b;
+  font-size:9px;
+}
+.thread-reply-target > button{
+  width:28px;
+  height:28px;
+  flex:0 0 auto;
+  border:0;
+  border-radius:8px;
+  background:#22272e;
+  color:#fff;
+  font-size:17px;
+  cursor:pointer;
+}
+
 </style>
 </head>
 <body>
@@ -2847,6 +2947,14 @@ section{background:rgba(8,9,11,.60)}
     </div>
 
     <div id="threadReplyLocked" class="thread-locked-note hidden">This thread is locked.</div>
+
+    <div id="threadReplyTargetBar" class="thread-reply-target hidden">
+      <div class="thread-reply-target-copy">
+        <span>Replying to <strong id="threadReplyTargetName">Member</strong></span>
+        <small id="threadReplyTargetPreview"></small>
+      </div>
+      <button id="threadReplyTargetCancel" type="button" aria-label="Cancel reply">×</button>
+    </div>
 
     <div id="threadReplyComposer" class="thread-reply-composer">
       <textarea id="threadReplyInput" maxlength="2000" placeholder="Log in to reply..." disabled></textarea>
@@ -5704,9 +5812,19 @@ async function loadNotifications(){
         : 'sent you a direct message.';
     }else if(n.type === 'thread_reply'){
       icon = '💬';
-      copy = preview
-        ? `replied to your thread: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
-        : 'replied to your thread.';
+      const directThreadReplyPrefix = '__reply_to_user__';
+      const directToUser = preview.startsWith(directThreadReplyPrefix);
+      const cleanThreadPreview = directToUser
+        ? preview.slice(directThreadReplyPrefix.length).trim()
+        : preview;
+
+      copy = directToUser
+        ? (cleanThreadPreview
+            ? `replied to you in a thread: “${cleanThreadPreview.length > 120 ? cleanThreadPreview.slice(0,120) + '…' : cleanThreadPreview}”`
+            : 'replied to you in a thread.')
+        : (cleanThreadPreview
+            ? `replied to your thread: “${cleanThreadPreview.length > 120 ? cleanThreadPreview.slice(0,120) + '…' : cleanThreadPreview}”`
+            : 'replied to your thread.');
     }else if(n.type === 'incoming_call'){
       icon = '📞';
       copy = 'is calling you privately.';
@@ -6323,6 +6441,10 @@ const threadDeleteBtn = document.getElementById('threadDeleteBtn');
 const threadReplyCount = document.getElementById('threadReplyCount');
 const threadReplies = document.getElementById('threadReplies');
 const threadReplyLocked = document.getElementById('threadReplyLocked');
+const threadReplyTargetBar = document.getElementById('threadReplyTargetBar');
+const threadReplyTargetName = document.getElementById('threadReplyTargetName');
+const threadReplyTargetPreview = document.getElementById('threadReplyTargetPreview');
+const threadReplyTargetCancel = document.getElementById('threadReplyTargetCancel');
 const threadReplyComposer = document.getElementById('threadReplyComposer');
 const threadReplyInput = document.getElementById('threadReplyInput');
 const threadReplyBtn = document.getElementById('threadReplyBtn');
@@ -6334,6 +6456,7 @@ let activeThread = null;
 let threadsPollTimer = null;
 let threadPosting = false;
 let threadReplyPosting = false;
+let threadReplyTarget = null;
 
 function setThreadStatus(el, text='', type='normal'){
   if(!el) return;
@@ -6505,6 +6628,50 @@ async function createThread(){
   }
 }
 
+
+function clearThreadReplyTarget(){
+  threadReplyTarget = null;
+  threadReplyTargetBar?.classList.add('hidden');
+  if(threadReplyTargetName) threadReplyTargetName.textContent = 'Member';
+  if(threadReplyTargetPreview) threadReplyTargetPreview.textContent = '';
+}
+
+function startThreadReplyTo(row){
+  if(!row) return;
+
+  threadReplyTarget = {
+    id:Number(row.id),
+    author_id:String(row.author_id || ''),
+    author_name:String(row.author_name || 'Member'),
+    body:String(row.body || '')
+  };
+
+  if(threadReplyTargetName){
+    threadReplyTargetName.textContent = threadReplyTarget.author_name;
+  }
+
+  if(threadReplyTargetPreview){
+    const preview = threadReplyTarget.body.replace(/\s+/g,' ').trim();
+    threadReplyTargetPreview.textContent =
+      preview.length > 120 ? preview.slice(0,120) + '…' : preview;
+  }
+
+  threadReplyTargetBar?.classList.remove('hidden');
+  threadReplyInput?.focus();
+}
+
+function jumpToThreadReply(replyId){
+  const target = threadReplies?.querySelector(`[data-thread-reply-id="${Number(replyId)}"]`);
+  if(!target) return;
+
+  target.scrollIntoView({behavior:'smooth',block:'center'});
+  target.classList.remove('reply-highlight');
+  void target.offsetWidth;
+  target.classList.add('reply-highlight');
+
+  setTimeout(() => target.classList.remove('reply-highlight'),1500);
+}
+
 function updateThreadReplyComposer(session){
   if(!threadReplyInput || !threadReplyBtn || !threadReplyLocked) return;
 
@@ -6539,7 +6706,7 @@ async function loadThreadReplies(threadId){
 
   const { data, error } = await client
     .from('forum_replies')
-    .select('id,thread_id,author_id,author_name,body,created_at')
+    .select('id,thread_id,author_id,author_name,body,reply_to_id,created_at')
     .eq('thread_id', threadId)
     .order('created_at',{ascending:true})
     .limit(300);
@@ -6558,22 +6725,49 @@ async function loadThreadReplies(threadId){
   }
 
   const me = session?.user?.id || null;
+  const rowMap = new Map(rows.map(row => [Number(row.id),row]));
+  const canReply = !!me && !activeThread?.is_locked;
 
   threadReplies.innerHTML = rows.map(row => {
     const canDelete = !!me && (row.author_id === me || chatIsSiteAdmin);
+    const quoted = row.reply_to_id ? rowMap.get(Number(row.reply_to_id)) : null;
+    const quotedPreview = quoted
+      ? String(quoted.body || '').replace(/\s+/g,' ').trim()
+      : '';
+
     return `
       <div class="thread-reply" data-thread-reply-id="${row.id}">
+        ${quoted ? `
+          <button class="thread-quoted-reply"
+                  type="button"
+                  data-jump-thread-reply="${quoted.id}">
+            <strong>Replying to ${escapeChat(quoted.author_name || 'Member')}</strong>
+            <span>${escapeChat(quotedPreview.length > 150 ? quotedPreview.slice(0,150) + '…' : quotedPreview)}</span>
+          </button>` : ''}
+
         <div class="thread-reply-head">
           <span class="thread-reply-author">${escapeChat(row.author_name || 'Member')}</span>
           <span class="thread-reply-time">${escapeChat(threadTime(row.created_at))}</span>
         </div>
+
         <div class="thread-reply-body">${chatTextWithMentions(row.body || '')}</div>
-        ${canDelete ? `
+
+        ${(canReply || canDelete) ? `
           <div class="thread-reply-actions">
-            <button class="thread-reply-delete" type="button" data-delete-thread-reply="${row.id}">Delete</button>
+            ${canReply ? `
+              <button class="thread-reply-reply"
+                      type="button"
+                      data-reply-thread-user="${row.id}">Reply</button>` : ''}
+            ${canDelete ? `
+              <button class="thread-reply-delete"
+                      type="button"
+                      data-delete-thread-reply="${row.id}">Delete</button>` : ''}
           </div>` : ''}
       </div>`;
   }).join('');
+
+  // Keep enough row data available for reply buttons without another database request.
+  threadReplies._gymcelsRows = rows;
 }
 
 async function openThread(threadId){
@@ -6627,6 +6821,7 @@ function closeThread(){
   threadOverlay.setAttribute('aria-hidden','true');
   activeThread = null;
   if(threadReplyInput) threadReplyInput.value = '';
+  clearThreadReplyTarget();
   setThreadStatus(threadReplyStatus,'');
 }
 
@@ -6663,12 +6858,14 @@ async function postThreadReply(){
         thread_id:activeThread.id,
         author_id:session.user.id,
         author_name:chatDisplayName(session.user),
-        body
+        body,
+        reply_to_id:threadReplyTarget?.id || null
       });
 
     if(error) throw error;
 
     threadReplyInput.value = '';
+    clearThreadReplyTarget();
     setThreadStatus(threadReplyStatus,'✓ REPLY POSTED','success');
 
     await loadThreadReplies(activeThread.id);
@@ -6822,11 +7019,41 @@ if(threadDeleteBtn){
 if(threadLockBtn) threadLockBtn.addEventListener('click', toggleThreadLock);
 
 if(threadReplies){
-  threadReplies.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-delete-thread-reply]');
-    if(btn) deleteThreadReply(Number(btn.dataset.deleteThreadReply));
+  threadReplies.addEventListener('click', async (e) => {
+    const jumpBtn = e.target.closest('[data-jump-thread-reply]');
+    if(jumpBtn){
+      jumpToThreadReply(Number(jumpBtn.dataset.jumpThreadReply));
+      return;
+    }
+
+    const replyBtn = e.target.closest('[data-reply-thread-user]');
+    if(replyBtn){
+      const session = await getChatSession();
+      if(!session?.user){
+        setThreadStatus(threadReplyStatus,'Log in to reply.','error');
+        return;
+      }
+
+      if(activeThread?.is_locked){
+        setThreadStatus(threadReplyStatus,'This thread is locked.','error');
+        return;
+      }
+
+      const replyId = Number(replyBtn.dataset.replyThreadUser);
+      const rows = threadReplies._gymcelsRows || [];
+      const row = rows.find(x => Number(x.id) === replyId);
+      if(row) startThreadReplyTo(row);
+      return;
+    }
+
+    const deleteBtn = e.target.closest('[data-delete-thread-reply]');
+    if(deleteBtn){
+      deleteThreadReply(Number(deleteBtn.dataset.deleteThreadReply));
+    }
   });
 }
+
+threadReplyTargetCancel?.addEventListener('click',clearThreadReplyTarget);
 
 document.addEventListener('keydown', (e) => {
   if(e.key === 'Escape' && threadOverlay?.classList.contains('show')) closeThread();
