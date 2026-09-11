@@ -2022,6 +2022,30 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* ADMIN VOICE KICK */
+.voice-member-actions{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin-left:3px;
+}
+.voice-kick-btn{
+  border:0;
+  border-radius:999px;
+  padding:3px 6px;
+  background:rgba(239,67,85,.14);
+  color:#ff8c97;
+  font-size:7px;
+  font-weight:950;
+  cursor:pointer;
+  font-family:inherit;
+}
+.voice-kick-btn:hover{
+  background:rgba(239,67,85,.24);
+  color:#fff;
+}
+
 </style>
 </head>
 <body>
@@ -6040,6 +6064,7 @@ let voiceMuted = false;
 // These are people YOU chose to silence locally.
 // This does not change their microphone or what anyone else hears.
 let voiceLocallyMutedUsers = new Set();
+let voiceKickPollTimer = null;
 let voiceSessionUser = null;
 let voicePeers = new Map();
 let voicePresence = {};
@@ -6080,10 +6105,18 @@ function voiceMemberHtml(entry, myId, allowLocalMute=false){
                title="${locallyMuted ? 'Hear this person again' : 'Mute only this person for you'}">${locallyMuted ? 'Unmute' : 'Mute'}</button>`
     : '';
 
+  const kickButton = allowLocalMute && !mine && chatIsSiteAdmin
+    ? `<button class="voice-kick-btn"
+               type="button"
+               data-voice-kick="${escapeChat(userId)}"
+               data-voice-kick-name="${name}"
+               title="Remove this member from the current voice room">Kick</button>`
+    : '';
+
   return `<span class="voice-member ${micMuted ? 'muted' : ''} ${mine ? 'you' : ''} ${locallyMuted ? 'local-muted' : ''}">
     <span class="voice-member-dot"></span>
     ${name}${mine ? ' (You)' : ''}${micMuted ? ' · mic muted' : ''}${locallyMuted ? ' · muted by you' : ''}
-    ${localMuteButton}
+    <span class="voice-member-actions">${localMuteButton}${kickButton}</span>
   </span>`;
 }
 
@@ -6494,6 +6527,78 @@ async function joinVoiceChannel(roomKey){
 }
 
 
+
+async function kickVoiceMember(userId,displayName='Member'){
+  if(!userId || !voiceRoomKey) return;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  if(!client || !session?.user) return;
+
+  await refreshChatAdminStatus(session);
+  if(!chatIsSiteAdmin){
+    setVoiceStatus('Only the site admin can kick members.','error');
+    return;
+  }
+
+  if(userId === session.user.id) return;
+
+  if(!confirm(`Kick ${displayName} from ${VOICE_ROOMS[voiceRoomKey]?.label || 'this voice room'}?`)){
+    return;
+  }
+
+  try{
+    const {error} = await client.rpc('kick_voice_member',{
+      target_user:userId,
+      target_room:voiceRoomKey
+    });
+
+    if(error) throw error;
+
+    setVoiceStatus(`✓ ${displayName} was removed from ${VOICE_ROOMS[voiceRoomKey]?.label || 'voice'}.`,'success');
+  }catch(err){
+    console.error('Voice kick error:',err);
+    setVoiceStatus(err?.message || String(err),'error');
+  }
+}
+
+async function checkMyVoiceKick(){
+  if(!voiceRoomKey) return;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  if(!client || !session?.user) return;
+
+  try{
+    const {data,error} = await client.rpc('take_my_voice_kick');
+    if(error) throw error;
+
+    if(!data) return;
+
+    const kickedRoom = String(data);
+    if(kickedRoom === voiceRoomKey){
+      const roomName = VOICE_ROOMS[voiceRoomKey]?.label || 'voice';
+      await leaveVoiceChannel(false,true);
+      setVoiceStatus(`You were removed from ${roomName} by a moderator.`,'error');
+    }
+  }catch(err){
+    console.error('Voice kick check error:',err);
+  }
+}
+
+function startVoiceKickPolling(session){
+  clearInterval(voiceKickPollTimer);
+  voiceKickPollTimer = null;
+
+  if(!session?.user) return;
+
+  voiceKickPollTimer = setInterval(() => {
+    if(document.visibilityState === 'visible' && voiceRoomKey){
+      checkMyVoiceKick();
+    }
+  },1200);
+}
+
 function toggleLocalVoiceMute(userId){
   if(!userId || userId === voiceSessionUser?.id) return;
 
@@ -6605,12 +6710,28 @@ async function startVoiceRoomPreviews(session){
 }
 
 async function startVoiceSystem(session){
+  if(session?.user){
+    await refreshChatAdminStatus(session);
+  }
   setVoiceAuthState(session);
+  startVoiceKickPolling(session);
   await startVoiceRoomPreviews(session);
+  renderAllVoiceRooms();
 }
 
 
 function handleVoiceMemberMuteClick(e){
+  const kickBtn = e.target.closest('[data-voice-kick]');
+  if(kickBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    kickVoiceMember(
+      kickBtn.dataset.voiceKick,
+      kickBtn.dataset.voiceKickName || 'Member'
+    );
+    return;
+  }
+
   const btn = e.target.closest('[data-local-voice-mute]');
   if(!btn) return;
 
