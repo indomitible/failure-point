@@ -1158,6 +1158,121 @@ section{background:rgba(8,9,11,.60)}
   .notification-panel{top:70px;right:10px;width:calc(100vw - 20px)}
 }
 
+
+/* PROFILE PHYSIQUE PHOTO */
+.profile-physique-section{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid #262a31;
+}
+.profile-physique-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:9px;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.profile-physique-card{
+  width:min(280px,100%);
+  aspect-ratio:4/5;
+  border:1px solid #292f37;
+  border-radius:14px;
+  overflow:hidden;
+  background:#0a0c0f;
+  display:grid;
+  place-items:center;
+}
+.profile-physique-card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.profile-physique-empty{
+  padding:18px;
+  color:#747c88;
+  font-size:11px;
+  text-align:center;
+  line-height:1.45;
+}
+.profile-physique-tools{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid #252a31;
+}
+.profile-physique-tools label{
+  display:block;
+  font-size:11px;
+  color:#969ca8;
+  margin-bottom:6px;
+}
+.profile-physique-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.profile-physique-row input[type="file"]{
+  max-width:100%;
+  font-size:12px;
+  color:#c7ccd4;
+}
+.profile-physique-note{
+  margin-top:6px;
+  color:#747c88;
+  font-size:10px;
+}
+.profile-physique-note.ready{
+  color:#67e8a5;
+  font-weight:800;
+}
+
+.chat-public-profile{
+  max-height:min(820px,calc(100vh - 36px));
+  overflow:auto;
+}
+.chat-public-physique{
+  margin-top:15px;
+  padding-top:14px;
+  border-top:1px solid #262b32;
+}
+.chat-public-physique-title{
+  margin-bottom:9px;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.chat-public-physique-frame{
+  width:min(300px,100%);
+  margin:0 auto;
+  aspect-ratio:4/5;
+  border:1px solid #292f37;
+  border-radius:14px;
+  overflow:hidden;
+  background:#0a0c0f;
+  display:grid;
+  place-items:center;
+}
+.chat-public-physique-frame img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.chat-public-physique-empty{
+  padding:18px;
+  color:#747c88;
+  font-size:11px;
+  text-align:center;
+}
+
 </style>
 </head>
 <body>
@@ -1362,6 +1477,13 @@ section{background:rgba(8,9,11,.60)}
     <div class="profile-stat" title="Best consecutive weekly workout streak"><span>Best streak</span><b id="profileBestStreak">0 wk</b></div>
   </div>
 
+  <div class="profile-physique-section">
+    <div class="profile-physique-title">Physique</div>
+    <div id="profilePhysiqueCard" class="profile-physique-card">
+      <div class="profile-physique-empty">No physique photo added yet.</div>
+    </div>
+  </div>
+
   <div id="profileForm" class="profile-form">
     <div class="profile-form-grid">
       <div>
@@ -1388,6 +1510,15 @@ section{background:rgba(8,9,11,.60)}
         <button id="removeProfilePhotoBtn" class="profile-photo-btn" type="button">Remove Photo</button>
       </div>
       <div id="profilePhotoNote" class="profile-photo-note">Choose a JPG, PNG, or WebP under 5 MB, then click Save Profile.</div>
+    </div>
+
+    <div class="profile-physique-tools">
+      <label for="profilePhysiqueInput">Physique photo</label>
+      <div class="profile-physique-row">
+        <input id="profilePhysiqueInput" type="file" accept="image/png,image/jpeg,image/webp">
+        <button id="removePhysiqueBtn" class="profile-photo-btn" type="button">Remove Physique</button>
+      </div>
+      <div id="profilePhysiqueNote" class="profile-physique-note">Optional public physique photo. JPG, PNG, or WebP under 8 MB. Click Save Profile to apply it.</div>
     </div>
 
 <div class="profile-actions">
@@ -1726,6 +1857,13 @@ section{background:rgba(8,9,11,.60)}
       <div class="chat-public-stat"><span>Best streak</span><b id="chatPublicBestStreak">0 wk</b></div>
     </div>
 
+    <div class="chat-public-physique">
+      <div class="chat-public-physique-title">Physique</div>
+      <div id="chatPublicPhysique" class="chat-public-physique-frame">
+        <div class="chat-public-physique-empty">No physique photo added yet.</div>
+      </div>
+    </div>
+
     <div id="chatFriendArea" class="chat-friend-area">
       <button id="chatFriendBtn" class="chat-friend-btn" type="button">Add Friend</button>
       <button id="chatDmBtn" class="dm-message-btn hidden" type="button">Message</button>
@@ -2055,7 +2193,12 @@ const profileBestStreak = document.getElementById('profileBestStreak');
 const profileBioText = document.getElementById('profileBioText');
 const profileBioInput = document.getElementById('profileBioInput');
 const profilePhotoNote = document.getElementById('profilePhotoNote');
+const profilePhysiqueCard = document.getElementById('profilePhysiqueCard');
+const profilePhysiqueInput = document.getElementById('profilePhysiqueInput');
+const profilePhysiqueNote = document.getElementById('profilePhysiqueNote');
+const removePhysiqueBtn = document.getElementById('removePhysiqueBtn');
 let pendingProfilePreviewUrl = null;
+let pendingPhysiquePreviewUrl = null;
 
 const profileForm = document.getElementById('profileForm');
 const profileNameInput = document.getElementById('profileNameInput');
@@ -2084,6 +2227,15 @@ function renderProfileAvatar(name, email, photoUrl){
     profileAvatar.innerHTML = `<img src="${photoUrl}" alt="Profile photo">`;
   } else {
     profileAvatar.textContent = fpInitials(name, email);
+  }
+}
+
+function renderOwnPhysique(photoUrl){
+  if(!profilePhysiqueCard) return;
+  if(photoUrl){
+    profilePhysiqueCard.innerHTML = `<img src="${photoUrl}" alt="Physique photo">`;
+  }else{
+    profilePhysiqueCard.innerHTML = '<div class="profile-physique-empty">No physique photo added yet.</div>';
   }
 }
 
@@ -2188,6 +2340,7 @@ async function refreshMemberProfile(){
   profileDisplayName.textContent = displayName;
   profileEmail.textContent = user.email || '';
   renderProfileAvatar(displayName, user.email, meta.avatar_url || '');
+  renderOwnPhysique(meta.physique_url || '');
 
   if(profileBioText){
     profileBioText.textContent = bio || 'No bio yet.';
@@ -2274,9 +2427,13 @@ if(saveProfileBtn){
 
     let avatar_url = oldMeta.avatar_url || null;
     let avatar_path = oldMeta.avatar_path || null;
+    let physique_url = oldMeta.physique_url || null;
+    let physique_path = oldMeta.physique_path || null;
     let newlyUploadedPath = null;
+    let newlyUploadedPhysiquePath = null;
 
     const file = profilePhotoInput?.files?.[0] || null;
+    const physiqueFile = profilePhysiqueInput?.files?.[0] || null;
 
     if(file){
       if(file.size > 5 * 1024 * 1024){
@@ -2316,6 +2473,47 @@ if(saveProfileBtn){
       avatar_path = newlyUploadedPath;
     }
 
+    if(physiqueFile){
+      if(physiqueFile.size > 8 * 1024 * 1024){
+        if(newlyUploadedPath) await fpDb.storage.from('avatars').remove([newlyUploadedPath]);
+        profileMessage.textContent = 'Physique photo must be under 8 MB.';
+        profileMessage.style.color = '#ff5a6b';
+        return;
+      }
+
+      const allowedPhysique = ['image/jpeg','image/png','image/webp'];
+      if(!allowedPhysique.includes(physiqueFile.type)){
+        if(newlyUploadedPath) await fpDb.storage.from('avatars').remove([newlyUploadedPath]);
+        profileMessage.textContent = 'Use a JPG, PNG, or WebP physique photo.';
+        profileMessage.style.color = '#ff5a6b';
+        return;
+      }
+
+      profileMessage.textContent = 'Uploading physique photo...';
+      profileMessage.style.color = '#9aa1ad';
+
+      const physiqueExt = (physiqueFile.name.split('.').pop() || 'jpg').toLowerCase();
+      newlyUploadedPhysiquePath = `${user.id}/physique-${Date.now()}.${physiqueExt}`;
+
+      const { error: physiqueUploadError } = await fpDb.storage
+        .from('physiques')
+        .upload(newlyUploadedPhysiquePath, physiqueFile, { contentType:physiqueFile.type });
+
+      if(physiqueUploadError){
+        if(newlyUploadedPath) await fpDb.storage.from('avatars').remove([newlyUploadedPath]);
+        profileMessage.textContent = physiqueUploadError.message;
+        profileMessage.style.color = '#ff5a6b';
+        return;
+      }
+
+      const { data: physiquePublicData } = fpDb.storage
+        .from('physiques')
+        .getPublicUrl(newlyUploadedPhysiquePath);
+
+      physique_url = physiquePublicData.publicUrl;
+      physique_path = newlyUploadedPhysiquePath;
+    }
+
     profileMessage.textContent = 'Saving profile...';
     profileMessage.style.color = '#9aa1ad';
 
@@ -2325,13 +2523,18 @@ if(saveProfileBtn){
         fp_start_date,
         bio,
         avatar_url,
-        avatar_path
+        avatar_path,
+        physique_url,
+        physique_path
       }
     });
 
     if(error){
       if(newlyUploadedPath){
         await fpDb.storage.from('avatars').remove([newlyUploadedPath]);
+      }
+      if(newlyUploadedPhysiquePath){
+        await fpDb.storage.from('physiques').remove([newlyUploadedPhysiquePath]);
       }
       profileMessage.textContent = error.message;
       profileMessage.style.color = '#ff5a6b';
@@ -2343,6 +2546,10 @@ if(saveProfileBtn){
       await fpDb.storage.from('avatars').remove([oldMeta.avatar_path]);
     }
 
+    if(newlyUploadedPhysiquePath && oldMeta.physique_path && oldMeta.physique_path !== newlyUploadedPhysiquePath){
+      await fpDb.storage.from('physiques').remove([oldMeta.physique_path]);
+    }
+
     await fpDb
       .from('member_presence')
       .upsert({
@@ -2350,6 +2557,7 @@ if(saveProfileBtn){
         display_name,
         avatar_url,
         bio,
+        physique_url,
         last_seen: new Date().toISOString()
       }, { onConflict:'user_id' });
 
@@ -2360,6 +2568,15 @@ if(saveProfileBtn){
       .eq('user_id', user.id);
 
     if(profilePhotoInput) profilePhotoInput.value = '';
+    if(profilePhysiqueInput) profilePhysiqueInput.value = '';
+    if(pendingPhysiquePreviewUrl){
+      URL.revokeObjectURL(pendingPhysiquePreviewUrl);
+      pendingPhysiquePreviewUrl = null;
+    }
+    if(profilePhysiqueNote){
+      profilePhysiqueNote.textContent = 'Optional public physique photo. JPG, PNG, or WebP under 8 MB. Click Save Profile to apply it.';
+      profilePhysiqueNote.classList.remove('ready');
+    }
     if(pendingProfilePreviewUrl){
       URL.revokeObjectURL(pendingProfilePreviewUrl);
       pendingProfilePreviewUrl = null;
@@ -2407,6 +2624,30 @@ if(profilePhotoInput){
     if(profilePhotoNote){
       profilePhotoNote.textContent = '✓ Photo selected — click Save Profile to apply it.';
       profilePhotoNote.classList.add('ready');
+    }
+  });
+}
+
+if(profilePhysiqueInput){
+  profilePhysiqueInput.addEventListener('change', () => {
+    const file = profilePhysiqueInput.files?.[0] || null;
+
+    if(pendingPhysiquePreviewUrl){
+      URL.revokeObjectURL(pendingPhysiquePreviewUrl);
+      pendingPhysiquePreviewUrl = null;
+    }
+
+    if(!file){
+      refreshMemberProfile();
+      return;
+    }
+
+    pendingPhysiquePreviewUrl = URL.createObjectURL(file);
+    renderOwnPhysique(pendingPhysiquePreviewUrl);
+
+    if(profilePhysiqueNote){
+      profilePhysiqueNote.textContent = '✓ Physique selected — click Save Profile to publish it.';
+      profilePhysiqueNote.classList.add('ready');
     }
   });
 }
@@ -2467,6 +2708,7 @@ const chatPublicSets = document.getElementById('chatPublicSets');
 const chatPublicCurrentStreak = document.getElementById('chatPublicCurrentStreak');
 const chatPublicBestStreak = document.getElementById('chatPublicBestStreak');
 const chatPublicBio = document.getElementById('chatPublicBio');
+const chatPublicPhysique = document.getElementById('chatPublicPhysique');
 const chatDmBtn = document.getElementById('chatDmBtn');
 let chatIsSiteAdmin = false;
 let chatReplyTarget = null;
@@ -3105,6 +3347,9 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
     chatPublicBio.textContent = 'No bio yet.';
     chatPublicBio.classList.add('empty');
   }
+  if(chatPublicPhysique){
+    chatPublicPhysique.innerHTML = '<div class="chat-public-physique-empty">No physique photo added yet.</div>';
+  }
   chatPublicAchievements.innerHTML = '';
   renderPublicPresence(null);
 
@@ -3132,7 +3377,7 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
 
       client
         .from('member_presence')
-        .select('last_seen,display_name,avatar_url,bio')
+        .select('last_seen,display_name,avatar_url,bio,physique_url')
         .eq('user_id', userId)
         .maybeSingle(),
 
@@ -3182,6 +3427,12 @@ async function openChatPublicProfile(userId, displayName, avatarUrl){
         const publicBio = String(presenceRes.data.bio || '').trim();
         chatPublicBio.textContent = publicBio || 'No bio yet.';
         chatPublicBio.classList.toggle('empty', !publicBio);
+      }
+      if(chatPublicPhysique){
+        const physiqueUrl = String(presenceRes.data.physique_url || '').trim();
+        chatPublicPhysique.innerHTML = physiqueUrl
+          ? `<img src="${escapeChat(physiqueUrl)}" alt="${escapeChat(presenceRes.data.display_name || name)} physique photo">`
+          : '<div class="chat-public-physique-empty">No physique photo added yet.</div>';
       }
     }
 
@@ -4105,6 +4356,63 @@ async function uploadProfilePhoto(){
     .eq('user_id', session.user.id); // Sync avatar into old chat messages
   profilePhotoInput.value = '';
   await refreshMemberProfile();
+}
+
+
+async function removePhysiquePhoto(){
+  const { data: { session } } = await fpDb.auth.getSession();
+  if(!session?.user) return;
+
+  const user = session.user;
+  const meta = user.user_metadata || {};
+  const currentPath = meta.physique_path || '';
+
+  profileMessage.textContent = 'Removing physique photo...';
+  profileMessage.style.color = '#9aa1ad';
+
+  if(currentPath){
+    await fpDb.storage.from('physiques').remove([currentPath]);
+  }
+
+  const { error } = await fpDb.auth.updateUser({
+    data: { physique_url:null, physique_path:null }
+  });
+
+  if(error){
+    profileMessage.textContent = error.message;
+    profileMessage.style.color = '#ff5a6b';
+    return;
+  }
+
+  await fpDb
+    .from('member_presence')
+    .update({ physique_url:null })
+    .eq('user_id', user.id);
+
+  if(profilePhysiqueInput) profilePhysiqueInput.value = '';
+  if(pendingPhysiquePreviewUrl){
+    URL.revokeObjectURL(pendingPhysiquePreviewUrl);
+    pendingPhysiquePreviewUrl = null;
+  }
+
+  if(profilePhysiqueNote){
+    profilePhysiqueNote.textContent = 'Optional public physique photo. JPG, PNG, or WebP under 8 MB. Click Save Profile to apply it.';
+    profilePhysiqueNote.classList.remove('ready');
+  }
+
+  profileMessage.textContent = '✓ Physique photo removed.';
+  profileMessage.style.color = '#67e8a5';
+  profileMessage.style.fontWeight = '900';
+  renderOwnPhysique('');
+  await refreshMemberProfile();
+}
+
+if(removePhysiqueBtn){
+  removePhysiqueBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await removePhysiquePhoto();
+  });
 }
 
 async function removeProfilePhoto(){
