@@ -2687,66 +2687,153 @@ section{background:rgba(8,9,11,.60)}
 .reaction-bar{
   display:flex;
   align-items:center;
-  gap:5px;
+  gap:7px;
   flex-wrap:wrap;
   margin-top:8px;
+  position:relative;
 }
-.reaction-btn{
-  min-width:34px;
-  height:29px;
+.reaction-control{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+}
+.reaction-toggle{
+  height:28px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  gap:4px;
   border:1px solid #292f37;
   border-radius:999px;
   background:#11151a;
-  color:#abb3bd;
-  padding:0 8px;
+  color:#8f98a4;
+  padding:0 10px;
   font-family:inherit;
-  font-size:13px;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  transition:border-color .15s ease,background .15s ease,transform .15s ease;
-}
-.reaction-btn:hover{
-  border-color:#454e59;
-  background:#171c22;
-  transform:translateY(-1px);
-}
-.reaction-btn.active{
-  border-color:rgba(239,67,85,.62);
-  background:rgba(239,67,85,.13);
-  color:#fff;
-}
-.reaction-btn .reaction-count{
   font-size:9px;
   font-weight:900;
-  color:#89929e;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:border-color .15s ease,background .15s ease,color .15s ease;
 }
-.reaction-btn.active .reaction-count{color:#ff9aa4}
-.reaction-btn.zero .reaction-count{display:none}
+.reaction-toggle:hover{
+  border-color:#454e59;
+  background:#171c22;
+  color:#fff;
+}
+.reaction-toggle.has-reaction{
+  border-color:rgba(239,67,85,.5);
+  background:rgba(239,67,85,.1);
+  color:#ff929d;
+}
+.reaction-picker{
+  position:absolute;
+  left:0;
+  bottom:calc(100% + 7px);
+  z-index:12050;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:6px;
+  border:1px solid #303741;
+  border-radius:13px;
+  background:#15191f;
+  box-shadow:0 12px 35px rgba(0,0,0,.48);
+  white-space:nowrap;
+}
+.reaction-picker.hidden{display:none}
+.reaction-btn{
+  width:36px;
+  min-width:36px;
+  height:36px;
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:transparent;
+  color:#fff;
+  padding:0;
+  font-family:inherit;
+  font-size:18px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .12s ease,border-color .12s ease,transform .12s ease;
+}
+.reaction-btn:hover{
+  background:#20262e;
+  transform:translateY(-1px) scale(1.05);
+}
+.reaction-btn.active{
+  border-color:rgba(239,67,85,.65);
+  background:rgba(239,67,85,.15);
+}
+.reaction-count{
+  position:absolute;
+  right:2px;
+  bottom:1px;
+  min-width:14px;
+  height:14px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#282e36;
+  color:#d7dce2;
+  font-size:7px;
+  font-weight:950;
+  padding:0 3px;
+}
+.reaction-btn.active .reaction-count{
+  background:#8d2632;
+  color:#fff;
+}
+.reaction-summary{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:wrap;
+}
+.reaction-summary-chip{
+  height:25px;
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  border:1px solid #262c33;
+  border-radius:999px;
+  background:#0e1216;
+  color:#8d96a1;
+  padding:0 7px;
+  font-size:10px;
+  font-weight:850;
+}
+.reaction-summary-chip.mine{
+  border-color:rgba(239,67,85,.42);
+  color:#f3a1a9;
+}
 .chat-reactions{margin-top:7px}
 .thread-card-reactions{margin-top:10px}
-.thread-card-reactions .reaction-btn{
-  height:27px;
-  min-width:32px;
-  padding:0 7px;
-  font-size:12px;
-}
-.reaction-bar-thread{
-  margin:9px 0 2px;
-}
-.thread-reply .reaction-bar{
-  margin-top:8px;
-}
+.reaction-bar-thread{margin:9px 0 2px}
+.thread-reply .reaction-bar{margin-top:8px}
+
 @media(max-width:650px){
-  .reaction-bar{gap:4px}
+  .reaction-toggle{
+    height:30px;
+    padding:0 10px;
+    font-size:10px;
+  }
+  .reaction-picker{
+    gap:3px;
+    padding:5px;
+    max-width:calc(100vw - 30px);
+  }
   .reaction-btn{
-    min-width:32px;
-    height:28px;
-    padding:0 7px;
-    font-size:12px;
+    width:35px;
+    min-width:35px;
+    height:35px;
+    font-size:17px;
+  }
+  .reaction-summary-chip{
+    height:26px;
+    font-size:10px;
   }
 }
 
@@ -6114,23 +6201,49 @@ function reactionBarHtml(targetType,targetId,reactionState={},extraClass=''){
   const counts = reactionState?.counts || {};
   const mine = reactionState?.mine || '';
 
-  return `<div class="reaction-bar ${extraClass}" data-reaction-bar="${escapeChat(targetType)}:${Number(targetId)}">
-    ${GYMCELS_REACTIONS.map(reaction => {
+  const usedReactions = GYMCELS_REACTIONS
+    .filter(reaction => Number(counts[reaction] || 0) > 0)
+    .map(reaction => {
       const count = Number(counts[reaction] || 0);
-      const active = mine === reaction;
+      const mineClass = mine === reaction ? ' mine' : '';
 
-      return `<button
-        class="reaction-btn ${active ? 'active' : ''} ${count ? '' : 'zero'}"
+      return `<span class="reaction-summary-chip${mineClass}" title="${count} reaction${count === 1 ? '' : 's'}">
+        <span>${reaction}</span>
+        <span>${count}</span>
+      </span>`;
+    }).join('');
+
+  return `<div class="reaction-bar ${extraClass}" data-reaction-bar="${escapeChat(targetType)}:${Number(targetId)}">
+    <div class="reaction-control">
+      <button
+        class="reaction-toggle ${mine ? 'has-reaction' : ''}"
         type="button"
-        data-react-type="${escapeChat(targetType)}"
-        data-react-id="${Number(targetId)}"
-        data-react-value="${reaction}"
-        aria-pressed="${active ? 'true' : 'false'}"
-        title="${active ? 'Remove your reaction' : 'React'}">
-          <span>${reaction}</span>
-          <span class="reaction-count">${count}</span>
-        </button>`;
-    }).join('')}
+        data-reaction-toggle
+        aria-expanded="false">
+        ${mine ? `${mine} Reacted` : 'React'}
+      </button>
+
+      <div class="reaction-picker hidden" role="menu">
+        ${GYMCELS_REACTIONS.map(reaction => {
+          const count = Number(counts[reaction] || 0);
+          const active = mine === reaction;
+
+          return `<button
+            class="reaction-btn ${active ? 'active' : ''}"
+            type="button"
+            data-react-type="${escapeChat(targetType)}"
+            data-react-id="${Number(targetId)}"
+            data-react-value="${reaction}"
+            aria-pressed="${active ? 'true' : 'false'}"
+            title="${active ? 'Remove your reaction' : 'React'}">
+              <span class="reaction-emoji">${reaction}</span>
+              ${count ? `<span class="reaction-count">${count}</span>` : ''}
+          </button>`;
+        }).join('')}
+      </div>
+    </div>
+
+    ${usedReactions ? `<div class="reaction-summary">${usedReactions}</div>` : ''}
   </div>`;
 }
 
@@ -6190,23 +6303,61 @@ async function toggleGymcelsReaction(targetType,targetId,reaction){
   }
 }
 
+function closeAllReactionPickers(exceptControl=null){
+  document.querySelectorAll('.reaction-control').forEach(control => {
+    if(exceptControl && control === exceptControl) return;
+
+    control.querySelector('.reaction-picker')?.classList.add('hidden');
+    const toggle = control.querySelector('[data-reaction-toggle]');
+    if(toggle) toggle.setAttribute('aria-expanded','false');
+  });
+}
+
 document.addEventListener('click',async (e) => {
+  const toggle = e.target.closest('[data-reaction-toggle]');
+
+  if(toggle){
+    e.preventDefault();
+    e.stopPropagation();
+
+    const control = toggle.closest('.reaction-control');
+    const picker = control?.querySelector('.reaction-picker');
+    if(!picker) return;
+
+    const opening = picker.classList.contains('hidden');
+
+    closeAllReactionPickers(control);
+    picker.classList.toggle('hidden',!opening);
+    toggle.setAttribute('aria-expanded',opening ? 'true' : 'false');
+    return;
+  }
+
   const btn = e.target.closest('[data-react-type][data-react-id][data-react-value]');
-  if(!btn) return;
 
-  e.preventDefault();
-  e.stopPropagation();
+  if(btn){
+    e.preventDefault();
+    e.stopPropagation();
 
-  btn.disabled = true;
+    const control = btn.closest('.reaction-control');
+    control?.querySelector('.reaction-picker')?.classList.add('hidden');
+    control?.querySelector('[data-reaction-toggle]')?.setAttribute('aria-expanded','false');
 
-  try{
-    await toggleGymcelsReaction(
-      btn.dataset.reactType,
-      Number(btn.dataset.reactId),
-      btn.dataset.reactValue
-    );
-  }finally{
-    btn.disabled = false;
+    btn.disabled = true;
+
+    try{
+      await toggleGymcelsReaction(
+        btn.dataset.reactType,
+        Number(btn.dataset.reactId),
+        btn.dataset.reactValue
+      );
+    }finally{
+      btn.disabled = false;
+    }
+    return;
+  }
+
+  if(!e.target.closest('.reaction-control')){
+    closeAllReactionPickers();
   }
 });
 
@@ -7341,7 +7492,7 @@ if(threadFilters){
 
 if(threadsList){
   threadsList.addEventListener('click', (e) => {
-    if(e.target.closest('[data-react-type]')) return;
+    if(e.target.closest('.reaction-control')) return;
 
     const card = e.target.closest('[data-open-thread]');
     if(card) openThread(Number(card.dataset.openThread));
@@ -7349,7 +7500,7 @@ if(threadsList){
 
   threadsList.addEventListener('keydown',(e) => {
     if(e.key !== 'Enter' && e.key !== ' ') return;
-    if(e.target.closest('[data-react-type]')) return;
+    if(e.target.closest('.reaction-control')) return;
 
     const card = e.target.closest('[data-open-thread]');
     if(card){
