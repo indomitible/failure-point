@@ -3229,6 +3229,139 @@ section{background:rgba(8,9,11,.60)}
   .nutrition-scan-frame{left:9%;right:9%;top:33%;height:30%}
 }
 
+
+/* NUTRITION SERVING MULTIPLIER */
+.nutrition-serving-field{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.nutrition-serving-label{
+  color:#aeb6c0;
+  font-size:9px;
+  font-weight:850;
+}
+.nutrition-serving-stepper{
+  display:grid;
+  grid-template-columns:36px minmax(0,1fr) 36px;
+  gap:5px;
+}
+.nutrition-serving-stepper button{
+  border:1px solid #303741;
+  border-radius:9px;
+  background:#171c22;
+  color:#fff;
+  font:inherit;
+  font-size:15px;
+  font-weight:950;
+  cursor:pointer;
+}
+.nutrition-serving-stepper button:hover{border-color:#4b5662}
+.nutrition-serving-stepper input{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #303741;
+  border-radius:9px;
+  background:#090c10;
+  color:#fff;
+  padding:10px 6px;
+  font:inherit;
+  font-size:11px;
+  font-weight:900;
+  text-align:center;
+  outline:none;
+}
+.nutrition-serving-field>small{
+  min-height:13px;
+  color:#737d88;
+  font-size:8px;
+  line-height:1.35;
+}
+.nutrition-meal-form label>span small{
+  color:#68727d;
+  font-size:7px;
+  font-weight:700;
+}
+
+.nutrition-scan-servings{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px 12px;
+  align-items:center;
+  margin:10px 0 12px;
+  padding:10px;
+  border:1px solid #29313a;
+  border-radius:12px;
+  background:#11161c;
+}
+.nutrition-scan-servings strong{
+  display:block;
+  color:#fff;
+  font-size:10px;
+}
+.nutrition-scan-servings>div:first-child>span{
+  display:block;
+  margin-top:2px;
+  color:#727d88;
+  font-size:8px;
+  line-height:1.4;
+}
+.nutrition-scan-serving-controls{
+  display:grid;
+  grid-template-columns:34px 58px 34px;
+  gap:4px;
+}
+.nutrition-scan-serving-controls button,
+.nutrition-scan-serving-quick button{
+  border:1px solid #303741;
+  border-radius:8px;
+  background:#1a2027;
+  color:#fff;
+  font:inherit;
+  font-weight:950;
+  cursor:pointer;
+}
+.nutrition-scan-serving-controls button{
+  height:34px;
+  font-size:15px;
+}
+.nutrition-scan-serving-controls input{
+  width:58px;
+  box-sizing:border-box;
+  border:1px solid #303741;
+  border-radius:8px;
+  background:#070a0e;
+  color:#fff;
+  padding:7px 4px;
+  font:inherit;
+  font-size:10px;
+  font-weight:950;
+  text-align:center;
+  outline:none;
+}
+.nutrition-scan-serving-quick{
+  grid-column:1/-1;
+  display:flex;
+  gap:5px;
+}
+.nutrition-scan-serving-quick button{
+  flex:1;
+  min-height:29px;
+  color:#9ea8b3;
+  font-size:8px;
+}
+.nutrition-scan-serving-quick button.active{
+  border-color:rgba(239,67,85,.55);
+  background:rgba(239,67,85,.13);
+  color:#ff9ba5;
+}
+
+@media(max-width:480px){
+  .nutrition-scan-servings{grid-template-columns:1fr}
+  .nutrition-scan-serving-controls{justify-content:start}
+  .nutrition-scan-serving-quick{grid-column:auto}
+}
+
 </style>
 </head>
 <body>
@@ -4109,15 +4242,15 @@ section{background:rgba(8,9,11,.60)}
               <input id="nutritionTargetCalories" type="number" min="0" max="20000" step="1" inputmode="numeric" placeholder="2800">
             </label>
             <label>
-              <span>Protein (g)</span>
+              <span>Protein (g) <small>per serving</small></span>
               <input id="nutritionTargetProtein" type="number" min="0" max="2000" step="1" inputmode="decimal" placeholder="200">
             </label>
             <label>
-              <span>Carbs (g)</span>
+              <span>Carbs (g) <small>per serving</small></span>
               <input id="nutritionTargetCarbs" type="number" min="0" max="3000" step="1" inputmode="decimal" placeholder="320">
             </label>
             <label>
-              <span>Fat (g)</span>
+              <span>Fat (g) <small>per serving</small></span>
               <input id="nutritionTargetFat" type="number" min="0" max="1000" step="1" inputmode="decimal" placeholder="80">
             </label>
           </div>
@@ -4204,8 +4337,18 @@ section{background:rgba(8,9,11,.60)}
               </select>
             </label>
 
+            <div class="nutrition-serving-field">
+              <span class="nutrition-serving-label">Servings</span>
+              <div class="nutrition-serving-stepper">
+                <button id="nutritionServingMinus" type="button" aria-label="Decrease servings">−</button>
+                <input id="nutritionServingCount" type="number" min="0.5" max="20" step="0.5" value="1" inputmode="decimal" aria-label="Number of servings">
+                <button id="nutritionServingPlus" type="button" aria-label="Increase servings">+</button>
+              </div>
+              <small id="nutritionServingPreview">1 serving</small>
+            </div>
+
             <label>
-              <span>Calories</span>
+              <span>Calories <small>per serving</small></span>
               <input id="nutritionCalories" type="number" min="0" max="20000" step="1" inputmode="numeric" placeholder="650">
             </label>
 
@@ -4275,9 +4418,29 @@ section{background:rgba(8,9,11,.60)}
     </div>
 
     <p class="nutrition-scanner-help">
-      Aim at the <strong>UPC/EAN barcode</strong> on the package. If a QR code contains a real
-      product code, Gymcels will use it too.
+      Choose how many servings you are eating, then aim at the <strong>UPC/EAN barcode</strong>.
+      Gymcels will multiply the macros and log the total automatically.
     </p>
+
+    <div class="nutrition-scan-servings">
+      <div>
+        <strong>Servings to log</strong>
+        <span>The scanned nutrition is multiplied before it is saved.</span>
+      </div>
+
+      <div class="nutrition-scan-serving-controls">
+        <button id="nutritionScanServingMinus" type="button" aria-label="Decrease scan servings">−</button>
+        <input id="nutritionScanServingCount" type="number" min="0.5" max="20" step="0.5" value="1" inputmode="decimal" aria-label="Scan servings">
+        <button id="nutritionScanServingPlus" type="button" aria-label="Increase scan servings">+</button>
+      </div>
+
+      <div class="nutrition-scan-serving-quick">
+        <button type="button" data-scan-servings="0.5">½×</button>
+        <button type="button" data-scan-servings="1">1×</button>
+        <button type="button" data-scan-servings="2">2×</button>
+        <button type="button" data-scan-servings="3">3×</button>
+      </div>
+    </div>
 
     <div class="nutrition-camera-shell">
       <div id="nutritionBarcodeReader" class="nutrition-barcode-reader"></div>
@@ -4785,6 +4948,10 @@ const nutritionProtein = document.getElementById('nutritionProtein');
 const nutritionCarbs = document.getElementById('nutritionCarbs');
 const nutritionFat = document.getElementById('nutritionFat');
 const nutritionNotes = document.getElementById('nutritionNotes');
+const nutritionServingCount = document.getElementById('nutritionServingCount');
+const nutritionServingMinus = document.getElementById('nutritionServingMinus');
+const nutritionServingPlus = document.getElementById('nutritionServingPlus');
+const nutritionServingPreview = document.getElementById('nutritionServingPreview');
 const nutritionSaveMealBtn = document.getElementById('nutritionSaveMealBtn');
 const nutritionCancelEditBtn = document.getElementById('nutritionCancelEditBtn');
 const nutritionFormStatus = document.getElementById('nutritionFormStatus');
@@ -4801,6 +4968,9 @@ const nutritionBarcodeInput = document.getElementById('nutritionBarcodeInput');
 const nutritionBarcodeLookupBtn = document.getElementById('nutritionBarcodeLookupBtn');
 const nutritionScannerStatus = document.getElementById('nutritionScannerStatus');
 const nutritionCameraLabel = document.getElementById('nutritionCameraLabel');
+const nutritionScanServingCount = document.getElementById('nutritionScanServingCount');
+const nutritionScanServingMinus = document.getElementById('nutritionScanServingMinus');
+const nutritionScanServingPlus = document.getElementById('nutritionScanServingPlus');
 
 let nutritionSavedSearchRows = [];
 let nutritionSearchTimer = null;
@@ -4840,6 +5010,52 @@ function nutritionShiftDate(iso,days){
 function nutritionNumber(value){
   const n = Number(value);
   return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+function nutritionServingValue(input){
+  let value = Number(input?.value ?? input ?? 1);
+  if(!Number.isFinite(value)) value = 1;
+  value = Math.max(0.5,Math.min(20,Math.round(value * 2) / 2));
+  return value;
+}
+
+function setNutritionServingInput(input,value){
+  if(!input) return 1;
+  const safe = nutritionServingValue(value);
+  input.value = String(safe);
+  return safe;
+}
+
+function nutritionServingText(value){
+  const n = nutritionServingValue(value);
+  return `${nutritionFormat(n)} serving${n === 1 ? '' : 's'}`;
+}
+
+function updateNutritionServingPreview(){
+  if(!nutritionServingPreview) return;
+
+  const servings = nutritionServingValue(nutritionServingCount);
+  const calories = nutritionNumber(nutritionCalories?.value) * servings;
+  const protein = nutritionNumber(nutritionProtein?.value) * servings;
+  const carbs = nutritionNumber(nutritionCarbs?.value) * servings;
+  const fat = nutritionNumber(nutritionFat?.value) * servings;
+
+  const hasMacros = calories || protein || carbs || fat;
+
+  nutritionServingPreview.textContent = hasMacros
+    ? `${nutritionServingText(servings)} = ${nutritionFormat(calories,0)} cal · ${nutritionFormat(protein)}g P · ${nutritionFormat(carbs)}g C · ${nutritionFormat(fat)}g F`
+    : nutritionServingText(servings);
+}
+
+function updateScanServingButtons(){
+  const value = nutritionServingValue(nutritionScanServingCount);
+
+  document.querySelectorAll('[data-scan-servings]').forEach(btn => {
+    btn.classList.toggle(
+      'active',
+      Number(btn.dataset.scanServings) === value
+    );
+  });
 }
 
 function nutritionFormat(value,maxDecimals=1){
@@ -4892,6 +5108,8 @@ function resetNutritionMealForm(){
   if(nutritionCarbs) nutritionCarbs.value = '';
   if(nutritionFat) nutritionFat.value = '';
   if(nutritionNotes) nutritionNotes.value = '';
+  setNutritionServingInput(nutritionServingCount,1);
+  updateNutritionServingPreview();
   if(nutritionSaveMealBtn) nutritionSaveMealBtn.textContent = 'Add meal';
   nutritionCancelEditBtn?.classList.add('hidden');
   setNutritionStatus('');
@@ -5167,6 +5385,9 @@ function beginNutritionEdit(row){
   nutritionCarbs.value = nutritionNumber(row.carbs_g);
   nutritionFat.value = nutritionNumber(row.fat_g);
   nutritionNotes.value = row.notes || '';
+  // Existing meal rows already store their total macros, so edit them as 1 serving.
+  setNutritionServingInput(nutritionServingCount,1);
+  updateNutritionServingPreview();
   nutritionSaveMealBtn.textContent = 'Update meal';
   nutritionCancelEditBtn.classList.remove('hidden');
   setNutritionStatus('');
@@ -5186,16 +5407,22 @@ async function saveNutritionMeal(){
     return;
   }
 
+  const servings = nutritionServingValue(nutritionServingCount);
+  const userNotes = String(nutritionNotes?.value || '').trim();
+
   const row = {
     user_id:nutritionSession.user.id,
     meal_date:nutritionDate.value || nutritionLocalDateString(),
     meal_type:nutritionMealType.value || 'snack',
     food_name:foodName,
-    calories:nutritionNumber(nutritionCalories.value),
-    protein_g:nutritionNumber(nutritionProtein.value),
-    carbs_g:nutritionNumber(nutritionCarbs.value),
-    fat_g:nutritionNumber(nutritionFat.value),
-    notes:String(nutritionNotes?.value || '').trim() || null,
+    calories:nutritionNumber(nutritionCalories.value) * servings,
+    protein_g:nutritionNumber(nutritionProtein.value) * servings,
+    carbs_g:nutritionNumber(nutritionCarbs.value) * servings,
+    fat_g:nutritionNumber(nutritionFat.value) * servings,
+    notes:[
+      servings !== 1 ? nutritionServingText(servings) : '',
+      userNotes
+    ].filter(Boolean).join(' · ') || null,
     updated_at:new Date().toISOString()
   };
 
@@ -5310,6 +5537,8 @@ function fillNutritionFormFromMeal(row, sourceLabel='Saved meal'){
   nutritionCarbs.value = nutritionNumber(row.carbs_g);
   nutritionFat.value = nutritionNumber(row.fat_g);
   nutritionNotes.value = row.notes || '';
+  setNutritionServingInput(nutritionServingCount,1);
+  updateNutritionServingPreview();
   nutritionSaveMealBtn.textContent = 'Add meal';
   nutritionCancelEditBtn.classList.add('hidden');
 
@@ -5432,6 +5661,56 @@ function setNutritionScannerStatus(text='',type=''){
   nutritionScannerStatus.textContent = text;
   nutritionScannerStatus.className = `nutrition-scanner-status ${type || ''}`;
 }
+
+
+function adjustNutritionServing(input,delta){
+  const next = nutritionServingValue(input) + delta;
+  setNutritionServingInput(input,next);
+}
+
+nutritionServingMinus?.addEventListener('click',() => {
+  adjustNutritionServing(nutritionServingCount,-0.5);
+  updateNutritionServingPreview();
+});
+nutritionServingPlus?.addEventListener('click',() => {
+  adjustNutritionServing(nutritionServingCount,0.5);
+  updateNutritionServingPreview();
+});
+nutritionServingCount?.addEventListener('input',updateNutritionServingPreview);
+nutritionServingCount?.addEventListener('change',() => {
+  setNutritionServingInput(nutritionServingCount,nutritionServingCount.value);
+  updateNutritionServingPreview();
+});
+
+[nutritionCalories,nutritionProtein,nutritionCarbs,nutritionFat].forEach(input => {
+  input?.addEventListener('input',updateNutritionServingPreview);
+});
+
+nutritionScanServingMinus?.addEventListener('click',() => {
+  adjustNutritionServing(nutritionScanServingCount,-0.5);
+  updateScanServingButtons();
+});
+nutritionScanServingPlus?.addEventListener('click',() => {
+  adjustNutritionServing(nutritionScanServingCount,0.5);
+  updateScanServingButtons();
+});
+nutritionScanServingCount?.addEventListener('input',updateScanServingButtons);
+nutritionScanServingCount?.addEventListener('change',() => {
+  setNutritionServingInput(nutritionScanServingCount,nutritionScanServingCount.value);
+  updateScanServingButtons();
+});
+
+document.querySelectorAll('[data-scan-servings]').forEach(btn => {
+  btn.addEventListener('click',() => {
+    setNutritionServingInput(nutritionScanServingCount,btn.dataset.scanServings);
+    updateScanServingButtons();
+  });
+});
+
+setNutritionServingInput(nutritionServingCount,1);
+setNutritionServingInput(nutritionScanServingCount,1);
+updateNutritionServingPreview();
+updateScanServingButtons();
 
 function nutritionAutoMealType(){
   const hour = new Date().getHours();
@@ -5611,6 +5890,7 @@ async function autoLogScannedFood(product,barcode){
 
   const mealType = nutritionAutoMealType();
   const mealDate = nutritionDate?.value || nutritionLocalDateString();
+  const servings = nutritionServingValue(nutritionScanServingCount);
 
   const {error} = await nutritionDb
     .from('meal_logs')
@@ -5619,11 +5899,14 @@ async function autoLogScannedFood(product,barcode){
       meal_date:mealDate,
       meal_type:mealType,
       food_name:meal.food_name,
-      calories:nutritionNumber(meal.calories),
-      protein_g:nutritionNumber(meal.protein_g),
-      carbs_g:nutritionNumber(meal.carbs_g),
-      fat_g:nutritionNumber(meal.fat_g),
-      notes:meal.notes,
+      calories:nutritionNumber(meal.calories) * servings,
+      protein_g:nutritionNumber(meal.protein_g) * servings,
+      carbs_g:nutritionNumber(meal.carbs_g) * servings,
+      fat_g:nutritionNumber(meal.fat_g) * servings,
+      notes:[
+        nutritionServingText(servings),
+        meal.notes
+      ].filter(Boolean).join(' · '),
       updated_at:new Date().toISOString()
     });
 
@@ -5637,7 +5920,8 @@ async function autoLogScannedFood(product,barcode){
 
   return {
     name:meal.food_name,
-    calories:nutritionNumber(meal.calories),
+    calories:nutritionNumber(meal.calories) * servings,
+    servings,
     mealType,
     mealDate
   };
@@ -5694,14 +5978,14 @@ async function handleNutritionScan(decodedText){
     const logged = await lookupAndAutoLogNutritionCode(decodedText);
 
     setNutritionScannerStatus(
-      `✓ Logged ${logged.name} · ${nutritionFormat(logged.calories,0)} cal · ${nutritionMealTypeLabel(logged.mealType)}`,
+      `✓ Logged ${nutritionServingText(logged.servings)} of ${logged.name} · ${nutritionFormat(logged.calories,0)} cal · ${nutritionMealTypeLabel(logged.mealType)}`,
       'success'
     );
 
     if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Food logged ✓';
 
     setNutritionStatus(
-      `✓ ${logged.name} was added to ${nutritionMealTypeLabel(logged.mealType)}.`,
+      `✓ ${nutritionServingText(logged.servings)} of ${logged.name} was added to ${nutritionMealTypeLabel(logged.mealType)}.`,
       'success'
     );
 
@@ -5839,11 +6123,11 @@ nutritionBarcodeLookupBtn?.addEventListener('click',async () => {
     const logged = await lookupAndAutoLogNutritionCode(nutritionBarcodeInput?.value || '');
 
     setNutritionScannerStatus(
-      `✓ Logged ${logged.name} · ${nutritionFormat(logged.calories,0)} cal · ${nutritionMealTypeLabel(logged.mealType)}`,
+      `✓ Logged ${nutritionServingText(logged.servings)} of ${logged.name} · ${nutritionFormat(logged.calories,0)} cal · ${nutritionMealTypeLabel(logged.mealType)}`,
       'success'
     );
     setNutritionStatus(
-      `✓ ${logged.name} was added to ${nutritionMealTypeLabel(logged.mealType)}.`,
+      `✓ ${nutritionServingText(logged.servings)} of ${logged.name} was added to ${nutritionMealTypeLabel(logged.mealType)}.`,
       'success'
     );
     setTimeout(closeNutritionScanner,850);
