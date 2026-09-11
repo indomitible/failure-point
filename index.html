@@ -5280,6 +5280,79 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* PINNED FRIENDS + DMS */
+.friend-action.pin{
+  background:#1c2026;
+  border:1px solid #303741;
+  color:#aab2bd;
+}
+.friend-action.pin:hover{
+  border-color:#ef4355;
+  color:#fff;
+}
+.friend-action.pin.pinned{
+  background:rgba(239,67,85,.12);
+  border-color:rgba(239,67,85,.55);
+  color:#ff7d8a;
+}
+.friend-row:has(.friend-action.pin.pinned){
+  border-color:rgba(239,67,85,.36);
+  background:linear-gradient(90deg,rgba(239,67,85,.055),#11151a 34%);
+}
+
+.dm-friend-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 34px;
+  gap:6px;
+  margin:0 0 7px;
+  align-items:stretch;
+}
+.dm-friend-row .dm-friend{
+  margin:0;
+  min-width:0;
+}
+.dm-friend-row.pinned .dm-friend{
+  border-color:rgba(239,67,85,.38);
+  background:linear-gradient(90deg,rgba(239,67,85,.065),#11151a 42%);
+}
+.dm-pin-btn{
+  width:34px;
+  min-width:34px;
+  border:1px solid #2d343d;
+  border-radius:9px;
+  background:#15191e;
+  color:#8e98a4;
+  font:inherit;
+  font-size:14px;
+  cursor:pointer;
+}
+.dm-pin-btn:hover{
+  border-color:#ef4355;
+  color:#fff;
+}
+.dm-pin-btn.pinned{
+  border-color:rgba(239,67,85,.6);
+  background:rgba(239,67,85,.12);
+  color:#ff7785;
+}
+
+@media(max-width:520px){
+  .friend-actions{
+    justify-content:flex-end;
+  }
+  .friend-action{
+    padding:7px 8px;
+  }
+  .dm-friend-row{
+    grid-template-columns:minmax(0,1fr) 38px;
+  }
+  .dm-pin-btn{
+    width:38px;
+    min-width:38px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -10114,6 +10187,76 @@ document.addEventListener('visibilitychange', () => {
 });
 
 
+function pinnedFriendStorageKey(ownerUserId){
+  return `gymcels_pinned_friends:${ownerUserId || 'guest'}`;
+}
+
+function getPinnedFriendIds(ownerUserId){
+  try{
+    const raw = localStorage.getItem(pinnedFriendStorageKey(ownerUserId));
+    const ids = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(ids) ? ids.filter(Boolean).map(String) : []);
+  }catch(_){
+    return new Set();
+  }
+}
+
+function savePinnedFriendIds(ownerUserId, ids){
+  try{
+    localStorage.setItem(
+      pinnedFriendStorageKey(ownerUserId),
+      JSON.stringify([...ids].map(String))
+    );
+  }catch(_){}
+}
+
+function isFriendPinned(ownerUserId, friendUserId){
+  return getPinnedFriendIds(ownerUserId).has(String(friendUserId || ''));
+}
+
+function togglePinnedFriend(ownerUserId, friendUserId){
+  const friendId = String(friendUserId || '');
+  if(!ownerUserId || !friendId) return false;
+
+  const ids = getPinnedFriendIds(ownerUserId);
+
+  if(ids.has(friendId)){
+    ids.delete(friendId);
+    savePinnedFriendIds(ownerUserId, ids);
+    return false;
+  }
+
+  ids.add(friendId);
+  savePinnedFriendIds(ownerUserId, ids);
+  return true;
+}
+
+function unpinFriend(ownerUserId, friendUserId){
+  const ids = getPinnedFriendIds(ownerUserId);
+  const removed = ids.delete(String(friendUserId || ''));
+  if(removed) savePinnedFriendIds(ownerUserId, ids);
+}
+
+function friendOtherUserId(row, me){
+  if(!row) return '';
+  return row.requester_id === me ? row.addressee_id : row.requester_id;
+}
+
+function sortPinnedFirst(items, ownerUserId, idGetter){
+  const pins = getPinnedFriendIds(ownerUserId);
+
+  return [...items].sort((a,b) => {
+    const aId = String(idGetter(a) || '');
+    const bId = String(idGetter(b) || '');
+    const aPinned = pins.has(aId) ? 1 : 0;
+    const bPinned = pins.has(bId) ? 1 : 0;
+
+    if(aPinned !== bPinned) return bPinned - aPinned;
+    return 0;
+  });
+}
+
+
 function friendAvatarMarkup(person, online){
   const name = person?.display_name || 'Member';
   const avatar = person?.avatar_url || '';
@@ -10384,7 +10527,11 @@ async function loadFriendsSection(){
 
     const presenceMap = await getPresenceMapForUsers(otherIds);
 
-    const accepted = friendships.filter(row => row.status === 'accepted');
+    const accepted = sortPinnedFirst(
+      friendships.filter(row => row.status === 'accepted'),
+      me,
+      row => friendOtherUserId(row,me)
+    );
     const incoming = friendships.filter(row => row.status === 'pending' && row.addressee_id === me);
     const sent = friendships.filter(row => row.status === 'pending' && row.requester_id === me);
 
@@ -10396,14 +10543,21 @@ async function loadFriendsSection(){
       ? accepted.map(row => {
           const otherId = row.requester_id === me ? row.addressee_id : row.requester_id;
           const person = presenceMap[otherId] || {user_id:otherId,display_name:'Member',avatar_url:null,last_seen:null};
+          const pinned = isFriendPinned(me,otherId);
+
           return renderFriendPersonRow(
             person,
             `<div class="friend-actions">
+              <button class="friend-action pin ${pinned ? 'pinned' : ''}" type="button"
+                data-friend-pin-user="${escapeChat(otherId)}"
+                title="${pinned ? 'Unpin friend' : 'Pin friend'}">${pinned ? '📌 Pinned' : '📌 Pin'}</button>
               <button class="friend-action" type="button"
                 data-dm-user="${escapeChat(otherId)}"
                 data-dm-name="${escapeChat(person.display_name || 'Member')}"
                 data-dm-avatar="${escapeChat(person.avatar_url || '')}">Message</button>
-              <button class="friend-action secondary" type="button" data-friend-remove="${row.id}">Remove</button>
+              <button class="friend-action secondary" type="button"
+                data-friend-remove="${row.id}"
+                data-friend-remove-user="${escapeChat(otherId)}">Remove</button>
             </div>`
           );
         }).join('')
@@ -10443,9 +10597,10 @@ async function loadFriendsSection(){
 }
 
 async function handleFriendsSectionAction(e){
+  const pinBtn = e.target.closest('[data-friend-pin-user]');
   const acceptBtn = e.target.closest('[data-friend-accept]');
   const removeBtn = e.target.closest('[data-friend-remove]');
-  if(!acceptBtn && !removeBtn) return;
+  if(!pinBtn && !acceptBtn && !removeBtn) return;
 
   e.preventDefault();
   e.stopPropagation();
@@ -10453,6 +10608,16 @@ async function handleFriendsSectionAction(e){
   try{
     const client = window.gymcelsLolDb;
     if(!client) throw new Error('Friends database connection is not ready.');
+
+    const session = await getChatSession();
+    if(!session?.user) throw new Error('Log in first.');
+
+    if(pinBtn){
+      togglePinnedFriend(session.user.id,pinBtn.dataset.friendPinUser);
+      await loadFriendsSection();
+      await loadDmFriends();
+      return;
+    }
 
     if(acceptBtn){
       const friendshipId = Number(acceptBtn.dataset.friendAccept);
@@ -10462,11 +10627,17 @@ async function handleFriendsSectionAction(e){
 
     if(removeBtn){
       const friendshipId = Number(removeBtn.dataset.friendRemove);
+      const removedUserId = removeBtn.dataset.friendRemoveUser || '';
       const { error } = await client.rpc('remove_friendship', { friendship_id: friendshipId });
       if(error) throw error;
+
+      if(removedUserId){
+        unpinFriend(session.user.id,removedUserId);
+      }
     }
 
     await loadFriendsSection();
+    await loadDmFriends();
   }catch(err){
     if(friendsStatus){
       friendsStatus.textContent = err?.message || String(err);
@@ -15799,29 +15970,66 @@ async function loadDmFriends(){
     user_id:id, display_name:'Member', avatar_url:null, last_seen:null
   });
 
+  const pinnedIds = getPinnedFriendIds(me);
+
   people.sort((a,b) => {
+    const aPinned = pinnedIds.has(String(a.user_id)) ? 1 : 0;
+    const bPinned = pinnedIds.has(String(b.user_id)) ? 1 : 0;
+    if(aPinned !== bPinned) return bPinned - aPinned;
+
     const aOnline = isPresenceOnline(a.last_seen) ? 1 : 0;
     const bOnline = isPresenceOnline(b.last_seen) ? 1 : 0;
     if(aOnline !== bOnline) return bOnline - aOnline;
+
     return String(a.display_name || '').localeCompare(String(b.display_name || ''));
   });
 
   dmFriendList.innerHTML = people.map(person => {
     const online = isPresenceOnline(person.last_seen);
-    const id = escapeChat(person.user_id);
+    const rawId = String(person.user_id || '');
+    const id = escapeChat(rawId);
     const name = escapeChat(person.display_name || 'Member');
     const avatar = escapeChat(person.avatar_url || '');
     const active = person.user_id === dmActiveUserId ? 'active' : '';
+    const pinned = pinnedIds.has(rawId);
 
-    return `<button class="dm-friend ${active}" type="button"
-      data-dm-user="${id}" data-dm-name="${name}" data-dm-avatar="${avatar}">
-      ${friendAvatarMarkup(person, online)}
-      <div class="dm-friend-info">
-        <div class="dm-friend-name">${name}${person?.is_vip ? '<span class="friend-vip-badge">VIP 🔱</span>' : ''}</div>
-        <div class="dm-friend-state ${online ? 'online' : ''}">${online ? 'Online' : 'Offline'}</div>
-      </div>
-    </button>`;
+    return `<div class="dm-friend-row ${pinned ? 'pinned' : ''}">
+      <button class="dm-friend ${active}" type="button"
+        data-dm-user="${id}" data-dm-name="${name}" data-dm-avatar="${avatar}">
+        ${friendAvatarMarkup(person, online)}
+        <div class="dm-friend-info">
+          <div class="dm-friend-name">${name}${person?.is_vip ? '<span class="friend-vip-badge">VIP 🔱</span>' : ''}</div>
+          <div class="dm-friend-state ${online ? 'online' : ''}">${online ? 'Online' : 'Offline'}</div>
+        </div>
+      </button>
+
+      <button class="dm-pin-btn ${pinned ? 'pinned' : ''}" type="button"
+        data-dm-pin-user="${id}"
+        aria-label="${pinned ? 'Unpin' : 'Pin'} ${name}"
+        title="${pinned ? 'Unpin DM' : 'Pin DM'}">${pinned ? '📌' : '📍'}</button>
+    </div>`;
   }).join('');
+}
+
+if(dmFriendList){
+  dmFriendList.addEventListener('click', async (e) => {
+    const pinBtn = e.target.closest('[data-dm-pin-user]');
+    if(!pinBtn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    try{
+      const session = await getChatSession();
+      if(!session?.user) return;
+
+      togglePinnedFriend(session.user.id,pinBtn.dataset.dmPinUser);
+      await loadDmFriends();
+      await loadFriendsSection();
+    }catch(err){
+      setDmStatus('Could not update pin: ' + (err?.message || String(err)),'error');
+    }
+  });
 }
 
 
