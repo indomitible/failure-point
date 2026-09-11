@@ -3672,6 +3672,215 @@ section{background:rgba(8,9,11,.60)}
   .bodyweight-history-head span{display:block;margin-top:3px}
 }
 
+
+/* THREAD PHOTO / PHYSIQUE MEDIA */
+.thread-media-picker{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:10px;
+  padding:10px;
+  border:1px solid #292f37;
+  border-radius:10px;
+  background:#0b0f13;
+}
+.thread-media-picker strong{
+  display:block;
+  color:#fff;
+  font-size:10px;
+}
+.thread-media-picker strong span{
+  color:#727b87;
+  font-size:8px;
+  font-weight:700;
+}
+.thread-media-picker small{
+  display:block;
+  margin-top:3px;
+  color:#727b87;
+  font-size:8px;
+  line-height:1.4;
+}
+.thread-media-input{display:none}
+.thread-media-button{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  box-sizing:border-box;
+  padding:0 11px;
+  border:1px solid #343b45;
+  border-radius:8px;
+  background:#171c22;
+  color:#e7ebf0;
+  font-size:9px;
+  font-weight:900;
+  cursor:pointer;
+  user-select:none;
+}
+.thread-media-button:hover{border-color:#4b5662;background:#1d232a}
+.thread-media-button.disabled{
+  opacity:.48;
+  cursor:not-allowed;
+  pointer-events:none;
+}
+.thread-media-preview{
+  position:relative;
+  width:min(360px,100%);
+  margin-top:9px;
+  overflow:hidden;
+  border:1px solid #303741;
+  border-radius:11px;
+  background:#080b0f;
+}
+.thread-media-preview img{
+  display:block;
+  width:100%;
+  max-height:360px;
+  object-fit:contain;
+  background:#050709;
+}
+.thread-media-preview button{
+  position:absolute;
+  top:7px;
+  right:7px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;
+  background:rgba(10,13,17,.86);
+  color:#fff;
+  padding:6px 8px;
+  font:inherit;
+  font-size:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.thread-card-media{
+  margin-top:9px;
+  overflow:hidden;
+  height:150px;
+  border:1px solid #262d35;
+  border-radius:10px;
+  background:#07090c;
+}
+.thread-card-media img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+.thread-card-has-photo{
+  color:#8f99a5;
+  font-size:8px;
+}
+
+.thread-view-media{
+  margin-top:10px;
+  overflow:hidden;
+  border:1px solid #2c333c;
+  border-radius:12px;
+  background:#07090c;
+}
+.thread-view-media button,
+.thread-reply-media button{
+  display:block;
+  width:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:zoom-in;
+}
+.thread-view-media img{
+  display:block;
+  width:100%;
+  max-height:70vh;
+  object-fit:contain;
+  background:#050709;
+}
+
+.thread-reply-media{
+  margin-top:8px;
+  overflow:hidden;
+  max-width:440px;
+  border:1px solid #29313a;
+  border-radius:10px;
+  background:#07090c;
+}
+.thread-reply-media img{
+  display:block;
+  width:100%;
+  max-height:480px;
+  object-fit:contain;
+  background:#050709;
+}
+
+.thread-reply-composer-media{
+  grid-template-columns:1fr auto;
+  align-items:stretch;
+}
+.thread-reply-side{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.thread-reply-side .thread-primary-btn{
+  flex:1;
+  min-width:90px;
+}
+.thread-reply-media-preview{
+  width:min(260px,100%);
+  margin-top:8px;
+}
+
+.thread-photo-lightbox{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:20000;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.92);
+  backdrop-filter:blur(5px);
+}
+.thread-photo-lightbox.show{display:flex}
+.thread-photo-lightbox img{
+  display:block;
+  max-width:min(1100px,96vw);
+  max-height:92vh;
+  object-fit:contain;
+  border-radius:10px;
+  box-shadow:0 24px 100px rgba(0,0,0,.6);
+}
+.thread-photo-lightbox>button{
+  position:fixed;
+  top:14px;
+  right:14px;
+  width:39px;
+  height:39px;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:10px;
+  background:rgba(18,22,27,.92);
+  color:#fff;
+  font-size:21px;
+  cursor:pointer;
+}
+
+@media(max-width:700px){
+  .thread-media-picker{align-items:flex-start;flex-direction:column}
+  .thread-media-button{width:100%}
+  .thread-card-media{height:190px}
+  .thread-reply-composer-media{grid-template-columns:1fr}
+  .thread-reply-side{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .thread-reply-media-button{width:auto}
+  .thread-view-media img{max-height:72vh}
+}
+
 </style>
 </head>
 <body>
@@ -3935,6 +4144,23 @@ section{background:rgba(8,9,11,.60)}
           <label for="threadBody">Post</label>
           <textarea id="threadBody" maxlength="3000" placeholder="Start the discussion..."></textarea>
         </div>
+
+        <div class="thread-media-picker">
+          <div>
+            <strong>Photo <span>(optional)</span></strong>
+            <small>Share a physique/progress photo. JPG, PNG, or WebP · max 8 MB.</small>
+          </div>
+          <label class="thread-media-button" for="threadMediaInput">
+            📷 Add photo
+          </label>
+          <input id="threadMediaInput" class="thread-media-input" type="file" accept="image/jpeg,image/png,image/webp">
+        </div>
+
+        <div id="threadMediaPreview" class="thread-media-preview hidden">
+          <img id="threadMediaPreviewImage" alt="Selected thread photo preview">
+          <button id="threadMediaRemove" type="button">Remove photo</button>
+        </div>
+
         <div class="thread-composer-actions">
           <button id="createThreadBtn" class="thread-primary-btn" type="button">Post Thread</button>
           <button id="cancelThreadBtn" class="thread-secondary-btn" type="button">Cancel</button>
@@ -3972,6 +4198,7 @@ section{background:rgba(8,9,11,.60)}
       <span id="threadViewTime"></span>
     </div>
     <div id="threadViewBody" class="thread-view-body"></div>
+    <div id="threadViewMedia" class="thread-view-media hidden"></div>
     <div id="threadViewReactions" class="reaction-bar reaction-bar-thread"></div>
 
     <div id="threadOwnerActions" class="thread-owner-actions hidden">
@@ -3998,15 +4225,34 @@ section{background:rgba(8,9,11,.60)}
       <button id="threadReplyTargetCancel" type="button" aria-label="Cancel reply">×</button>
     </div>
 
-    <div id="threadReplyComposer" class="thread-reply-composer">
+    <div id="threadReplyComposer" class="thread-reply-composer thread-reply-composer-media">
       <textarea id="threadReplyInput" maxlength="2000" placeholder="Log in to reply..." disabled></textarea>
-      <button id="threadReplyBtn" class="thread-primary-btn" type="button" disabled>Log in to reply</button>
+
+      <div class="thread-reply-side">
+        <label id="threadReplyMediaLabel" class="thread-media-button thread-reply-media-button disabled" for="threadReplyMediaInput">
+          📷 Photo
+        </label>
+        <input id="threadReplyMediaInput" class="thread-media-input" type="file" accept="image/jpeg,image/png,image/webp" disabled>
+        <button id="threadReplyBtn" class="thread-primary-btn" type="button" disabled>Log in to reply</button>
+      </div>
     </div>
+
+    <div id="threadReplyMediaPreview" class="thread-media-preview thread-reply-media-preview hidden">
+      <img id="threadReplyMediaPreviewImage" alt="Selected reply photo preview">
+      <button id="threadReplyMediaRemove" type="button">Remove photo</button>
+    </div>
+
     <div id="threadReplyStatus" class="thread-status"></div>
   </div>
 </div>
 
 
+
+
+<div id="threadPhotoLightbox" class="thread-photo-lightbox" aria-hidden="true">
+  <button id="threadPhotoLightboxClose" type="button" aria-label="Close photo">×</button>
+  <img id="threadPhotoLightboxImage" alt="Thread photo">
+</div>
 
 <section id="voiceSection" class="voice-section">
   <div class="wrap">
@@ -10107,6 +10353,10 @@ const threadComposer = document.getElementById('threadComposer');
 const threadCategory = document.getElementById('threadCategory');
 const threadTitle = document.getElementById('threadTitle');
 const threadBody = document.getElementById('threadBody');
+const threadMediaInput = document.getElementById('threadMediaInput');
+const threadMediaPreview = document.getElementById('threadMediaPreview');
+const threadMediaPreviewImage = document.getElementById('threadMediaPreviewImage');
+const threadMediaRemove = document.getElementById('threadMediaRemove');
 const createThreadBtn = document.getElementById('createThreadBtn');
 const cancelThreadBtn = document.getElementById('cancelThreadBtn');
 const threadComposerStatus = document.getElementById('threadComposerStatus');
@@ -10122,6 +10372,7 @@ const threadViewAuthor = document.getElementById('threadViewAuthor');
 const threadViewAuthorStaff = document.getElementById('threadViewAuthorStaff');
 const threadViewTime = document.getElementById('threadViewTime');
 const threadViewBody = document.getElementById('threadViewBody');
+const threadViewMedia = document.getElementById('threadViewMedia');
 const threadViewReactions = document.getElementById('threadViewReactions');
 const threadOwnerActions = document.getElementById('threadOwnerActions');
 const threadLockBtn = document.getElementById('threadLockBtn');
@@ -10135,8 +10386,17 @@ const threadReplyTargetPreview = document.getElementById('threadReplyTargetPrevi
 const threadReplyTargetCancel = document.getElementById('threadReplyTargetCancel');
 const threadReplyComposer = document.getElementById('threadReplyComposer');
 const threadReplyInput = document.getElementById('threadReplyInput');
+const threadReplyMediaInput = document.getElementById('threadReplyMediaInput');
+const threadReplyMediaLabel = document.getElementById('threadReplyMediaLabel');
+const threadReplyMediaPreview = document.getElementById('threadReplyMediaPreview');
+const threadReplyMediaPreviewImage = document.getElementById('threadReplyMediaPreviewImage');
+const threadReplyMediaRemove = document.getElementById('threadReplyMediaRemove');
 const threadReplyBtn = document.getElementById('threadReplyBtn');
 const threadReplyStatus = document.getElementById('threadReplyStatus');
+
+const threadPhotoLightbox = document.getElementById('threadPhotoLightbox');
+const threadPhotoLightboxImage = document.getElementById('threadPhotoLightboxImage');
+const threadPhotoLightboxClose = document.getElementById('threadPhotoLightboxClose');
 
 let threadFilter = 'All';
 let threadRows = [];
@@ -10145,6 +10405,10 @@ let threadsPollTimer = null;
 let threadPosting = false;
 let threadReplyPosting = false;
 let threadReplyTarget = null;
+let threadMediaFile = null;
+let threadMediaPreviewUrl = null;
+let threadReplyMediaFile = null;
+let threadReplyMediaPreviewUrl = null;
 
 function setThreadStatus(el, text='', type='normal'){
   if(!el) return;
@@ -10165,6 +10429,158 @@ function threadTime(value){
   if(diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
   if(diff < 604800000) return `${Math.floor(diff/86400000)}d ago`;
   return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+}
+
+
+const THREAD_MEDIA_MAX_BYTES = 8 * 1024 * 1024;
+const THREAD_MEDIA_ALLOWED_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp'
+]);
+
+function threadMediaExtension(file){
+  const byType = {
+    'image/jpeg':'jpg',
+    'image/png':'png',
+    'image/webp':'webp'
+  };
+  return byType[file?.type] || 'jpg';
+}
+
+function validateThreadMediaFile(file){
+  if(!file) return 'Choose a photo first.';
+  if(!THREAD_MEDIA_ALLOWED_TYPES.has(file.type)){
+    return 'Use a JPG, PNG, or WebP photo.';
+  }
+  if(file.size > THREAD_MEDIA_MAX_BYTES){
+    return 'Photo is too large. Maximum size is 8 MB.';
+  }
+  return '';
+}
+
+function clearThreadMediaSelection(){
+  threadMediaFile = null;
+  if(threadMediaPreviewUrl){
+    URL.revokeObjectURL(threadMediaPreviewUrl);
+    threadMediaPreviewUrl = null;
+  }
+  if(threadMediaInput) threadMediaInput.value = '';
+  if(threadMediaPreviewImage) threadMediaPreviewImage.removeAttribute('src');
+  threadMediaPreview?.classList.add('hidden');
+}
+
+function clearThreadReplyMediaSelection(){
+  threadReplyMediaFile = null;
+  if(threadReplyMediaPreviewUrl){
+    URL.revokeObjectURL(threadReplyMediaPreviewUrl);
+    threadReplyMediaPreviewUrl = null;
+  }
+  if(threadReplyMediaInput) threadReplyMediaInput.value = '';
+  if(threadReplyMediaPreviewImage) threadReplyMediaPreviewImage.removeAttribute('src');
+  threadReplyMediaPreview?.classList.add('hidden');
+}
+
+function previewThreadMedia(file,isReply=false){
+  const error = validateThreadMediaFile(file);
+  if(error){
+    setThreadStatus(
+      isReply ? threadReplyStatus : threadComposerStatus,
+      error,
+      'error'
+    );
+    return false;
+  }
+
+  if(isReply){
+    clearThreadReplyMediaSelection();
+    threadReplyMediaFile = file;
+    threadReplyMediaPreviewUrl = URL.createObjectURL(file);
+    if(threadReplyMediaPreviewImage) threadReplyMediaPreviewImage.src = threadReplyMediaPreviewUrl;
+    threadReplyMediaPreview?.classList.remove('hidden');
+    setThreadStatus(threadReplyStatus,'Photo ready to upload.');
+  }else{
+    clearThreadMediaSelection();
+    threadMediaFile = file;
+    threadMediaPreviewUrl = URL.createObjectURL(file);
+    if(threadMediaPreviewImage) threadMediaPreviewImage.src = threadMediaPreviewUrl;
+    threadMediaPreview?.classList.remove('hidden');
+    setThreadStatus(threadComposerStatus,'Photo ready to upload.');
+  }
+
+  return true;
+}
+
+async function uploadThreadMedia(file,userId,kind='thread'){
+  const client = window.gymcelsLolDb;
+  if(!client || !file || !userId) return null;
+
+  const error = validateThreadMediaFile(file);
+  if(error) throw new Error(error);
+
+  const ext = threadMediaExtension(file);
+  const unique = (globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2));
+  const path = `${userId}/${kind}/${Date.now()}-${unique}.${ext}`;
+
+  const {error:uploadError} = await client.storage
+    .from('thread-media')
+    .upload(path,file,{
+      cacheControl:'3600',
+      upsert:false,
+      contentType:file.type
+    });
+
+  if(uploadError) throw uploadError;
+
+  const {data} = client.storage
+    .from('thread-media')
+    .getPublicUrl(path);
+
+  const url = data?.publicUrl;
+  if(!url){
+    try{ await client.storage.from('thread-media').remove([path]); }catch(_){}
+    throw new Error('Could not create the photo URL.');
+  }
+
+  return {url,path};
+}
+
+async function cleanupUploadedThreadMedia(path){
+  if(!path) return;
+  try{
+    await window.gymcelsLolDb?.storage
+      .from('thread-media')
+      .remove([path]);
+  }catch(err){
+    console.debug('Thread photo cleanup:',err);
+  }
+}
+
+function threadMediaMarkup(url,extraClass=''){
+  if(!url) return '';
+  const safe = escapeChat(url);
+
+  return `<div class="${extraClass}">
+    <button type="button" data-thread-photo="${safe}" aria-label="Open photo">
+      <img src="${safe}" alt="Thread photo" loading="lazy">
+    </button>
+  </div>`;
+}
+
+function openThreadPhoto(url){
+  if(!url || !threadPhotoLightbox || !threadPhotoLightboxImage) return;
+  threadPhotoLightboxImage.src = url;
+  threadPhotoLightbox.classList.add('show');
+  threadPhotoLightbox.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeThreadPhoto(){
+  if(!threadPhotoLightbox || !threadPhotoLightboxImage) return;
+  threadPhotoLightbox.classList.remove('show');
+  threadPhotoLightbox.setAttribute('aria-hidden','true');
+  threadPhotoLightboxImage.removeAttribute('src');
+  document.body.style.overflow = '';
 }
 
 function setThreadsAuthState(session){
@@ -10196,7 +10612,7 @@ async function loadThreads(){
 
   let query = client
     .from('forum_threads')
-    .select('id,author_id,author_name,title,body,category,is_locked,created_at')
+    .select('id,author_id,author_name,title,body,category,is_locked,media_url,media_path,created_at')
     .order('created_at',{ascending:false})
     .limit(50);
 
@@ -10256,10 +10672,15 @@ async function loadThreads(){
           <span class="thread-card-time">${escapeChat(threadTime(row.created_at))}</span>
         </div>
         <div class="thread-card-title">${escapeChat(row.title || 'Untitled')}</div>
-        <div class="thread-card-preview">${escapeChat(preview)}</div>
+        ${preview ? `<div class="thread-card-preview">${escapeChat(preview)}</div>` : ''}
+        ${row.media_url ? `
+          <div class="thread-card-media">
+            <img src="${escapeChat(row.media_url)}" alt="Thread photo" loading="lazy">
+          </div>` : ''}
         <div class="thread-card-meta">
           <span class="thread-card-author">by ${escapeChat(row.author_name || 'Member')}${staffBadgeMarkup(threadStaffRoleMap[row.author_id] || null)}</span>
           <span>${Number(counts[row.id] || 0)} ${Number(counts[row.id] || 0) === 1 ? 'reply' : 'replies'}</span>
+          ${row.media_url ? '<span class="thread-card-has-photo">📷 Photo</span>' : ''}
           ${row.is_locked ? '<span class="thread-card-locked">🔒 Locked</span>' : ''}
         </div>
         ${reactionBarHtml(
@@ -10293,8 +10714,8 @@ async function createThread(){
     setThreadStatus(threadComposerStatus,'Give your thread a title.','error');
     return;
   }
-  if(body.length < 2){
-    setThreadStatus(threadComposerStatus,'Write something in the post.','error');
+  if(body.length < 2 && !threadMediaFile){
+    setThreadStatus(threadComposerStatus,'Write something or add a photo.','error');
     return;
   }
 
@@ -10302,7 +10723,19 @@ async function createThread(){
   if(createThreadBtn) createThreadBtn.disabled = true;
   setThreadStatus(threadComposerStatus,'Posting...');
 
+  let uploadedMedia = null;
+
   try{
+    if(threadMediaFile){
+      setThreadStatus(threadComposerStatus,'Uploading photo...');
+      uploadedMedia = await uploadThreadMedia(
+        threadMediaFile,
+        session.user.id,
+        'threads'
+      );
+      setThreadStatus(threadComposerStatus,'Posting thread...');
+    }
+
     const { data, error } = await client
       .from('forum_threads')
       .insert({
@@ -10310,15 +10743,21 @@ async function createThread(){
         author_name:chatDisplayName(session.user),
         title,
         body,
-        category
+        category,
+        media_url:uploadedMedia?.url || null,
+        media_path:uploadedMedia?.path || null
       })
       .select('id')
       .single();
 
-    if(error) throw error;
+    if(error){
+      if(uploadedMedia?.path) await cleanupUploadedThreadMedia(uploadedMedia.path);
+      throw error;
+    }
 
     if(threadTitle) threadTitle.value = '';
     if(threadBody) threadBody.value = '';
+    clearThreadMediaSelection();
     if(threadComposer) threadComposer.classList.add('hidden');
     setThreadStatus(threadComposerStatus,'✓ THREAD POSTED','success');
 
@@ -10387,17 +10826,23 @@ function updateThreadReplyComposer(session){
   if(locked){
     threadReplyInput.disabled = true;
     threadReplyBtn.disabled = true;
+    if(threadReplyMediaInput) threadReplyMediaInput.disabled = true;
+    threadReplyMediaLabel?.classList.add('disabled');
     threadReplyInput.placeholder = 'This thread is locked.';
     threadReplyBtn.textContent = 'Locked';
   }else if(!signedIn){
     threadReplyInput.disabled = true;
     threadReplyBtn.disabled = true;
+    if(threadReplyMediaInput) threadReplyMediaInput.disabled = true;
+    threadReplyMediaLabel?.classList.add('disabled');
     threadReplyInput.placeholder = 'Log in to reply...';
     threadReplyBtn.textContent = 'Log in to reply';
   }else{
     threadReplyInput.disabled = false;
     threadReplyBtn.disabled = false;
-    threadReplyInput.placeholder = 'Write a reply...';
+    if(threadReplyMediaInput) threadReplyMediaInput.disabled = false;
+    threadReplyMediaLabel?.classList.remove('disabled');
+    threadReplyInput.placeholder = 'Write a reply or add a photo...';
     threadReplyBtn.textContent = 'Reply';
   }
 }
@@ -10410,7 +10855,7 @@ async function loadThreadReplies(threadId){
 
   const { data, error } = await client
     .from('forum_replies')
-    .select('id,thread_id,author_id,author_name,body,reply_to_id,created_at')
+    .select('id,thread_id,author_id,author_name,body,reply_to_id,media_url,media_path,created_at')
     .eq('thread_id', threadId)
     .order('created_at',{ascending:true})
     .limit(300);
@@ -10467,7 +10912,9 @@ async function loadThreadReplies(threadId){
           <span class="thread-reply-time">${escapeChat(threadTime(row.created_at))}</span>
         </div>
 
-        <div class="thread-reply-body">${chatTextWithMentions(row.body || '')}</div>
+        ${row.body ? `<div class="thread-reply-body">${chatTextWithMentions(row.body || '')}</div>` : ''}
+
+        ${row.media_url ? threadMediaMarkup(row.media_url,'thread-reply-media') : ''}
 
         ${reactionBarHtml(
           'thread_reply',
@@ -10505,7 +10952,7 @@ async function openThread(threadId){
 
   const { data, error } = await client
     .from('forum_threads')
-    .select('id,author_id,author_name,title,body,category,is_locked,created_at')
+    .select('id,author_id,author_name,title,body,category,is_locked,media_url,media_path,created_at')
     .eq('id', threadId)
     .maybeSingle();
 
@@ -10521,6 +10968,25 @@ async function openThread(threadId){
   threadViewAuthor.textContent = data.author_name || 'Member';
   threadViewTime.textContent = threadTime(data.created_at);
   threadViewBody.textContent = data.body || '';
+  threadViewBody.classList.toggle('hidden', !String(data.body || '').trim());
+
+  if(threadViewMedia){
+    if(data.media_url){
+      threadViewMedia.innerHTML = threadMediaMarkup(
+        data.media_url,
+        'thread-view-media-inner'
+      );
+      // inner helper already wraps once; use the container itself as the visible card.
+      const inner = threadViewMedia.querySelector('.thread-view-media-inner');
+      if(inner){
+        threadViewMedia.innerHTML = inner.innerHTML;
+      }
+      threadViewMedia.classList.remove('hidden');
+    }else{
+      threadViewMedia.innerHTML = '';
+      threadViewMedia.classList.add('hidden');
+    }
+  }
 
   const openedThreadStaffRoles = await loadPublicStaffRoles([data.author_id]);
   if(threadViewAuthorStaff){
@@ -10564,6 +11030,7 @@ function closeThread(){
   threadOverlay.setAttribute('aria-hidden','true');
   activeThread = null;
   if(threadReplyInput) threadReplyInput.value = '';
+  clearThreadReplyMediaSelection();
   clearThreadReplyTarget();
   setThreadStatus(threadReplyStatus,'');
 }
@@ -10585,8 +11052,8 @@ async function postThreadReply(){
   }
 
   const body = String(threadReplyInput?.value || '').trim();
-  if(!body){
-    setThreadStatus(threadReplyStatus,'Write a reply first.','error');
+  if(!body && !threadReplyMediaFile){
+    setThreadStatus(threadReplyStatus,'Write a reply or add a photo.','error');
     return;
   }
 
@@ -10594,7 +11061,19 @@ async function postThreadReply(){
   if(threadReplyBtn) threadReplyBtn.disabled = true;
   setThreadStatus(threadReplyStatus,'Posting reply...');
 
+  let uploadedMedia = null;
+
   try{
+    if(threadReplyMediaFile){
+      setThreadStatus(threadReplyStatus,'Uploading photo...');
+      uploadedMedia = await uploadThreadMedia(
+        threadReplyMediaFile,
+        session.user.id,
+        'replies'
+      );
+      setThreadStatus(threadReplyStatus,'Posting reply...');
+    }
+
     const { error } = await client
       .from('forum_replies')
       .insert({
@@ -10602,12 +11081,18 @@ async function postThreadReply(){
         author_id:session.user.id,
         author_name:chatDisplayName(session.user),
         body,
-        reply_to_id:threadReplyTarget?.id || null
+        reply_to_id:threadReplyTarget?.id || null,
+        media_url:uploadedMedia?.url || null,
+        media_path:uploadedMedia?.path || null
       });
 
-    if(error) throw error;
+    if(error){
+      if(uploadedMedia?.path) await cleanupUploadedThreadMedia(uploadedMedia.path);
+      throw error;
+    }
 
     threadReplyInput.value = '';
+    clearThreadReplyMediaSelection();
     clearThreadReplyTarget();
     setThreadStatus(threadReplyStatus,'✓ REPLY POSTED','success');
 
@@ -10687,6 +11172,33 @@ async function deleteThreadReply(replyId){
   await loadThreads();
 }
 
+
+threadMediaInput?.addEventListener('change',() => {
+  const file = threadMediaInput.files?.[0] || null;
+  if(file) previewThreadMedia(file,false);
+});
+threadMediaRemove?.addEventListener('click',clearThreadMediaSelection);
+
+threadReplyMediaInput?.addEventListener('change',() => {
+  const file = threadReplyMediaInput.files?.[0] || null;
+  if(file) previewThreadMedia(file,true);
+});
+threadReplyMediaRemove?.addEventListener('click',clearThreadReplyMediaSelection);
+
+document.addEventListener('click',(e) => {
+  const photo = e.target.closest('[data-thread-photo]');
+  if(photo){
+    e.preventDefault();
+    e.stopPropagation();
+    openThreadPhoto(photo.dataset.threadPhoto || '');
+  }
+});
+
+threadPhotoLightboxClose?.addEventListener('click',closeThreadPhoto);
+threadPhotoLightbox?.addEventListener('click',(e) => {
+  if(e.target === threadPhotoLightbox) closeThreadPhoto();
+});
+
 if(navThreadsOutside){
   navThreadsOutside.addEventListener('click', () => {
     setTimeout(loadThreads, 100);
@@ -10708,6 +11220,7 @@ if(openThreadComposerBtn){
 if(cancelThreadBtn){
   cancelThreadBtn.addEventListener('click', () => {
     threadComposer.classList.add('hidden');
+    clearThreadMediaSelection();
     setThreadStatus(threadComposerStatus,'');
   });
 }
@@ -10812,7 +11325,12 @@ if(threadReplies){
 threadReplyTargetCancel?.addEventListener('click',clearThreadReplyTarget);
 
 document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape' && threadOverlay?.classList.contains('show')) closeThread();
+  if(e.key !== 'Escape') return;
+  if(threadPhotoLightbox?.classList.contains('show')){
+    closeThreadPhoto();
+    return;
+  }
+  if(threadOverlay?.classList.contains('show')) closeThread();
 });
 
 function startThreads(session){
