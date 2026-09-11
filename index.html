@@ -1273,6 +1273,59 @@ section{background:rgba(8,9,11,.60)}
   text-align:center;
 }
 
+
+/* @MENTIONS + SOCIAL NOTIFICATIONS */
+.chat-compose-wrap{position:relative}
+.mention-suggestions{
+  position:absolute;
+  left:0;
+  right:84px;
+  bottom:calc(100% + 7px);
+  z-index:50;
+  max-height:220px;
+  overflow:auto;
+  border:1px solid #303640;
+  border-radius:12px;
+  background:rgba(12,14,18,.98);
+  box-shadow:0 18px 50px rgba(0,0,0,.45);
+  padding:6px;
+  backdrop-filter:blur(14px);
+}
+.mention-option{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:8px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:#fff;
+  text-align:left;
+  cursor:pointer;
+  font-family:inherit;
+}
+.mention-option:hover,.mention-option.active{background:#1a1f26}
+.mention-avatar{
+  width:30px;height:30px;min-width:30px;border-radius:50%;
+  overflow:hidden;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ef4355,#8f1724);
+  border:1px solid #ff6474;color:#fff;font-size:9px;font-weight:900;
+}
+.mention-avatar img{width:100%;height:100%;object-fit:cover}
+.mention-name{font-size:11px;font-weight:900;color:#fff}
+.mention-help{font-size:8px;color:#7e8793;margin-top:1px}
+.chat-text .mention-token{
+  color:#ff6675;
+  font-weight:900;
+}
+.notification-item-icon{
+  margin-right:5px;
+}
+@media(max-width:650px){
+  .mention-suggestions{right:0}
+}
+
 </style>
 </head>
 <body>
@@ -1389,9 +1442,12 @@ section{background:rgba(8,9,11,.60)}
     <button id="chatReplyCancel" type="button" aria-label="Cancel reply">×</button>
   </div>
 
-  <div id="chatForm" class="chat-compose">
-    <input id="chatInput" type="text" maxlength="300" autocomplete="off" placeholder="Log in to join the conversation..." disabled required>
-    <button id="chatSendBtn" type="button" disabled>Log in to send</button>
+  <div class="chat-compose-wrap">
+    <div id="mentionSuggestions" class="mention-suggestions hidden"></div>
+    <div id="chatForm" class="chat-compose">
+      <input id="chatInput" type="text" maxlength="300" autocomplete="off" placeholder="Log in to join the conversation..." disabled required>
+      <button id="chatSendBtn" type="button" disabled>Log in to send</button>
+    </div>
   </div>
   <div id="chatStatus" class="chat-status"></div>
 </div>
@@ -2679,6 +2735,7 @@ const chatReplyBar = document.getElementById('chatReplyBar');
 const chatReplyName = document.getElementById('chatReplyName');
 const chatReplyPreview = document.getElementById('chatReplyPreview');
 const chatReplyCancel = document.getElementById('chatReplyCancel');
+const mentionSuggestions = document.getElementById('mentionSuggestions');
 
 const navNotifications = document.getElementById('navNotifications');
 const notificationBadge = document.getElementById('notificationBadge');
@@ -2714,6 +2771,9 @@ let chatIsSiteAdmin = false;
 let chatReplyTarget = null;
 let chatRowsById = new Map();
 let notificationPollTimer = null;
+let mentionSearchTimer = null;
+let mentionCandidates = [];
+let selectedMentions = new Map();
 let chatAdminCheckedUserId = null;
 let openedChatDisplayName = 'Member';
 let openedChatAvatarUrl = '';
@@ -3466,6 +3526,144 @@ document.addEventListener('keydown', (e) => {
 
 
 
+
+function escapeRegex(text){
+  return String(text ?? '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function chatTextWithMentions(text){
+  let safe = escapeChat(text);
+
+  // Style common @mention-looking tokens without changing stored text.
+  safe = safe.replace(/(^|[\s(])@([A-Za-z0-9_.-]{1,30})/g,
+    '$1<span class="mention-token">@$2</span>');
+  return safe;
+}
+
+function mentionInitials(name){
+  const s = String(name || 'M').trim();
+  const parts = s.split(/\s+/).filter(Boolean);
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return s.slice(0,2).toUpperCase();
+}
+
+function closeMentionSuggestions(){
+  if(mentionSuggestions){
+    mentionSuggestions.classList.add('hidden');
+    mentionSuggestions.innerHTML = '';
+  }
+  mentionCandidates = [];
+}
+
+function currentMentionQuery(){
+  if(!chatInput) return null;
+
+  const pos = chatInput.selectionStart ?? chatInput.value.length;
+  const before = chatInput.value.slice(0, pos);
+
+  // Match the @word currently being typed at the cursor.
+  const match = before.match(/(?:^|\s)@([A-Za-z0-9_.-]{0,30})$/);
+  if(!match) return null;
+
+  const query = match[1] || '';
+  const atIndex = before.lastIndexOf('@');
+
+  return { query, atIndex, cursor:pos };
+}
+
+async function loadMentionSuggestions(){
+  const info = currentMentionQuery();
+  if(!info){
+    closeMentionSuggestions();
+    return;
+  }
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  if(!client || !session?.user){
+    closeMentionSuggestions();
+    return;
+  }
+
+  let request = client
+    .from('member_presence')
+    .select('user_id,display_name,avatar_url')
+    .neq('user_id', session.user.id)
+    .order('display_name', { ascending:true })
+    .limit(8);
+
+  if(info.query){
+    request = request.ilike('display_name', `%${info.query}%`);
+  }
+
+  const { data, error } = await request;
+
+  if(error){
+    console.error('Mention suggestions error:', error);
+    closeMentionSuggestions();
+    return;
+  }
+
+  mentionCandidates = (data || []).filter(x => x.user_id && x.display_name);
+
+  if(!mentionCandidates.length){
+    closeMentionSuggestions();
+    return;
+  }
+
+  mentionSuggestions.innerHTML = mentionCandidates.map((person, index) => {
+    const avatar = person.avatar_url
+      ? `<span class="mention-avatar"><img src="${escapeChat(person.avatar_url)}" alt=""></span>`
+      : `<span class="mention-avatar">${escapeChat(mentionInitials(person.display_name))}</span>`;
+
+    return `<button class="mention-option ${index === 0 ? 'active' : ''}"
+                    type="button"
+                    data-mention-index="${index}">
+              ${avatar}
+              <span>
+                <span class="mention-name">@${escapeChat(person.display_name)}</span>
+                <span class="mention-help">Mention this member</span>
+              </span>
+            </button>`;
+  }).join('');
+
+  mentionSuggestions.classList.remove('hidden');
+}
+
+function chooseMention(person){
+  if(!person || !chatInput) return;
+
+  const info = currentMentionQuery();
+  if(!info) return;
+
+  const before = chatInput.value.slice(0, info.atIndex);
+  const after = chatInput.value.slice(info.cursor);
+  const mentionText = `@${person.display_name}`;
+
+  chatInput.value = before + mentionText + ' ' + after;
+
+  const newCursor = (before + mentionText + ' ').length;
+  chatInput.setSelectionRange(newCursor, newCursor);
+  chatInput.focus();
+
+  selectedMentions.set(person.user_id, {
+    user_id: person.user_id,
+    display_name: person.display_name
+  });
+
+  closeMentionSuggestions();
+}
+
+function activeMentionUserIds(messageText){
+  const text = String(messageText || '');
+
+  return [...selectedMentions.values()]
+    .filter(person => text.toLowerCase().includes(`@${String(person.display_name || '').toLowerCase()}`))
+    .map(person => person.user_id)
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
 function clearChatReply(){
   chatReplyTarget = null;
   if(chatReplyBar) chatReplyBar.classList.add('hidden');
@@ -3554,17 +3752,41 @@ async function loadNotifications(){
 
   notificationList.innerHTML = rows.map(n => {
     const preview = String(n.preview || '').replace(/\s+/g,' ').trim();
-    const copy = preview
-      ? `replied: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
-      : 'replied to your message.';
+    let icon = '🔔';
+    let copy = 'sent you a notification.';
+
+    if(n.type === 'reply'){
+      icon = '↩';
+      copy = preview
+        ? `replied: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
+        : 'replied to your message.';
+    }else if(n.type === 'mention'){
+      icon = '@';
+      copy = preview
+        ? `mentioned you: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
+        : 'mentioned you in chat.';
+    }else if(n.type === 'friend_request'){
+      icon = '👤';
+      copy = 'sent you a friend request.';
+    }else if(n.type === 'friend_accepted'){
+      icon = '✓';
+      copy = 'accepted your friend request.';
+    }else if(n.type === 'dm'){
+      icon = '✉';
+      copy = preview
+        ? `sent you a DM: “${preview.length > 120 ? preview.slice(0,120) + '…' : preview}”`
+        : 'sent you a direct message.';
+    }
 
     return `
       <button class="notification-item ${n.is_read ? '' : 'unread'}"
               type="button"
               data-notification-id="${n.id}"
-              data-notification-message="${n.message_id || ''}">
+              data-notification-message="${n.message_id || ''}"
+              data-notification-type="${escapeChat(n.type || '')}"
+              data-notification-actor="${escapeChat(n.actor_id || '')}">
         <div class="notification-item-top">
-          <span class="notification-item-name">${escapeChat(n.actor_display_name || 'Member')}</span>
+          <span class="notification-item-name"><span class="notification-item-icon">${icon}</span>${escapeChat(n.actor_display_name || 'Member')}</span>
           <span class="notification-item-time">${escapeChat(notificationTime(n.created_at))}</span>
         </div>
         <div class="notification-item-copy">${escapeChat(copy)}</div>
@@ -3758,7 +3980,7 @@ async function loadCommunityChat(scrollToBottom=false){
                 </div>
               </div>
               ${quotedReply}
-              <div class="chat-text">${escapeChat(row.message)}</div>
+              <div class="chat-text">${chatTextWithMentions(row.message)}</div>
             </div>
           </div>
         </div>`;
@@ -3796,7 +4018,9 @@ async function sendCommunityMessage(){
     const session = await getChatSession();
     if(!session?.user) throw new Error('You must be logged in to send messages.');
 
-    const { error } = await client
+    const mentionUserIds = activeMentionUserIds(text);
+
+    const { data: insertedMessage, error } = await client
       .from('messages')
       .insert({
         user_id: session.user.id,
@@ -3804,11 +4028,27 @@ async function sendCommunityMessage(){
         avatar_url: session.user?.user_metadata?.avatar_url || null,
         message: text,
         reply_to_id: chatReplyTarget?.id || null
-      });
+      })
+      .select('id')
+      .single();
 
     if(error) throw error;
 
+    if(mentionUserIds.length && insertedMessage?.id){
+      const { error: mentionError } = await client.rpc('create_mention_notifications', {
+        target_user_ids: mentionUserIds,
+        target_message_id: Number(insertedMessage.id),
+        mention_preview: text.slice(0,160)
+      });
+
+      if(mentionError){
+        console.error('Mention notification error:', mentionError);
+      }
+    }
+
     chatInput.value = '';
+    selectedMentions.clear();
+    closeMentionSuggestions();
     clearChatReply();
     chatInput.placeholder = 'Say something to the community...';
     setChatStatus('✓ MESSAGE SENT', 'success');
@@ -3853,6 +4093,52 @@ if(chatInput){
 }
 
 
+
+
+if(chatInput){
+  chatInput.addEventListener('input', () => {
+    clearTimeout(mentionSearchTimer);
+    mentionSearchTimer = setTimeout(loadMentionSuggestions, 120);
+  });
+
+  chatInput.addEventListener('keydown', (e) => {
+    if(!mentionSuggestions || mentionSuggestions.classList.contains('hidden')) return;
+
+    if(e.key === 'Escape'){
+      closeMentionSuggestions();
+      return;
+    }
+
+    if(e.key === 'Enter' && mentionCandidates.length){
+      const active = mentionSuggestions.querySelector('.mention-option.active');
+      const index = Number(active?.dataset.mentionIndex ?? 0);
+      const person = mentionCandidates[index];
+      if(person){
+        e.preventDefault();
+        e.stopPropagation();
+        chooseMention(person);
+      }
+    }
+  });
+}
+
+if(mentionSuggestions){
+  mentionSuggestions.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-mention-index]');
+    if(!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const person = mentionCandidates[Number(btn.dataset.mentionIndex)];
+    if(person) chooseMention(person);
+  });
+}
+
+document.addEventListener('click', (e) => {
+  if(e.target === chatInput || e.target.closest('#mentionSuggestions')) return;
+  closeMentionSuggestions();
+});
 
 if(chatReplyCancel){
   chatReplyCancel.addEventListener('click', () => {
@@ -3963,6 +4249,8 @@ if(notificationList){
 
     const notificationId = Number(item.dataset.notificationId);
     const messageId = Number(item.dataset.notificationMessage);
+    const type = item.dataset.notificationType || '';
+    const actorId = item.dataset.notificationActor || '';
 
     await markNotificationRead(notificationId);
     await loadNotifications();
@@ -3970,6 +4258,32 @@ if(notificationList){
     if(notificationPanel){
       notificationPanel.classList.add('hidden');
       notificationPanel.setAttribute('aria-hidden','true');
+    }
+
+    if(type === 'friend_request' || type === 'friend_accepted'){
+      await loadFriendsSection();
+      friendsSection?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+
+    if(type === 'dm' && actorId){
+      try{
+        const client = window.gymcelsLolDb;
+        const { data: person } = await client
+          .from('member_presence')
+          .select('display_name,avatar_url')
+          .eq('user_id', actorId)
+          .maybeSingle();
+
+        await openDmWith(
+          actorId,
+          person?.display_name || 'Member',
+          person?.avatar_url || ''
+        );
+      }catch(err){
+        console.error('DM notification open error:', err);
+      }
+      return;
     }
 
     communityChat?.scrollIntoView({behavior:'smooth',block:'center'});
