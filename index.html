@@ -5001,13 +5001,37 @@ async function refreshPushButton(){
   }
 
   const sub = await currentPushSubscription();
-  const enabled = Notification.permission === 'granted' && !!sub;
+  const hasLocalSubscription = Notification.permission === 'granted' && !!sub;
+
+  // Important: Safari/iPhone can already have a local push subscription even if
+  // it was created before Supabase push_subscriptions existed. Re-save it here
+  // so "enabled" also means the server actually knows about this device.
+  if(hasLocalSubscription){
+    try{
+      await savePushSubscription(sub);
+
+      pushAlertBtn.disabled = false;
+      pushAlertBtn.textContent = 'Disable phone alerts';
+      pushAlertBtn.classList.add('off');
+      pushAlertState.textContent = 'On — device registered for push';
+      pushAlertState.className = 'on';
+      return;
+    }catch(err){
+      console.error('Push subscription sync failed:',err);
+      pushAlertBtn.disabled = false;
+      pushAlertBtn.textContent = 'Repair phone alerts';
+      pushAlertBtn.classList.remove('off');
+      pushAlertState.textContent = 'Needs repair — tap to register this device';
+      pushAlertState.className = 'blocked';
+      return;
+    }
+  }
 
   pushAlertBtn.disabled = false;
-  pushAlertBtn.textContent = enabled ? 'Disable phone alerts' : 'Enable phone alerts';
-  pushAlertBtn.classList.toggle('off',enabled);
-  pushAlertState.textContent = enabled ? 'On — system notifications enabled' : 'Off';
-  pushAlertState.className = enabled ? 'on' : '';
+  pushAlertBtn.textContent = 'Enable phone alerts';
+  pushAlertBtn.classList.remove('off');
+  pushAlertState.textContent = 'Off';
+  pushAlertState.className = '';
 }
 
 async function enableGymcelsPush(){
@@ -5041,8 +5065,11 @@ async function toggleGymcelsPush(){
 
   try{
     const sub = await currentPushSubscription();
+    const repairing = pushAlertBtn.textContent.includes('Repair');
 
-    if(Notification.permission === 'granted' && sub){
+    if(repairing && sub){
+      await savePushSubscription(sub);
+    }else if(Notification.permission === 'granted' && sub){
       await removePushSubscription(sub);
     }else{
       await enableGymcelsPush();
