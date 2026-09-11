@@ -4961,6 +4961,133 @@ section{background:rgba(8,9,11,.60)}
   }
 }
 
+
+/* CENTRAL PRODUCTS SECTION */
+.products-section{
+  padding:56px 0 62px;
+  scroll-margin-top:78px;
+}
+.products-head{
+  display:grid;
+  grid-template-columns:.75fr 1.25fr;
+  gap:32px;
+  align-items:end;
+  margin-bottom:20px;
+}
+.products-head h2{margin-top:5px}
+.products-head p{
+  margin:0;
+  max-width:58ch;
+  color:var(--muted);
+}
+.products-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.product-card{
+  min-width:0;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(24,27,32,.97),rgba(15,17,21,.97));
+  box-shadow:0 20px 55px rgba(0,0,0,.18);
+}
+.product-card-vip{
+  border-color:rgba(239,67,85,.42);
+  background:linear-gradient(180deg,rgba(239,67,85,.075),rgba(15,17,21,.98));
+}
+.product-card-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.product-tag{
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  padding:5px 8px;
+  border:1px solid #343b44;
+  border-radius:999px;
+  background:#161a20;
+  color:#b5bdc7;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.product-tag.vip{
+  border-color:rgba(239,67,85,.45);
+  background:rgba(239,67,85,.10);
+  color:#ff7d8a;
+}
+.product-price{
+  color:#fff;
+  font-size:21px;
+  font-weight:950;
+}
+.product-price small{
+  color:#858e99;
+  font-size:9px;
+  font-weight:700;
+}
+.product-card h3{
+  margin:17px 0 6px;
+  color:#fff;
+  font-size:23px;
+}
+.product-description{
+  margin:0;
+  color:#a5adb8;
+  font-size:12px;
+  line-height:1.55;
+}
+.product-points{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-top:15px;
+  color:#c3cad2;
+  font-size:10px;
+}
+.product-buy-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  margin-top:18px;
+  padding:12px 14px;
+  border-radius:10px;
+  background:#ef4355;
+  color:#fff!important;
+  text-decoration:none;
+  text-align:center;
+  font-weight:950;
+  font-size:11px;
+  transition:.18s ease;
+}
+.product-buy-btn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.07);
+}
+.product-buy-btn.vip{
+  background:linear-gradient(135deg,#ef4355,#bd2939);
+}
+.product-card .vip-status-pill{margin-top:14px}
+.product-card .vip-unlocked{margin-top:12px}
+.product-card .vip-locked{margin-top:10px}
+.product-vip-refresh{
+  width:100%;
+  margin:8px 0 0;
+}
+.product-card .vip-email-note{max-width:none}
+@media(max-width:760px){
+  .products-head,
+  .products-grid{grid-template-columns:1fr}
+  .products-head{gap:8px}
+}
+
 </style>
 </head>
 <body>
@@ -4982,7 +5109,7 @@ section{background:rgba(8,9,11,.60)}
       <a class="nav-link" id="navFriends" href="#login-card">Friends</a>
       <a class="nav-link" id="navDms" href="#login-card">DMs</a>
       <a class="nav-link" id="navVoice" href="#voiceSection">Voice</a>
-      <a class="nav-link" id="navVip" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">VIP</a>
+      <a class="nav-link" id="navVip" href="#productsSection">Products</a>
       <button class="nav-link hidden notification-nav-btn" id="navNotifications" type="button" aria-label="Notifications" title="Notifications">
         <span aria-hidden="true">🔔</span><span id="notificationBadge" class="notification-badge hidden">0</span>
       </button>
@@ -5084,7 +5211,7 @@ section{background:rgba(8,9,11,.60)}
       <span>◎</span><b>Edit Profile</b>
     </button>
     <button class="mobile-drawer-link" type="button" data-mobile-proxy="navVip">
-      <span>🔱</span><b>VIP</b>
+      <span>🛒</span><b>Products</b>
     </button>
     <button class="mobile-drawer-link" type="button" data-mobile-proxy="navSupport">
       <span>?</span><b>Support</b>
@@ -5100,35 +5227,81 @@ section{background:rgba(8,9,11,.60)}
     </button>
   </div>
 
-  <a class="mobile-drawer-buy" href="https://payhip.com/b/ijVdM">Get the Gymcel Protocol →</a>
+  <a class="mobile-drawer-buy" href="#productsSection">View Products →</a>
 </aside>
 
 <main>
-  <section style="border-top:0">
-    <div class="wrap hero">
-      <div>
-        <div class="eyebrow">12-week hypertrophy program</div>
-        <h1>Failure Is Key.</h1>
-        <p>8–12 reps. 0 reps in reserve.</p>
-        <div class="hero-actions">
-          <a class="btn primary" href="https://payhip.com/b/ijVdM">Get the Gymcel Protocol →</a>
-          <a class="btn secondary" href="#inside">See what's inside</a>
+  <section id="productsSection" class="products-section" style="border-top:0">
+    <div class="wrap">
+      <div class="products-head">
+        <div>
+          <div class="kicker">Gymcels.lol Shop</div>
+          <h2>Products</h2>
         </div>
-        <div class="micro">Digital download · One-time purchase · No subscription</div>
+        <p>All Gymcels purchases are kept in one place. Pick the training program or unlock VIP access.</p>
       </div>
-      <div class="workout-card">
-        <div class="card-label">Sample workout · Push A</div>
-        <div class="exercise"><strong>Weighted Dips</strong><span>2 × 8–12 · Failure</span></div>
-        <div class="exercise"><strong>Incline Dumbbell Press</strong><span>2 × 8–12 · Failure</span></div>
-        <div class="exercise"><strong>Lateral Raises</strong><span>2 × 8–12 · Failure</span></div>
-        <div class="exercise"><strong>Cable Triceps Extensions</strong><span>2 × 8–12 · Failure</span></div>
-        <div class="exercise"><strong>Single-Arm Triceps Extensions</strong><span>2 × 8–12 · Failure</span></div>
+
+      <div class="products-grid">
+        <article id="programProduct" class="product-card">
+          <div class="product-card-top">
+            <span class="product-tag">Training</span>
+            <span class="product-price">$10 <small>one-time</small></span>
+          </div>
+
+          <h3>The Gymcel Protocol</h3>
+          <p class="product-description">
+            The full 12-week hypertrophy program built around hard sets, progression, and tracking.
+          </p>
+
+          <div class="product-points">
+            <span>✓ Push / Pull / Legs structure</span>
+            <span>✓ 2 hard working sets per exercise</span>
+            <span>✓ 8–12 reps · 0 RIR / technical failure</span>
+            <span>✓ Digital delivery through Payhip</span>
+          </div>
+
+          <a class="product-buy-btn" href="https://payhip.com/b/ijVdM" target="_blank" rel="noopener">
+            Buy Gymcel Protocol — $10
+          </a>
+        </article>
+
+        <article id="vipSection" class="product-card product-card-vip">
+          <div class="product-card-top">
+            <span class="product-tag vip">VIP 🔱</span>
+            <span class="product-price">$5 <small>one-time</small></span>
+          </div>
+
+          <h3>Gymcel VIP 🔱</h3>
+          <p class="product-description">
+            Unlock the VIP badge, member perks, and upcoming VIP-only Gymcels.lol features.
+          </p>
+
+          <div id="vipStatusPill" class="vip-status-pill">Checking VIP status…</div>
+
+          <div id="vipUnlocked" class="vip-unlocked hidden">
+            <strong>★ VIP ACTIVE</strong>
+            <p>Your purchase is verified. VIP access is connected to your Gymcels.lol account.</p>
+          </div>
+
+          <div id="vipLocked" class="vip-locked">
+            <a class="product-buy-btn vip" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">
+              Buy Gymcel VIP — $5
+            </a>
+
+            <button id="vipRefreshBtn" class="vip-refresh product-vip-refresh" type="button">
+              Refresh VIP Status
+            </button>
+
+            <div class="vip-email-note">
+              Use the <strong>same email address</strong> as your Gymcels.lol account so VIP can verify automatically.
+            </div>
+          </div>
+
+          <div id="vipCheckMessage" class="vip-email-note"></div>
+        </article>
       </div>
     </div>
-
   </section>
-
-  
 
   <section id="communitySection" class="community-home-section">
   <div class="wrap">
@@ -5645,30 +5818,6 @@ section{background:rgba(8,9,11,.60)}
 </div>
 
 
-
-<div id="vipSection" class="vip-shell">
-  <div class="vip-kicker">Gymcel VIP 🔱</div>
-  <div class="vip-title">Gymcel VIP 🔱</div>
-  <div id="vipStatusPill" class="vip-status-pill">Checking VIP status…</div>
-
-  <div id="vipUnlocked" class="vip-unlocked hidden">
-    <strong>★ VIP ACTIVE</strong>
-    <p>Your purchase is verified. VIP access is connected to your Gymcels.lol account.</p>
-  </div>
-
-  <div id="vipLocked" class="vip-locked">
-    <div class="vip-copy">Unlock upcoming VIP-only Gymcels.lol features, badges, and member perks.</div>
-    <div class="vip-price">$5 <span>one-time</span></div>
-    <a class="vip-buy" href="https://payhip.com/b/dNH7Y" target="_blank" rel="noopener">Unlock VIP — $5</a>
-    <button id="vipRefreshBtn" class="vip-refresh" type="button">Refresh VIP Status</button>
-    <div class="vip-email-note">
-      Important: buy VIP using the <strong>same email address</strong> as your Gymcels.lol account.
-      After Payhip confirms the payment, come back here and press “Refresh VIP Status.”
-    </div>
-  </div>
-
-  <div id="vipCheckMessage" class="vip-email-note"></div>
-</div>
 
 <div id="friendsSection" class="friends-shell" style="display:none">
   <div class="friends-head">
@@ -6353,18 +6502,7 @@ section{background:rgba(8,9,11,.60)}
     </div>
   </section>
 
-  <section class="final">
-    <div class="wrap">
-      <div class="final-inner">
-        <div class="kicker">The Gymcels.lol</div>
-        <h2>Stop Making Excuses, And Train Hard.</h2>
-        
-        <div class="price">$10 <small>one-time</small></div>
-        <a class="btn primary" href="https://payhip.com/b/ijVdM">Get instant access →</a>
-        <div class="micro">Delivered digitally through Payhip after checkout.</div>
-      </div>
-    </div>
-  </section>
+
 </main>
 
 <footer>
@@ -6374,7 +6512,7 @@ section{background:rgba(8,9,11,.60)}
   </div>
 </footer>
 
-<a class="mobile-buy" href="https://payhip.com/b/ijVdM">Get the Gymcel Protocol →</a>
+<a class="mobile-buy" href="#productsSection">View Products →</a>
 
 
 <div id="chatProfileOverlay" class="chat-profile-overlay" aria-hidden="true">
@@ -6609,16 +6747,10 @@ window.fpVerificationCallback = (() => {
     if (vipLocked) vipLocked.classList.toggle('hidden', !!isVip);
     if (profileVipBadge) profileVipBadge.classList.toggle('hidden', !isVip);
     if (navVip) {
-      navVip.textContent = isVip ? 'VIP ✓' : 'VIP';
-      if (isVip) {
-        navVip.setAttribute('href', '#vipSection');
-        navVip.removeAttribute('target');
-        navVip.removeAttribute('rel');
-      } else {
-        navVip.setAttribute('href', '#vipSection');
-        navVip.removeAttribute('target');
-        navVip.removeAttribute('rel');
-      }
+      navVip.textContent = isVip ? 'Products ✓' : 'Products';
+      navVip.setAttribute('href', '#productsSection');
+      navVip.removeAttribute('target');
+      navVip.removeAttribute('rel');
     }
     if (vipCheckMessage) vipCheckMessage.textContent = message || '';
   }
@@ -6629,10 +6761,10 @@ window.fpVerificationCallback = (() => {
     if (!session?.user) {
       setVipUi(false, 'Log in to connect VIP to your Gymcels.lol account.');
       if (navVip) {
-        navVip.textContent = 'VIP';
-        navVip.setAttribute('href', 'https://payhip.com/b/dNH7Y');
-        navVip.setAttribute('target', '_blank');
-        navVip.setAttribute('rel', 'noopener');
+        navVip.textContent = 'Products';
+        navVip.setAttribute('href', '#productsSection');
+        navVip.removeAttribute('target');
+        navVip.removeAttribute('rel');
       }
       return false;
     }
