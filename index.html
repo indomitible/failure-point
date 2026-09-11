@@ -1468,6 +1468,117 @@ section{background:rgba(8,9,11,.60)}
   .thread-view-title{font-size:22px}
 }
 
+
+/* ADD FRIEND BY USERNAME */
+.friend-search-box{
+  margin-bottom:14px;
+  padding:14px;
+  border:1px solid #252932;
+  border-radius:12px;
+  background:#0a0c0f;
+}
+.friend-search-title{
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+}
+.friend-search-sub{
+  margin-top:2px;
+  color:#8e96a3;
+  font-size:10px;
+}
+.friend-search-row{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+.friend-search-row input{
+  flex:1;
+  min-width:0;
+  border:1px solid #30343b;
+  background:#0d1014;
+  color:#fff;
+  border-radius:10px;
+  padding:11px 12px;
+  font:inherit;
+  outline:none;
+}
+.friend-search-row input:focus{border-color:#ef4355}
+.friend-search-row button{
+  border:0;
+  border-radius:10px;
+  padding:0 15px;
+  background:#ef4355;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.friend-search-row button:hover{filter:brightness(1.08)}
+.friend-search-results{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-top:10px;
+}
+.friend-search-result{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px;
+  border:1px solid #222831;
+  border-radius:10px;
+  background:#11151a;
+}
+.friend-search-result-main{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex:1;
+  min-width:0;
+  cursor:pointer;
+}
+.friend-search-result-name{
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.friend-search-result-state{
+  margin-top:2px;
+  color:#808996;
+  font-size:9px;
+}
+.friend-search-action{
+  border:0;
+  border-radius:8px;
+  padding:8px 10px;
+  background:#ef4355;
+  color:#fff;
+  font-size:9px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.friend-search-action.secondary{background:#242830}
+.friend-search-action:disabled{opacity:.65;cursor:default}
+.friend-search-empty{
+  color:#747d89;
+  font-size:10px;
+  padding:4px 2px;
+}
+.friend-search-status{
+  min-height:15px;
+  margin-top:7px;
+  color:#8e96a3;
+  font-size:10px;
+}
+@media(max-width:520px){
+  .friend-search-row{flex-direction:column}
+  .friend-search-row button{padding:11px}
+}
+
 </style>
 </head>
 <body>
@@ -1867,6 +1978,19 @@ section{background:rgba(8,9,11,.60)}
       <div class="friends-sub">See who’s online, incoming requests, and your Gymcels.lol friends.</div>
     </div>
     <button id="friendsRefreshBtn" class="friends-refresh" type="button">Refresh</button>
+  </div>
+
+  <div class="friend-search-box">
+    <div class="friend-search-title">Add Friend</div>
+    <div class="friend-search-sub">Type a Gymcels.lol display name to find someone.</div>
+    <div class="friend-search-row">
+      <input id="friendSearchInput" type="text" maxlength="30" autocomplete="off" placeholder="Search username...">
+      <button id="friendSearchBtn" type="button">Search</button>
+    </div>
+    <div id="friendSearchResults" class="friend-search-results">
+      <div class="friend-search-empty">Search for a member to send a friend request.</div>
+    </div>
+    <div id="friendSearchStatus" class="friend-search-status"></div>
   </div>
 
   <div class="friends-grid">
@@ -3041,6 +3165,10 @@ const incomingCount = document.getElementById('incomingCount');
 const sentCount = document.getElementById('sentCount');
 const friendsRefreshBtn = document.getElementById('friendsRefreshBtn');
 const friendsStatus = document.getElementById('friendsStatus');
+const friendSearchInput = document.getElementById('friendSearchInput');
+const friendSearchBtn = document.getElementById('friendSearchBtn');
+const friendSearchResults = document.getElementById('friendSearchResults');
+const friendSearchStatus = document.getElementById('friendSearchStatus');
 
 
 const chatPublicAchievements = document.getElementById('chatPublicAchievements');
@@ -3364,6 +3492,187 @@ function renderFriendPersonRow(person, extraHtml=''){
   </div>`;
 }
 
+
+function setFriendSearchStatus(text='', type='normal'){
+  if(!friendSearchStatus) return;
+  friendSearchStatus.textContent = text;
+  friendSearchStatus.style.color =
+    type === 'error' ? '#ff7c89' :
+    type === 'success' ? '#67e8a5' :
+    '#8e96a3';
+  friendSearchStatus.style.fontWeight = type === 'error' || type === 'success' ? '800' : '';
+}
+
+async function searchFriendsByUsername(){
+  if(!friendSearchResults) return;
+
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+
+  if(!client || !session?.user){
+    setFriendSearchStatus('Log in to search for friends.','error');
+    return;
+  }
+
+  const query = String(friendSearchInput?.value || '').trim();
+  if(query.length < 1){
+    friendSearchResults.innerHTML = '<div class="friend-search-empty">Type a username first.</div>';
+    setFriendSearchStatus('');
+    return;
+  }
+
+  if(friendSearchBtn) friendSearchBtn.disabled = true;
+  setFriendSearchStatus('Searching...');
+
+  try{
+    const { data, error } = await client
+      .from('member_presence')
+      .select('user_id,display_name,avatar_url,last_seen')
+      .ilike('display_name', `%${query}%`)
+      .neq('user_id', session.user.id)
+      .order('display_name', { ascending:true })
+      .limit(10);
+
+    if(error) throw error;
+
+    const people = data || [];
+
+    if(!people.length){
+      friendSearchResults.innerHTML = '<div class="friend-search-empty">No members found with that username.</div>';
+      setFriendSearchStatus('');
+      return;
+    }
+
+    const enriched = await Promise.all(
+      people.map(async person => {
+        let friendship = null;
+        let isVip = false;
+
+        try{ friendship = await getFriendshipState(person.user_id); }catch(_){}
+        try{ isVip = await getPublicVipStatus(person.user_id); }catch(_){}
+
+        return {...person, friendship, is_vip:isVip};
+      })
+    );
+
+    friendSearchResults.innerHTML = enriched.map(person => {
+      const online = isPresenceOnline(person.last_seen);
+      const safeId = escapeChat(person.user_id);
+      const safeName = escapeChat(person.display_name || 'Member');
+      const safeAvatar = escapeChat(person.avatar_url || '');
+
+      let actionLabel = 'Add Friend';
+      let actionClass = '';
+      let action = 'add';
+      let disabled = '';
+
+      if(person.friendship?.status === 'accepted'){
+        actionLabel = 'Friends ✓';
+        actionClass = ' secondary';
+        action = 'none';
+        disabled = ' disabled';
+      }else if(person.friendship?.status === 'pending' && person.friendship.requester_id === session.user.id){
+        actionLabel = 'Request Sent';
+        actionClass = ' secondary';
+        action = 'none';
+        disabled = ' disabled';
+      }else if(person.friendship?.status === 'pending' && person.friendship.addressee_id === session.user.id){
+        actionLabel = 'Accept';
+        action = 'accept';
+      }
+
+      return `
+        <div class="friend-search-result">
+          <div class="friend-search-result-main"
+               data-chat-user="${safeId}"
+               data-chat-name="${safeName}"
+               data-chat-avatar="${safeAvatar}">
+            ${friendAvatarMarkup(person, online)}
+            <div style="min-width:0;flex:1">
+              <div class="friend-search-result-name">${safeName}${person.is_vip ? '<span class="friend-vip-badge">VIP 🔱</span>' : ''}</div>
+              <div class="friend-search-result-state">${online ? 'Online' : 'Offline'}</div>
+            </div>
+          </div>
+          <button class="friend-search-action${actionClass}"
+                  type="button"
+                  data-search-friend-action="${action}"
+                  data-search-friend-user="${safeId}"
+                  data-search-friendship-id="${person.friendship?.id || ''}"${disabled}>${actionLabel}</button>
+        </div>`;
+    }).join('');
+
+    setFriendSearchStatus(`${enriched.length} member${enriched.length === 1 ? '' : 's'} found.`);
+  }catch(err){
+    friendSearchResults.innerHTML = '<div class="friend-search-empty">Could not search members.</div>';
+    setFriendSearchStatus(err?.message || String(err),'error');
+  }finally{
+    if(friendSearchBtn) friendSearchBtn.disabled = false;
+  }
+}
+
+async function handleFriendSearchAction(e){
+  const btn = e.target.closest('[data-search-friend-action]');
+  if(!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const action = btn.dataset.searchFriendAction;
+  const targetUser = btn.dataset.searchFriendUser;
+  const friendshipId = Number(btn.dataset.searchFriendshipId);
+
+  if(!targetUser || action === 'none') return;
+
+  const client = window.gymcelsLolDb;
+  if(!client) return;
+
+  btn.disabled = true;
+  setFriendSearchStatus(action === 'accept' ? 'Accepting request...' : 'Sending request...');
+
+  try{
+    if(action === 'accept'){
+      const { error } = await client.rpc('accept_friend_request', {
+        friendship_id: friendshipId
+      });
+      if(error) throw error;
+
+      setFriendSearchStatus('✓ FRIEND REQUEST ACCEPTED','success');
+    }else{
+      const { error } = await client.rpc('send_friend_request', {
+        target_user: targetUser
+      });
+      if(error) throw error;
+
+      setFriendSearchStatus('✓ FRIEND REQUEST SENT','success');
+    }
+
+    await loadFriendsSection();
+    await searchFriendsByUsername();
+    await loadNotifications();
+  }catch(err){
+    setFriendSearchStatus(err?.message || String(err),'error');
+    btn.disabled = false;
+  }
+}
+
+if(friendSearchBtn){
+  friendSearchBtn.addEventListener('click', searchFriendsByUsername);
+}
+
+if(friendSearchInput){
+  friendSearchInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      searchFriendsByUsername();
+    }
+  });
+}
+
+if(friendSearchResults){
+  friendSearchResults.addEventListener('click', handleFriendSearchAction);
+}
+
+
 async function loadFriendsSection(){
   if(!friendsSection) return;
 
@@ -3420,7 +3729,7 @@ async function loadFriendsSection(){
             </div>`
           );
         }).join('')
-      : '<div class="friend-empty">No friends yet. Click someone in chat and send a request.</div>';
+      : '<div class="friend-empty">No friends yet. Search a username above or click someone in chat.</div>';
 
     incomingFriendsList.innerHTML = incoming.length
       ? incoming.map(row => {
