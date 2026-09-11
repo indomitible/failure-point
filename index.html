@@ -1948,6 +1948,80 @@ section{background:rgba(8,9,11,.60)}
   .dm-call-btn{padding:8px 9px}
 }
 
+
+/* DRAGGABLE NON-BLOCKING PRIVATE CALL WINDOW */
+#dmActiveCallOverlay.dm-call-floating-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:12000;
+  background:transparent;
+  backdrop-filter:none;
+  padding:0;
+  pointer-events:none;
+}
+#dmActiveCallOverlay.dm-call-floating-overlay.show{
+  display:block;
+}
+#dmActiveCallCard.dm-call-floating-card{
+  position:fixed;
+  top:86px;
+  right:18px;
+  left:auto;
+  bottom:auto;
+  width:min(330px,calc(100vw - 24px));
+  padding:14px 16px 16px;
+  pointer-events:auto;
+  user-select:none;
+  touch-action:none;
+  cursor:default;
+  box-shadow:0 20px 70px rgba(0,0,0,.55);
+}
+.dm-call-drag-handle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:-4px -2px 4px;
+  padding:4px 2px 8px;
+  cursor:grab;
+  touch-action:none;
+}
+.dm-call-drag-handle:active{cursor:grabbing}
+.dm-call-drag-hint{
+  color:#68717d;
+  font-size:13px;
+  letter-spacing:-2px;
+  padding-right:2px;
+}
+#dmActiveCallCard.dm-call-floating-card .dm-call-avatar{
+  width:64px;
+  height:64px;
+  margin:10px auto 8px;
+  font-size:17px;
+}
+#dmActiveCallCard.dm-call-floating-card .dm-call-name{
+  font-size:17px;
+}
+#dmActiveCallCard.dm-call-floating-card .dm-call-actions{
+  margin-top:14px;
+}
+#dmActiveCallCard.dm-call-floating-card .dm-call-action{
+  min-width:96px;
+  padding:9px 12px;
+}
+#dmActiveCallCard.dm-call-floating-card.dragging{
+  cursor:grabbing;
+  transition:none!important;
+}
+@media(max-width:520px){
+  #dmActiveCallCard.dm-call-floating-card{
+    top:74px;
+    right:10px;
+    width:min(310px,calc(100vw - 20px));
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2757,9 +2831,12 @@ section{background:rgba(8,9,11,.60)}
   </div>
 </div>
 
-<div id="dmActiveCallOverlay" class="dm-call-overlay" aria-hidden="true">
-  <div class="dm-call-card active" role="dialog" aria-modal="true" aria-labelledby="dmActiveCallName">
-    <div id="dmActiveCallState" class="dm-call-kicker">Calling...</div>
+<div id="dmActiveCallOverlay" class="dm-call-overlay dm-call-floating-overlay" aria-hidden="true">
+  <div id="dmActiveCallCard" class="dm-call-card active dm-call-floating-card" role="dialog" aria-modal="false" aria-labelledby="dmActiveCallName">
+    <div id="dmCallDragHandle" class="dm-call-drag-handle" title="Drag call window">
+      <div id="dmActiveCallState" class="dm-call-kicker">Calling...</div>
+      <span class="dm-call-drag-hint">⋮⋮</span>
+    </div>
     <div id="dmActiveCallAvatar" class="dm-call-avatar">GC</div>
     <div id="dmActiveCallName" class="dm-call-name">Gymcels.lol Member</div>
     <div id="dmActiveCallTimer" class="dm-call-timer">00:00</div>
@@ -6595,6 +6672,8 @@ const dmAcceptCallBtn = document.getElementById('dmAcceptCallBtn');
 const dmDeclineCallBtn = document.getElementById('dmDeclineCallBtn');
 
 const dmActiveCallOverlay = document.getElementById('dmActiveCallOverlay');
+const dmActiveCallCard = document.getElementById('dmActiveCallCard');
+const dmCallDragHandle = document.getElementById('dmCallDragHandle');
 const dmActiveCallState = document.getElementById('dmActiveCallState');
 const dmActiveCallAvatar = document.getElementById('dmActiveCallAvatar');
 const dmActiveCallName = document.getElementById('dmActiveCallName');
@@ -7078,7 +7157,109 @@ async function prepareDmCallMicrophone(){
   if(dmCallMuteBtn) dmCallMuteBtn.textContent = 'Mute Mic';
 }
 
+
+let dmCallDragState = null;
+let dmCallHasCustomPosition = false;
+
+function clampDmCallPosition(left,top){
+  if(!dmActiveCallCard) return {left,top};
+
+  const rect = dmActiveCallCard.getBoundingClientRect();
+  const width = rect.width || 330;
+  const height = rect.height || 260;
+  const margin = 8;
+
+  return {
+    left: Math.min(
+      Math.max(margin,left),
+      Math.max(margin,window.innerWidth - width - margin)
+    ),
+    top: Math.min(
+      Math.max(margin,top),
+      Math.max(margin,window.innerHeight - height - margin)
+    )
+  };
+}
+
+function setDmCallCardPosition(left,top){
+  if(!dmActiveCallCard) return;
+
+  const pos = clampDmCallPosition(left,top);
+  dmActiveCallCard.style.left = `${pos.left}px`;
+  dmActiveCallCard.style.top = `${pos.top}px`;
+  dmActiveCallCard.style.right = 'auto';
+  dmActiveCallCard.style.bottom = 'auto';
+  dmCallHasCustomPosition = true;
+}
+
+function resetDmCallCardPosition(){
+  if(!dmActiveCallCard) return;
+
+  dmActiveCallCard.style.left = '';
+  dmActiveCallCard.style.top = '';
+  dmActiveCallCard.style.right = '';
+  dmActiveCallCard.style.bottom = '';
+  dmCallHasCustomPosition = false;
+}
+
+if(dmCallDragHandle && dmActiveCallCard){
+  dmCallDragHandle.addEventListener('pointerdown',(e) => {
+    if(e.button !== undefined && e.button !== 0) return;
+    if(e.target.closest('button')) return;
+
+    const rect = dmActiveCallCard.getBoundingClientRect();
+
+    dmCallDragState = {
+      pointerId:e.pointerId,
+      offsetX:e.clientX - rect.left,
+      offsetY:e.clientY - rect.top
+    };
+
+    dmActiveCallCard.classList.add('dragging');
+
+    try{
+      dmCallDragHandle.setPointerCapture(e.pointerId);
+    }catch(_){}
+
+    e.preventDefault();
+  });
+
+  dmCallDragHandle.addEventListener('pointermove',(e) => {
+    if(!dmCallDragState || e.pointerId !== dmCallDragState.pointerId) return;
+
+    setDmCallCardPosition(
+      e.clientX - dmCallDragState.offsetX,
+      e.clientY - dmCallDragState.offsetY
+    );
+
+    e.preventDefault();
+  });
+
+  const finishDrag = (e) => {
+    if(!dmCallDragState) return;
+    if(e.pointerId !== undefined && e.pointerId !== dmCallDragState.pointerId) return;
+
+    try{
+      dmCallDragHandle.releasePointerCapture(dmCallDragState.pointerId);
+    }catch(_){}
+
+    dmCallDragState = null;
+    dmActiveCallCard.classList.remove('dragging');
+  };
+
+  dmCallDragHandle.addEventListener('pointerup',finishDrag);
+  dmCallDragHandle.addEventListener('pointercancel',finishDrag);
+}
+
+window.addEventListener('resize',() => {
+  if(!dmActiveCallCard || !dmCallHasCustomPosition) return;
+
+  const rect = dmActiveCallCard.getBoundingClientRect();
+  setDmCallCardPosition(rect.left,rect.top);
+});
+
 function showActiveDmCall(name,avatar,state='Calling...'){
+  if(!dmCallHasCustomPosition) resetDmCallCardPosition();
   if(dmActiveCallName) dmActiveCallName.textContent = name || 'Member';
   renderDmCallAvatar(dmActiveCallAvatar,name,avatar);
   if(dmActiveCallState) dmActiveCallState.textContent = state;
@@ -7307,6 +7488,8 @@ async function cleanupDmPrivateCall(sendHangup=true){
     dmActiveCallOverlay.classList.remove('show');
     dmActiveCallOverlay.setAttribute('aria-hidden','true');
   }
+
+  resetDmCallCardPosition();
 
   if(dmCallMuteBtn) dmCallMuteBtn.textContent = 'Mute Mic';
   dmCallSetStatus('');
