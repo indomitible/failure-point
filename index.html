@@ -6018,7 +6018,37 @@ async function publishVoicePresence(){
   });
 }
 
-async function leaveVoiceChannel(showStatus=true){
+
+async function removeCachedVoiceTopic(roomKey){
+  const client = window.gymcelsLolDb;
+  const room = VOICE_ROOMS[roomKey];
+  if(!client || !room) return;
+
+  const preview = voiceRoomPreviewChannels.get(roomKey);
+  if(preview){
+    try{ await client.removeChannel(preview); }catch(_){}
+    voiceRoomPreviewChannels.delete(roomKey);
+  }
+
+  // Supabase can reuse a RealtimeChannel for the same topic.
+  // Remove any stale/cached copies before adding presence callbacks again.
+  try{
+    const expectedTopic = `realtime:${room.topic}`;
+    const matches = (client.getChannels?.() || []).filter(ch =>
+      ch &&
+      ch !== voiceRealtimeChannel &&
+      (ch.topic === expectedTopic || ch.topic === room.topic)
+    );
+
+    for(const ch of matches){
+      try{ await client.removeChannel(ch); }catch(_){}
+    }
+  }catch(err){
+    console.warn('Voice channel cleanup warning:', err);
+  }
+}
+
+async function leaveVoiceChannel(showStatus=true, restorePreviews=true){
   const client = window.gymcelsLolDb;
 
   destroyAllVoicePeers();
@@ -6046,6 +6076,13 @@ async function leaveVoiceChannel(showStatus=true){
   if(voiceMuteBtn) voiceMuteBtn.textContent = 'Mute';
 
   renderAllVoiceRooms();
+
+  if(restorePreviews){
+    try{
+      const session = await getChatSession();
+      if(session?.user) await startVoiceRoomPreviews(session);
+    }catch(_){}
+  }
 
   if(showStatus) setVoiceStatus('Left voice channel.');
 }
@@ -6078,7 +6115,7 @@ async function joinVoiceChannel(roomKey){
   }
 
   if(voiceRoomKey){
-    await leaveVoiceChannel(false);
+    await leaveVoiceChannel(false, false);
   }
 
   setVoiceStatus(`Joining ${room.label}...`);
@@ -6099,6 +6136,10 @@ async function joinVoiceChannel(roomKey){
 
     // Make sure Realtime authorization uses the signed-in JWT.
     try{ client.realtime.setAuth(session.access_token); }catch(_){}
+
+    // The room list already has a presence preview subscription for this topic.
+    // Tear it down first so Supabase does not hand us an already-subscribed channel.
+    await removeCachedVoiceTopic(roomKey);
 
     voiceRoomKey = roomKey;
 
@@ -6150,7 +6191,11 @@ async function joinVoiceChannel(roomKey){
 
   }catch(err){
     console.error('Voice join error:',err);
-    await leaveVoiceChannel(false);
+    await leaveVoiceChannel(false, false);
+    try{
+      const latestSession = await getChatSession();
+      if(latestSession?.user) await startVoiceRoomPreviews(latestSession);
+    }catch(_){}
 
     const name = err?.name || '';
     if(name === 'NotAllowedError'){
@@ -6201,7 +6246,7 @@ function setVoiceAuthState(session){
   }
 
   if(!signedIn && voiceRoomKey){
-    leaveVoiceChannel(false);
+    leaveVoiceChannel(false, false);
   }
 }
 
@@ -6259,7 +6304,7 @@ if(voiceMuteBtn){
   voiceMuteBtn.addEventListener('click',toggleVoiceMute);
 }
 if(voiceLeaveBtn){
-  voiceLeaveBtn.addEventListener('click',() => leaveVoiceChannel(true));
+  voiceLeaveBtn.addEventListener('click',() => leaveVoiceChannel(true, true));
 }
 if(navVoiceOutside){
   navVoiceOutside.addEventListener('click',() => {
