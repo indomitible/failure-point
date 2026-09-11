@@ -155,6 +155,7 @@ window.fpVerificationCallback = (() => {
       authView.classList.add('hidden');
       dashboardView.classList.remove('hidden');
       memberEmail.textContent = session.user.email || '';
+      refreshAccountSettingsUi(session);
       navSignup.classList.add('hidden');
       navLogin.classList.add('hidden');
       if (navEditProfile) navEditProfile.classList.remove('hidden');
@@ -449,6 +450,330 @@ window.fpVerificationCallback = (() => {
   }
 
   installPasswordRecoveryUi();
+
+  // ---- Small Account Settings panel: change email + change password ----
+  function installAccountSettingsUi() {
+    const dashboard = $('dashboardView');
+    const profile = document.getElementById('memberProfile');
+    if (!dashboard || !profile) return;
+
+    if (!document.getElementById('gymcelsAccountSettingsStyles')) {
+      const style = document.createElement('style');
+      style.id = 'gymcelsAccountSettingsStyles';
+      style.textContent = `
+        .gymcels-account-settings{
+          margin-top:14px;
+          border:1px solid #2a3038;
+          border-radius:14px;
+          background:rgba(15,18,24,.94);
+          overflow:hidden;
+        }
+        .gymcels-account-settings-head{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:12px;
+          padding:14px 16px;
+        }
+        .gymcels-account-settings-title{
+          font-size:14px;
+          font-weight:900;
+          color:#f4f6f8;
+        }
+        .gymcels-account-settings-sub{
+          margin-top:3px;
+          color:#8f99a6;
+          font-size:10px;
+          line-height:1.35;
+        }
+        .gymcels-account-settings-toggle{
+          flex:0 0 auto;
+          border:1px solid #343b45;
+          border-radius:8px;
+          background:#181c23;
+          color:#e5e9ee;
+          padding:8px 11px;
+          font:inherit;
+          font-size:10px;
+          font-weight:900;
+          cursor:pointer;
+        }
+        .gymcels-account-settings-toggle:hover{border-color:#ef4355;color:#fff}
+        .gymcels-account-settings-body{
+          border-top:1px solid #252b33;
+          padding:14px 16px 16px;
+        }
+        .gymcels-account-settings-body.hidden{display:none}
+        .gymcels-account-current{
+          margin-bottom:12px;
+          padding:9px 10px;
+          border-radius:9px;
+          background:#0c0f14;
+          color:#aab3bf;
+          font-size:10px;
+        }
+        .gymcels-account-current strong{color:#fff}
+        .gymcels-account-setting{
+          padding:12px 0;
+          border-top:1px solid #222831;
+        }
+        .gymcels-account-setting:first-of-type{border-top:0}
+        .gymcels-account-setting h4{
+          margin:0 0 5px;
+          color:#f1f3f6;
+          font-size:12px;
+        }
+        .gymcels-account-setting p{
+          margin:0 0 9px;
+          color:#8f99a6;
+          font-size:10px;
+          line-height:1.45;
+        }
+        .gymcels-account-row{
+          display:flex;
+          gap:8px;
+          align-items:center;
+        }
+        .gymcels-account-row + .gymcels-account-row{margin-top:8px}
+        .gymcels-account-row input{
+          min-width:0;
+          flex:1;
+          min-height:40px;
+          box-sizing:border-box;
+          border:1px solid #303640;
+          border-radius:8px;
+          background:#0b0e13;
+          color:#fff;
+          padding:9px 11px;
+          font-size:16px;
+          outline:none;
+        }
+        .gymcels-account-row input:focus{border-color:#ef4355}
+        .gymcels-account-action{
+          min-height:40px;
+          border:0;
+          border-radius:8px;
+          background:#ef4355;
+          color:#fff;
+          padding:0 13px;
+          font:inherit;
+          font-size:10px;
+          font-weight:900;
+          cursor:pointer;
+          white-space:nowrap;
+        }
+        .gymcels-account-action:disabled{opacity:.55;cursor:wait}
+        .gymcels-account-message{
+          min-height:16px;
+          margin-top:8px;
+          color:#8f99a6;
+          font-size:10px;
+          line-height:1.4;
+        }
+        .gymcels-account-message.success{color:#67e8a5}
+        .gymcels-account-message.error{color:#ff7b88}
+        @media (max-width:620px){
+          .gymcels-account-settings-head{padding:12px}
+          .gymcels-account-settings-body{padding:12px}
+          .gymcels-account-row{align-items:stretch;flex-direction:column}
+          .gymcels-account-action{width:100%}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    if (document.getElementById('gymcelsAccountSettings')) return;
+
+    const section = document.createElement('section');
+    section.id = 'gymcelsAccountSettings';
+    section.className = 'gymcels-account-settings';
+    section.innerHTML = `
+      <div class="gymcels-account-settings-head">
+        <div>
+          <div class="gymcels-account-settings-title">Account Settings</div>
+          <div class="gymcels-account-settings-sub">Manage your login email and password.</div>
+        </div>
+        <button id="gymcelsAccountSettingsToggle" class="gymcels-account-settings-toggle" type="button"
+          aria-expanded="false">Open settings</button>
+      </div>
+
+      <div id="gymcelsAccountSettingsBody" class="gymcels-account-settings-body hidden">
+        <div class="gymcels-account-current">
+          Signed in as <strong id="gymcelsAccountCurrentEmail">—</strong>
+        </div>
+
+        <div class="gymcels-account-setting">
+          <h4>Change email</h4>
+          <p>We’ll send confirmation email(s) before your login email changes.</p>
+          <div class="gymcels-account-row">
+            <input id="gymcelsNewEmail" type="email" autocomplete="email" placeholder="New email address">
+            <button id="gymcelsChangeEmailBtn" class="gymcels-account-action" type="button">Change email</button>
+          </div>
+          <div id="gymcelsChangeEmailMsg" class="gymcels-account-message" role="status"></div>
+        </div>
+
+        <div class="gymcels-account-setting">
+          <h4>Change password</h4>
+          <p>Choose a new password with at least 6 characters.</p>
+          <div class="gymcels-account-row">
+            <input id="gymcelsNewPassword" type="password" autocomplete="new-password" minlength="6" placeholder="New password">
+            <input id="gymcelsConfirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Confirm new password">
+          </div>
+          <div class="gymcels-account-row">
+            <button id="gymcelsChangePasswordBtn" class="gymcels-account-action" type="button">Change password</button>
+          </div>
+          <div id="gymcelsChangePasswordMsg" class="gymcels-account-message" role="status"></div>
+        </div>
+      </div>
+    `;
+
+    profile.insertAdjacentElement('afterend', section);
+
+    const toggle = document.getElementById('gymcelsAccountSettingsToggle');
+    const body = document.getElementById('gymcelsAccountSettingsBody');
+    const currentEmail = document.getElementById('gymcelsAccountCurrentEmail');
+
+    const newEmail = document.getElementById('gymcelsNewEmail');
+    const changeEmailBtn = document.getElementById('gymcelsChangeEmailBtn');
+    const emailMsg = document.getElementById('gymcelsChangeEmailMsg');
+
+    const newPassword = document.getElementById('gymcelsNewPassword');
+    const confirmPassword = document.getElementById('gymcelsConfirmPassword');
+    const changePasswordBtn = document.getElementById('gymcelsChangePasswordBtn');
+    const passwordMsg = document.getElementById('gymcelsChangePasswordMsg');
+
+    const setSettingsMessage = (el, text, type='') => {
+      if (!el) return;
+      el.textContent = text || '';
+      el.className = 'gymcels-account-message' + (type ? ` ${type}` : '');
+    };
+
+    toggle?.addEventListener('click', () => {
+      const opening = body.classList.contains('hidden');
+      body.classList.toggle('hidden', !opening);
+      toggle.textContent = opening ? 'Close settings' : 'Open settings';
+      toggle.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    });
+
+    changeEmailBtn?.addEventListener('click', async () => {
+      const email = (newEmail?.value || '').trim();
+      setSettingsMessage(emailMsg, '');
+
+      if (!email || !newEmail.checkValidity()) {
+        setSettingsMessage(emailMsg, 'Enter a valid new email address.', 'error');
+        newEmail?.focus();
+        return;
+      }
+
+      const { data: { session } } = await db.auth.getSession();
+      if (!session?.user) {
+        setSettingsMessage(emailMsg, 'Log in again first.', 'error');
+        return;
+      }
+
+      if (email.toLowerCase() === String(session.user.email || '').toLowerCase()) {
+        setSettingsMessage(emailMsg, 'That is already your current email.', 'error');
+        return;
+      }
+
+      changeEmailBtn.disabled = true;
+      changeEmailBtn.textContent = 'Sending…';
+
+      try {
+        const { error } = await db.auth.updateUser(
+          { email },
+          { emailRedirectTo: 'https://gymcels.lol/#members' }
+        );
+
+        if (error) throw error;
+
+        newEmail.value = '';
+        setSettingsMessage(
+          emailMsg,
+          'Confirmation sent. Check your email inbox (and spam/junk). Your login email changes after the required confirmation is completed.',
+          'success'
+        );
+      } catch (error) {
+        setSettingsMessage(
+          emailMsg,
+          error?.message || 'Could not start the email change. Try again.',
+          'error'
+        );
+      } finally {
+        changeEmailBtn.disabled = false;
+        changeEmailBtn.textContent = 'Change email';
+      }
+    });
+
+    changePasswordBtn?.addEventListener('click', async () => {
+      const password = newPassword?.value || '';
+      const confirm = confirmPassword?.value || '';
+      setSettingsMessage(passwordMsg, '');
+
+      if (password.length < 6) {
+        setSettingsMessage(passwordMsg, 'Use at least 6 characters.', 'error');
+        newPassword?.focus();
+        return;
+      }
+
+      if (password !== confirm) {
+        setSettingsMessage(passwordMsg, 'Those passwords do not match.', 'error');
+        confirmPassword?.focus();
+        return;
+      }
+
+      const { data: { session } } = await db.auth.getSession();
+      if (!session?.user) {
+        setSettingsMessage(passwordMsg, 'Log in again first.', 'error');
+        return;
+      }
+
+      changePasswordBtn.disabled = true;
+      changePasswordBtn.textContent = 'Saving…';
+
+      try {
+        const { error } = await db.auth.updateUser({ password });
+        if (error) throw error;
+
+        newPassword.value = '';
+        confirmPassword.value = '';
+        setSettingsMessage(passwordMsg, 'Password changed successfully.', 'success');
+      } catch (error) {
+        setSettingsMessage(
+          passwordMsg,
+          error?.message || 'Could not change your password. Try logging in again.',
+          'error'
+        );
+      } finally {
+        changePasswordBtn.disabled = false;
+        changePasswordBtn.textContent = 'Change password';
+      }
+    });
+
+    const submitOnEnter = (event, button) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        button?.click();
+      }
+    };
+
+    newEmail?.addEventListener('keydown', event => submitOnEnter(event, changeEmailBtn));
+    newPassword?.addEventListener('keydown', event => submitOnEnter(event, changePasswordBtn));
+    confirmPassword?.addEventListener('keydown', event => submitOnEnter(event, changePasswordBtn));
+
+    // Set the current email if a session already exists.
+    db.auth.getSession().then(({ data: { session } }) => {
+      if (currentEmail && session?.user) currentEmail.textContent = session.user.email || '—';
+    });
+  }
+
+  function refreshAccountSettingsUi(session) {
+    installAccountSettingsUi();
+    const currentEmail = document.getElementById('gymcelsAccountCurrentEmail');
+    if (currentEmail) currentEmail.textContent = session?.user?.email || '—';
+  }
+
+  installAccountSettingsUi();
 
   $('loginBtn').addEventListener('click', async () => {
     const email = $('loginEmail').value.trim();
