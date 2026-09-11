@@ -5619,6 +5619,164 @@ section{background:rgba(8,9,11,.60)}
   .site-update-compose-buttons{flex-wrap:wrap;justify-content:flex-end}
 }
 
+
+/* DM TYPING INDICATOR */
+.dm-typing-indicator{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:max-content;
+  max-width:calc(100% - 20px);
+  margin:4px 10px 1px;
+  padding:6px 9px;
+  border:1px solid #252c34;
+  border-radius:12px;
+  background:#11161c;
+  color:#7f8995;
+  font-size:8px;
+}
+.dm-typing-name{
+  white-space:nowrap;
+}
+.dm-typing-dots{
+  display:flex;
+  align-items:center;
+  gap:3px;
+}
+.dm-typing-dots i{
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#b8c0ca;
+  animation:dmTypingBounce 1s infinite ease-in-out;
+}
+.dm-typing-dots i:nth-child(2){animation-delay:.14s}
+.dm-typing-dots i:nth-child(3){animation-delay:.28s}
+@keyframes dmTypingBounce{
+  0%,60%,100%{transform:translateY(0);opacity:.45}
+  30%{transform:translateY(-4px);opacity:1}
+}
+
+/* DM REPLIES */
+.dm-reply-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:6px 10px 0;
+  padding:8px 9px;
+  border:1px solid #2b323b;
+  border-left:3px solid #ef4355;
+  border-radius:9px;
+  background:#0c1014;
+}
+.dm-reply-bar-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.dm-reply-bar-copy span{
+  color:#aab3be;
+  font-size:8px;
+}
+.dm-reply-bar-copy strong{
+  color:#ff7584;
+}
+.dm-reply-bar-copy small{
+  max-width:520px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#737d89;
+  font-size:8px;
+}
+.dm-reply-bar>button{
+  width:26px;
+  height:26px;
+  min-width:26px;
+  border:0;
+  border-radius:7px;
+  background:#222830;
+  color:#fff;
+  cursor:pointer;
+  font-size:15px;
+}
+.dm-quoted-reply{
+  display:block;
+  width:100%;
+  margin:0 0 5px;
+  padding:7px 8px;
+  border:0;
+  border-left:2px solid #ef4355;
+  border-radius:8px;
+  background:#0d1116;
+  color:#89939f;
+  text-align:left;
+  cursor:pointer;
+  font-family:inherit;
+}
+.dm-row.mine .dm-quoted-reply{
+  background:rgba(255,255,255,.08);
+  border-left-color:#fff;
+}
+.dm-quoted-reply strong{
+  display:block;
+  margin-bottom:2px;
+  color:#cfd5dd;
+  font-size:8px;
+}
+.dm-quoted-reply span{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:8px;
+}
+.dm-row-footer{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:3px;
+}
+.dm-row.mine .dm-row-footer{
+  justify-content:flex-end;
+}
+.dm-reply-action{
+  border:0;
+  background:transparent;
+  color:#68737f;
+  padding:0;
+  font:inherit;
+  font-size:8px;
+  cursor:pointer;
+}
+.dm-reply-action:hover{
+  color:#ef6675;
+}
+.dm-row.reply-highlight{
+  animation:dmReplyFlash 1.4s ease;
+}
+@keyframes dmReplyFlash{
+  0%,100%{filter:none}
+  20%,65%{filter:drop-shadow(0 0 8px rgba(239,67,85,.7))}
+}
+
+@media(max-width:600px){
+  .dm-typing-indicator{
+    margin-left:8px;
+    margin-right:8px;
+  }
+  .dm-reply-bar{
+    margin-left:8px;
+    margin-right:8px;
+  }
+  .dm-reply-action{
+    font-size:9px;
+    padding:2px 0;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -6510,6 +6668,21 @@ section{background:rgba(8,9,11,.60)}
             <span>↓</span>
           </button>
         </div>
+      </div>
+
+      <div id="dmTypingIndicator" class="dm-typing-indicator hidden" aria-live="polite">
+        <span class="dm-typing-name">Member is typing</span>
+        <span class="dm-typing-dots" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </span>
+      </div>
+
+      <div id="dmReplyBar" class="dm-reply-bar hidden">
+        <div class="dm-reply-bar-copy">
+          <span>Replying to <strong id="dmReplyName">Member</strong></span>
+          <small id="dmReplyPreview"></small>
+        </div>
+        <button id="dmReplyCancel" type="button" aria-label="Cancel reply">×</button>
       </div>
 
       <div id="dmAttachmentPreview" class="dm-attachment-preview hidden"></div>
@@ -11183,9 +11356,14 @@ async function handleBlockAction(){
 
       if(typeof dmActiveUserId !== 'undefined' && dmActiveUserId === openedChatUserId){
         clearInterval(dmPollTimer);
+        clearInterval(dmTypingPollTimer);
+        clearOwnDmTyping(dmActiveUserId);
         dmActiveUserId = null;
         dmLastRenderConversation = '';
         dmLastRenderSignature = '';
+        dmRowsById = new Map();
+        clearDmReply();
+        hideDmTypingIndicator();
         dmClearPendingFiles();
 
         if(dmThreadName) dmThreadName.textContent = 'Select a friend';
@@ -15587,6 +15765,13 @@ const dmMessages = document.getElementById('dmMessages');
 const dmScrollControls = document.getElementById('dmScrollControls');
 const dmJumpTopBtn = document.getElementById('dmJumpTopBtn');
 const dmJumpBottomBtn = document.getElementById('dmJumpBottomBtn');
+
+const dmTypingIndicator = document.getElementById('dmTypingIndicator');
+const dmReplyBar = document.getElementById('dmReplyBar');
+const dmReplyName = document.getElementById('dmReplyName');
+const dmReplyPreview = document.getElementById('dmReplyPreview');
+const dmReplyCancel = document.getElementById('dmReplyCancel');
+
 const dmInput = document.getElementById('dmInput');
 const dmSendBtn = document.getElementById('dmSendBtn');
 const dmStatus = document.getElementById('dmStatus');
@@ -15622,7 +15807,12 @@ let dmActiveUserId = null;
 let dmActiveName = '';
 let dmActiveAvatar = '';
 let dmPollTimer = null;
+let dmTypingPollTimer = null;
+let dmTypingWriteTimer = null;
+let dmTypingClearTimer = null;
 let dmSending = false;
+let dmReplyTarget = null;
+let dmRowsById = new Map();
 
 const DM_MAX_ATTACHMENTS = 4;
 const DM_MAX_FILE_BYTES = 10 * 1024 * 1024;
@@ -16878,6 +17068,183 @@ if(dmFriendList){
 }
 
 
+
+function dmReplyPreviewText(row){
+  if(!row) return 'Original message';
+
+  const text = String(row.message || '').trim();
+  if(text === '📎 Attachment') return 'Attachment';
+
+  const clean = text.replace(/\s+/g,' ').trim();
+  return clean.length > 110 ? clean.slice(0,110) + '…' : (clean || 'Attachment');
+}
+
+function clearDmReply(){
+  dmReplyTarget = null;
+
+  if(dmReplyBar) dmReplyBar.classList.add('hidden');
+  if(dmReplyName) dmReplyName.textContent = 'Member';
+  if(dmReplyPreview) dmReplyPreview.textContent = '';
+}
+
+function beginDmReply(row){
+  if(!row?.id || !dmActiveUserId) return;
+
+  dmReplyTarget = row;
+
+  const sessionUserId = window.gymcelsLolLastSessionUserId || '';
+  const mine = String(row.sender_id || '') === String(sessionUserId);
+
+  if(dmReplyName){
+    dmReplyName.textContent = mine ? 'You' : (dmActiveName || 'Member');
+  }
+
+  if(dmReplyPreview){
+    dmReplyPreview.textContent = dmReplyPreviewText(row);
+  }
+
+  dmReplyBar?.classList.remove('hidden');
+  dmInput?.focus();
+}
+
+function jumpToDmMessage(messageId){
+  const el = dmMessages?.querySelector(`[data-dm-message-id="${Number(messageId)}"]`);
+  if(!el) return false;
+
+  try{
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(_){
+    el.scrollIntoView();
+  }
+
+  el.classList.remove('reply-highlight');
+  void el.offsetWidth;
+  el.classList.add('reply-highlight');
+
+  return true;
+}
+
+function hideDmTypingIndicator(){
+  if(dmTypingIndicator){
+    dmTypingIndicator.classList.add('hidden');
+    dmTypingIndicator.removeAttribute('data-peer');
+  }
+}
+
+async function clearOwnDmTyping(peerId=dmActiveUserId){
+  clearTimeout(dmTypingWriteTimer);
+  clearTimeout(dmTypingClearTimer);
+
+  if(!peerId) return;
+
+  try{
+    const client = window.gymcelsLolDb;
+    const session = await getChatSession();
+    if(!client || !session?.user) return;
+
+    await client
+      .from('dm_typing_status')
+      .delete()
+      .eq('user_id',session.user.id)
+      .eq('peer_id',peerId);
+  }catch(_){}
+}
+
+async function writeOwnDmTyping(){
+  if(!dmActiveUserId || !dmInput || !dmInput.value.trim()) return;
+
+  try{
+    const client = window.gymcelsLolDb;
+    const session = await getChatSession();
+    if(!client || !session?.user) return;
+
+    window.gymcelsLolLastSessionUserId = session.user.id;
+
+    const {error} = await client
+      .from('dm_typing_status')
+      .upsert({
+        user_id:session.user.id,
+        peer_id:dmActiveUserId,
+        updated_at:new Date().toISOString()
+      },{
+        onConflict:'user_id,peer_id'
+      });
+
+    if(error) throw error;
+  }catch(err){
+    // Typing indicators should never break DMs.
+    console.warn('DM typing update failed:',err);
+  }
+}
+
+function scheduleOwnDmTyping(){
+  if(!dmActiveUserId || !dmInput || !dmInput.value.trim()){
+    clearOwnDmTyping();
+    return;
+  }
+
+  clearTimeout(dmTypingWriteTimer);
+  dmTypingWriteTimer = setTimeout(writeOwnDmTyping,180);
+
+  clearTimeout(dmTypingClearTimer);
+  dmTypingClearTimer = setTimeout(() => {
+    clearOwnDmTyping();
+  },2800);
+}
+
+async function pollDmTyping(){
+  if(!dmActiveUserId || document.visibilityState !== 'visible'){
+    hideDmTypingIndicator();
+    return;
+  }
+
+  try{
+    const client = window.gymcelsLolDb;
+    const session = await getChatSession();
+    if(!client || !session?.user){
+      hideDmTypingIndicator();
+      return;
+    }
+
+    window.gymcelsLolLastSessionUserId = session.user.id;
+
+    const cutoff = new Date(Date.now() - 3500).toISOString();
+
+    const {data,error} = await client
+      .from('dm_typing_status')
+      .select('updated_at')
+      .eq('user_id',dmActiveUserId)
+      .eq('peer_id',session.user.id)
+      .gte('updated_at',cutoff)
+      .maybeSingle();
+
+    if(error) throw error;
+
+    if(data?.updated_at){
+      if(dmTypingIndicator){
+        const nameEl = dmTypingIndicator.querySelector('.dm-typing-name');
+        if(nameEl) nameEl.textContent = `${dmActiveName || 'Member'} is typing`;
+        dmTypingIndicator.classList.remove('hidden');
+        dmTypingIndicator.dataset.peer = dmActiveUserId;
+      }
+    }else{
+      hideDmTypingIndicator();
+    }
+  }catch(err){
+    hideDmTypingIndicator();
+    console.warn('DM typing poll failed:',err);
+  }
+}
+
+function startDmTypingPolling(){
+  clearInterval(dmTypingPollTimer);
+  pollDmTyping();
+
+  dmTypingPollTimer = setInterval(() => {
+    if(dmActiveUserId) pollDmTyping();
+  },1200);
+}
+
 function dmScrollPosition(){
   if(!dmMessages){
     return {atTop:true,atBottom:true,scrollable:false};
@@ -16950,7 +17317,7 @@ async function loadDmConversation(scrollBottom=false){
     // only the first 200 messages while new DMs still triggered notifications.
     const { data, error } = await client
       .from('direct_messages')
-      .select('id,sender_id,recipient_id,message,created_at')
+      .select('id,sender_id,recipient_id,message,created_at,reply_to_id')
       .or(`and(sender_id.eq.${me},recipient_id.eq.${dmActiveUserId}),and(sender_id.eq.${dmActiveUserId},recipient_id.eq.${me})`)
       .order('created_at',{ascending:false})
       .order('id',{ascending:false})
@@ -16960,6 +17327,32 @@ async function loadDmConversation(scrollBottom=false){
 
     // Render oldest -> newest inside the fetched recent window.
     const rows = (data || []).slice().reverse();
+    dmRowsById = new Map(rows.map(row => [Number(row.id),row]));
+
+    const replyIds = [...new Set(
+      rows.map(row => Number(row.reply_to_id)).filter(Boolean)
+    )];
+
+    const replyMap = new Map();
+
+    replyIds.forEach(id => {
+      const local = dmRowsById.get(id);
+      if(local) replyMap.set(id,local);
+    });
+
+    const missingReplyIds = replyIds.filter(id => !replyMap.has(id));
+
+    if(missingReplyIds.length){
+      const {data:parentRows,error:parentError} = await client
+        .from('direct_messages')
+        .select('id,sender_id,recipient_id,message,created_at')
+        .in('id',missingReplyIds);
+
+      if(!parentError){
+        (parentRows || []).forEach(row => replyMap.set(Number(row.id),row));
+      }
+    }
+
     const attachmentMap = await dmLoadAttachmentMap(client,rows);
 
     const conversationKey = `${me}:${dmActiveUserId}`;
@@ -16969,7 +17362,8 @@ async function loadDmConversation(scrollBottom=false){
         row.sender_id,
         row.recipient_id,
         row.message,
-        row.created_at
+        row.created_at,
+        row.reply_to_id
       ]),
       attachments:Object.entries(attachmentMap).map(([messageId,items]) => [
         messageId,
@@ -17024,13 +17418,27 @@ async function loadDmConversation(scrollBottom=false){
         ? `<div class="dm-message-attachments">${attachments.map(dmRenderStoredAttachment).join('')}</div>`
         : '';
 
+      const parent = row.reply_to_id ? replyMap.get(Number(row.reply_to_id)) : null;
+      const parentMine = parent && String(parent.sender_id || '') === String(me);
+
+      const quotedReply = row.reply_to_id
+        ? `<button class="dm-quoted-reply" type="button" data-dm-jump-message="${Number(row.reply_to_id)}">
+             <strong>${parent ? `Replying to ${parentMine ? 'You' : escapeChat(dmActiveName || 'Member')}` : 'Original message unavailable'}</strong>
+             <span>${parent ? escapeChat(dmReplyPreviewText(parent)) : 'Message unavailable'}</span>
+           </button>`
+        : '';
+
       const text = String(row.message || '');
       const showText = text && !(text === '📎 Attachment' && attachments.length);
 
-      return `<div class="dm-row ${mine ? 'mine' : ''}">
+      return `<div class="dm-row ${mine ? 'mine' : ''}" data-dm-message-id="${Number(row.id)}">
+        ${quotedReply}
         ${showText ? `<div class="dm-bubble">${escapeChat(text)}</div>` : ''}
         ${attachmentHtml}
-        <div class="dm-time">${escapeChat(when)}</div>
+        <div class="dm-row-footer">
+          <button class="dm-reply-action" type="button" data-dm-reply="${Number(row.id)}">Reply</button>
+          <div class="dm-time">${escapeChat(when)}</div>
+        </div>
       </div>`;
     }).join('');
 
@@ -17083,7 +17491,12 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
     return;
   }
 
+  const previousDmUserId = dmActiveUserId;
   const changingConversation = dmActiveUserId !== userId;
+
+  if(changingConversation && previousDmUserId){
+    clearOwnDmTyping(previousDmUserId);
+  }
 
   dmActiveUserId = userId;
   dmActiveName = displayName || 'Member';
@@ -17092,6 +17505,9 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
   if(changingConversation){
     dmLastRenderConversation = '';
     dmLastRenderSignature = '';
+    dmRowsById = new Map();
+    clearDmReply();
+    hideDmTypingIndicator();
   }
 
   dmThreadName.textContent = dmActiveName;
@@ -17118,6 +17534,7 @@ async function openDmWith(userId, displayName='Member', avatarUrl=''){
     }
   }, 3000);
 
+  startDmTypingPolling();
   setTimeout(() => dmInput?.focus(), 150);
 }
 
@@ -17192,7 +17609,8 @@ async function sendDm(){
       .insert({
         sender_id:senderId,
         recipient_id:recipientId,
-        message:text || '📎 Attachment'
+        message:text || '📎 Attachment',
+        reply_to_id:dmReplyTarget?.id || null
       })
       .select('id')
       .single();
@@ -17223,6 +17641,8 @@ async function sendDm(){
 
     if(dmInput) dmInput.value = '';
     dmClearPendingFiles();
+    clearDmReply();
+    await clearOwnDmTyping(recipientId);
 
     setDmStatus(files.length ? '✓ Sent with attachment' : '✓ Sent','success');
     await loadDmConversation(true);
@@ -17329,10 +17749,47 @@ if(dmAttachmentPreview){
   });
 }
 
+
+dmReplyCancel?.addEventListener('click',() => {
+  clearDmReply();
+  dmInput?.focus();
+});
+
+dmMessages?.addEventListener('click',(e) => {
+  const replyBtn = e.target.closest('[data-dm-reply]');
+  if(replyBtn){
+    e.preventDefault();
+    e.stopPropagation();
+
+    const row = dmRowsById.get(Number(replyBtn.dataset.dmReply));
+    if(row) beginDmReply(row);
+    return;
+  }
+
+  const jumpBtn = e.target.closest('[data-dm-jump-message]');
+  if(jumpBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    jumpToDmMessage(jumpBtn.dataset.dmJumpMessage);
+  }
+});
+
 if(dmSendBtn) dmSendBtn.addEventListener('click', sendDm);
 
 if(dmInput){
+  dmInput.addEventListener('input',scheduleOwnDmTyping);
+
+  dmInput.addEventListener('blur',() => {
+    clearOwnDmTyping();
+  });
+
   dmInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && dmReplyTarget){
+      e.preventDefault();
+      clearDmReply();
+      return;
+    }
+
     if(e.key === 'Enter' && !e.shiftKey){
       e.preventDefault();
       sendDm();
@@ -17359,9 +17816,17 @@ fpDb.auth.onAuthStateChange((_event, session) => {
     setTimeout(loadDmFriends, 0);
   }else{
     clearInterval(dmPollTimer);
+    clearInterval(dmTypingPollTimer);
+    clearTimeout(dmTypingWriteTimer);
+    clearTimeout(dmTypingClearTimer);
+
+    clearOwnDmTyping(dmActiveUserId);
     dmActiveUserId = null;
     dmLastRenderConversation = '';
     dmLastRenderSignature = '';
+    dmRowsById = new Map();
+    clearDmReply();
+    hideDmTypingIndicator();
     dmClearPendingFiles();
 
     if(dmInput) dmInput.disabled = true;
