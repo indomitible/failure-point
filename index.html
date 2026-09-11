@@ -3078,237 +3078,155 @@ section{background:rgba(8,9,11,.60)}
   gap:8px;
   margin-top:12px;
 }
-.nutrition-meal-search{
-  display:flex;
-  gap:7px;
-  min-width:0;
-}
+.nutrition-meal-search{display:flex;gap:7px;min-width:0}
 .nutrition-meal-search input{
-  flex:1;
-  min-width:0;
-  border:1px solid #303741;
-  border-radius:9px;
-  background:#090c10;
-  color:#fff;
-  padding:10px 11px;
-  font:inherit;
-  font-size:11px;
-  outline:none;
+  flex:1;min-width:0;border:1px solid #303741;border-radius:9px;
+  background:#090c10;color:#fff;padding:10px 11px;font:inherit;font-size:11px;outline:none;
 }
 .nutrition-meal-search input:focus{border-color:#ef4355}
-.nutrition-meal-search button,
-.nutrition-barcode-btn{
-  border:1px solid #343b45;
-  border-radius:9px;
-  background:#171c22;
-  color:#e6eaf0;
-  padding:0 12px;
-  font:inherit;
-  font-size:9px;
-  font-weight:950;
-  cursor:pointer;
-  white-space:nowrap;
+.nutrition-meal-search button,.nutrition-barcode-btn{
+  border:1px solid #343b45;border-radius:9px;background:#171c22;color:#e6eaf0;
+  padding:0 12px;font:inherit;font-size:9px;font-weight:950;cursor:pointer;white-space:nowrap;
 }
-.nutrition-meal-search button:hover,
-.nutrition-barcode-btn:hover{border-color:#505b68;background:#1d232a}
+.nutrition-meal-search button:hover,.nutrition-barcode-btn:hover{border-color:#505b68;background:#1d232a}
 .nutrition-barcode-btn{
-  min-height:39px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
+  min-height:39px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
 }
 .nutrition-barcode-btn span{font-size:14px}
 
 .nutrition-search-results{
-  margin-top:8px;
-  padding:7px;
-  border:1px solid #293039;
-  border-radius:11px;
-  background:#090d11;
-  max-height:250px;
-  overflow:auto;
+  margin-top:8px;padding:7px;border:1px solid #293039;border-radius:11px;
+  background:#090d11;max-height:250px;overflow:auto;
 }
 .nutrition-search-result{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:9px;
-  align-items:center;
-  padding:9px;
-  border-bottom:1px solid #20262d;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;
+  padding:9px;border-bottom:1px solid #20262d;
 }
 .nutrition-search-result:last-child{border-bottom:0}
-.nutrition-search-result-name{
-  color:#fff;
-  font-size:10px;
-  font-weight:900;
-}
-.nutrition-search-result-meta{
-  display:flex;
-  gap:5px;
-  flex-wrap:wrap;
-  margin-top:4px;
-  color:#87919d;
-  font-size:8px;
-}
+.nutrition-search-result-name{color:#fff;font-size:10px;font-weight:900}
+.nutrition-search-result-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;color:#87919d;font-size:8px}
 .nutrition-search-result-meta span{
-  padding:2px 5px;
-  border:1px solid #272e36;
-  border-radius:999px;
-  background:#10151a;
+  padding:2px 5px;border:1px solid #272e36;border-radius:999px;background:#10151a;
 }
-.nutrition-search-result-note{
-  margin-top:3px;
-  color:#68727d;
-  font-size:8px;
-}
+.nutrition-search-result-note{margin-top:3px;color:#68727d;font-size:8px}
 .nutrition-search-use{
-  border:0;
-  border-radius:8px;
-  background:#ef4355;
-  color:#fff;
-  padding:7px 10px;
-  font:inherit;
-  font-size:8px;
-  font-weight:950;
-  cursor:pointer;
+  border:0;border-radius:8px;background:#ef4355;color:#fff;padding:7px 10px;
+  font:inherit;font-size:8px;font-weight:950;cursor:pointer;
 }
-.nutrition-search-empty{
-  padding:14px 10px;
-  color:#747e89;
-  text-align:center;
-  font-size:9px;
-}
+.nutrition-search-empty{padding:14px 10px;color:#747e89;text-align:center;font-size:9px}
 
+/* Full camera overlay */
 .nutrition-scanner-overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:15000;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-  background:rgba(0,0,0,.78);
-  backdrop-filter:blur(3px);
+  display:none;position:fixed;inset:0;z-index:15000;align-items:center;justify-content:center;
+  padding:16px;background:rgba(0,0,0,.86);backdrop-filter:blur(6px);
 }
 .nutrition-scanner-overlay.show{display:flex}
 .nutrition-scanner-card{
-  position:relative;
-  width:min(520px,100%);
-  max-height:calc(100vh - 32px);
-  overflow:auto;
-  padding:18px;
-  border:1px solid #343b45;
-  border-radius:16px;
-  background:#101419;
-  box-shadow:0 25px 90px rgba(0,0,0,.58);
+  position:relative;width:min(500px,100%);max-height:calc(100vh - 24px);overflow:auto;
+  padding:16px;border:1px solid #2d343d;border-radius:18px;
+  background:#0d1116;box-shadow:0 28px 100px rgba(0,0,0,.65);
 }
-.nutrition-scanner-close{
-  position:absolute;
-  top:10px;
-  right:10px;
-  width:33px;
-  height:33px;
-  border:1px solid #303741;
-  border-radius:9px;
-  background:#191e24;
-  color:#fff;
-  font-size:18px;
-  cursor:pointer;
+.nutrition-scanner-topbar{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
 }
 .nutrition-scanner-kicker{
-  color:#ef4355;
-  font-size:8px;
-  font-weight:950;
-  text-transform:uppercase;
-  letter-spacing:.08em;
+  color:#ef4355;font-size:8px;font-weight:950;text-transform:uppercase;letter-spacing:.1em;
 }
-.nutrition-scanner-card h3{
-  margin:5px 42px 5px 0;
-  color:#fff;
-  font-size:20px;
+.nutrition-scanner-card h3{margin:4px 0 0;color:#fff;font-size:20px;line-height:1.1}
+.nutrition-scanner-close{
+  flex:0 0 auto;width:34px;height:34px;border:1px solid #303741;border-radius:10px;
+  background:#181d23;color:#fff;font-size:18px;cursor:pointer;
 }
-.nutrition-scanner-card>p{
-  margin:0 0 12px;
-  color:#8d97a3;
-  font-size:10px;
-  line-height:1.5;
+.nutrition-scanner-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.nutrition-scanner-pills span{
+  padding:4px 7px;border:1px solid #28303a;border-radius:999px;background:#12171d;
+  color:#9da7b2;font-size:8px;font-weight:850;
+}
+.nutrition-scanner-help{
+  margin:10px 0;color:#86909c;font-size:9px;line-height:1.55;
+}
+.nutrition-scanner-help strong{color:#e6eaf0}
+
+.nutrition-camera-shell{
+  position:relative;overflow:hidden;aspect-ratio:4/3;border:1px solid #303843;
+  border-radius:15px;background:#030507;
 }
 .nutrition-barcode-reader{
-  overflow:hidden;
-  min-height:220px;
-  border:1px solid #2c333c;
-  border-radius:12px;
-  background:#07090c;
+  position:absolute;inset:0;width:100%;height:100%;background:#030507;
 }
 #nutritionBarcodeReader video{
-  max-height:360px;
-  object-fit:cover;
+  width:100% !important;height:100% !important;max-height:none !important;
+  object-fit:cover !important;border-radius:0 !important;
 }
-#nutritionBarcodeReader button,
-#nutritionBarcodeReader select{
-  font-family:inherit !important;
+#nutritionBarcodeReader img,
+#nutritionBarcodeReader canvas{max-width:100%}
+.nutrition-scan-frame{
+  pointer-events:none;position:absolute;left:12%;right:12%;top:27%;height:42%;
+  border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.28);
 }
-.nutrition-manual-barcode{
-  margin-top:12px;
-  padding:10px;
-  border:1px solid #282f37;
-  border-radius:10px;
-  background:#0b0f13;
+.nutrition-scan-frame .corner{
+  position:absolute;width:28px;height:28px;border-color:#ef4355;border-style:solid;
 }
-.nutrition-manual-barcode>span{
-  display:block;
-  margin-bottom:6px;
-  color:#87919d;
-  font-size:8px;
-  font-weight:850;
+.nutrition-scan-frame .tl{left:0;top:0;border-width:3px 0 0 3px;border-radius:10px 0 0 0}
+.nutrition-scan-frame .tr{right:0;top:0;border-width:3px 3px 0 0;border-radius:0 10px 0 0}
+.nutrition-scan-frame .bl{left:0;bottom:0;border-width:0 0 3px 3px;border-radius:0 0 0 10px}
+.nutrition-scan-frame .br{right:0;bottom:0;border-width:0 3px 3px 0;border-radius:0 0 10px 0}
+.scan-line{
+  position:absolute;left:7%;right:7%;top:50%;height:2px;border-radius:999px;
+  background:#ef4355;box-shadow:0 0 13px rgba(239,67,85,.8);
+  animation:gymcelsScanLine 1.7s ease-in-out infinite;
 }
-.nutrition-manual-barcode>div{display:flex;gap:7px}
-.nutrition-manual-barcode input{
-  flex:1;
-  min-width:0;
-  border:1px solid #303741;
-  border-radius:8px;
-  background:#070a0e;
-  color:#fff;
-  padding:9px 10px;
-  font:inherit;
-  font-size:10px;
-  outline:none;
+@keyframes gymcelsScanLine{
+  0%,100%{transform:translateY(-45px);opacity:.45}
+  50%{transform:translateY(45px);opacity:1}
 }
-.nutrition-manual-barcode button{
-  border:0;
-  border-radius:8px;
-  background:#ef4355;
-  color:#fff;
-  padding:0 12px;
-  font:inherit;
-  font-size:9px;
-  font-weight:950;
-  cursor:pointer;
+.nutrition-camera-label{
+  position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
+  max-width:90%;padding:5px 8px;border-radius:999px;background:rgba(4,7,10,.76);
+  color:#d8dde3;font-size:8px;font-weight:850;text-align:center;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
 }
 .nutrition-scanner-status{
-  min-height:16px;
-  margin-top:9px;
-  color:#87919d;
-  font-size:9px;
+  min-height:18px;margin-top:10px;padding:8px 10px;border:1px solid #272e36;
+  border-radius:9px;background:#10151a;color:#929ca7;font-size:9px;line-height:1.45;
 }
-.nutrition-scanner-status.success{color:#67e8a5}
-.nutrition-scanner-status.error{color:#ff7c89}
-.nutrition-data-credit{
-  margin-top:5px;
-  color:#5f6974;
-  font-size:7px;
-  text-align:center;
+.nutrition-scanner-status.success{
+  border-color:rgba(103,232,165,.28);background:rgba(103,232,165,.07);color:#86efb5;
 }
+.nutrition-scanner-status.error{
+  border-color:rgba(255,124,137,.28);background:rgba(255,124,137,.07);color:#ff929f;
+}
+
+.nutrition-manual-barcode{
+  margin-top:9px;border:1px solid #252c34;border-radius:10px;background:#0a0e12;
+}
+.nutrition-manual-barcode summary{
+  cursor:pointer;padding:9px 10px;color:#76818c;font-size:8px;font-weight:850;list-style:none;
+}
+.nutrition-manual-barcode summary::-webkit-details-marker{display:none}
+.nutrition-manual-barcode[open] summary{border-bottom:1px solid #222931}
+.nutrition-manual-barcode>div{display:flex;gap:7px;padding:9px}
+.nutrition-manual-barcode input{
+  flex:1;min-width:0;border:1px solid #303741;border-radius:8px;background:#070a0e;
+  color:#fff;padding:9px 10px;font:inherit;font-size:10px;outline:none;
+}
+.nutrition-manual-barcode button{
+  border:0;border-radius:8px;background:#ef4355;color:#fff;padding:0 12px;
+  font:inherit;font-size:9px;font-weight:950;cursor:pointer;
+}
+.nutrition-data-credit{margin-top:7px;color:#56606b;font-size:7px;text-align:center;line-height:1.4}
 
 @media(max-width:650px){
   .nutrition-quick-tools{grid-template-columns:1fr}
   .nutrition-meal-search{display:grid;grid-template-columns:minmax(0,1fr) auto}
   .nutrition-meal-search button{padding:0 11px}
   .nutrition-barcode-btn{width:100%;padding:10px 12px}
-  .nutrition-scanner-card{padding:15px}
-  .nutrition-barcode-reader{min-height:190px}
+  .nutrition-scanner-overlay{padding:0}
+  .nutrition-scanner-card{
+    width:100%;max-height:100vh;height:100vh;border:0;border-radius:0;padding:14px;
+  }
+  .nutrition-camera-shell{margin-top:8px;aspect-ratio:3/4;max-height:62vh}
+  .nutrition-scan-frame{left:9%;right:9%;top:33%;height:30%}
 }
 
 </style>
@@ -4343,27 +4261,47 @@ section{background:rgba(8,9,11,.60)}
 
 <div id="nutritionScannerOverlay" class="nutrition-scanner-overlay" aria-hidden="true">
   <div class="nutrition-scanner-card" role="dialog" aria-modal="true" aria-labelledby="nutritionScannerTitle">
-    <button id="nutritionScannerClose" class="nutrition-scanner-close" type="button" aria-label="Close scanner">×</button>
-
-    <div class="nutrition-scanner-kicker">Food lookup</div>
-    <h3 id="nutritionScannerTitle">Scan a Food Barcode</h3>
-    <p>
-      Point your camera at the UPC/EAN barcode on a food package. QR codes can be scanned too,
-      but packaged foods normally use the line-style barcode.
-    </p>
-
-    <div id="nutritionBarcodeReader" class="nutrition-barcode-reader"></div>
-
-    <div class="nutrition-manual-barcode">
-      <span>Or enter the barcode number</span>
+    <div class="nutrition-scanner-topbar">
       <div>
-        <input id="nutritionBarcodeInput" type="text" inputmode="numeric" autocomplete="off" maxlength="24" placeholder="e.g. 012345678905">
-        <button id="nutritionBarcodeLookupBtn" type="button">Look up</button>
+        <div class="nutrition-scanner-kicker">Gymcels Nutrition</div>
+        <h3 id="nutritionScannerTitle">Scan & Log Food</h3>
       </div>
+      <button id="nutritionScannerClose" class="nutrition-scanner-close" type="button" aria-label="Close scanner">×</button>
     </div>
 
-    <div id="nutritionScannerStatus" class="nutrition-scanner-status"></div>
-    <div class="nutrition-data-credit">Food data powered by Open Food Facts.</div>
+    <div class="nutrition-scanner-pills">
+      <span>📷 Back camera</span>
+      <span>⚡ Auto-log on</span>
+    </div>
+
+    <p class="nutrition-scanner-help">
+      Aim at the <strong>UPC/EAN barcode</strong> on the package. If a QR code contains a real
+      product code, Gymcels will use it too.
+    </p>
+
+    <div class="nutrition-camera-shell">
+      <div id="nutritionBarcodeReader" class="nutrition-barcode-reader"></div>
+      <div class="nutrition-scan-frame" aria-hidden="true">
+        <span class="corner tl"></span>
+        <span class="corner tr"></span>
+        <span class="corner bl"></span>
+        <span class="corner br"></span>
+        <div class="scan-line"></div>
+      </div>
+      <div id="nutritionCameraLabel" class="nutrition-camera-label">Starting back camera…</div>
+    </div>
+
+    <div id="nutritionScannerStatus" class="nutrition-scanner-status">Point the camera at a food barcode.</div>
+
+    <details class="nutrition-manual-barcode">
+      <summary>Enter barcode manually</summary>
+      <div>
+        <input id="nutritionBarcodeInput" type="text" inputmode="numeric" autocomplete="off" maxlength="80" placeholder="UPC, EAN, GTIN, or product code">
+        <button id="nutritionBarcodeLookupBtn" type="button">Log food</button>
+      </div>
+    </details>
+
+    <div class="nutrition-data-credit">Product data from Open Food Facts · You can edit the meal after it logs.</div>
   </div>
 </div>
 
@@ -4862,6 +4800,7 @@ const nutritionScannerClose = document.getElementById('nutritionScannerClose');
 const nutritionBarcodeInput = document.getElementById('nutritionBarcodeInput');
 const nutritionBarcodeLookupBtn = document.getElementById('nutritionBarcodeLookupBtn');
 const nutritionScannerStatus = document.getElementById('nutritionScannerStatus');
+const nutritionCameraLabel = document.getElementById('nutritionCameraLabel');
 
 let nutritionSavedSearchRows = [];
 let nutritionSearchTimer = null;
@@ -5494,135 +5433,371 @@ function setNutritionScannerStatus(text='',type=''){
   nutritionScannerStatus.className = `nutrition-scanner-status ${type || ''}`;
 }
 
+function nutritionAutoMealType(){
+  const hour = new Date().getHours();
+  if(hour >= 5 && hour < 11) return 'breakfast';
+  if(hour >= 11 && hour < 16) return 'lunch';
+  if(hour >= 16 && hour < 22) return 'dinner';
+  return 'snack';
+}
+
+function nutritionMealTypeLabel(type){
+  return ({
+    breakfast:'Breakfast',
+    lunch:'Lunch',
+    dinner:'Dinner',
+    snack:'Snacks'
+  })[type] || 'Snacks';
+}
+
 async function stopNutritionScanner(){
   if(!nutritionScanner) return;
 
   try{
+    await nutritionScanner.stop();
+  }catch(_err){
+    // Scanner may already be stopped.
+  }
+
+  try{
     await nutritionScanner.clear();
-  }catch(err){
-    console.debug('Scanner cleanup:',err);
+  }catch(_err){
+    // Safe cleanup if there is nothing left to clear.
   }
 
   nutritionScanner = null;
-
   const reader = document.getElementById('nutritionBarcodeReader');
   if(reader) reader.innerHTML = '';
 }
 
-function normalizeNutritionBarcode(raw){
-  const text = String(raw || '').trim();
+function extractNutritionBarcode(raw){
+  const value = String(raw || '').trim();
+  if(!value) return null;
 
-  // UPC/EAN/GTIN codes are numeric. If a QR contains a URL or arbitrary text,
-  // don't send it to the food barcode API.
-  const digits = text.replace(/\D/g,'');
+  // Normal UPC / EAN / GTIN scan.
+  if(/^\d{8,14}$/.test(value)) return value;
 
-  if(/^\d{8,14}$/.test(text)) return text;
-  if(/^\d{8,14}$/.test(digits) && digits.length === text.length) return digits;
+  // GS1 element string, e.g. (01)09506000134352.
+  const gs1Element = value.match(/\(01\)\s*(\d{14})/);
+  if(gs1Element) return gs1Element[1];
+
+  // GS1 digital-link QR, e.g. https://id.gs1.org/01/09506000134352
+  const gs1Url = value.match(/\/01\/(\d{14})(?:[/?#]|$)/);
+  if(gs1Url) return gs1Url[1];
+
+  // Open Food Facts product QR / URL.
+  if(/openfoodfacts\./i.test(value)){
+    const offCode = value.match(/\/product\/(\d{8,14})(?:[/?#_-]|$)/i);
+    if(offCode) return offCode[1];
+  }
+
+  // QR URLs sometimes put the GTIN in a named query parameter.
+  try{
+    const url = new URL(value);
+    const keys = ['gtin','ean','upc','barcode','code'];
+    for(const key of keys){
+      const candidate = String(url.searchParams.get(key) || '').replace(/\D/g,'');
+      if(/^\d{8,14}$/.test(candidate)) return candidate;
+    }
+  }catch(_err){
+    // Not a URL.
+  }
+
+  // Plain text QR that explicitly labels the code.
+  const labeled = value.match(/(?:gtin|ean|upc|barcode|product\s*code)\D{0,8}(\d{8,14})/i);
+  if(labeled) return labeled[1];
 
   return null;
 }
 
-async function lookupNutritionBarcode(rawCode){
-  const barcode = normalizeNutritionBarcode(rawCode);
+function scannedNutritionMeal(product,barcode){
+  const n = product?.nutriments || {};
+
+  const numberOrNull = value => {
+    const num = Number(value);
+    return Number.isFinite(num) && num >= 0 ? num : null;
+  };
+
+  const per100 = {
+    calories:numberOrNull(n['energy-kcal_100g']),
+    protein:numberOrNull(n.proteins_100g),
+    carbs:numberOrNull(n.carbohydrates_100g),
+    fat:numberOrNull(n.fat_100g)
+  };
+
+  const perServing = {
+    calories:numberOrNull(n['energy-kcal_serving']),
+    protein:numberOrNull(n.proteins_serving),
+    carbs:numberOrNull(n.carbohydrates_serving),
+    fat:numberOrNull(n.fat_serving)
+  };
+
+  const hasDirectServing = Object.values(perServing).some(v => v !== null);
+  const servingQty = numberOrNull(product?.serving_quantity);
+  const canCalculateServing = !hasDirectServing && servingQty && servingQty > 0 &&
+    Object.values(per100).some(v => v !== null);
+
+  let values;
+  let servingNote;
+
+  if(hasDirectServing){
+    values = {
+      calories:perServing.calories ?? 0,
+      protein:perServing.protein ?? 0,
+      carbs:perServing.carbs ?? 0,
+      fat:perServing.fat ?? 0
+    };
+    servingNote = product?.serving_size
+      ? `serving: ${product.serving_size}`
+      : 'per serving';
+  }else if(canCalculateServing){
+    const factor = servingQty / 100;
+    values = {
+      calories:(per100.calories ?? 0) * factor,
+      protein:(per100.protein ?? 0) * factor,
+      carbs:(per100.carbs ?? 0) * factor,
+      fat:(per100.fat ?? 0) * factor
+    };
+    servingNote = product?.serving_size
+      ? `serving: ${product.serving_size}`
+      : `serving: ${nutritionFormat(servingQty)}g`;
+  }else{
+    values = {
+      calories:per100.calories ?? 0,
+      protein:per100.protein ?? 0,
+      carbs:per100.carbs ?? 0,
+      fat:per100.fat ?? 0
+    };
+    servingNote = 'nutrition per 100g';
+  }
+
+  const hasAnyNutrition = Object.values(values).some(v => Number(v) > 0);
+
+  return {
+    food_name:[
+      product?.product_name || product?.generic_name || 'Scanned food',
+      product?.brands ? `— ${product.brands}` : ''
+    ].filter(Boolean).join(' '),
+    calories:values.calories,
+    protein_g:values.protein,
+    carbs_g:values.carbs,
+    fat_g:values.fat,
+    notes:`Barcode ${barcode} · ${servingNote}`,
+    hasAnyNutrition
+  };
+}
+
+async function autoLogScannedFood(product,barcode){
+  if(!nutritionDb || !nutritionSession?.user){
+    throw new Error('Log in before scanning food.');
+  }
+
+  const meal = scannedNutritionMeal(product,barcode);
+
+  if(!meal.hasAnyNutrition){
+    // Still populate the form so the user can fill in the label manually.
+    fillNutritionFormFromMeal({
+      product_name:meal.food_name,
+      meal_type:nutritionAutoMealType(),
+      calories:0,
+      protein_g:0,
+      carbs_g:0,
+      fat_g:0,
+      notes:meal.notes
+    },'Scanned product');
+
+    throw new Error('Product found, but its nutrition data is missing. I loaded the name into the form so you can enter the label manually.');
+  }
+
+  const mealType = nutritionAutoMealType();
+  const mealDate = nutritionDate?.value || nutritionLocalDateString();
+
+  const {error} = await nutritionDb
+    .from('meal_logs')
+    .insert({
+      user_id:nutritionSession.user.id,
+      meal_date:mealDate,
+      meal_type:mealType,
+      food_name:meal.food_name,
+      calories:nutritionNumber(meal.calories),
+      protein_g:nutritionNumber(meal.protein_g),
+      carbs_g:nutritionNumber(meal.carbs_g),
+      fat_g:nutritionNumber(meal.fat_g),
+      notes:meal.notes,
+      updated_at:new Date().toISOString()
+    });
+
+  if(error) throw error;
+
+  await loadNutritionMeals();
+
+  if(navigator.vibrate){
+    try{ navigator.vibrate(70); }catch(_err){}
+  }
+
+  return {
+    name:meal.food_name,
+    calories:nutritionNumber(meal.calories),
+    mealType,
+    mealDate
+  };
+}
+
+async function lookupAndAutoLogNutritionCode(rawCode){
+  const barcode = extractNutritionBarcode(rawCode);
 
   if(!barcode){
+    throw new Error(
+      'QR code detected, but it does not contain a UPC/EAN/GTIN food code. Try the line-style barcode on the package.'
+    );
+  }
+
+  if(nutritionBarcodeInput) nutritionBarcodeInput.value = barcode;
+
+  setNutritionScannerStatus('Product code found — looking up food…');
+  if(nutritionCameraLabel) nutritionCameraLabel.textContent = `Code ${barcode}`;
+
+  const fields = [
+    'code','product_name','generic_name','brands','serving_size','serving_quantity',
+    'categories_tags','nutriments'
+  ].join(',');
+
+  const response = await fetch(
+    `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=${encodeURIComponent(fields)}`
+  );
+
+  if(!response.ok){
+    throw new Error(`Food lookup failed (${response.status}).`);
+  }
+
+  const payload = await response.json();
+
+  if(payload?.status !== 1 || !payload?.product){
+    throw new Error(
+      'Barcode scanned successfully, but that product is not in the food database yet.'
+    );
+  }
+
+  setNutritionScannerStatus('Food found — logging it automatically…');
+
+  return await autoLogScannedFood(payload.product,barcode);
+}
+
+async function handleNutritionScan(decodedText){
+  if(nutritionScanHandled) return;
+  nutritionScanHandled = true;
+
+  try{
+    setNutritionScannerStatus('Code detected…');
+    await stopNutritionScanner();
+
+    const logged = await lookupAndAutoLogNutritionCode(decodedText);
+
     setNutritionScannerStatus(
-      'That scan is not a standard food UPC/EAN barcode. Try the line-style barcode on the package.',
+      `✓ Logged ${logged.name} · ${nutritionFormat(logged.calories,0)} cal · ${nutritionMealTypeLabel(logged.mealType)}`,
+      'success'
+    );
+
+    if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Food logged ✓';
+
+    setNutritionStatus(
+      `✓ ${logged.name} was added to ${nutritionMealTypeLabel(logged.mealType)}.`,
+      'success'
+    );
+
+    setTimeout(closeNutritionScanner,950);
+  }catch(err){
+    console.error('Nutrition scan error:',err);
+    setNutritionScannerStatus(err?.message || String(err),'error');
+    if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Try another code';
+
+    // Restart the rear camera so the user can immediately try again.
+    nutritionScanHandled = false;
+    setTimeout(() => {
+      if(nutritionScannerOverlay?.classList.contains('show') && !nutritionScanner){
+        startNutritionRearCamera();
+      }
+    },850);
+  }
+}
+
+async function startNutritionRearCamera(){
+  if(typeof Html5Qrcode === 'undefined'){
+    setNutritionScannerStatus(
+      'Camera scanner could not load. You can still enter the barcode manually.',
       'error'
     );
     return;
   }
 
-  setNutritionScannerStatus('Looking up product...');
+  await stopNutritionScanner();
+
+  const readerId = 'nutritionBarcodeReader';
+  nutritionScanner = new Html5Qrcode(readerId,false);
+
+  const scanConfig = {
+    fps:12,
+    qrbox:(viewWidth,viewHeight) => {
+      const width = Math.floor(Math.min(viewWidth * .78,360));
+      const height = Math.floor(Math.min(viewHeight * .34,170));
+      return {width,height};
+    },
+    aspectRatio:1.333333
+  };
+
+  let cameraChoice = {facingMode:{exact:'environment'}};
+  let cameraName = 'Back camera';
 
   try{
-    const fields = [
-      'code',
-      'product_name',
-      'brands',
-      'serving_size',
-      'serving_quantity',
-      'nutriments'
-    ].join(',');
+    const cameras = await Html5Qrcode.getCameras();
 
-    const response = await fetch(
-      `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=${encodeURIComponent(fields)}`
-    );
+    if(cameras?.length){
+      const rear =
+        cameras.find(cam => /back|rear|environment|world/i.test(cam.label || '')) ||
+        cameras[cameras.length - 1];
 
-    if(!response.ok){
-      throw new Error(`Food lookup returned ${response.status}`);
+      if(rear?.id){
+        cameraChoice = rear.id;
+        cameraName = rear.label || 'Back camera';
+      }
     }
+  }catch(err){
+    console.debug('Camera enumeration fallback:',err);
+  }
 
-    const payload = await response.json();
+  try{
+    if(nutritionCameraLabel) nutritionCameraLabel.textContent = cameraName;
+    setNutritionScannerStatus('Scanning… hold the package steady inside the frame.');
 
-    if(payload?.status !== 1 || !payload?.product){
+    await nutritionScanner.start(
+      cameraChoice,
+      scanConfig,
+      handleNutritionScan,
+      () => {}
+    );
+  }catch(firstErr){
+    console.debug('Exact rear camera start failed, trying environment mode:',firstErr);
+
+    try{
+      await stopNutritionScanner();
+      nutritionScanner = new Html5Qrcode(readerId,false);
+      if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Back camera';
+
+      await nutritionScanner.start(
+        {facingMode:'environment'},
+        scanConfig,
+        handleNutritionScan,
+        () => {}
+      );
+    }catch(secondErr){
+      console.error('Rear camera start failed:',secondErr);
+      await stopNutritionScanner();
+      if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Camera unavailable';
       setNutritionScannerStatus(
-        'Barcode scanned, but this product is not in the food database yet. You can still enter it manually.',
+        'Could not open the back camera. Check camera permission, or enter the barcode manually.',
         'error'
       );
-      return;
     }
-
-    const product = payload.product;
-    const n = product.nutriments || {};
-
-    const servingCalories = Number(n['energy-kcal_serving']);
-    const servingProtein = Number(n.proteins_serving);
-    const servingCarbs = Number(n.carbohydrates_serving);
-    const servingFat = Number(n.fat_serving);
-
-    const per100Calories = Number(n['energy-kcal_100g']);
-    const per100Protein = Number(n.proteins_100g);
-    const per100Carbs = Number(n.carbohydrates_100g);
-    const per100Fat = Number(n.fat_100g);
-
-    const hasServingMacros =
-      Number.isFinite(servingCalories) ||
-      Number.isFinite(servingProtein) ||
-      Number.isFinite(servingCarbs) ||
-      Number.isFinite(servingFat);
-
-    const meal = {
-      product_name:[
-        product.product_name || 'Scanned food',
-        product.brands ? `— ${product.brands}` : ''
-      ].filter(Boolean).join(' '),
-      meal_type:'snack',
-      calories:hasServingMacros && Number.isFinite(servingCalories)
-        ? servingCalories
-        : (Number.isFinite(per100Calories) ? per100Calories : 0),
-      protein_g:hasServingMacros && Number.isFinite(servingProtein)
-        ? servingProtein
-        : (Number.isFinite(per100Protein) ? per100Protein : 0),
-      carbs_g:hasServingMacros && Number.isFinite(servingCarbs)
-        ? servingCarbs
-        : (Number.isFinite(per100Carbs) ? per100Carbs : 0),
-      fat_g:hasServingMacros && Number.isFinite(servingFat)
-        ? servingFat
-        : (Number.isFinite(per100Fat) ? per100Fat : 0),
-      notes:hasServingMacros
-        ? (product.serving_size ? `Scanned barcode · serving: ${product.serving_size}` : 'Scanned barcode · per serving')
-        : 'Scanned barcode · nutrition shown per 100g'
-    };
-
-    fillNutritionFormFromMeal(meal,'Barcode product');
-
-    if(nutritionBarcodeInput) nutritionBarcodeInput.value = barcode;
-
-    setNutritionScannerStatus(
-      hasServingMacros
-        ? '✓ Product found. Per-serving macros were loaded into the meal form.'
-        : '✓ Product found. The database only had per-100g macros, so check your serving amount before adding it.',
-      'success'
-    );
-
-    setTimeout(closeNutritionScanner,650);
-  }catch(err){
-    console.error('Barcode food lookup error:',err);
-    setNutritionScannerStatus(
-      'Could not look up that barcode right now. Try again or enter the food manually.',
-      'error'
-    );
   }
 }
 
@@ -5634,59 +5809,12 @@ async function openNutritionScanner(){
 
   nutritionScannerOverlay?.classList.add('show');
   nutritionScannerOverlay?.setAttribute('aria-hidden','false');
-  setNutritionScannerStatus('Allow camera access, then point at the food barcode.');
   nutritionScanHandled = false;
 
-  if(typeof Html5QrcodeScanner === 'undefined'){
-    setNutritionScannerStatus(
-      'Camera scanner could not load. You can still type the barcode number below.',
-      'error'
-    );
-    return;
-  }
+  if(nutritionCameraLabel) nutritionCameraLabel.textContent = 'Starting back camera…';
+  setNutritionScannerStatus('Starting back camera…');
 
-  await stopNutritionScanner();
-
-  try{
-    nutritionScanner = new Html5QrcodeScanner(
-      'nutritionBarcodeReader',
-      {
-        fps:10,
-        qrbox:{width:250,height:150},
-        rememberLastUsedCamera:true,
-        showTorchButtonIfSupported:true,
-        showZoomSliderIfSupported:true
-      },
-      false
-    );
-
-    nutritionScanner.render(
-      async (decodedText) => {
-        if(nutritionScanHandled) return;
-        nutritionScanHandled = true;
-
-        setNutritionScannerStatus('Barcode detected. Looking up food...');
-
-        // Stop the camera as soon as we have one clean scan.
-        await stopNutritionScanner();
-        await lookupNutritionBarcode(decodedText);
-
-        // Allow another scan if lookup failed and the modal is still open.
-        if(nutritionScannerOverlay?.classList.contains('show')){
-          nutritionScanHandled = false;
-        }
-      },
-      () => {
-        // Ignore normal "not found in this camera frame" callbacks.
-      }
-    );
-  }catch(err){
-    console.error('Nutrition scanner start error:',err);
-    setNutritionScannerStatus(
-      'Camera could not start. Check camera permission, or type the barcode number below.',
-      'error'
-    );
-  }
+  await startNutritionRearCamera();
 }
 
 async function closeNutritionScanner(){
@@ -5703,14 +5831,32 @@ nutritionScannerOverlay?.addEventListener('click',(e) => {
   if(e.target === nutritionScannerOverlay) closeNutritionScanner();
 });
 
-nutritionBarcodeLookupBtn?.addEventListener('click',() => {
-  lookupNutritionBarcode(nutritionBarcodeInput?.value || '');
+nutritionBarcodeLookupBtn?.addEventListener('click',async () => {
+  if(nutritionScanHandled) return;
+  nutritionScanHandled = true;
+
+  try{
+    const logged = await lookupAndAutoLogNutritionCode(nutritionBarcodeInput?.value || '');
+
+    setNutritionScannerStatus(
+      `✓ Logged ${logged.name} · ${nutritionFormat(logged.calories,0)} cal · ${nutritionMealTypeLabel(logged.mealType)}`,
+      'success'
+    );
+    setNutritionStatus(
+      `✓ ${logged.name} was added to ${nutritionMealTypeLabel(logged.mealType)}.`,
+      'success'
+    );
+    setTimeout(closeNutritionScanner,850);
+  }catch(err){
+    setNutritionScannerStatus(err?.message || String(err),'error');
+    nutritionScanHandled = false;
+  }
 });
 
 nutritionBarcodeInput?.addEventListener('keydown',(e) => {
   if(e.key === 'Enter'){
     e.preventDefault();
-    lookupNutritionBarcode(nutritionBarcodeInput?.value || '');
+    nutritionBarcodeLookupBtn?.click();
   }
 });
 
