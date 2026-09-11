@@ -2647,6 +2647,41 @@ section{background:rgba(8,9,11,.60)}
   cursor:pointer;
 }
 
+
+.push-install-help{
+  padding:11px 14px 12px;
+  border-bottom:1px solid #252a31;
+  background:linear-gradient(180deg,#11151a,#0d1014);
+}
+.push-install-help strong{
+  display:block;
+  color:#fff;
+  font-size:10px;
+  margin-bottom:5px;
+}
+.push-install-help p{
+  margin:0;
+  color:#aab2bd;
+  font-size:9px;
+  line-height:1.55;
+}
+.push-install-help b{
+  color:#f4f4f2;
+  font-weight:900;
+}
+@media(max-width:800px){
+  .push-install-help{
+    padding:12px 14px 13px;
+  }
+  .push-install-help strong{
+    font-size:11px;
+  }
+  .push-install-help p{
+    font-size:10px;
+    line-height:1.6;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2703,6 +2738,17 @@ section{background:rgba(8,9,11,.60)}
       <span id="pushAlertState">Off</span>
     </div>
     <button id="pushAlertBtn" type="button">Enable phone alerts</button>
+  </div>
+
+  <div id="pushInstallHelp" class="push-install-help hidden">
+    <strong>Enable Gymcels notifications on iPhone</strong>
+    <p>
+      To receive notifications, open <b>gymcels.lol</b> in Safari, tap the
+      <b>Share</b> button (the square with the arrow), choose
+      <b>Add to Home Screen</b>, then tap <b>Add</b>.
+      Open Gymcels from the new Home Screen icon and tap
+      <b>Enable phone alerts</b> again.
+    </p>
   </div>
   <div id="notificationList" class="notification-list">
     <div class="notification-empty">No notifications yet.</div>
@@ -4371,6 +4417,7 @@ const notificationList = document.getElementById('notificationList');
 const notificationMarkAll = document.getElementById('notificationMarkAll');
 const pushAlertBtn = document.getElementById('pushAlertBtn');
 const pushAlertState = document.getElementById('pushAlertState');
+const pushInstallHelp = document.getElementById('pushInstallHelp');
 
 const chatLevelBadge = document.getElementById('chatLevelBadge');
 const chatLevelName = document.getElementById('chatLevelName');
@@ -5612,8 +5659,38 @@ async function removePushSubscription(subscription){
   try{ await subscription.unsubscribe(); }catch(_){}
 }
 
+
+function isGymcelsIosDevice(){
+  const ua = navigator.userAgent || '';
+  const classicIos = /iPhone|iPad|iPod/i.test(ua);
+  const ipadDesktopMode = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  return classicIos || ipadDesktopMode;
+}
+
+function isGymcelsStandaloneApp(){
+  return window.matchMedia?.('(display-mode: standalone)').matches === true ||
+         navigator.standalone === true;
+}
+
+function showGymcelsIosInstallHelp(){
+  pushInstallHelp?.classList.remove('hidden');
+
+  if(pushAlertState){
+    pushAlertState.textContent = 'Follow the steps below, then reopen Gymcels from your Home Screen.';
+    pushAlertState.className = 'blocked';
+  }
+
+  if(pushAlertBtn){
+    pushAlertBtn.disabled = false;
+    pushAlertBtn.textContent = 'Add to Home Screen';
+    pushAlertBtn.classList.remove('off');
+  }
+}
+
 async function refreshPushButton(){
   if(!pushAlertBtn || !pushAlertState) return;
+
+  pushInstallHelp?.classList.add('hidden');
 
   const session = await getChatSession().catch(() => null);
   if(!session?.user){
@@ -5625,10 +5702,21 @@ async function refreshPushButton(){
     return;
   }
 
+  // iPhone/iPad Safari only allows web push from a Home Screen web app.
+  // Give people clear setup instructions instead of a vague unsupported-browser error.
+  if(isGymcelsIosDevice() && !isGymcelsStandaloneApp()){
+    pushAlertBtn.disabled = false;
+    pushAlertBtn.textContent = 'Enable phone alerts';
+    pushAlertBtn.classList.remove('off');
+    pushAlertState.textContent = 'Add Gymcels to your Home Screen to enable notifications.';
+    pushAlertState.className = 'blocked';
+    return;
+  }
+
   if(!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)){
     pushAlertBtn.disabled = true;
-    pushAlertBtn.textContent = 'Not supported';
-    pushAlertState.textContent = 'This browser does not support web push';
+    pushAlertBtn.textContent = 'Not available';
+    pushAlertState.textContent = 'Notifications are not available in this browser.';
     pushAlertState.className = 'blocked';
     return;
   }
@@ -5701,6 +5789,11 @@ async function enableGymcelsPush(){
 
 async function toggleGymcelsPush(){
   if(!pushAlertBtn) return;
+
+  if(isGymcelsIosDevice() && !isGymcelsStandaloneApp()){
+    showGymcelsIosInstallHelp();
+    return;
+  }
 
   pushAlertBtn.disabled = true;
 
