@@ -6612,7 +6612,8 @@ let dmSending = false;
 
 
 // ---- Private one-to-one DM calls ----
-let dmCallInboxChannel = null;
+// Call invitations use the database instead of a recipient Realtime "inbox".
+// This avoids the private-channel subscribe timeout that prevented calls from ringing.
 let dmCallChannel = null;
 let dmCallPeer = null;
 let dmCallLocalStream = null;
@@ -6625,8 +6626,12 @@ let dmCallMuted = false;
 let dmCallOfferSent = false;
 let dmCallPendingIce = [];
 let dmIncomingInvite = null;
+let dmCallInviteId = null;
 let dmCallStartedAt = null;
 let dmCallTimerInterval = null;
+let dmIncomingCallPollTimer = null;
+let dmOutgoingCallPollTimer = null;
+let dmCallRingTimeout = null;
 
 const DM_CALL_ICE_SERVERS = [
   {urls:'stun:stun.l.google.com:19302'},
@@ -6686,123 +6691,92 @@ function startDmCallTimer(){
   dmCallTimerInterval = setInterval(tick,1000);
 }
 
-async function sendDmCallInbox(targetUserId,event,payload={}){
+function stopDmCallPolling(){
+  clearInterval(dmOutgoingCallPollTimer);
+  dmOutgoingCallPollTimer = null;
+  clearTimeout(dmCallRingTimeout);
+  dmCallRingTimeout = null;
+}
+
+async function markDmCallEnded(inviteId){
+  if(!inviteId) return;
+  try{
+    const client = window.gymcelsLolDb;
+    if(!client) return;
+    await client.rpc('end_dm_call',{target_invite_id:Number(inviteId)});
+  }catch(err){
+    console.warn('Could not mark call ended:',err);
+  }
+}
+
+async function pollIncomingDmCalls(){
   const client = window.gymcelsLolDb;
   const session = await getChatSession();
-  if(!client || !session?.user || !targetUserId) return;
-
-  try{ client.realtime.setAuth(session.access_token); }catch(_){}
-
-  const temp = client.channel(`call-inbox:${targetUserId}`,{
-    config:{private:true,broadcast:{ack:true}}
-  });
-
-  await new Promise((resolve,reject) => {
-    let finished = false;
-    const timer = setTimeout(() => {
-      if(finished) return;
-      finished = true;
-      reject(new Error('Call signaling timed out.'));
-    },7000);
-
-    temp.subscribe(async (status,err) => {
-      if(finished) return;
-
-      if(status === 'SUBSCRIBED'){
-        try{
-          await temp.send({
-            type:'broadcast',
-            event,
-            payload:{
-              ...payload,
-              from_user_id:session.user.id,
-              from_name:chatDisplayName(session.user),
-              from_avatar:session.user.user_metadata?.avatar_url || ''
-            }
-          });
-          finished = true;
-          clearTimeout(timer);
-          resolve();
-        }catch(sendErr){
-          finished = true;
-          clearTimeout(timer);
-          reject(sendErr);
-        }
-      }else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
-        finished = true;
-        clearTimeout(timer);
-        reject(err || new Error('Call signaling failed.'));
-      }
-    });
-  });
-
-  try{ await client.removeChannel(temp); }catch(_){}
-}
-
-async function subscribeDmCallInbox(session){
-  const client = window.gymcelsLolDb;
-
-  if(dmCallInboxChannel){
-    try{ await client.removeChannel(dmCallInboxChannel); }catch(_){}
-    dmCallInboxChannel = null;
-  }
 
   if(!client || !session?.user) return;
+  if(dmCallChannel) return;
 
-  try{ client.realtime.setAuth(session.access_token); }catch(_){}
+  // If an invite is already visible, confirm it is still ringing.
+  if(dmIncomingInvite?.id){
+    const {data:current} = await client
+      .from('dm_call_invites')
+      .select('id,status')
+      .eq('id',dmIncomingInvite.id)
+      .maybeSingle();
 
-  const channel = client.channel(`call-inbox:${session.user.id}`,{
-    config:{private:true,broadcast:{self:false}}
-  });
-
-  dmCallInboxChannel = channel;
-
-  channel
-    .on('broadcast',{event:'dm-call-invite'},({payload}) => {
-      handleDmIncomingInvite(payload);
-    })
-    .on('broadcast',{event:'dm-call-response'},({payload}) => {
-      handleDmCallResponse(payload);
-    });
-
-  channel.subscribe((status,err) => {
-    if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
-      console.error('Private call inbox error:',err);
+    if(!current || current.status !== 'ringing'){
+      closeIncomingDmCall();
     }
-  });
-}
-
-async function handleDmIncomingInvite(payload){
-  const callerId = payload?.from_user_id;
-  if(!callerId) return;
-
-  // If already busy, tell the caller instead of opening a second call.
-  if(dmCallChannel || dmIncomingInvite){
-    try{
-      await sendDmCallInbox(callerId,'dm-call-response',{
-        response:'busy',
-        topic:payload?.topic || ''
-      });
-    }catch(_){}
     return;
   }
 
+  const {data,error} = await client
+    .from('dm_call_invites')
+    .select('id,caller_id,caller_name,caller_avatar,topic,status,created_at')
+    .eq('callee_id',session.user.id)
+    .eq('status','ringing')
+    .order('created_at',{ascending:false})
+    .limit(1)
+    .maybeSingle();
+
+  if(error){
+    console.error('Incoming call poll error:',error);
+    return;
+  }
+  if(!data) return;
+
+  const created = new Date(data.created_at).getTime();
+  if(Number.isFinite(created) && Date.now() - created > 90000){
+    await markDmCallEnded(data.id);
+    return;
+  }
+
+  await showIncomingDmInvite({
+    id:Number(data.id),
+    callerId:data.caller_id,
+    callerName:data.caller_name || 'Member',
+    callerAvatar:data.caller_avatar || '',
+    topic:data.topic
+  });
+}
+
+async function showIncomingDmInvite(invite){
+  if(!invite?.callerId || dmCallChannel || dmIncomingInvite) return;
+
   try{
-    const friendship = await getFriendshipState(callerId);
-    if(!friendship || friendship.status !== 'accepted') return;
+    const friendship = await getFriendshipState(invite.callerId);
+    if(!friendship || friendship.status !== 'accepted'){
+      await markDmCallEnded(invite.id);
+      return;
+    }
   }catch(_){
     return;
   }
 
-  dmIncomingInvite = {
-    callerId,
-    callerName:payload?.from_name || 'Member',
-    callerAvatar:payload?.from_avatar || '',
-    topic:payload?.topic || ''
-  };
+  dmIncomingInvite = invite;
 
-  if(dmIncomingCallName) dmIncomingCallName.textContent = dmIncomingInvite.callerName;
-  renderDmCallAvatar(dmIncomingCallAvatar,dmIncomingInvite.callerName,dmIncomingInvite.callerAvatar);
+  if(dmIncomingCallName) dmIncomingCallName.textContent = invite.callerName;
+  renderDmCallAvatar(dmIncomingCallAvatar,invite.callerName,invite.callerAvatar);
 
   if(dmIncomingCallOverlay){
     dmIncomingCallOverlay.classList.add('show');
@@ -6810,19 +6784,42 @@ async function handleDmIncomingInvite(payload){
   }
 }
 
-async function handleDmCallResponse(payload){
-  if(!payload || !dmCallChannel) return;
-  if(payload.from_user_id !== dmCallRemoteUserId) return;
-  if(payload.topic && payload.topic !== dmCallTopic) return;
+async function pollOutgoingDmCall(){
+  if(!dmCallInviteId || dmCallRole !== 'caller') return;
 
-  if(payload.response === 'declined'){
+  const client = window.gymcelsLolDb;
+  if(!client) return;
+
+  const {data,error} = await client
+    .from('dm_call_invites')
+    .select('id,status')
+    .eq('id',dmCallInviteId)
+    .maybeSingle();
+
+  if(error){
+    console.error('Outgoing call poll error:',error);
+    return;
+  }
+
+  if(!data){
+    dmCallSetStatus('Call ended.');
+    await cleanupDmPrivateCall(false);
+    return;
+  }
+
+  if(data.status === 'accepted'){
+    if(dmActiveCallState && dmActiveCallState.textContent !== 'Private call'){
+      dmActiveCallState.textContent = 'Connecting...';
+    }
+    dmCallSetStatus('Connecting...');
+  }else if(data.status === 'declined'){
     dmCallSetStatus('Call declined.');
     if(dmActiveCallState) dmActiveCallState.textContent = 'Call declined';
-    setTimeout(() => cleanupDmPrivateCall(false),900);
-  }else if(payload.response === 'busy'){
-    dmCallSetStatus('This member is already in another call.');
-    if(dmActiveCallState) dmActiveCallState.textContent = 'Busy';
-    setTimeout(() => cleanupDmPrivateCall(false),1100);
+    setTimeout(() => cleanupDmPrivateCall(false),800);
+  }else if(data.status === 'ended'){
+    dmCallSetStatus('Call ended.');
+    if(dmActiveCallState) dmActiveCallState.textContent = 'Call ended';
+    setTimeout(() => cleanupDmPrivateCall(false),650);
   }
 }
 
@@ -6869,10 +6866,11 @@ function createDmCallPeer(){
 
     if(state === 'connected'){
       if(dmActiveCallState) dmActiveCallState.textContent = 'Private call';
-      if(dmCallStatus) dmCallSetStatus('Connected','success');
+      dmCallSetStatus('Connected','success');
       startDmCallTimer();
+      stopDmCallPolling();
     }else if(state === 'failed'){
-      dmCallSetStatus('Call connection failed.','error');
+      dmCallSetStatus('Audio connection failed. Try calling again.','error');
     }
   };
 
@@ -6882,11 +6880,14 @@ function createDmCallPeer(){
 async function sendDmCallSignal(signal){
   if(!dmCallChannel || !dmCallRemoteUserId) return;
 
+  const session = await getChatSession();
+  if(!session?.user) return;
+
   await dmCallChannel.send({
     type:'broadcast',
     event:'dm-call-signal',
     payload:{
-      from:voiceSessionUser?.id || (await getChatSession())?.user?.id,
+      from:session.user.id,
       to:dmCallRemoteUserId,
       signal
     }
@@ -6981,6 +6982,17 @@ async function joinDmCallTopic(topic,remoteUserId,remoteName,remoteAvatar,role){
   dmCallRole = role;
   dmCallOfferSent = false;
   dmCallPendingIce = [];
+
+  // Remove a stale copy of this private pair topic before registering callbacks.
+  try{
+    const expected = `realtime:${topic}`;
+    const stale = (client.getChannels?.() || []).filter(ch =>
+      ch && ch !== dmCallChannel && (ch.topic === expected || ch.topic === topic)
+    );
+    for(const ch of stale){
+      try{ await client.removeChannel(ch); }catch(_){}
+    }
+  }catch(_){}
 
   const channel = client.channel(topic,{
     config:{
@@ -7080,8 +7092,9 @@ function showActiveDmCall(name,avatar,state='Calling...'){
 async function startPrivateDmCall(){
   if(!dmActiveUserId || dmCallChannel || dmIncomingInvite) return;
 
+  const client = window.gymcelsLolDb;
   const session = await getChatSession();
-  if(!session?.user){
+  if(!client || !session?.user){
     setDmStatus('Log in first.','error');
     return;
   }
@@ -7092,7 +7105,6 @@ async function startPrivateDmCall(){
     return;
   }
 
-  // A member can be in either a public crew room OR a private DM call, not both.
   if(voiceRoomKey){
     await leaveVoiceChannel(false,true);
   }
@@ -7105,6 +7117,14 @@ async function startPrivateDmCall(){
 
     const topic = buildDmCallTopic(session.user.id,dmActiveUserId);
 
+    const {data:inviteId,error:startError} = await client.rpc('start_dm_call',{
+      target_user:dmActiveUserId,
+      target_topic:topic
+    });
+    if(startError) throw startError;
+
+    dmCallInviteId = Number(inviteId);
+
     await joinDmCallTopic(
       topic,
       dmActiveUserId,
@@ -7115,10 +7135,19 @@ async function startPrivateDmCall(){
 
     dmCallSetStatus('Ringing...');
 
-    await sendDmCallInbox(dmActiveUserId,'dm-call-invite',{
-      topic,
-      caller_name:chatDisplayName(session.user)
-    });
+    clearInterval(dmOutgoingCallPollTimer);
+    dmOutgoingCallPollTimer = setInterval(pollOutgoingDmCall,1800);
+
+    clearTimeout(dmCallRingTimeout);
+    dmCallRingTimeout = setTimeout(async () => {
+      if(dmCallRole === 'caller' && !dmCallStartedAt && dmCallInviteId){
+        await markDmCallEnded(dmCallInviteId);
+        dmCallSetStatus('No answer.');
+        if(dmActiveCallState) dmActiveCallState.textContent = 'No answer';
+        setTimeout(() => cleanupDmPrivateCall(false),700);
+      }
+    },45000);
+
   }catch(err){
     console.error('Start private call error:',err);
     const message = err?.name === 'NotAllowedError'
@@ -7132,10 +7161,13 @@ async function startPrivateDmCall(){
 async function acceptPrivateDmCall(){
   if(!dmIncomingInvite || dmCallChannel) return;
 
+  const client = window.gymcelsLolDb;
+  const session = await getChatSession();
+  if(!client || !session?.user) return;
+
   const invite = {...dmIncomingInvite};
   closeIncomingDmCall();
 
-  // Leave public crew voice before taking a private call.
   if(voiceRoomKey){
     await leaveVoiceChannel(false,true);
   }
@@ -7146,27 +7178,30 @@ async function acceptPrivateDmCall(){
   try{
     await prepareDmCallMicrophone();
 
+    dmCallInviteId = Number(invite.id);
+
     await joinDmCallTopic(
-      invite.topic || buildDmCallTopic((await getChatSession()).user.id,invite.callerId),
+      invite.topic || buildDmCallTopic(session.user.id,invite.callerId),
       invite.callerId,
       invite.callerName,
       invite.callerAvatar,
       'callee'
     );
 
-    await sendDmCallInbox(invite.callerId,'dm-call-response',{
-      response:'accepted',
-      topic:dmCallTopic
+    const {error} = await client.rpc('respond_to_dm_call',{
+      target_invite_id:dmCallInviteId,
+      call_response:'accepted'
     });
+    if(error) throw error;
 
     dmCallSetStatus('Connecting...');
   }catch(err){
     console.error('Accept private call error:',err);
 
     try{
-      await sendDmCallInbox(invite.callerId,'dm-call-response',{
-        response:'declined',
-        topic:invite.topic || ''
+      await client.rpc('respond_to_dm_call',{
+        target_invite_id:Number(invite.id),
+        call_response:'declined'
       });
     }catch(_){}
 
@@ -7182,16 +7217,18 @@ async function acceptPrivateDmCall(){
 async function declinePrivateDmCall(){
   if(!dmIncomingInvite) return;
 
+  const client = window.gymcelsLolDb;
   const invite = {...dmIncomingInvite};
   closeIncomingDmCall();
 
   try{
-    await sendDmCallInbox(invite.callerId,'dm-call-response',{
-      response:'declined',
-      topic:invite.topic || ''
+    const {error} = await client.rpc('respond_to_dm_call',{
+      target_invite_id:Number(invite.id),
+      call_response:'declined'
     });
+    if(error) throw error;
   }catch(err){
-    console.error('Decline call response error:',err);
+    console.error('Decline call error:',err);
   }
 }
 
@@ -7209,6 +7246,9 @@ async function togglePrivateDmCallMute(){
 
 async function cleanupDmPrivateCall(sendHangup=true){
   const client = window.gymcelsLolDb;
+  const inviteId = dmCallInviteId;
+
+  stopDmCallPolling();
 
   if(sendHangup && dmCallChannel && dmCallRemoteUserId){
     try{
@@ -7223,6 +7263,10 @@ async function cleanupDmPrivateCall(sendHangup=true){
         }
       });
     }catch(_){}
+  }
+
+  if(sendHangup && inviteId){
+    await markDmCallEnded(inviteId);
   }
 
   if(dmCallChannel){
@@ -7255,6 +7299,7 @@ async function cleanupDmPrivateCall(sendHangup=true){
   dmCallMuted = false;
   dmCallOfferSent = false;
   dmCallPendingIce = [];
+  dmCallInviteId = null;
 
   resetDmCallTimer();
 
@@ -7268,19 +7313,21 @@ async function cleanupDmPrivateCall(sendHangup=true){
 }
 
 async function startPrivateCallSystem(session){
+  clearInterval(dmIncomingCallPollTimer);
+  dmIncomingCallPollTimer = null;
+
   if(!session?.user){
     closeIncomingDmCall();
     await cleanupDmPrivateCall(false);
-
-    const client = window.gymcelsLolDb;
-    if(dmCallInboxChannel && client){
-      try{ await client.removeChannel(dmCallInboxChannel); }catch(_){}
-    }
-    dmCallInboxChannel = null;
     return;
   }
 
-  await subscribeDmCallInbox(session);
+  await pollIncomingDmCalls();
+  dmIncomingCallPollTimer = setInterval(() => {
+    if(document.visibilityState === 'visible'){
+      pollIncomingDmCalls();
+    }
+  },2200);
 }
 
 if(dmCallBtn){
