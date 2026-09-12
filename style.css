@@ -6216,3 +6216,129 @@ section{background:rgba(8,9,11,.60)}
   .leaderboard-value b{font-size:13px}
   .leaderboard-column-labels{padding-inline:8px}
 }
+
+/* =========================================================
+   DESKTOP COMMUNITY SIZE TUNING
+   Smaller leaderboard + larger public chat + larger DMs
+   ========================================================= */
+@media (min-width:761px){
+  /* Compact the leaderboard so it does not overpower the chat. */
+  .community-leaderboard-shell{
+    margin:14px 0 18px;
+    padding:14px 16px;
+    border-radius:16px;
+  }
+  .community-leaderboard-head{
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .community-leaderboard-kicker{
+    font-size:9px;
+    margin-bottom:3px;
+  }
+  .community-leaderboard-title{
+    font-size:20px;
+  }
+  .community-leaderboard-sub{
+    font-size:11px;
+    margin-top:4px;
+  }
+  .leaderboard-refresh-btn{
+    padding:7px 10px;
+    border-radius:10px;
+    font-size:10px;
+  }
+  .top-chatter-card{
+    grid-template-columns:auto auto minmax(0,1fr) auto;
+    gap:10px;
+    min-height:66px;
+    padding:9px 12px;
+    margin-bottom:9px;
+    border-radius:14px;
+  }
+  .top-chatter-crown{font-size:21px}
+  .top-chatter-avatar{width:42px;height:42px;font-size:13px}
+  .top-chatter-label{font-size:8px;margin-bottom:2px}
+  .top-chatter-copy strong{font-size:14px}
+  .top-chatter-copy small{font-size:9px;margin-top:2px}
+  .top-chatter-score{min-width:62px}
+  .top-chatter-score b{font-size:18px}
+  .top-chatter-score span{font-size:8px;margin-top:3px}
+  .leaderboard-tabs{
+    gap:5px;
+    padding:1px 0 7px;
+  }
+  .leaderboard-tab{
+    padding:6px 10px;
+    font-size:10px;
+  }
+  .leaderboard-column-labels{
+    padding:0 8px 5px;
+    font-size:8px;
+  }
+  .community-leaderboard-list{
+    gap:4px;
+    max-height:250px;
+    overflow-y:auto;
+    padding-right:4px;
+    scrollbar-width:thin;
+    scrollbar-color:#454d58 #111419;
+  }
+  .community-leaderboard-list::-webkit-scrollbar{width:7px}
+  .community-leaderboard-list::-webkit-scrollbar-track{background:#111419;border-radius:999px}
+  .community-leaderboard-list::-webkit-scrollbar-thumb{background:#454d58;border-radius:999px}
+  .leaderboard-row{
+    grid-template-columns:28px 36px minmax(0,1fr) auto;
+    gap:8px;
+    min-height:48px;
+    padding:6px 8px;
+    border-radius:11px;
+  }
+  .leaderboard-avatar{width:34px;height:34px;font-size:10px}
+  .leaderboard-rank{font-size:11px}
+  .leaderboard-row.rank-1 .leaderboard-rank{font-size:14px}
+  .leaderboard-member strong{font-size:11px}
+  .leaderboard-member small{font-size:8px;margin-top:2px}
+  .leaderboard-value{min-width:62px}
+  .leaderboard-value b{font-size:13px}
+  .leaderboard-value span{font-size:8px;margin-top:2px}
+  .leaderboard-status{min-height:12px;padding-top:5px;font-size:9px}
+
+  /* Give the public chat much more room on desktop. */
+  .community-home-section{
+    padding-top:28px;
+  }
+  .community-home-section .chat-shell{
+    padding:20px;
+  }
+  .community-home-section .chat-messages{
+    height:560px;
+  }
+
+  /* Make desktop DMs feel like a full messaging workspace. */
+  .dm-shell{
+    padding:20px;
+  }
+  .dm-layout{
+    grid-template-columns:300px minmax(0,1fr);
+    gap:16px;
+  }
+  .dm-sidebar{
+    max-height:660px;
+  }
+  .dm-thread{
+    min-height:620px;
+  }
+  .dm-messages{
+    height:500px;
+    padding-top:16px;
+    padding-bottom:16px;
+  }
+  .dm-thread-head{
+    min-height:66px;
+    padding:12px 14px;
+  }
+  .dm-compose{
+    padding:12px;
+  }
+}
