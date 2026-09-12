@@ -68,6 +68,8 @@ window.fpVerificationCallback = (() => {
   const navNutrition = $('navNutrition');
   const navLogout = $('navLogout');
   const beatLast = $('beatLast');
+  const joinFreeHero = $('joinFreeHero');
+  const joinGymcelsFreeBtn = $('joinGymcelsFreeBtn');
 
   const vipStatusPill = $('vipStatusPill');
   const vipUnlocked = $('vipUnlocked');
@@ -149,9 +151,49 @@ window.fpVerificationCallback = (() => {
     });
   }
 
+  joinGymcelsFreeBtn?.addEventListener('click',(event) => {
+    event.preventDefault();
+
+    const signupCard = $('signup-card');
+    if(!signupCard) return;
+
+    signupCard.scrollIntoView({
+      behavior:'smooth',
+      block:'center'
+    });
+
+    history.replaceState(null,'','#signup-card');
+
+    setTimeout(() => {
+      $('signupEmail')?.focus({preventScroll:true});
+    },550);
+  });
+
+  // Always take "My Workouts" to the actual Log a Lift area,
+  // not the Edit Profile section above it.
+  navWorkouts?.addEventListener('click',(event) => {
+    if(navWorkouts.classList.contains('hidden')) return;
+
+    event.preventDefault();
+
+    const target =
+      document.querySelector('.workout-log-card') ||
+      document.getElementById('workoutTracker');
+
+    if(!target) return;
+
+    target.scrollIntoView({
+      behavior:'smooth',
+      block:'start'
+    });
+
+    history.replaceState(null,'','#workoutTracker');
+  });
+
   async function refreshSession() {
     const { data: { session } } = await db.auth.getSession();
     if (session?.user) {
+      if(joinFreeHero) joinFreeHero.classList.add('hidden');
       authView.classList.add('hidden');
       dashboardView.classList.remove('hidden');
       memberEmail.textContent = session.user.email || '';
@@ -172,6 +214,7 @@ window.fpVerificationCallback = (() => {
       await loadLogs();
       await refreshVipStatus();
     } else {
+      if(joinFreeHero) joinFreeHero.classList.remove('hidden');
       dashboardView.classList.add('hidden');
       authView.classList.remove('hidden');
       navSignup.classList.remove('hidden');
