@@ -14193,3 +14193,533 @@ setTimeout(() => {
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
 })();
+// ============================================================
+// GYMCELS CUSTOM WORKOUT SPLITS + CLEAN SESSION UI
+// Paste at the VERY BOTTOM of the current app.js.
+// Requires gymcels-workout-splits-setup.sql to be run first.
+// ============================================================
+(() => {
+  const db = window.gymcelsLolDb;
+  if(!db) return;
+
+  let splitUser = null;
+  let splitRows = [];
+  let activeSplitId = null;
+  let activeSplitDay = '';
+  let splitEditorId = null;
+  let splitUiInstalled = false;
+
+  const esc = value => String(value ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#039;');
+
+  const cleanDays = raw => {
+    const seen = new Set();
+    return String(raw || '')
+      .split(/[\n,]+/)
+      .map(v => v.trim())
+      .filter(Boolean)
+      .filter(v => {
+        const key = v.toLowerCase();
+        if(seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0,12);
+  };
+
+  const presets = {
+    ppl:['Push','Pull','Legs'],
+    upperlower:['Upper','Lower'],
+    arnold:['Chest & Back','Shoulders & Arms','Legs'],
+    fullbody:['Full Body A','Full Body B','Full Body C']
+  };
+
+  function currentSplit(){
+    return splitRows.find(row => String(row.id) === String(activeSplitId)) || null;
+  }
+
+  function workoutGrid(){
+    return document.querySelector('.workout-dashboard-grid');
+  }
+
+  function installSplitUi(){
+    if(splitUiInstalled || document.getElementById('workoutSplitManager')) return;
+
+    const hub = document.getElementById('workoutTracker');
+    const grid = workoutGrid();
+    const formCard = document.querySelector('.workout-log-card');
+    const historyCard = document.querySelector('.workout-history-card');
+    if(!hub || !grid || !formCard || !historyCard) return;
+
+    splitUiInstalled = true;
+
+    const card = document.createElement('section');
+    card.id = 'workoutSplitManager';
+    card.className = 'workout-split-manager';
+    card.innerHTML = `
+      <div class="workout-split-head">
+        <div>
+          <div class="workout-split-kicker">Your training setup</div>
+          <h3>My Training Split</h3>
+          <p>Build your own split and every new set will be organized under the day you choose.</p>
+        </div>
+        <button id="workoutNewSplitBtn" class="workout-split-new" type="button">+ New split</button>
+      </div>
+
+      <div id="workoutSplitLoggedOut" class="workout-split-empty">Log in to create and save your personal training split.</div>
+
+      <div id="workoutSplitEmpty" class="workout-split-empty hidden">
+        <b>No split yet.</b>
+        <span>Create your own or start from a common template.</span>
+        <div class="workout-split-empty-actions">
+          <button type="button" data-quick-split="ppl">Push / Pull / Legs</button>
+          <button type="button" data-quick-split="upperlower">Upper / Lower</button>
+          <button type="button" data-quick-split="arnold">Arnold</button>
+          <button type="button" data-quick-split="fullbody">Full Body</button>
+        </div>
+      </div>
+
+      <div id="workoutSplitActive" class="workout-split-active hidden">
+        <div class="workout-split-select-row">
+          <label class="workout-split-select-wrap">
+            <span>Active split</span>
+            <select id="workoutSplitSelect"></select>
+          </label>
+          <div class="workout-split-tools">
+            <button id="workoutEditSplitBtn" type="button">Edit</button>
+            <button id="workoutDeleteSplitBtn" class="danger" type="button">Delete</button>
+          </div>
+        </div>
+        <div class="workout-split-days-block">
+          <span class="workout-split-days-label">What are you training today?</span>
+          <div id="workoutSplitDayPills" class="workout-split-day-pills"></div>
+        </div>
+        <div id="workoutSplitContextText" class="workout-split-context"></div>
+      </div>
+
+      <div id="workoutSplitEditor" class="workout-split-editor hidden">
+        <div class="workout-split-editor-top">
+          <strong id="workoutSplitEditorTitle">Create a split</strong>
+          <button id="workoutSplitEditorClose" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="workout-split-editor-grid">
+          <label><span>Split name</span><input id="workoutSplitName" maxlength="60" placeholder="Example: PPL, Upper/Lower, My Split"></label>
+          <label><span>Training days</span><textarea id="workoutSplitDays" maxlength="300" placeholder="Push, Pull, Legs"></textarea></label>
+        </div>
+        <div class="workout-split-presets">
+          <span>Quick fill:</span>
+          <button type="button" data-fill-preset="ppl">PPL</button>
+          <button type="button" data-fill-preset="upperlower">Upper / Lower</button>
+          <button type="button" data-fill-preset="arnold">Arnold</button>
+          <button type="button" data-fill-preset="fullbody">Full Body</button>
+        </div>
+        <div class="workout-split-editor-actions">
+          <span id="workoutSplitEditorStatus"></span>
+          <button id="workoutSplitSaveBtn" class="btn primary" type="button">Save split</button>
+        </div>
+      </div>
+    `;
+    hub.insertAdjacentElement('afterend',card);
+
+    const contextBar = document.createElement('div');
+    contextBar.id = 'workoutLogContextBar';
+    contextBar.className = 'workout-log-context-bar';
+    contextBar.innerHTML = `
+      <div><span>Logging under</span><b id="workoutLogContextValue">No split selected</b></div>
+      <button id="workoutLogChangeSplitBtn" type="button">Change</button>
+    `;
+    const formSub = formCard.querySelector('.workout-card-sub');
+    if(formSub) formSub.insertAdjacentElement('afterend',contextBar);
+    else formCard.insertBefore(contextBar,formCard.firstChild);
+
+    const sessionCard = document.createElement('div');
+    sessionCard.className = 'member-card workout-session-card';
+    sessionCard.innerHTML = `
+      <div class="workout-session-head">
+        <div>
+          <h3>Recent Sessions</h3>
+          <p class="workout-card-sub">Your sets grouped by split and training day instead of one long list.</p>
+        </div>
+        <span id="workoutSessionCount" class="workout-session-count">0 sessions</span>
+      </div>
+      <div id="workoutSessionList" class="workout-session-list">
+        <div class="workout-empty">Your logged sessions will appear here.</div>
+      </div>
+    `;
+    grid.insertBefore(sessionCard,historyCard);
+
+    const historyTitle = historyCard.querySelector('.workout-history-head-copy h3');
+    const historySub = historyCard.querySelector('.workout-history-head-copy .workout-card-sub');
+    if(historyTitle) historyTitle.textContent = 'All Sets';
+    if(historySub) historySub.textContent = 'Detailed set-by-set history for editing, notes, and PR tracking.';
+
+    document.getElementById('workoutNewSplitBtn')?.addEventListener('click',() => openEditor());
+    document.getElementById('workoutSplitEditorClose')?.addEventListener('click',closeEditor);
+    document.getElementById('workoutSplitSaveBtn')?.addEventListener('click',saveSplit);
+    document.getElementById('workoutEditSplitBtn')?.addEventListener('click',() => {
+      const split = currentSplit();
+      if(split) openEditor(split);
+    });
+    document.getElementById('workoutDeleteSplitBtn')?.addEventListener('click',deleteCurrentSplit);
+    document.getElementById('workoutSplitSelect')?.addEventListener('change',async event => {
+      const split = splitRows.find(row => String(row.id) === String(event.target.value));
+      if(!split) return;
+      activeSplitId = split.id;
+      activeSplitDay = Array.isArray(split.days) && split.days.length ? split.days[0] : '';
+      await saveContext();
+      renderActiveSplit();
+    });
+    document.getElementById('workoutLogChangeSplitBtn')?.addEventListener('click',() => {
+      card.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+
+    card.addEventListener('click',event => {
+      const quick = event.target.closest('[data-quick-split]');
+      if(quick){
+        const key = quick.dataset.quickSplit;
+        openEditor(null,key);
+        return;
+      }
+
+      const fill = event.target.closest('[data-fill-preset]');
+      if(fill){
+        fillPreset(fill.dataset.fillPreset);
+        return;
+      }
+
+      const day = event.target.closest('[data-split-day]');
+      if(day){
+        activeSplitDay = day.dataset.splitDay || '';
+        saveContext().then(renderActiveSplit);
+      }
+    });
+
+    window.addEventListener('gymcelsWorkoutChanged',loadSplitSessions);
+  }
+
+  function showEditorStatus(text,type=''){
+    const el = document.getElementById('workoutSplitEditorStatus');
+    if(!el) return;
+    el.textContent = text || '';
+    el.dataset.type = type;
+  }
+
+  function fillPreset(key){
+    const days = presets[key] || [];
+    const daysInput = document.getElementById('workoutSplitDays');
+    if(daysInput) daysInput.value = days.join(', ');
+
+    const name = document.getElementById('workoutSplitName');
+    if(name && !name.value.trim()){
+      const names = {ppl:'Push / Pull / Legs',upperlower:'Upper / Lower',arnold:'Arnold Split',fullbody:'Full Body'};
+      name.value = names[key] || '';
+    }
+  }
+
+  function openEditor(split=null,presetKey=''){
+    splitEditorId = split?.id || null;
+    const editor = document.getElementById('workoutSplitEditor');
+    if(!editor) return;
+
+    document.getElementById('workoutSplitEditorTitle').textContent = split ? 'Edit split' : 'Create a split';
+    document.getElementById('workoutSplitName').value = split?.name || '';
+    document.getElementById('workoutSplitDays').value = Array.isArray(split?.days) ? split.days.join(', ') : '';
+    document.getElementById('workoutSplitSaveBtn').textContent = split ? 'Update split' : 'Save split';
+    showEditorStatus('');
+    editor.classList.remove('hidden');
+    if(presetKey) fillPreset(presetKey);
+    setTimeout(() => document.getElementById('workoutSplitName')?.focus(),60);
+  }
+
+  function closeEditor(){
+    splitEditorId = null;
+    document.getElementById('workoutSplitEditor')?.classList.add('hidden');
+    showEditorStatus('');
+  }
+
+  async function saveSplit(){
+    if(!splitUser) return showEditorStatus('Log in first.','error');
+
+    const name = document.getElementById('workoutSplitName')?.value.trim() || '';
+    const days = cleanDays(document.getElementById('workoutSplitDays')?.value || '');
+
+    if(!name) return showEditorStatus('Give your split a name.','error');
+    if(!days.length) return showEditorStatus('Add at least one training day.','error');
+
+    const btn = document.getElementById('workoutSplitSaveBtn');
+    if(btn) btn.disabled = true;
+    showEditorStatus('Saving...');
+
+    let result;
+    if(splitEditorId){
+      result = await db
+        .from('workout_splits')
+        .update({name,days,updated_at:new Date().toISOString()})
+        .eq('id',splitEditorId)
+        .eq('user_id',splitUser.id)
+        .select('id,name,days,created_at,updated_at')
+        .single();
+    }else{
+      result = await db
+        .from('workout_splits')
+        .insert({user_id:splitUser.id,name,days})
+        .select('id,name,days,created_at,updated_at')
+        .single();
+    }
+
+    if(btn) btn.disabled = false;
+    if(result.error){
+      const duplicate = /duplicate|unique/i.test(result.error.message || '');
+      return showEditorStatus(duplicate ? 'You already have a split with that name.' : result.error.message,'error');
+    }
+
+    activeSplitId = result.data.id;
+    activeSplitDay = days[0] || '';
+    await saveContext();
+    closeEditor();
+    await loadSplitData();
+  }
+
+  async function deleteCurrentSplit(){
+    const split = currentSplit();
+    if(!split || !splitUser) return;
+    if(!confirm(`Delete the split “${split.name}”? Your old workout logs will keep their saved split labels.`)) return;
+
+    const {error} = await db
+      .from('workout_splits')
+      .delete()
+      .eq('id',split.id)
+      .eq('user_id',splitUser.id);
+
+    if(error) return alert(error.message);
+
+    activeSplitId = null;
+    activeSplitDay = '';
+    await loadSplitData();
+  }
+
+  async function saveContext(){
+    if(!splitUser || !activeSplitId) return;
+    await db
+      .from('workout_active_context')
+      .upsert({
+        user_id:splitUser.id,
+        split_id:Number(activeSplitId),
+        split_day:activeSplitDay || null,
+        updated_at:new Date().toISOString()
+      },{onConflict:'user_id'});
+  }
+
+  function renderActiveSplit(){
+    const loggedOut = document.getElementById('workoutSplitLoggedOut');
+    const empty = document.getElementById('workoutSplitEmpty');
+    const active = document.getElementById('workoutSplitActive');
+    const newBtn = document.getElementById('workoutNewSplitBtn');
+
+    if(!splitUser){
+      loggedOut?.classList.remove('hidden');
+      empty?.classList.add('hidden');
+      active?.classList.add('hidden');
+      if(newBtn) newBtn.disabled = true;
+      updateContextBar();
+      return;
+    }
+
+    loggedOut?.classList.add('hidden');
+    if(newBtn) newBtn.disabled = false;
+
+    if(!splitRows.length){
+      empty?.classList.remove('hidden');
+      active?.classList.add('hidden');
+      updateContextBar();
+      return;
+    }
+
+    empty?.classList.add('hidden');
+    active?.classList.remove('hidden');
+
+    let split = currentSplit();
+    if(!split){
+      split = splitRows[0];
+      activeSplitId = split.id;
+      activeSplitDay = Array.isArray(split.days) ? split.days[0] || '' : '';
+      saveContext();
+    }
+
+    const select = document.getElementById('workoutSplitSelect');
+    if(select){
+      select.innerHTML = splitRows.map(row => `<option value="${row.id}">${esc(row.name)}</option>`).join('');
+      select.value = String(split.id);
+    }
+
+    const days = Array.isArray(split.days) ? split.days : [];
+    if(!days.some(day => day === activeSplitDay)) activeSplitDay = days[0] || '';
+
+    const pills = document.getElementById('workoutSplitDayPills');
+    if(pills){
+      pills.innerHTML = days.map(day => `
+        <button type="button" class="workout-split-day${day === activeSplitDay ? ' active' : ''}" data-split-day="${esc(day)}">${esc(day)}</button>
+      `).join('');
+    }
+
+    const context = document.getElementById('workoutSplitContextText');
+    if(context){
+      context.innerHTML = `<span>New sets will log under</span><b>${esc(split.name)}</b><i>→</i><strong>${esc(activeSplitDay || 'Choose a day')}</strong>`;
+    }
+
+    updateContextBar();
+  }
+
+  function updateContextBar(){
+    const value = document.getElementById('workoutLogContextValue');
+    if(!value) return;
+    const split = currentSplit();
+    if(!splitUser){
+      value.textContent = 'Log in to use a split';
+    }else if(!split){
+      value.textContent = 'No split selected';
+    }else{
+      value.textContent = `${split.name} · ${activeSplitDay || 'Choose day'}`;
+    }
+  }
+
+  async function loadSplitData(){
+    installSplitUi();
+
+    const {data:{session}} = await db.auth.getSession();
+    splitUser = session?.user || null;
+
+    if(!splitUser){
+      splitRows = [];
+      activeSplitId = null;
+      activeSplitDay = '';
+      renderActiveSplit();
+      await loadSplitSessions();
+      return;
+    }
+
+    const [splitsRes,contextRes] = await Promise.all([
+      db.from('workout_splits')
+        .select('id,name,days,created_at,updated_at')
+        .eq('user_id',splitUser.id)
+        .order('created_at',{ascending:true}),
+      db.from('workout_active_context')
+        .select('split_id,split_day')
+        .eq('user_id',splitUser.id)
+        .maybeSingle()
+    ]);
+
+    if(splitsRes.error){
+      console.warn('Workout split setup not ready:',splitsRes.error);
+      splitRows = [];
+      renderActiveSplit();
+      return;
+    }
+
+    splitRows = splitsRes.data || [];
+    activeSplitId = contextRes.data?.split_id || activeSplitId;
+    activeSplitDay = contextRes.data?.split_day || activeSplitDay;
+
+    if(splitRows.length && !currentSplit()){
+      activeSplitId = splitRows[0].id;
+      activeSplitDay = splitRows[0].days?.[0] || '';
+      await saveContext();
+    }
+
+    renderActiveSplit();
+    await loadSplitSessions();
+  }
+
+  function sessionDateLabel(value){
+    if(!value) return 'No date';
+    try{
+      const d = new Date(`${value}T12:00:00`);
+      return d.toLocaleDateString([],{month:'short',day:'numeric',year:d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined});
+    }catch(_){ return value; }
+  }
+
+  async function loadSplitSessions(){
+    const list = document.getElementById('workoutSessionList');
+    const count = document.getElementById('workoutSessionCount');
+    if(!list) return;
+
+    if(!splitUser){
+      list.innerHTML = '<div class="workout-empty">Log in to see your saved sessions.</div>';
+      if(count) count.textContent = '0 sessions';
+      return;
+    }
+
+    const {data,error} = await db
+      .from('workout_logs')
+      .select('id,exercise,weight,reps,set_number,workout_date,created_at,split_name,split_day')
+      .eq('user_id',splitUser.id)
+      .order('workout_date',{ascending:false})
+      .order('created_at',{ascending:false})
+      .limit(500);
+
+    if(error){
+      list.innerHTML = `<div class="workout-empty">${esc(error.message)}</div>`;
+      return;
+    }
+
+    const groups = new Map();
+    for(const row of data || []){
+      const splitName = row.split_name || 'Unassigned';
+      const splitDay = row.split_day || (row.split_name ? 'Workout' : 'Legacy logs');
+      const key = `${row.workout_date || ''}|${splitName}|${splitDay}`;
+      if(!groups.has(key)) groups.set(key,{date:row.workout_date,splitName,splitDay,rows:[]});
+      groups.get(key).rows.push(row);
+    }
+
+    const sessions = [...groups.values()].slice(0,10);
+    if(count) count.textContent = `${groups.size} session${groups.size === 1 ? '' : 's'}`;
+
+    if(!sessions.length){
+      list.innerHTML = '<div class="workout-empty">Log your first set to start building session history.</div>';
+      return;
+    }
+
+    list.innerHTML = sessions.map(session => {
+      const exerciseNames = [...new Set(session.rows.map(row => row.exercise).filter(Boolean))];
+      const preview = exerciseNames.slice(0,4).join(' · ') + (exerciseNames.length > 4 ? ` · +${exerciseNames.length - 4} more` : '');
+      const unassigned = session.splitName === 'Unassigned';
+      return `
+        <article class="workout-session-row${unassigned ? ' unassigned' : ''}">
+          <div class="workout-session-date">${esc(sessionDateLabel(session.date))}</div>
+          <div class="workout-session-main">
+            <div class="workout-session-title">
+              <strong>${esc(session.splitName)}</strong>
+              <span>·</span>
+              <b>${esc(session.splitDay)}</b>
+            </div>
+            <div class="workout-session-exercises">${esc(preview || 'Logged workout')}</div>
+          </div>
+          <div class="workout-session-meta">
+            <b>${session.rows.length}</b><span>set${session.rows.length === 1 ? '' : 's'}</span>
+            <b>${exerciseNames.length}</b><span>exercise${exerciseNames.length === 1 ? '' : 's'}</span>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  // Wait for the existing workout UI to finish installing, then enhance it.
+  const boot = () => {
+    installSplitUi();
+    if(splitUiInstalled) loadSplitData();
+  };
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else setTimeout(boot,0);
+
+  const observer = new MutationObserver(() => {
+    if(!splitUiInstalled && document.getElementById('workoutTracker')) boot();
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+
+  db.auth.onAuthStateChange(() => setTimeout(loadSplitData,80));
+})();
