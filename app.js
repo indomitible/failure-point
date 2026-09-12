@@ -572,6 +572,60 @@ window.fpVerificationCallback = (() => {
         }
         .gymcels-account-message.success{color:#67e8a5}
         .gymcels-account-message.error{color:#ff7b88}
+        .gymcels-account-switch-row{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:14px;
+          padding:4px 0 2px;
+        }
+        .gymcels-account-switch-copy{
+          min-width:0;
+          color:#d7dce3;
+          font-size:11px;
+          font-weight:800;
+        }
+        .gymcels-account-switch{
+          position:relative;
+          width:44px;
+          height:24px;
+          flex:0 0 auto;
+        }
+        .gymcels-account-switch input{
+          position:absolute;
+          opacity:0;
+          width:1px;
+          height:1px;
+          pointer-events:none;
+        }
+        .gymcels-account-switch-track{
+          position:absolute;
+          inset:0;
+          border-radius:999px;
+          background:#303640;
+          border:1px solid #414955;
+          cursor:pointer;
+          transition:.18s ease;
+        }
+        .gymcels-account-switch-track::after{
+          content:'';
+          position:absolute;
+          width:18px;
+          height:18px;
+          left:2px;
+          top:2px;
+          border-radius:50%;
+          background:#cfd5dc;
+          transition:.18s ease;
+        }
+        .gymcels-account-switch input:checked + .gymcels-account-switch-track{
+          background:#ef4355;
+          border-color:#ef4355;
+        }
+        .gymcels-account-switch input:checked + .gymcels-account-switch-track::after{
+          transform:translateX(20px);
+          background:#fff;
+        }
         @media (max-width:620px){
           .gymcels-account-settings-head{padding:12px}
           .gymcels-account-settings-body{padding:12px}
@@ -600,6 +654,19 @@ window.fpVerificationCallback = (() => {
       <div id="gymcelsAccountSettingsBody" class="gymcels-account-settings-body hidden">
         <div class="gymcels-account-current">
           Signed in as <strong id="gymcelsAccountCurrentEmail">—</strong>
+        </div>
+
+        <div class="gymcels-account-setting">
+          <h4>DM read receipts</h4>
+          <p>When this is on, friends can see “Seen” after you open their DMs. Turn it off if you do not want to send read receipts.</p>
+          <div class="gymcels-account-switch-row">
+            <div class="gymcels-account-switch-copy">Send read receipts</div>
+            <label class="gymcels-account-switch" aria-label="Send DM read receipts">
+              <input id="gymcelsDmReadReceiptsToggle" type="checkbox" checked>
+              <span class="gymcels-account-switch-track"></span>
+            </label>
+          </div>
+          <div id="gymcelsDmReadReceiptsMsg" class="gymcels-account-message" role="status"></div>
         </div>
 
         <div class="gymcels-account-setting">
@@ -633,6 +700,9 @@ window.fpVerificationCallback = (() => {
     const body = document.getElementById('gymcelsAccountSettingsBody');
     const currentEmail = document.getElementById('gymcelsAccountCurrentEmail');
 
+    const readReceiptsToggle = document.getElementById('gymcelsDmReadReceiptsToggle');
+    const readReceiptsMsg = document.getElementById('gymcelsDmReadReceiptsMsg');
+
     const newEmail = document.getElementById('gymcelsNewEmail');
     const changeEmailBtn = document.getElementById('gymcelsChangeEmailBtn');
     const emailMsg = document.getElementById('gymcelsChangeEmailMsg');
@@ -647,6 +717,79 @@ window.fpVerificationCallback = (() => {
       el.textContent = text || '';
       el.className = 'gymcels-account-message' + (type ? ` ${type}` : '');
     };
+
+    async function loadDmReadReceiptPreference(){
+      try{
+        const { data: { session } } = await db.auth.getSession();
+        if(!session?.user) return true;
+
+        const {data,error} = await db
+          .from('dm_user_settings')
+          .select('read_receipts_enabled')
+          .eq('user_id',session.user.id)
+          .maybeSingle();
+
+        if(error) throw error;
+
+        const enabled = data?.read_receipts_enabled !== false;
+        window.gymcelsDmReadReceiptsEnabled = enabled;
+
+        if(readReceiptsToggle) readReceiptsToggle.checked = enabled;
+        return enabled;
+      }catch(error){
+        console.warn('Could not load DM read receipt preference:',error);
+        window.gymcelsDmReadReceiptsEnabled = true;
+        if(readReceiptsToggle) readReceiptsToggle.checked = true;
+        return true;
+      }
+    }
+
+    window.gymcelsLoadDmReadReceiptPreference = loadDmReadReceiptPreference;
+
+    readReceiptsToggle?.addEventListener('change', async () => {
+      const enabled = !!readReceiptsToggle.checked;
+      readReceiptsToggle.disabled = true;
+      setSettingsMessage(readReceiptsMsg, 'Saving…');
+
+      try{
+        const { data: { session } } = await db.auth.getSession();
+        if(!session?.user) throw new Error('Log in again first.');
+
+        const {error} = await db
+          .from('dm_user_settings')
+          .upsert({
+            user_id:session.user.id,
+            read_receipts_enabled:enabled,
+            updated_at:new Date().toISOString()
+          },{onConflict:'user_id'});
+
+        if(error) throw error;
+
+        window.gymcelsDmReadReceiptsEnabled = enabled;
+        setSettingsMessage(
+          readReceiptsMsg,
+          enabled ? 'Read receipts are on.' : 'Read receipts are off.',
+          'success'
+        );
+
+        setTimeout(() => {
+          if(readReceiptsMsg?.textContent === 'Read receipts are on.' ||
+             readReceiptsMsg?.textContent === 'Read receipts are off.'){
+            setSettingsMessage(readReceiptsMsg,'');
+          }
+        },1600);
+      }catch(error){
+        readReceiptsToggle.checked = !enabled;
+        window.gymcelsDmReadReceiptsEnabled = !enabled;
+        setSettingsMessage(
+          readReceiptsMsg,
+          error?.message || 'Could not save that setting.',
+          'error'
+        );
+      }finally{
+        readReceiptsToggle.disabled = false;
+      }
+    });
 
     toggle?.addEventListener('click', () => {
       const opening = body.classList.contains('hidden');
@@ -764,6 +907,7 @@ window.fpVerificationCallback = (() => {
     // Set the current email if a session already exists.
     db.auth.getSession().then(({ data: { session } }) => {
       if (currentEmail && session?.user) currentEmail.textContent = session.user.email || '—';
+      if (session?.user) loadDmReadReceiptPreference();
     });
   }
 
@@ -771,6 +915,10 @@ window.fpVerificationCallback = (() => {
     installAccountSettingsUi();
     const currentEmail = document.getElementById('gymcelsAccountCurrentEmail');
     if (currentEmail) currentEmail.textContent = session?.user?.email || '—';
+
+    if(session?.user && typeof window.gymcelsLoadDmReadReceiptPreference === 'function'){
+      window.gymcelsLoadDmReadReceiptPreference();
+    }
   }
 
   installAccountSettingsUi();
@@ -10208,11 +10356,37 @@ async function loadDmFriends(){
   });
 
   const pinnedIds = getPinnedFriendIds(me);
+  const recentDmMap = new Map();
+
+  try{
+    const {data:inboxRows,error:inboxError} = await client.rpc('get_my_dm_inbox');
+    if(inboxError) throw inboxError;
+
+    (inboxRows || []).forEach(row => {
+      if(row?.peer_user_id){
+        recentDmMap.set(String(row.peer_user_id),row);
+      }
+    });
+  }catch(err){
+    console.warn('Could not load recent DM order:',err);
+  }
 
   people.sort((a,b) => {
-    const aPinned = pinnedIds.has(String(a.user_id)) ? 1 : 0;
-    const bPinned = pinnedIds.has(String(b.user_id)) ? 1 : 0;
+    const aId = String(a.user_id || '');
+    const bId = String(b.user_id || '');
+
+    const aPinned = pinnedIds.has(aId) ? 1 : 0;
+    const bPinned = pinnedIds.has(bId) ? 1 : 0;
     if(aPinned !== bPinned) return bPinned - aPinned;
+
+    const aRecent = recentDmMap.get(aId)?.last_message_at
+      ? new Date(recentDmMap.get(aId).last_message_at).getTime()
+      : 0;
+    const bRecent = recentDmMap.get(bId)?.last_message_at
+      ? new Date(recentDmMap.get(bId).last_message_at).getTime()
+      : 0;
+
+    if(aRecent !== bRecent) return bRecent - aRecent;
 
     const aOnline = isPresenceOnline(a.last_seen) ? 1 : 0;
     const bOnline = isPresenceOnline(b.last_seen) ? 1 : 0;
@@ -10549,6 +10723,7 @@ async function deleteDmMessage(row){
 
     setDmStatus('✓ Message deleted','success');
     await loadDmConversation(false);
+    await loadDmFriends();
 
     setTimeout(() => {
       if(dmStatus?.textContent === '✓ Message deleted') setDmStatus('');
@@ -10799,7 +10974,7 @@ async function loadDmConversation(scrollBottom=false){
     // only the first 200 messages while new DMs still triggered notifications.
     const { data, error } = await client
       .from('direct_messages')
-      .select('id,sender_id,recipient_id,message,created_at,reply_to_id')
+      .select('id,sender_id,recipient_id,message,created_at,reply_to_id,read_at')
       .or(`and(sender_id.eq.${me},recipient_id.eq.${dmActiveUserId}),and(sender_id.eq.${dmActiveUserId},recipient_id.eq.${me})`)
       .order('created_at',{ascending:false})
       .order('id',{ascending:false})
@@ -10809,6 +10984,43 @@ async function loadDmConversation(scrollBottom=false){
 
     // Render oldest -> newest inside the fetched recent window.
     const rows = (data || []).slice().reverse();
+
+    const readReceiptsEnabled = window.gymcelsDmReadReceiptsEnabled !== false;
+
+    if(readReceiptsEnabled && document.visibilityState === 'visible'){
+      const hasUnreadIncoming = rows.some(row =>
+        String(row.sender_id || '') === String(dmActiveUserId) &&
+        String(row.recipient_id || '') === String(me) &&
+        !row.read_at
+      );
+
+      if(hasUnreadIncoming){
+        try{
+          const {data:markedCount,error:readError} = await client.rpc(
+            'mark_dm_conversation_read',
+            {peer_user:dmActiveUserId}
+          );
+
+          if(readError) throw readError;
+
+          if(Number(markedCount || 0) > 0){
+            const readNow = new Date().toISOString();
+            rows.forEach(row => {
+              if(
+                String(row.sender_id || '') === String(dmActiveUserId) &&
+                String(row.recipient_id || '') === String(me) &&
+                !row.read_at
+              ){
+                row.read_at = readNow;
+              }
+            });
+          }
+        }catch(err){
+          console.warn('Could not mark DMs read:',err);
+        }
+      }
+    }
+
     dmRowsById = new Map(rows.map(row => [Number(row.id),row]));
 
     const replyIds = [...new Set(
@@ -10845,7 +11057,8 @@ async function loadDmConversation(scrollBottom=false){
         row.recipient_id,
         row.message,
         row.created_at,
-        row.reply_to_id
+        row.reply_to_id,
+        row.read_at
       ]),
       attachments:Object.entries(attachmentMap).map(([messageId,items]) => [
         messageId,
@@ -10923,7 +11136,7 @@ async function loadDmConversation(scrollBottom=false){
             ${mine ? `<button class="dm-edit-action" type="button" data-dm-edit="${Number(row.id)}">Edit</button>` : ''}
             ${mine ? `<button class="dm-delete-action" type="button" data-dm-delete="${Number(row.id)}">Delete</button>` : ''}
           </div>
-          <div class="dm-time">${escapeChat(when)}</div>
+          <div class="dm-time">${escapeChat(when)}${mine ? ` · ${row.read_at ? 'Seen' : 'Sent'}` : ''}</div>
         </div>
       </div>`;
     }).join('');
@@ -11137,6 +11350,7 @@ async function sendDm(){
 
     setDmStatus(files.length ? '✓ Sent with attachment' : '✓ Sent','success');
     await loadDmConversation(true);
+    await loadDmFriends();
 
     setTimeout(() => {
       if(dmStatus?.textContent?.startsWith('✓ Sent')) setDmStatus('');
