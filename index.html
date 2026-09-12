@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" href="/gymcels-icon-192.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-<link rel="stylesheet" href="style.css?v=bakifull1">
+<link rel="stylesheet" href="style.css?v=leaderboard1">
 
 </head>
 <body>
@@ -34,6 +34,7 @@
       <a class="nav-link" id="navSupport" href="mailto:brandonssillyalt@gmail.com?subject=Gymcels.lol%20Support&body=Hey%20Brandon%2C%20I%20need%20help%20with%20Gymcels.lol.">Customer Support</a>
       <a class="nav-link" id="navChat" href="#login-card">Chat</a>
       <a class="nav-link" id="navThreads" href="#threadsSection">Threads</a>
+      <a class="nav-link" id="navLeaderboard" href="#communityLeaderboard">Leaderboard</a>
       <a class="nav-link" id="navFriends" href="#login-card">Friends</a>
       <a class="nav-link" id="navDms" href="#login-card">DMs</a>
       <a class="nav-link" id="navVoice" href="#voiceSection">Voice</a>
@@ -150,6 +151,9 @@
   <div class="mobile-drawer-grid">
     <button class="mobile-drawer-link" type="button" data-mobile-proxy="navFriends">
       <span>👥</span><b>Friends</b>
+    </button>
+    <button class="mobile-drawer-link" type="button" data-mobile-proxy="navLeaderboard">
+      <span>🏆</span><b>Leaderboard</b>
     </button>
     <button class="mobile-drawer-link" type="button" data-mobile-proxy="navWorkouts">
       <span>✓</span><b>My Workouts</b>
@@ -331,6 +335,48 @@
   <div id="siteUpdatesList" class="site-updates-list">
     <div class="site-update-empty">Loading updates...</div>
   </div>
+</div>
+
+
+<div id="communityLeaderboard" class="community-leaderboard-shell">
+  <div class="community-leaderboard-head">
+    <div>
+      <div class="community-leaderboard-kicker">Community rankings</div>
+      <div class="community-leaderboard-title">Gymcels Leaderboard</div>
+      <div class="community-leaderboard-sub">See who is putting in the most work across the community.</div>
+    </div>
+    <button id="leaderboardRefreshBtn" class="leaderboard-refresh-btn" type="button" aria-label="Refresh leaderboard">↻ Refresh</button>
+  </div>
+
+  <div id="topChatterCard" class="top-chatter-card">
+    <div class="top-chatter-crown" aria-hidden="true">👑</div>
+    <div id="topChatterAvatar" class="top-chatter-avatar">GC</div>
+    <div class="top-chatter-copy">
+      <span class="top-chatter-label">TOP CHATTER</span>
+      <strong id="topChatterName">Loading...</strong>
+      <small id="topChatterStat">Most lifetime messages in Gymcel Chatroom</small>
+    </div>
+    <div class="top-chatter-score">
+      <b id="topChatterCount">—</b>
+      <span>messages</span>
+    </div>
+  </div>
+
+  <div class="leaderboard-tabs" role="tablist" aria-label="Community leaderboard categories">
+    <button class="leaderboard-tab active" type="button" data-leaderboard-mode="chat" role="tab" aria-selected="true">💬 Top Chatter</button>
+    <button class="leaderboard-tab" type="button" data-leaderboard-mode="workouts" role="tab" aria-selected="false">🏋️ Most Workouts</button>
+    <button class="leaderboard-tab" type="button" data-leaderboard-mode="streak" role="tab" aria-selected="false">🔥 Best Streak</button>
+  </div>
+
+  <div class="leaderboard-column-labels" aria-hidden="true">
+    <span>Rank / Member</span>
+    <span id="leaderboardMetricLabel">Lifetime messages</span>
+  </div>
+
+  <div id="communityLeaderboardList" class="community-leaderboard-list">
+    <div class="leaderboard-empty">Loading community leaderboard...</div>
+  </div>
+  <div id="communityLeaderboardStatus" class="leaderboard-status"></div>
 </div>
 
 <div id="communityChat" class="chat-shell">
@@ -1639,7 +1685,7 @@
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=joinfree2"></script>
+<script src="app.js?v=leaderboard1"></script>
 
 </body>
 </html>
