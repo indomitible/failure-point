@@ -5758,3 +5758,66 @@ section{background:rgba(8,9,11,.60)}
     padding:2px 0;
   }
 }
+
+/* ============================================================
+   MOBILE CHAT READABILITY
+   Bigger public-chat + DM text on phones only.
+   ============================================================ */
+@media (max-width: 760px){
+  /* Public chat */
+  .chat-text{
+    font-size:16px !important;
+    line-height:1.5 !important;
+  }
+  .chat-user{
+    font-size:14px !important;
+  }
+  .chat-time{
+    font-size:11px !important;
+  }
+  .chat-avatar{
+    width:38px !important;
+    height:38px !important;
+    min-width:38px !important;
+    font-size:12px !important;
+  }
+  .chat-message{
+    padding:12px 10px !important;
+  }
+  .chat-message-row{
+    gap:11px !important;
+  }
+  .community-home-section .chat-messages{
+    height:340px !important;
+  }
+
+  /* DMs */
+  .dm-bubble{
+    font-size:15px !important;
+    line-height:1.5 !important;
+    padding:10px 12px !important;
+  }
+  .dm-time{
+    font-size:10px !important;
+  }
+  .dm-thread-name{
+    font-size:15px !important;
+  }
+  .dm-thread-state{
+    font-size:11px !important;
+  }
+  .dm-reply-action,
+  .dm-edit-action,
+  .dm-delete-action{
+    font-size:10px !important;
+  }
+  .dm-quoted-reply strong,
+  .dm-quoted-reply span{
+    font-size:10px !important;
+  }
+  .dm-messages{
+    height:390px !important;
+    gap:10px !important;
+  }
+}
+
