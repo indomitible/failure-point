@@ -7192,3 +7192,320 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
     width:100%;
   }
 }
+/* ============================================================
+   GYMCELS MULTI-ROLE + REPUTATION PATCH
+   Paste at the VERY BOTTOM of your current style.css.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   MULTI ROLE ADMIN
+   ------------------------------------------------------------ */
+
+.community-roles-admin-v2{
+  margin-top:10px;
+  padding:12px;
+  border:1px solid #292f37;
+  border-radius:11px;
+  background:linear-gradient(180deg,rgba(19,24,30,.98),rgba(12,16,20,.98));
+}
+
+.community-roles-v2-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.community-roles-v2-head strong{
+  display:block;
+  color:#fff;
+  font-size:10px;
+  font-weight:950;
+}
+
+.community-roles-v2-head > div > span{
+  display:block;
+  margin-top:3px;
+  color:#7e8894;
+  font-size:8px;
+  line-height:1.4;
+}
+
+.community-roles-v2-count{
+  flex:0 0 auto;
+  padding:5px 8px;
+  border:1px solid #313943;
+  border-radius:999px;
+  background:#0a0e12;
+  color:#9ba5b1;
+  font-size:8px;
+  font-weight:900;
+}
+
+.community-roles-v2-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:10px;
+}
+
+.community-role-v2-option{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  padding:9px 10px;
+  border:1px solid #29313a;
+  border-radius:9px;
+  background:#10151a;
+  color:#dfe5eb;
+  cursor:pointer;
+  transition:border-color .15s ease,background .15s ease,transform .15s ease;
+}
+
+.community-role-v2-option:hover{
+  border-color:#3b4551;
+  background:#131920;
+}
+
+.community-role-v2-option:has(input:checked){
+  border-color:rgba(239,67,85,.56);
+  background:rgba(239,67,85,.08);
+}
+
+.community-role-v2-option input{
+  flex:0 0 auto;
+  margin:0;
+  accent-color:#ef4355;
+}
+
+.community-role-v2-option span{
+  min-width:0;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.community-roles-v2-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:10px;
+}
+
+.community-roles-v2-actions > span{
+  color:#747f8a;
+  font-size:8px;
+}
+
+.community-roles-v2-actions button{
+  flex:0 0 auto;
+  border:0;
+  border-radius:9px;
+  background:#ef4355;
+  color:#fff;
+  padding:9px 13px;
+  font-size:9px;
+  font-weight:950;
+  cursor:pointer;
+}
+
+.community-roles-v2-actions button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+
+/* ------------------------------------------------------------
+   REPUTATION BADGES IN CHAT
+   ------------------------------------------------------------ */
+
+.member-rep-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-left:5px;
+  padding:2px 6px;
+  border:1px solid #343b45;
+  border-radius:999px;
+  background:#11161c;
+  color:#aab3be;
+  font-size:7px;
+  font-weight:950;
+  line-height:1.2;
+  letter-spacing:.03em;
+  vertical-align:middle;
+  white-space:nowrap;
+}
+
+.member-rep-badge.rep-known{
+  color:#a7d8ff;
+  border-color:rgba(96,176,238,.38);
+  background:rgba(62,141,202,.09);
+}
+
+.member-rep-badge.rep-respected{
+  color:#9ce8b2;
+  border-color:rgba(89,204,122,.40);
+  background:rgba(59,171,91,.09);
+}
+
+.member-rep-badge.rep-trusted{
+  color:#ffd36f;
+  border-color:rgba(236,181,60,.42);
+  background:rgba(221,158,28,.10);
+}
+
+.member-rep-badge.rep-veteran{
+  color:#d6b5ff;
+  border-color:rgba(173,113,244,.42);
+  background:rgba(138,72,215,.10);
+}
+
+.member-rep-badge.rep-legend{
+  color:#ff9aa8;
+  border-color:rgba(239,67,85,.50);
+  background:rgba(239,67,85,.11);
+}
+
+
+/* ------------------------------------------------------------
+   PUBLIC PROFILE REPUTATION CARD
+   ------------------------------------------------------------ */
+
+.member-reputation-panel{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  margin:12px 0;
+  padding:12px;
+  border:1px solid #2b333d;
+  border-radius:12px;
+  background:
+    radial-gradient(circle at 0 0,rgba(239,67,85,.10),transparent 42%),
+    #0e1318;
+}
+
+.member-reputation-score{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-width:58px;
+  min-height:58px;
+  padding:8px;
+  border:1px solid rgba(239,67,85,.32);
+  border-radius:12px;
+  background:rgba(239,67,85,.07);
+}
+
+.member-reputation-score b{
+  color:#fff;
+  font-size:22px;
+  line-height:1;
+  font-weight:1000;
+}
+
+.member-reputation-score span{
+  margin-top:4px;
+  color:#ef6575;
+  font-size:8px;
+  font-weight:1000;
+  letter-spacing:.08em;
+}
+
+.member-reputation-copy{
+  min-width:0;
+}
+
+.member-reputation-copy strong{
+  display:block;
+  color:#fff;
+  font-size:12px;
+  font-weight:1000;
+}
+
+.member-reputation-copy span{
+  display:block;
+  margin-top:4px;
+  color:#818b96;
+  font-size:9px;
+  line-height:1.45;
+}
+
+.give-member-rep-btn{
+  min-width:88px;
+  border:0;
+  border-radius:10px;
+  background:#ef4355;
+  color:#fff;
+  padding:10px 12px;
+  font-size:9px;
+  font-weight:1000;
+  cursor:pointer;
+}
+
+.give-member-rep-btn:hover:not(:disabled){
+  filter:brightness(1.06);
+}
+
+.give-member-rep-btn:disabled{
+  opacity:.56;
+  cursor:not-allowed;
+}
+
+
+/* Keep multiple badges tidy beside usernames. */
+.staff-admin-name .staff-badge,
+.chat-meta .staff-badge{
+  margin-left:5px;
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE
+   ------------------------------------------------------------ */
+
+@media(max-width:700px){
+  .community-roles-v2-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .community-roles-v2-actions{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .community-roles-v2-actions button{
+    width:100%;
+  }
+
+  .member-reputation-panel{
+    grid-template-columns:auto minmax(0,1fr);
+  }
+
+  .give-member-rep-btn{
+    grid-column:1 / -1;
+    width:100%;
+  }
+}
+
+@media(max-width:420px){
+  .community-roles-v2-grid{
+    grid-template-columns:1fr;
+  }
+
+  .member-reputation-panel{
+    gap:10px;
+    padding:10px;
+  }
+
+  .member-reputation-score{
+    min-width:52px;
+    min-height:52px;
+  }
+}
