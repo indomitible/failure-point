@@ -1,14 +1,13 @@
 // ============================================================
-// GYMCELS COMMUNITY EXTRAS V1
-// Multi-role admin + positive reputation system.
-// Load AFTER app.js with:
-// <script src="community-extras.js?v=1"></script>
+// GYMCELS COMMUNITY EXTRAS V2
+// Fixes REP flickering + keeps multi-role admin working.
+// Replace the ENTIRE contents of community-extras.js with this.
 // ============================================================
 (() => {
   'use strict';
 
-  if (window.__gymcelsCommunityExtrasLoaded) return;
-  window.__gymcelsCommunityExtrasLoaded = 'v1';
+  if (window.__gymcelsCommunityExtrasV2Loaded) return;
+  window.__gymcelsCommunityExtrasV2Loaded = true;
 
   const ROLE_OPTIONS = [
     ['promoter', 'Promoter 📣'],
@@ -19,28 +18,42 @@
     ['helper', 'Helper 🤝']
   ];
 
-  const REP_LEVEL_CLASS = level =>
-    String(level || 'Newcomer').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const repCache = new Map();
+  const decoratingCards = new WeakSet();
+  let activeProfileUserId = null;
+  let profileRepLoadingFor = null;
+  let lastProfileRepLoadAt = 0;
+  let adminScanTimer = null;
+  let chatObserver = null;
+  let observedChatNode = null;
 
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   async function dbReady() {
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 40; i++) {
       if (window.gymcelsLolDb) return window.gymcelsLolDb;
       await sleep(100);
     }
     return null;
   }
 
+  function repLevelClass(level) {
+    return String(level || 'Newcomer')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-');
+  }
+
   // ------------------------------------------------------------
-  // CSS - injected here so this feature does not depend on style.css cache.
+  // STYLES
   // ------------------------------------------------------------
   function installStyles() {
-    if (document.getElementById('gymcelsCommunityExtrasCss')) return;
+    document.getElementById('gymcelsCommunityExtrasCss')?.remove();
 
     const style = document.createElement('style');
     style.id = 'gymcelsCommunityExtrasCss';
     style.textContent = `
+      #memberReputationPanel{display:none!important}
+
       .gc-extra-role-box{
         margin-top:10px;padding:12px;border:1px solid #29313a;border-radius:11px;
         background:linear-gradient(180deg,rgba(19,24,30,.98),rgba(12,16,20,.98))
@@ -85,8 +98,8 @@
       .gc-rep-badge{
         display:inline-flex;align-items:center;justify-content:center;margin-left:5px;
         padding:2px 6px;border:1px solid #343b45;border-radius:999px;background:#11161c;
-        color:#aab3be;font-size:7px;font-weight:950;line-height:1.2;letter-spacing:.03em;
-        vertical-align:middle;white-space:nowrap
+        color:#aab3be;font-size:7px;font-weight:950;line-height:1.2;
+        letter-spacing:.03em;vertical-align:middle;white-space:nowrap
       }
       .gc-rep-badge.rep-known{color:#a7d8ff;border-color:rgba(96,176,238,.38);background:rgba(62,141,202,.09)}
       .gc-rep-badge.rep-respected{color:#9ce8b2;border-color:rgba(89,204,122,.40);background:rgba(59,171,91,.09)}
@@ -129,40 +142,8 @@
   }
 
   // ------------------------------------------------------------
-  // MULTI-ROLE ADMIN
+  // MULTI ROLES
   // ------------------------------------------------------------
-  const decoratingCards = new Set();
-
-  function roleBoxHtml(selected) {
-    const set = new Set(selected || []);
-    return `
-      <div class="gc-extra-role-box">
-        <div class="gc-extra-role-head">
-          <div>
-            <strong>Community roles</strong>
-            <small>Select as many as you want. These badges do not give moderation powers.</small>
-          </div>
-          <span class="gc-extra-role-count">${set.size} selected</span>
-        </div>
-
-        <div class="gc-extra-role-grid">
-          ${ROLE_OPTIONS.map(([value, label]) => `
-            <label class="gc-extra-role-choice">
-              <input type="checkbox" data-gc-role="${value}" ${set.has(value) ? 'checked' : ''}>
-              <span>${label}</span>
-            </label>
-          `).join('')}
-        </div>
-
-        <div class="gc-extra-role-actions">
-          <small>Moderator permissions remain separate.</small>
-          <button class="gc-extra-role-save" type="button">Save roles</button>
-        </div>
-        <div class="gc-extra-role-status"></div>
-      </div>
-    `;
-  }
-
   async function fetchRolesForUser(userId) {
     const db = await dbReady();
     if (!db) throw new Error('Database connection is not ready.');
@@ -175,86 +156,90 @@
     return [...new Set((data || []).map(row => row.role).filter(Boolean))];
   }
 
+  function roleBoxHtml(selected) {
+    const set = new Set(selected || []);
+
+    return `
+      <div class="gc-extra-role-box">
+        <div class="gc-extra-role-head">
+          <div>
+            <strong>Community roles</strong>
+            <small>Select as many as you want. These badges do not give moderation powers.</small>
+          </div>
+          <span class="gc-extra-role-count">${set.size} selected</span>
+        </div>
+        <div class="gc-extra-role-grid">
+          ${ROLE_OPTIONS.map(([value,label]) => `
+            <label class="gc-extra-role-choice">
+              <input type="checkbox" data-gc-role="${value}" ${set.has(value) ? 'checked' : ''}>
+              <span>${label}</span>
+            </label>
+          `).join('')}
+        </div>
+        <div class="gc-extra-role-actions">
+          <small>Moderator permissions remain separate.</small>
+          <button class="gc-extra-role-save" type="button">Save roles</button>
+        </div>
+        <div class="gc-extra-role-status"></div>
+      </div>
+    `;
+  }
+
   function updateRoleCount(box) {
     const count = box.querySelectorAll('[data-gc-role]:checked').length;
-    const label = box.querySelector('.gc-extra-role-count');
-    if (label) label.textContent = `${count} selected`;
+    const el = box.querySelector('.gc-extra-role-count');
+    if (el) el.textContent = `${count} selected`;
   }
 
   async function decorateAdminCard(card) {
-    if (!card || card.dataset.gcExtrasRoleReady === '1') return;
+    if (!card || card.dataset.gcExtrasRoleReady === '1' || decoratingCards.has(card)) return;
 
     const userId = card.dataset.staffUser;
-    if (!userId || decoratingCards.has(card)) return;
+    if (!userId) return;
 
     decoratingCards.add(card);
 
     try {
-      // Suppress the older single-role/multi-role patch observers.
       card.dataset.communityRoleDecorated = '1';
       card.dataset.communityRolesV2 = '1';
 
-      // Remove older role controls, if present.
       card.querySelectorAll(
         '.community-role-admin,.community-roles-admin-v2,.gc-extra-role-box'
       ).forEach(el => el.remove());
 
       const selected = await fetchRolesForUser(userId);
-
-      const permissionGrid = card.querySelector('.staff-permission-grid');
       const actions = card.querySelector('.staff-admin-actions');
+      const grid = card.querySelector('.staff-permission-grid');
 
-      if (actions) {
-        actions.insertAdjacentHTML('beforebegin', roleBoxHtml(selected));
-      } else if (permissionGrid) {
-        permissionGrid.insertAdjacentHTML('afterend', roleBoxHtml(selected));
-      } else {
-        card.insertAdjacentHTML('beforeend', roleBoxHtml(selected));
-      }
-
-      const box = card.querySelector('.gc-extra-role-box');
-      if (box) {
-        box.addEventListener('change', () => updateRoleCount(box));
-      }
+      if (actions) actions.insertAdjacentHTML('beforebegin', roleBoxHtml(selected));
+      else if (grid) grid.insertAdjacentHTML('afterend', roleBoxHtml(selected));
+      else card.insertAdjacentHTML('beforeend', roleBoxHtml(selected));
 
       card.dataset.gcExtrasRoleReady = '1';
     } catch (err) {
       console.error('Gymcels roles load error:', err);
-
-      // Still show a visible box so DB/setup errors aren't silent.
-      const permissionGrid = card.querySelector('.staff-permission-grid');
-      const actions = card.querySelector('.staff-admin-actions');
-      const fallback = `
-        <div class="gc-extra-role-box">
-          <div class="gc-extra-role-head">
-            <div><strong>Community roles</strong><small>Could not load roles.</small></div>
-          </div>
-          <div class="gc-extra-role-status err">${String(err?.message || err)}</div>
-        </div>
-      `;
-      if (actions) actions.insertAdjacentHTML('beforebegin', fallback);
-      else if (permissionGrid) permissionGrid.insertAdjacentHTML('afterend', fallback);
-      else card.insertAdjacentHTML('beforeend', fallback);
-
-      card.dataset.gcExtrasRoleReady = 'error';
     } finally {
       decoratingCards.delete(card);
     }
   }
 
   function scanAdminCards() {
-    document.querySelectorAll('.staff-admin-card').forEach(card => {
-      decorateAdminCard(card);
-    });
+    document.querySelectorAll('.staff-admin-card').forEach(decorateAdminCard);
 
-    // Rename heading if the panel exists.
     document.querySelectorAll('.staff-current-head').forEach(head => {
-      const textNode = [...head.children].find(el => el.tagName !== 'BUTTON');
-      if (textNode && /current moderators/i.test(textNode.textContent || '')) {
-        textNode.textContent = 'Current moderators & roles';
+      const label = [...head.children].find(el => el.tagName !== 'BUTTON');
+      if (label && /current moderators/i.test(label.textContent || '')) {
+        label.textContent = 'Current moderators & roles';
       }
     });
   }
+
+  document.addEventListener('change', event => {
+    const input = event.target.closest('[data-gc-role]');
+    if (!input) return;
+    const box = input.closest('.gc-extra-role-box');
+    if (box) updateRoleCount(box);
+  });
 
   document.addEventListener('click', async event => {
     const btn = event.target.closest('.gc-extra-role-save');
@@ -271,12 +256,7 @@
       .filter(Boolean);
 
     btn.disabled = true;
-    const oldText = btn.textContent;
     btn.textContent = 'Saving...';
-    if (status) {
-      status.className = 'gc-extra-role-status';
-      status.textContent = 'Saving roles...';
-    }
 
     try {
       const db = await dbReady();
@@ -290,9 +270,7 @@
 
       if (status) {
         status.className = 'gc-extra-role-status ok';
-        status.textContent = roles.length
-          ? `Saved ${roles.length} role${roles.length === 1 ? '' : 's'}.`
-          : 'All community roles removed.';
+        status.textContent = `Saved ${roles.length} role${roles.length === 1 ? '' : 's'}.`;
       }
     } catch (err) {
       console.error('Gymcels roles save error:', err);
@@ -302,15 +280,13 @@
       }
     } finally {
       btn.disabled = false;
-      btn.textContent = oldText || 'Save roles';
+      btn.textContent = 'Save roles';
     }
   });
 
   // ------------------------------------------------------------
-  // REPUTATION - CHAT BADGES
+  // CHAT REP BADGES
   // ------------------------------------------------------------
-  const repCache = new Map();
-
   async function fetchRepBatch(userIds, force = false) {
     const ids = [...new Set((userIds || []).filter(Boolean))];
     const missing = force ? ids : ids.filter(id => !repCache.has(id));
@@ -328,6 +304,7 @@
             level: row.level || 'Newcomer'
           });
         });
+
         missing.forEach(id => {
           if (!repCache.has(id)) {
             repCache.set(id, { reputation: 0, level: 'Newcomer' });
@@ -358,61 +335,51 @@
       const parent = btn.parentElement;
       if (!uid || !parent) return;
 
-      parent.querySelectorAll('.gc-rep-badge').forEach(old => {
-        if (old.dataset.repUser === uid) old.remove();
-      });
+      const rep = map[uid] || { reputation:0, level:'Newcomer' };
+      let badge = parent.querySelector(`.gc-rep-badge[data-rep-user="${CSS.escape(uid)}"]`);
 
-      const rep = map[uid] || { reputation: 0, level: 'Newcomer' };
-      const badge = document.createElement('span');
-      badge.className = `gc-rep-badge rep-${REP_LEVEL_CLASS(rep.level)}`;
-      badge.dataset.repUser = uid;
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.dataset.repUser = uid;
+        const time = parent.querySelector('.chat-time');
+        if (time) parent.insertBefore(badge, time);
+        else parent.appendChild(badge);
+      }
+
+      const nextClass = `gc-rep-badge rep-${repLevelClass(rep.level)}`;
+      const nextText = `${rep.reputation} REP`;
+
+      if (badge.className !== nextClass) badge.className = nextClass;
+      if (badge.textContent !== nextText) badge.textContent = nextText;
       badge.title = `${rep.level} reputation`;
-      badge.textContent = `${rep.reputation} REP`;
-
-      const time = parent.querySelector('.chat-time');
-      if (time) parent.insertBefore(badge, time);
-      else parent.appendChild(badge);
     });
   }
 
-  // ------------------------------------------------------------
-  // REPUTATION - PUBLIC PROFILE
-  // ------------------------------------------------------------
-  let lastProfileUserId = null;
+  function connectChatObserver() {
+    const node = document.getElementById('chatMessages');
+    if (!node || node === observedChatNode) return;
 
-  document.addEventListener('click', event => {
-    const chatUser = event.target.closest('.chat-user-button[data-chat-user]');
-    if (chatUser?.dataset.chatUser) {
-      lastProfileUserId = chatUser.dataset.chatUser;
-      return;
-    }
+    if (chatObserver) chatObserver.disconnect();
 
-    const leaderboardUser = event.target.closest('[data-leaderboard-user]');
-    if (leaderboardUser?.dataset.leaderboardUser) {
-      lastProfileUserId = leaderboardUser.dataset.leaderboardUser;
-    }
-  }, true);
+    observedChatNode = node;
+    chatObserver = new MutationObserver(() => {
+      clearTimeout(window.__gcRepChatTimer);
+      window.__gcRepChatTimer = setTimeout(decorateChatRep, 120);
+    });
 
-  function currentOpenedProfileUser() {
-    if (lastProfileUserId) return lastProfileUserId;
-
-    try {
-      if (typeof openedChatUserId !== 'undefined' && openedChatUserId) {
-        return openedChatUserId;
-      }
-    } catch (_) {}
-
-    return null;
+    chatObserver.observe(node, { childList:true, subtree:true });
+    decorateChatRep();
   }
 
+  // ------------------------------------------------------------
+  // PUBLIC PROFILE REP
+  // ------------------------------------------------------------
   function ensureRepPanel() {
     const profile = document.querySelector('.chat-public-profile');
     const stats = profile?.querySelector('.chat-public-stats');
     if (!profile || !stats) return null;
 
-    // Remove the older experimental panel if it exists.
-    const oldPanel = document.getElementById('memberReputationPanel');
-    if (oldPanel) oldPanel.remove();
+    document.getElementById('memberReputationPanel')?.remove();
 
     let panel = document.getElementById('gcReputationPanel');
     if (panel) return panel;
@@ -430,13 +397,15 @@
       </div>
       <button id="gcGiveRepBtn" class="gc-rep-give" type="button">+1 Rep</button>
     `;
+
     stats.insertAdjacentElement('afterend', panel);
 
     panel.querySelector('#gcGiveRepBtn').addEventListener('click', async () => {
       const target = panel.dataset.userId;
+      if (!target) return;
+
       const btn = panel.querySelector('#gcGiveRepBtn');
       const note = panel.querySelector('#gcRepNote');
-      if (!target) return;
 
       btn.disabled = true;
       btn.textContent = 'Giving rep...';
@@ -451,12 +420,12 @@
         if (error) throw error;
 
         repCache.delete(target);
-        await loadProfileRep(target);
+        await loadProfileRep(target, true);
         await fetchRepBatch([target], true);
         await decorateChatRep();
       } catch (err) {
         console.error('Gymcels give rep error:', err);
-        if (note) note.textContent = String(err?.message || err);
+        note.textContent = String(err?.message || err);
         btn.disabled = false;
         btn.textContent = '+1 Rep';
       }
@@ -465,7 +434,7 @@
     return panel;
   }
 
-  async function getSessionUserId() {
+  async function getViewerId() {
     try {
       const db = await dbReady();
       if (!db) return null;
@@ -480,31 +449,42 @@
     if (!value) return '';
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return '';
+
     return d.toLocaleString([], {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
+      month:'short',
+      day:'numeric',
+      hour:'numeric',
+      minute:'2-digit'
     });
   }
 
-  async function loadProfileRep(userId) {
+  async function loadProfileRep(userId, force = false) {
     if (!userId) return;
 
+    const now = Date.now();
+
+    // Stop duplicate/open-profile observers from repeatedly redrawing the card.
+    if (!force) {
+      if (profileRepLoadingFor === userId) return;
+      if (activeProfileUserId === userId && now - lastProfileRepLoadAt < 1500) return;
+    }
+
+    profileRepLoadingFor = userId;
+    activeProfileUserId = userId;
+    lastProfileRepLoadAt = now;
+
     const panel = ensureRepPanel();
-    if (!panel) return;
+    if (!panel) {
+      profileRepLoadingFor = null;
+      return;
+    }
+
     panel.dataset.userId = userId;
 
     const score = panel.querySelector('#gcRepScore');
     const level = panel.querySelector('#gcRepLevel');
     const note = panel.querySelector('#gcRepNote');
     const btn = panel.querySelector('#gcGiveRepBtn');
-
-    score.textContent = '—';
-    level.textContent = 'Loading...';
-    note.textContent = 'Checking community reputation...';
-    btn.disabled = true;
-    btn.textContent = '+1 Rep';
 
     try {
       const db = await dbReady();
@@ -519,12 +499,12 @@
       const rep = Number(row?.reputation || 0);
       const repLevel = row?.level || 'Newcomer';
 
-      repCache.set(userId, { reputation: rep, level: repLevel });
+      repCache.set(userId, { reputation:rep, level:repLevel });
 
       score.textContent = String(rep);
       level.textContent = repLevel;
 
-      const viewerId = await getSessionUserId();
+      const viewerId = await getViewerId();
 
       if (!viewerId) {
         note.textContent = 'Log in to give this member +1 reputation.';
@@ -547,47 +527,78 @@
         btn.textContent = 'Rep given ✓';
       }
     } catch (err) {
-      console.error('Gymcels profile rep error:', err);
+      console.error('Gymcels profile reputation error:', err);
       score.textContent = '—';
       level.textContent = 'Reputation';
       note.textContent = `Could not load reputation: ${String(err?.message || err)}`;
       btn.disabled = true;
+      btn.textContent = '+1 Rep';
+    } finally {
+      profileRepLoadingFor = null;
     }
   }
 
-  // ------------------------------------------------------------
-  // OBSERVERS / STARTUP
-  // ------------------------------------------------------------
-  let scanTimer = null;
+  // Capture the member BEFORE the original app opens the modal.
+  document.addEventListener('click', event => {
+    const chatUser = event.target.closest('.chat-user-button[data-chat-user]');
+    if (chatUser?.dataset.chatUser) {
+      activeProfileUserId = chatUser.dataset.chatUser;
+      setTimeout(() => loadProfileRep(activeProfileUserId, true), 100);
+      return;
+    }
 
-  function scheduleScan() {
-    clearTimeout(scanTimer);
-    scanTimer = setTimeout(async () => {
-      scanAdminCards();
-      await decorateChatRep();
+    const leaderboardUser = event.target.closest('[data-leaderboard-user]');
+    if (leaderboardUser?.dataset.leaderboardUser) {
+      activeProfileUserId = leaderboardUser.dataset.leaderboardUser;
+      setTimeout(() => loadProfileRep(activeProfileUserId, true), 100);
+    }
+  }, true);
 
-      const overlay = document.getElementById('chatProfileOverlay');
-      if (overlay?.classList.contains('show')) {
-        const uid = currentOpenedProfileUser();
-        if (uid) loadProfileRep(uid);
+  // Only watch the modal's OPEN/CLOSE attributes — not its entire contents.
+  function connectProfileObserver() {
+    const overlay = document.getElementById('chatProfileOverlay');
+    if (!overlay || overlay.dataset.gcRepObserver === '1') return;
+
+    overlay.dataset.gcRepObserver = '1';
+
+    new MutationObserver(() => {
+      if (overlay.classList.contains('show')) {
+        let uid = activeProfileUserId;
+
+        try {
+          if (!uid && typeof openedChatUserId !== 'undefined') {
+            uid = openedChatUserId;
+          }
+        } catch (_) {}
+
+        if (uid) setTimeout(() => loadProfileRep(uid), 100);
+      } else {
+        profileRepLoadingFor = null;
       }
-    }, 80);
+    }).observe(overlay, {
+      attributes:true,
+      attributeFilter:['class','aria-hidden']
+    });
   }
 
-  new MutationObserver(scheduleScan).observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['class', 'aria-hidden']
-  });
-
-  // A small interval catches third-party/older code that replaces whole sections.
-  setInterval(() => {
-    scanAdminCards();
-  }, 1200);
-
+  // ------------------------------------------------------------
+  // START
+  // ------------------------------------------------------------
   installStyles();
-  scheduleScan();
 
-  console.log('[Gymcels] community-extras.js v1 loaded');
+  // Admin cards are dynamically replaced by the existing app, so a slow,
+  // lightweight scan is safer than observing the entire document.
+  adminScanTimer = setInterval(() => {
+    scanAdminCards();
+    connectChatObserver();
+    connectProfileObserver();
+    document.getElementById('memberReputationPanel')?.remove();
+  }, 1000);
+
+  scanAdminCards();
+  connectChatObserver();
+  connectProfileObserver();
+  ensureRepPanel();
+
+  console.log('[Gymcels] community-extras.js v2 loaded');
 })();
