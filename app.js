@@ -14120,3 +14120,76 @@ setTimeout(() => {
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
 })();
+// ============================================================
+// GYMCELS MOBILE AUTH HEADER CTA
+// Adds a Sign Up / Log In button beside the mobile VIP button.
+// It automatically disappears when the member is signed in.
+// ============================================================
+(() => {
+  const MOBILE_MAX = 800;
+  const isMobile = () => window.matchMedia(`(max-width:${MOBILE_MAX}px)`).matches;
+
+  function authLinksVisible(){
+    const signup = document.getElementById('navSignup');
+    const login = document.getElementById('navLogin');
+    const visible = el => !!el && !el.hidden && !el.classList.contains('hidden');
+    return visible(signup) || visible(login);
+  }
+
+  function openMobileAuth(){
+    if(typeof window.gymcelsNavigate === 'function'){
+      window.gymcelsNavigate('profile',{scroll:true});
+    }else{
+      document.getElementById('navLogin')?.click();
+    }
+
+    setTimeout(() => {
+      const auth = document.getElementById('authView') || document.getElementById('signup-card');
+      auth?.scrollIntoView({behavior:'smooth',block:'start'});
+    },120);
+  }
+
+  function syncMobileAuthButton(){
+    const btn = document.getElementById('mobileAuthTopBtn');
+    if(!btn) return;
+    btn.classList.toggle('hidden', !isMobile() || !authLinksVisible());
+  }
+
+  function setupMobileAuthButton(){
+    const actions = document.querySelector('.mobile-header-actions');
+    if(!actions) return;
+
+    let btn = document.getElementById('mobileAuthTopBtn');
+    if(!btn){
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'mobileAuthTopBtn';
+      btn.className = 'mobile-auth-top-btn';
+      btn.setAttribute('aria-label','Sign up or log in');
+      btn.innerHTML = '<span class="mobile-auth-top-icon" aria-hidden="true">●</span><span>Sign Up / Log In</span>';
+      btn.addEventListener('click',openMobileAuth);
+
+      const vip = document.getElementById('mobileVipTopBtn');
+      if(vip) vip.insertAdjacentElement('afterend',btn);
+      else actions.prepend(btn);
+    }
+
+    syncMobileAuthButton();
+  }
+
+  function boot(){
+    setupMobileAuthButton();
+
+    const signup = document.getElementById('navSignup');
+    const login = document.getElementById('navLogin');
+    const observer = new MutationObserver(syncMobileAuthButton);
+    [signup,login].filter(Boolean).forEach(el => {
+      observer.observe(el,{attributes:true,attributeFilter:['class','hidden','style']});
+    });
+
+    window.addEventListener('resize',syncMobileAuthButton,{passive:true});
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
