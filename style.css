@@ -6742,3 +6742,74 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
     display:none;
   }
 }
+/* ============================================================
+   GYMCELS MOBILE AUTH HEADER CTA
+   - Adds a polished Sign Up / Log In button beside Gymcel VIP
+   - Logged-in users do not see it
+   - Keeps narrow phone headers from getting cramped
+   ============================================================ */
+@media (max-width:800px){
+  .mobile-header-actions{
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+
+  .mobile-auth-top-btn{
+    height:42px;
+    min-width:94px;
+    padding:0 11px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    border:1px solid rgba(239,67,85,.52);
+    border-radius:13px;
+    background:linear-gradient(180deg,rgba(48,18,24,.98),rgba(24,12,16,.98));
+    color:#fff;
+    box-shadow:0 8px 24px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.05);
+    font:800 10px/1.05 Inter,system-ui,sans-serif;
+    letter-spacing:.01em;
+    white-space:nowrap;
+    cursor:pointer;
+  }
+
+  .mobile-auth-top-btn .mobile-auth-top-icon{
+    color:#ff6473;
+    font-size:13px;
+    line-height:1;
+  }
+
+  .mobile-auth-top-btn:active{
+    transform:translateY(1px);
+  }
+
+  .mobile-auth-top-btn.hidden{
+    display:none !important;
+  }
+}
+
+/* On smaller phones, keep the whole header on one clean row. */
+@media (max-width:390px){
+  .mobile-header-actions{gap:5px}
+
+  .mobile-auth-top-btn{
+    min-width:78px;
+    padding:0 8px;
+    font-size:9px;
+  }
+
+  .mobile-auth-top-btn .mobile-auth-top-icon{
+    display:none;
+  }
+
+  #mobileVipTopBtn{
+    min-width:44px;
+    width:44px;
+    padding:0;
+  }
+
+  #mobileVipTopBtn b{
+    display:none;
+  }
+}
