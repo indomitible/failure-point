@@ -13902,3 +13902,221 @@ setTimeout(() => {
 
   window.gymcelsNavigate=navigate;
 })();
+// ============================================================
+// GYMCELS MOBILE UX V2
+// - Public chat is the first mobile screen in a fresh tab/session
+// - Home/Dashboard is always reachable from the bottom nav
+// - Gymcel VIP is promoted in the mobile header + More menu
+// - Calorie Tracking naming is consistent on mobile
+// Desktop behavior is untouched.
+// ============================================================
+(() => {
+  const MOBILE_MAX = 800;
+  const isMobile = () => window.matchMedia(`(max-width:${MOBILE_MAX}px)`).matches;
+
+  function routeTo(route){
+    if(typeof window.gymcelsNavigate === 'function'){
+      window.gymcelsNavigate(route,{scroll:true});
+      return;
+    }
+
+    const fallback = {
+      home:null,
+      community:'navChat',
+      threads:'navThreads',
+      dms:'navDms',
+      voice:'navVoice',
+      vip:'navVip'
+    }[route];
+
+    if(fallback) document.getElementById(fallback)?.click();
+    else if(route === 'home') location.hash = '#home';
+  }
+
+  function closeDrawer(){
+    const drawer = document.getElementById('mobileNavDrawer');
+    const backdrop = document.getElementById('mobileNavBackdrop');
+    drawer?.classList.remove('open','show');
+    backdrop?.classList.remove('open','show');
+    drawer?.setAttribute('aria-hidden','true');
+    backdrop?.setAttribute('aria-hidden','true');
+    document.body.classList.remove('mobile-nav-open');
+  }
+
+  function makeBottomButton({icon,label,route,id}){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mobile-bottom-item';
+    if(id) btn.id = id;
+    if(route) btn.dataset.appRoute = route;
+    btn.innerHTML = `<span class="mobile-bottom-icon" aria-hidden="true">${icon}</span><span>${label}</span>`;
+    return btn;
+  }
+
+  function setupBottomNav(){
+    const nav = document.getElementById('mobileBottomNav');
+    if(!nav || nav.dataset.mobileUxV2 === '1') return;
+    nav.dataset.mobileUxV2 = '1';
+
+    const chatBtn = nav.querySelector('[data-mobile-proxy="navChat"]');
+    const oldThreadsBtn = nav.querySelector('[data-mobile-proxy="navThreads"]');
+    const dmBtn = nav.querySelector('[data-mobile-proxy="navDms"]');
+    const voiceBtn = nav.querySelector('[data-mobile-proxy="navVoice"]');
+
+    // The old Threads node already has a click listener bound by the original app,
+    // so replace the node rather than repurposing it as Home.
+    const homeBtn = makeBottomButton({icon:'⌂',label:'Home',route:'home',id:'mobileHomeBtn'});
+    if(oldThreadsBtn){
+      oldThreadsBtn.replaceWith(homeBtn);
+    }else if(chatBtn){
+      chatBtn.insertAdjacentElement('afterend',homeBtn);
+    }
+
+    // Reuse the existing Voice node/listener as Threads so existing loaders still run.
+    if(voiceBtn){
+      voiceBtn.dataset.mobileProxy = 'navThreads';
+      voiceBtn.dataset.mobileSection = 'threadsSection';
+      const icon = voiceBtn.querySelector('.mobile-bottom-icon');
+      const label = voiceBtn.querySelector('.mobile-bottom-icon + span');
+      if(icon) icon.textContent = '▤';
+      if(label) label.textContent = 'Threads';
+
+      // Order: Chat · Home · Threads · DMs · More
+      if(dmBtn) nav.insertBefore(voiceBtn,dmBtn);
+    }
+  }
+
+  function setupDrawer(){
+    const drawer = document.getElementById('mobileNavDrawer');
+    const grid = drawer?.querySelector('.mobile-drawer-grid');
+    if(!drawer || !grid || drawer.dataset.mobileUxV2 === '1') return;
+    drawer.dataset.mobileUxV2 = '1';
+
+    // Rename and visually emphasize the existing VIP route.
+    const oldVip = grid.querySelector('[data-mobile-proxy="navVip"]');
+    if(oldVip){
+      oldVip.classList.add('mobile-vip-drawer-link');
+      const text = oldVip.querySelector('b');
+      if(text) text.textContent = 'Gymcel VIP';
+    }
+
+    // Voice moves into More because Home now owns a permanent bottom-nav slot.
+    if(!grid.querySelector('[data-mobile-voice-v2]')){
+      const voice = document.createElement('button');
+      voice.type = 'button';
+      voice.className = 'mobile-drawer-link';
+      voice.dataset.mobileVoiceV2 = '1';
+      voice.innerHTML = '<span>◉</span><b>Voice</b>';
+      voice.addEventListener('click',() => {
+        document.getElementById('navVoice')?.click();
+        closeDrawer();
+      });
+
+      const friends = grid.querySelector('[data-mobile-proxy="navFriends"]');
+      if(friends) friends.insertAdjacentElement('afterend',voice);
+      else grid.prepend(voice);
+    }
+
+    // Prominent VIP card at the very top of the More menu.
+    if(!drawer.querySelector('#mobileVipPromo')){
+      const promo = document.createElement('button');
+      promo.type = 'button';
+      promo.id = 'mobileVipPromo';
+      promo.className = 'mobile-vip-promo';
+      promo.innerHTML = `
+        <span class="mobile-vip-promo-icon">🔱</span>
+        <span class="mobile-vip-promo-copy">
+          <strong>Gymcel VIP</strong>
+          <small>Unlock VIP — $5 one-time</small>
+        </span>
+        <span class="mobile-vip-promo-arrow">›</span>`;
+      promo.addEventListener('click',() => {
+        routeTo('vip');
+        closeDrawer();
+      });
+      grid.insertAdjacentElement('beforebegin',promo);
+    }
+  }
+
+  function setupHeaderVip(){
+    const actions = document.querySelector('.mobile-header-actions');
+    if(!actions || document.getElementById('mobileVipTopBtn')) return;
+
+    const vip = document.createElement('button');
+    vip.type = 'button';
+    vip.id = 'mobileVipTopBtn';
+    vip.className = 'mobile-vip-top-btn';
+    vip.setAttribute('aria-label','Open Gymcel VIP');
+    vip.innerHTML = '<span aria-hidden="true">🔱</span><b>VIP</b>';
+    vip.addEventListener('click',() => routeTo('vip'));
+
+    actions.prepend(vip);
+  }
+
+  function syncMobileActive(){
+    if(!isMobile()) return;
+    const route = document.body.dataset.appScreen || '';
+    const nav = document.getElementById('mobileBottomNav');
+    if(!nav) return;
+
+    const wanted = {
+      community: nav.querySelector('[data-mobile-proxy="navChat"]'),
+      home: document.getElementById('mobileHomeBtn'),
+      threads: nav.querySelector('[data-mobile-proxy="navThreads"]'),
+      dms: nav.querySelector('[data-mobile-proxy="navDms"]')
+    }[route] || null;
+
+    nav.querySelectorAll('.mobile-bottom-item').forEach(btn => {
+      if(btn.id !== 'mobileMoreBtn') btn.classList.toggle('active',btn === wanted);
+    });
+  }
+
+  function renameNutrition(){
+    // Dashboard quick action.
+    const quick = document.querySelector('.app-home-actions [data-app-route="nutrition"]');
+    if(quick){
+      const strong = quick.querySelector('strong');
+      if(strong) strong.textContent = 'Calorie Tracking';
+    }
+
+    const calorieStat = document.querySelector('.app-home-stat[data-app-route="nutrition"] small');
+    if(calorieStat) calorieStat.textContent = 'Open calorie tracking';
+
+    // More-menu label.
+    document.querySelectorAll('.mobile-drawer-link[data-mobile-proxy="navNutrition"] b')
+      .forEach(el => el.textContent = 'Calorie Tracking');
+  }
+
+  function boot(){
+    setupBottomNav();
+    setupDrawer();
+    setupHeaderVip();
+    renameNutrition();
+    syncMobileActive();
+
+    // New mobile visit/session starts in public Chat instead of Dashboard.
+    // sessionStorage prevents a later Dashboard refresh in the same tab from being hijacked.
+    if(isMobile()){
+      const raw = location.hash || '';
+      const authFragment = raw.includes('access_token=') || raw.includes('refresh_token=') || raw.includes('type=');
+      const booted = sessionStorage.getItem('gymcels_mobile_chat_boot_v2') === '1';
+
+      if(!authFragment && !booted){
+        sessionStorage.setItem('gymcels_mobile_chat_boot_v2','1');
+        setTimeout(() => {
+          routeTo('community');
+          // Chat is visually first in Community via the mobile CSS patch below.
+          setTimeout(() => window.scrollTo({top:0,behavior:'auto'}),80);
+        },60);
+      }
+    }
+  }
+
+  const bodyRouteObserver = new MutationObserver(syncMobileActive);
+  bodyRouteObserver.observe(document.body,{attributes:true,attributeFilter:['data-app-screen']});
+
+  window.addEventListener('resize',syncMobileActive,{passive:true});
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
