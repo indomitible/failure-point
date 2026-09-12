@@ -6813,3 +6813,226 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
     display:none;
   }
 }
+/* ============================================================
+   GYMCELS — CUSTOM WORKOUT SPLITS + CLEANER TRAINING UI
+   Paste at the VERY BOTTOM of the current style.css.
+   ============================================================ */
+
+.workout-split-manager{
+  margin:12px 0 16px;
+  padding:16px;
+  border:1px solid #2b313a;
+  border-radius:16px;
+  background:
+    radial-gradient(circle at 96% 0%,rgba(239,67,85,.11),transparent 34%),
+    linear-gradient(180deg,#10141a,#0c1015);
+  box-shadow:0 16px 38px rgba(0,0,0,.14);
+}
+.workout-split-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+}
+.workout-split-kicker{
+  color:#ef6574;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.workout-split-head h3{margin:3px 0 3px;color:#fff;font-size:16px}
+.workout-split-head p{margin:0;color:#808b98;font-size:9px;line-height:1.45}
+.workout-split-new{
+  min-height:34px;
+  flex:0 0 auto;
+  padding:0 12px;
+  border:1px solid rgba(239,67,85,.38);
+  border-radius:9px;
+  background:rgba(239,67,85,.1);
+  color:#ff7a87;
+  font:900 9px/1 Inter,system-ui,sans-serif;
+  cursor:pointer;
+}
+.workout-split-new:hover{background:rgba(239,67,85,.16)}
+.workout-split-new:disabled{opacity:.45;cursor:not-allowed}
+
+.workout-split-empty{
+  margin-top:13px;
+  padding:13px;
+  border:1px dashed #323944;
+  border-radius:11px;
+  background:#0a0d11;
+  color:#86909c;
+  font-size:9px;
+}
+.workout-split-empty b{display:block;color:#fff;font-size:11px;margin-bottom:3px}
+.workout-split-empty span{display:block}
+.workout-split-empty-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.workout-split-empty-actions button,
+.workout-split-presets button,
+.workout-split-tools button{
+  border:1px solid #303741;
+  border-radius:8px;
+  background:#11161c;
+  color:#b4bdc7;
+  padding:7px 9px;
+  font:800 8px/1 Inter,system-ui,sans-serif;
+  cursor:pointer;
+}
+.workout-split-empty-actions button:hover,
+.workout-split-presets button:hover,
+.workout-split-tools button:hover{border-color:#4a5460;color:#fff}
+.workout-split-tools .danger{color:#ff7986;border-color:rgba(239,67,85,.28)}
+
+.workout-split-active{margin-top:14px}
+.workout-split-select-row{display:flex;align-items:flex-end;gap:10px}
+.workout-split-select-wrap{display:flex;flex-direction:column;gap:5px;min-width:220px;max-width:360px;flex:1}
+.workout-split-select-wrap>span,
+.workout-split-days-label,
+.workout-split-editor-grid label>span{
+  color:#7e8996;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.workout-split-select-wrap select,
+.workout-split-editor-grid input,
+.workout-split-editor-grid textarea{
+  width:100%;box-sizing:border-box;
+  border:1px solid #303741;
+  border-radius:9px;
+  background:#090d12;
+  color:#fff;
+  outline:none;
+  font:inherit;
+  font-size:10px;
+}
+.workout-split-select-wrap select{height:38px;padding:0 10px}
+.workout-split-tools{display:flex;gap:6px;padding-bottom:1px}
+.workout-split-tools button{height:36px}
+.workout-split-days-block{margin-top:13px}
+.workout-split-day-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+.workout-split-day{
+  min-height:34px;
+  border:1px solid #303741;
+  border-radius:999px;
+  background:#0b0f14;
+  color:#a4aeba;
+  padding:0 12px;
+  font:850 9px/1 Inter,system-ui,sans-serif;
+  cursor:pointer;
+}
+.workout-split-day:hover{border-color:#4a5460;color:#fff}
+.workout-split-day.active{
+  border-color:rgba(239,67,85,.62);
+  background:linear-gradient(180deg,rgba(239,67,85,.2),rgba(239,67,85,.09));
+  color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(239,67,85,.1);
+}
+.workout-split-context{
+  display:flex;align-items:center;gap:7px;
+  margin-top:12px;padding:9px 10px;
+  border:1px solid #252c34;border-radius:9px;background:#0a0e13;
+  color:#707b88;font-size:8px;
+}
+.workout-split-context b{color:#fff;font-size:9px}
+.workout-split-context i{color:#505a66;font-style:normal}
+.workout-split-context strong{color:#ff7a87;font-size:9px}
+
+.workout-split-editor{
+  margin-top:14px;padding:13px;
+  border:1px solid rgba(239,67,85,.24);
+  border-radius:12px;background:rgba(239,67,85,.035);
+}
+.workout-split-editor-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.workout-split-editor-top strong{font-size:12px;color:#fff}
+.workout-split-editor-top button{
+  width:28px;height:28px;border:0;border-radius:8px;background:#161b22;color:#9aa4b0;font-size:17px;cursor:pointer
+}
+.workout-split-editor-grid{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(260px,1.3fr);gap:10px;margin-top:11px}
+.workout-split-editor-grid label{display:flex;flex-direction:column;gap:5px}
+.workout-split-editor-grid input{height:38px;padding:0 10px}
+.workout-split-editor-grid textarea{min-height:72px;padding:9px 10px;resize:vertical}
+.workout-split-editor-grid input:focus,
+.workout-split-editor-grid textarea:focus,
+.workout-split-select-wrap select:focus{border-color:#ef4355}
+.workout-split-presets{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:9px}
+.workout-split-presets>span{color:#687480;font-size:8px;margin-right:2px}
+.workout-split-editor-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
+#workoutSplitEditorStatus{color:#7f8995;font-size:8px}
+#workoutSplitEditorStatus[data-type="error"]{color:#ff7180}
+#workoutSplitSaveBtn{min-width:105px;min-height:36px;padding:0 12px;font-size:9px}
+
+.workout-log-context-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin:0 0 13px;padding:9px 10px;
+  border:1px solid #2b323b;border-radius:9px;
+  background:linear-gradient(90deg,rgba(239,67,85,.07),rgba(239,67,85,.02));
+}
+.workout-log-context-bar div{min-width:0}
+.workout-log-context-bar span{display:block;color:#717c88;font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.workout-log-context-bar b{display:block;margin-top:2px;color:#fff;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.workout-log-context-bar button{
+  flex:0 0 auto;border:0;background:transparent;color:#ff7180;font:900 8px/1 Inter,system-ui,sans-serif;cursor:pointer
+}
+
+/* Sessions get their own full-width summary. */
+.workout-session-card{grid-column:1 / -1}
+.workout-session-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.workout-session-head h3{margin:0 0 3px}
+.workout-session-count{
+  flex:0 0 auto;padding:5px 8px;border:1px solid #303741;border-radius:999px;background:#0c1015;color:#88939f;font-size:8px;font-weight:900
+}
+.workout-session-list{display:flex;flex-direction:column;gap:7px}
+.workout-session-row{
+  display:grid;grid-template-columns:82px minmax(0,1fr) auto;align-items:center;gap:12px;
+  min-height:58px;padding:8px 10px;
+  border:1px solid #272e37;border-radius:10px;background:#0a0e13;
+}
+.workout-session-row.unassigned{opacity:.72;border-style:dashed}
+.workout-session-date{color:#7a8591;font-size:8px;font-weight:850}
+.workout-session-main{min-width:0}
+.workout-session-title{display:flex;align-items:center;gap:5px;color:#66717e;font-size:9px}
+.workout-session-title strong{color:#fff;font-size:10px}
+.workout-session-title b{color:#ff7886;font-size:9px}
+.workout-session-exercises{margin-top:4px;color:#7d8793;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.workout-session-meta{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:4px;row-gap:1px;text-align:right}
+.workout-session-meta b{color:#fff;font-size:11px}
+.workout-session-meta span{color:#68737f;font-size:7px}
+
+/* Tidy the existing form/history spacing. */
+.workout-log-card .field-grid{gap:8px}
+.workout-log-card .hero-actions{margin-top:11px}
+.workout-history-card{margin-top:0}
+
+@media(max-width:800px){
+  #workoutTracker{padding:14px!important;margin-top:14px!important}
+  .workout-hub-title{font-size:20px!important}
+  .workout-split-manager{padding:13px;margin:10px 0 13px}
+  .workout-split-head{align-items:center}
+  .workout-split-head p{max-width:230px}
+  .workout-split-new{padding:0 10px}
+  .workout-split-select-row{align-items:stretch;flex-direction:column}
+  .workout-split-select-wrap{max-width:none;min-width:0}
+  .workout-split-tools{padding:0}
+  .workout-split-tools button{flex:1}
+  .workout-split-day-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workout-split-day{width:100%;padding:0 8px}
+  .workout-split-context{flex-wrap:wrap}
+  .workout-split-editor-grid{grid-template-columns:1fr}
+  .workout-split-editor-actions{align-items:flex-end}
+  .workout-session-row{grid-template-columns:1fr auto;gap:7px 10px;padding:10px}
+  .workout-session-date{grid-column:1 / -1}
+  .workout-session-exercises{white-space:normal;line-height:1.4}
+  .workout-session-meta{align-self:center}
+}
+
+@media(max-width:390px){
+  .workout-split-head{align-items:flex-start}
+  .workout-split-head p{display:none}
+  .workout-split-day-pills{grid-template-columns:1fr}
+  .workout-split-editor-actions{flex-direction:column;align-items:stretch}
+  #workoutSplitSaveBtn{width:100%}
+}
