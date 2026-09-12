@@ -13175,3 +13175,292 @@ setTimeout(() => {
     console.warn('Buy Products menu disabled:',err);
   }
 })();
+
+
+// ============================================================
+// GYMCELS COMMUNITY LEADERBOARD + TOP CHATTER
+// ============================================================
+(function initGymcelsCommunityLeaderboard(){
+  try{
+    const shell = document.getElementById('communityLeaderboard');
+    const list = document.getElementById('communityLeaderboardList');
+    if(!shell || !list) return;
+
+    const refreshBtn = document.getElementById('leaderboardRefreshBtn');
+    const metricLabel = document.getElementById('leaderboardMetricLabel');
+    const status = document.getElementById('communityLeaderboardStatus');
+    const topCard = document.getElementById('topChatterCard');
+    const topAvatar = document.getElementById('topChatterAvatar');
+    const topName = document.getElementById('topChatterName');
+    const topStat = document.getElementById('topChatterStat');
+    const topCount = document.getElementById('topChatterCount');
+    const navLeaderboard = document.getElementById('navLeaderboard');
+    const tabs = [...shell.querySelectorAll('[data-leaderboard-mode]')];
+
+    let rows = [];
+    let mode = 'chat';
+    let loading = false;
+    let topChatterUser = null;
+
+    const safe = (value) => {
+      const div=document.createElement('div');
+      div.textContent=String(value ?? '');
+      return div.innerHTML;
+    };
+
+    const initials = (name) => String(name || 'GC')
+      .trim()
+      .split(/\s+/)
+      .slice(0,2)
+      .map(part=>part[0] || '')
+      .join('')
+      .toUpperCase() || 'GC';
+
+    const avatarMarkup = (row, cls='leaderboard-avatar') => {
+      const name = row?.display_name || 'Member';
+      if(row?.avatar_url){
+        return `<div class="${cls}"><img src="${safe(row.avatar_url)}" alt="${safe(name)} profile photo"></div>`;
+      }
+      return `<div class="${cls}">${safe(initials(name))}</div>`;
+    };
+
+    function chatLevel(total){
+      const n=Number(total || 0);
+      if(n>=500) return 10;
+      if(n>=250) return 9;
+      if(n>=150) return 8;
+      if(n>=100) return 7;
+      if(n>=75) return 6;
+      if(n>=50) return 5;
+      if(n>=30) return 4;
+      if(n>=15) return 3;
+      if(n>=5) return 2;
+      return 1;
+    }
+
+    function normalizedRows(data){
+      return (Array.isArray(data) ? data : []).map(row=>({
+        user_id:String(row.user_id || ''),
+        display_name:String(row.display_name || 'Member'),
+        avatar_url:String(row.avatar_url || ''),
+        lifetime_messages:Number(row.lifetime_messages || 0),
+        workouts_logged:Number(row.workouts_logged || 0),
+        sets_logged:Number(row.sets_logged || 0),
+        current_streak:Number(row.current_streak || 0),
+        best_streak:Number(row.best_streak || 0)
+      })).filter(row=>row.user_id);
+    }
+
+    function sortedRows(){
+      const copy=[...rows];
+      if(mode==='workouts'){
+        copy.sort((a,b)=>
+          (b.workouts_logged-a.workouts_logged) ||
+          (b.sets_logged-a.sets_logged) ||
+          a.display_name.localeCompare(b.display_name)
+        );
+      }else if(mode==='streak'){
+        copy.sort((a,b)=>
+          (b.best_streak-a.best_streak) ||
+          (b.current_streak-a.current_streak) ||
+          a.display_name.localeCompare(b.display_name)
+        );
+      }else{
+        copy.sort((a,b)=>
+          (b.lifetime_messages-a.lifetime_messages) ||
+          a.display_name.localeCompare(b.display_name)
+        );
+      }
+      return copy.slice(0,10);
+    }
+
+    function rowCopy(row){
+      if(mode==='workouts'){
+        return {
+          sub:`${row.sets_logged.toLocaleString()} set${row.sets_logged===1?'':'s'} logged`,
+          value:row.workouts_logged.toLocaleString(),
+          unit:'workouts'
+        };
+      }
+      if(mode==='streak'){
+        return {
+          sub:`Current: ${row.current_streak} wk`,
+          value:`${row.best_streak} wk`,
+          unit:'best streak'
+        };
+      }
+      return {
+        sub:`Community Level ${chatLevel(row.lifetime_messages)}`,
+        value:row.lifetime_messages.toLocaleString(),
+        unit:'messages'
+      };
+    }
+
+    function renderTopChatter(){
+      const chatter=[...rows].sort((a,b)=>(b.lifetime_messages-a.lifetime_messages) || a.display_name.localeCompare(b.display_name))[0];
+      topChatterUser=chatter || null;
+
+      if(!chatter){
+        if(topAvatar){ topAvatar.innerHTML='GC'; }
+        if(topName) topName.textContent='No chatter yet';
+        if(topStat) topStat.textContent='Be the first to climb the leaderboard.';
+        if(topCount) topCount.textContent='0';
+        topCard?.classList.remove('is-clickable');
+        return;
+      }
+
+      if(topAvatar){
+        if(chatter.avatar_url){
+          topAvatar.innerHTML=`<img src="${safe(chatter.avatar_url)}" alt="${safe(chatter.display_name)} profile photo">`;
+        }else{
+          topAvatar.textContent=initials(chatter.display_name);
+        }
+      }
+      if(topName) topName.textContent=chatter.display_name;
+      if(topStat) topStat.textContent=`Community Level ${chatLevel(chatter.lifetime_messages)} · Most lifetime messages`;
+      if(topCount) topCount.textContent=chatter.lifetime_messages.toLocaleString();
+      topCard?.classList.add('is-clickable');
+    }
+
+    function render(){
+      tabs.forEach(tab=>{
+        const active=tab.dataset.leaderboardMode===mode;
+        tab.classList.toggle('active',active);
+        tab.setAttribute('aria-selected',active ? 'true' : 'false');
+      });
+
+      if(metricLabel){
+        metricLabel.textContent = mode==='workouts'
+          ? 'Workouts logged'
+          : mode==='streak'
+            ? 'Best weekly streak'
+            : 'Lifetime messages';
+      }
+
+      const ranked=sortedRows();
+      if(!ranked.length){
+        list.innerHTML='<div class="leaderboard-empty">No leaderboard activity yet.</div>';
+        return;
+      }
+
+      list.innerHTML=ranked.map((row,index)=>{
+        const rank=index+1;
+        const medal=rank===1?'👑':rank===2?'2':rank===3?'3':rank;
+        const copy=rowCopy(row);
+        return `<div class="leaderboard-row rank-${rank} is-clickable"
+                     data-leaderboard-user="${safe(row.user_id)}"
+                     data-leaderboard-name="${safe(row.display_name)}"
+                     data-leaderboard-avatar="${safe(row.avatar_url)}"
+                     role="button" tabindex="0" aria-label="Open ${safe(row.display_name)} profile">
+          <div class="leaderboard-rank">${medal}</div>
+          ${avatarMarkup(row)}
+          <div class="leaderboard-member">
+            <strong>${safe(row.display_name)}</strong>
+            <small>${safe(copy.sub)}</small>
+          </div>
+          <div class="leaderboard-value">
+            <b>${safe(copy.value)}</b>
+            <span>${safe(copy.unit)}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function openMember(userId,name,avatar){
+      const client=window.gymcelsLolDb;
+      if(!client || !userId) return;
+      const {data:{session}}=await client.auth.getSession();
+      if(!session?.user){
+        const login=document.getElementById('login-card');
+        if(status) status.textContent='Log in to open full member profiles.';
+        login?.scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+      if(typeof openChatPublicProfile==='function'){
+        openChatPublicProfile(userId,name || 'Member',avatar || '');
+      }
+    }
+
+    async function loadLeaderboard(showStatus=false){
+      if(loading) return;
+      loading=true;
+      refreshBtn && (refreshBtn.disabled=true);
+      if(showStatus && status) status.textContent='Refreshing leaderboard...';
+
+      try{
+        const client=window.gymcelsLolDb;
+        if(!client) throw new Error('Database connection is not ready.');
+
+        const {data,error}=await client.rpc('get_community_leaderboard');
+        if(error) throw error;
+
+        rows=normalizedRows(data);
+        renderTopChatter();
+        render();
+        if(status) status.textContent=`Updated · ${rows.length} ranked member${rows.length===1?'':'s'}`;
+      }catch(err){
+        console.error('Leaderboard load error:',err);
+        list.innerHTML='<div class="leaderboard-empty">Leaderboard setup is not active yet. Run the leaderboard SQL once in Supabase, then refresh.</div>';
+        if(topName) topName.textContent='Leaderboard setup needed';
+        if(topStat) topStat.textContent='Run the supplied Supabase SQL once.';
+        if(topCount) topCount.textContent='—';
+        if(status) status.textContent=err?.message || 'Could not load leaderboard.';
+      }finally{
+        loading=false;
+        refreshBtn && (refreshBtn.disabled=false);
+      }
+    }
+
+    tabs.forEach(tab=>tab.addEventListener('click',()=>{
+      mode=tab.dataset.leaderboardMode || 'chat';
+      render();
+    }));
+
+    refreshBtn?.addEventListener('click',()=>loadLeaderboard(true));
+
+    navLeaderboard?.addEventListener('click',(event)=>{
+      event.preventDefault();
+      shell.scrollIntoView({behavior:'smooth',block:'start'});
+      history.replaceState(null,'','#communityLeaderboard');
+    });
+
+    list.addEventListener('click',(event)=>{
+      const row=event.target.closest('[data-leaderboard-user]');
+      if(!row) return;
+      openMember(row.dataset.leaderboardUser,row.dataset.leaderboardName,row.dataset.leaderboardAvatar);
+    });
+
+    list.addEventListener('keydown',(event)=>{
+      if(event.key!=='Enter' && event.key!==' ') return;
+      const row=event.target.closest('[data-leaderboard-user]');
+      if(!row) return;
+      event.preventDefault();
+      openMember(row.dataset.leaderboardUser,row.dataset.leaderboardName,row.dataset.leaderboardAvatar);
+    });
+
+    topCard?.addEventListener('click',()=>{
+      if(topChatterUser){
+        openMember(topChatterUser.user_id,topChatterUser.display_name,topChatterUser.avatar_url);
+      }
+    });
+
+    // Refresh after public chat changes so Top Chatter stays current.
+    const leaderboardChannel=window.gymcelsLolDb
+      ?.channel('gymcels-community-leaderboard')
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},()=>{
+        clearTimeout(window.__gymcelsLeaderboardRefreshTimer);
+        window.__gymcelsLeaderboardRefreshTimer=setTimeout(()=>loadLeaderboard(false),1200);
+      })
+      .subscribe();
+
+    window.addEventListener('beforeunload',()=>{
+      try{
+        if(leaderboardChannel) window.gymcelsLolDb?.removeChannel(leaderboardChannel);
+      }catch(_){ }
+    },{once:true});
+
+    loadLeaderboard(false);
+  }catch(err){
+    console.warn('Community leaderboard disabled:',err);
+  }
+})();
