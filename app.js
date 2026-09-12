@@ -13464,3 +13464,223 @@ setTimeout(() => {
     console.warn('Community leaderboard disabled:',err);
   }
 })();
+
+
+// ============================================================
+// GYMCELS APP-STYLE SCREEN NAVIGATION
+// Keeps the existing feature code/data intact and changes only
+// which major section is visible at one time.
+// ============================================================
+(() => {
+  const ROUTES = new Set([
+    'home','training','nutrition','community','threads','friends',
+    'dms','voice','profile','vip','settings'
+  ]);
+
+  const alias = {
+    'communitySection':'community',
+    'communityChat':'community',
+    'communityLeaderboard':'community',
+    'threadsSection':'threads',
+    'friendsSection':'friends',
+    'dmSection':'dms',
+    'voiceSection':'voice',
+    'members':'profile',
+    'signup-card':'profile',
+    'login-card':'profile',
+    'workoutTracker':'training',
+    'nutritionSection':'nutrition',
+    'productsSection':'vip',
+    'vipSection':'vip',
+    'personal-buy':'settings'
+  };
+
+  const navIdRoute = {
+    navChat:'community',
+    navThreads:'threads',
+    navLeaderboard:'community',
+    navFriends:'friends',
+    navDms:'dms',
+    navVoice:'voice',
+    navVip:'vip',
+    navEditProfile:'profile',
+    navWorkouts:'training',
+    navNutrition:'nutrition',
+    navSignup:'profile',
+    navLogin:'profile',
+    joinGymcelsFreeBtn:'profile'
+  };
+
+  const routeTitles = {
+    home:'Home', training:'Training', nutrition:'Nutrition', community:'Community',
+    threads:'Threads', friends:'Friends', dms:'DMs', voice:'Voice', profile:'Profile',
+    vip:'VIP / Protocol', settings:'Settings'
+  };
+
+  function closeMobileDrawer(){
+    const drawer=document.getElementById('mobileNavDrawer');
+    const backdrop=document.getElementById('mobileNavBackdrop');
+    drawer?.classList.remove('open','show');
+    backdrop?.classList.remove('open','show');
+    drawer?.setAttribute('aria-hidden','true');
+    backdrop?.setAttribute('aria-hidden','true');
+    document.body.classList.remove('mobile-nav-open');
+  }
+
+  function normalizeHash(){
+    const raw=(location.hash || '').replace(/^#/,'');
+    if(!raw) return 'home';
+
+    // Never interfere with Supabase confirmation/recovery fragments.
+    if(raw.includes('access_token=') || raw.includes('refresh_token=') || raw.includes('type=signup')) return 'profile';
+    if(raw.includes('type=recovery')) return 'settings';
+
+    if(ROUTES.has(raw)) return raw;
+    return alias[raw] || 'home';
+  }
+
+  function setActiveButtons(route){
+    document.querySelectorAll('[data-app-route]').forEach(btn => {
+      const on=btn.dataset.appRoute===route;
+      btn.classList.toggle('active',on);
+      if(btn.matches('.desktop-app-nav-item')) btn.setAttribute('aria-current',on?'page':'false');
+    });
+
+    const bottomMap={community:'navChat',threads:'navThreads',dms:'navDms',voice:'navVoice'};
+    document.querySelectorAll('.mobile-bottom-item').forEach(btn => {
+      btn.classList.toggle('active', bottomMap[route] && btn.dataset.mobileProxy===bottomMap[route]);
+    });
+  }
+
+  function refreshRouteData(route){
+    // Reuse the site's existing nav hooks so existing loaders continue to run.
+    const idByRoute={
+      community:'navChat',threads:'navThreads',friends:'navFriends',dms:'navDms',
+      voice:'navVoice',training:'navWorkouts',nutrition:'navNutrition',vip:'navVip'
+    };
+    const id=idByRoute[route];
+    if(!id) return;
+    const target=document.getElementById(id);
+    if(!target || target.dataset.appRouteRefresh==='1') return;
+    target.dataset.appRouteRefresh='1';
+    try{ target.click(); }catch(_){ }
+    setTimeout(()=>delete target.dataset.appRouteRefresh,180);
+  }
+
+  function navigate(route,{replace=false,scroll=true}={}){
+    if(!ROUTES.has(route)) route='home';
+    document.body.classList.add('gym-app-mode');
+    document.body.dataset.appScreen=route;
+    document.title=`${routeTitles[route] || 'Gymcels'} · Gymcels.lol`;
+    setActiveButtons(route);
+    closeMobileDrawer();
+
+    if(scroll){
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    const next='#'+route;
+    if(location.hash!==next){
+      if(replace) history.replaceState(null,'',next);
+      else history.pushState(null,'',next);
+    }
+    refreshRouteData(route);
+    syncHomeDashboard();
+  }
+
+  function syncHomeDashboard(){
+    const text=(id,fallback='0') => (document.getElementById(id)?.textContent || fallback).trim();
+    const workouts=document.getElementById('appHomeWorkouts');
+    const streak=document.getElementById('appHomeStreak');
+    const calories=document.getElementById('appHomeCalories');
+    const messages=document.getElementById('appHomeMessages');
+    const greeting=document.getElementById('appHomeGreeting');
+
+    if(workouts) workouts.textContent=text('profileWorkoutCount','0');
+    if(streak) streak.textContent=text('profileCurrentStreak','🔥 0 wk');
+    if(calories){
+      const total=text('nutritionCaloriesTotal','0');
+      const target=text('nutritionCaloriesTarget','—');
+      calories.textContent=`${total} / ${target}`;
+    }
+    if(messages){
+      const raw=text('chatMessageCount','0');
+      const count=(raw.match(/[\\d,]+/) || ['0'])[0];
+      messages.textContent=count;
+    }
+    if(greeting){
+      const name=text('profileDisplayName','Gymcels.lol Member');
+      greeting.textContent=(name && name!=='Gymcels.lol Member') ? `${name}'s Dashboard` : 'Dashboard';
+    }
+  }
+
+  // New sidebar/home buttons.
+  document.addEventListener('click',event => {
+    const btn=event.target.closest('[data-app-route]');
+    if(!btn) return;
+    event.preventDefault();
+    navigate(btn.dataset.appRoute || 'home');
+  });
+
+  // Existing navigation still drives the same features, but now switches screens first.
+  document.addEventListener('click',event => {
+    const el=event.target.closest('[id]');
+    if(!el) return;
+    const route=navIdRoute[el.id];
+    if(!route) return;
+    document.body.dataset.appScreen=route;
+    setActiveButtons(route);
+    // Let the site's original click handler run (load DMs, threads, profile form, etc.),
+    // then replace its old section hash with the clean app route.
+    setTimeout(() => {
+      if(!ROUTES.has(route)) return;
+      history.replaceState(null,'','#'+route);
+      syncHomeDashboard();
+    },0);
+  },true);
+
+  // Mobile bottom nav proxies point at existing nav buttons. Make the route visible
+  // before those existing handlers attempt to scroll/load anything.
+  document.addEventListener('pointerdown',event => {
+    const btn=event.target.closest('[data-mobile-proxy]');
+    if(!btn) return;
+    const route=navIdRoute[btn.dataset.mobileProxy];
+    if(route){
+      document.body.dataset.appScreen=route;
+      setActiveButtons(route);
+    }
+  },true);
+
+  window.addEventListener('popstate',()=>navigate(normalizeHash(),{replace:true,scroll:false}));
+  window.addEventListener('hashchange',()=>navigate(normalizeHash(),{replace:true,scroll:false}));
+
+  // Keep dashboard summaries live as the existing app updates its stats.
+  ['profileWorkoutCount','profileCurrentStreak','nutritionCaloriesTotal','nutritionCaloriesTarget','chatMessageCount','profileDisplayName']
+    .forEach(id => {
+      const node=document.getElementById(id);
+      if(node) new MutationObserver(syncHomeDashboard).observe(node,{childList:true,subtree:true,characterData:true});
+    });
+
+  // Account Settings is injected by the existing app.js. Observe dashboard so the
+  // Settings screen picks it up immediately without moving/deleting anything.
+  const dashboard=document.getElementById('dashboardView');
+  if(dashboard){
+    new MutationObserver(() => {
+      if(document.body.dataset.appScreen==='settings') setActiveButtons('settings');
+    }).observe(dashboard,{childList:true});
+  }
+
+  // Start on a clean app route while respecting old deep links and auth callbacks.
+  const initial=normalizeHash();
+  document.body.dataset.appScreen=initial;
+  setActiveButtons(initial);
+  syncHomeDashboard();
+
+  // If this was a normal old-style anchor, convert it to the new route URL.
+  const raw=(location.hash || '').replace(/^#/,'');
+  if(!raw.includes('access_token=') && !raw.includes('refresh_token=') && !raw.includes('type=')){
+    history.replaceState(null,'','#'+initial);
+  }
+
+  window.gymcelsNavigate=navigate;
+})();
