@@ -160,6 +160,7 @@ window.fpVerificationCallback = (() => {
       navLogin.classList.add('hidden');
       if (navEditProfile) navEditProfile.classList.remove('hidden');
       navWorkouts.classList.remove('hidden');
+      navWorkouts.setAttribute('href', '#workoutTracker');
       if (navNutrition) navNutrition.classList.remove('hidden');
       navLogout.classList.remove('hidden');
       if (navChat) navChat.setAttribute('href', '#communityChat');
@@ -939,6 +940,691 @@ window.fpVerificationCallback = (() => {
 
   function normalizeExercise(name) { return (name || '').trim().toLowerCase(); }
 
+  let workoutLogCache = [];
+  let workoutPrRowsById = new Set();
+  let workoutHistoryQuery = '';
+  let workoutPrQuery = '';
+
+  function installWorkoutRecordsUi(){
+    const grid = logList?.closest('.dashboard-grid');
+    const formCard = $('exerciseInput')?.closest('.member-card');
+    const historyCard = logList?.closest('.member-card');
+
+    if(!grid || !formCard || !historyCard) return;
+    if(document.getElementById('workoutTracker')) return;
+
+    if(!document.getElementById('gymcelsWorkoutRecordsStyles')){
+      const style = document.createElement('style');
+      style.id = 'gymcelsWorkoutRecordsStyles';
+      style.textContent = `
+        #workoutTracker{
+          margin:26px 0 12px;
+          padding:18px 20px;
+          border:1px solid #292e37;
+          border-radius:16px;
+          background:
+            radial-gradient(circle at top right,rgba(239,67,85,.13),transparent 36%),
+            #0e1116;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:18px;
+        }
+        .workout-hub-kicker{
+          color:#ef6574;
+          font-size:10px;
+          font-weight:950;
+          letter-spacing:.13em;
+          text-transform:uppercase;
+        }
+        .workout-hub-title{
+          margin:4px 0 4px;
+          color:#fff;
+          font-size:25px;
+          line-height:1.05;
+          font-weight:950;
+        }
+        .workout-hub-sub{
+          color:#969fab;
+          font-size:12px;
+          line-height:1.45;
+          max-width:560px;
+        }
+        .workout-hub-stats{
+          display:grid;
+          grid-template-columns:repeat(3,minmax(78px,1fr));
+          gap:8px;
+          flex:0 0 auto;
+        }
+        .workout-hub-stat{
+          min-width:78px;
+          padding:10px 11px;
+          border:1px solid #2d333c;
+          border-radius:11px;
+          background:#0a0d11;
+          text-align:center;
+        }
+        .workout-hub-stat b{
+          display:block;
+          color:#fff;
+          font-size:20px;
+          line-height:1;
+        }
+        .workout-hub-stat span{
+          display:block;
+          margin-top:5px;
+          color:#7f8996;
+          font-size:8px;
+          font-weight:900;
+          letter-spacing:.08em;
+          text-transform:uppercase;
+        }
+
+        .workout-dashboard-grid{
+          align-items:start;
+        }
+        .workout-log-card,
+        .workout-pr-card,
+        .workout-history-card{
+          border-color:#292e37;
+          box-shadow:0 12px 28px rgba(0,0,0,.12);
+        }
+        .workout-log-card h3,
+        .workout-pr-card h3,
+        .workout-history-card h3{
+          margin-bottom:4px;
+        }
+        .workout-card-sub{
+          margin:0 0 15px;
+          color:#8f98a5;
+          font-size:11px;
+          line-height:1.45;
+        }
+        .workout-history-card{
+          grid-column:1 / -1;
+        }
+
+        .workout-pr-top{
+          display:flex;
+          align-items:flex-start;
+          justify-content:space-between;
+          gap:10px;
+          margin-bottom:12px;
+        }
+        .workout-pr-count{
+          flex:0 0 auto;
+          border:1px solid rgba(239,67,85,.34);
+          border-radius:999px;
+          background:rgba(239,67,85,.09);
+          color:#ff8b97;
+          padding:5px 8px;
+          font-size:9px;
+          font-weight:900;
+        }
+        .workout-pr-search,
+        .workout-history-search{
+          width:100%;
+          box-sizing:border-box;
+          min-height:40px;
+          border:1px solid #2e353f;
+          border-radius:9px;
+          background:#0a0d11;
+          color:#fff;
+          padding:9px 11px;
+          outline:none;
+          font:inherit;
+          font-size:13px;
+        }
+        .workout-pr-search:focus,
+        .workout-history-search:focus{
+          border-color:#ef4355;
+        }
+        .workout-pr-note{
+          margin:7px 1px 10px;
+          color:#747e8b;
+          font-size:9px;
+          line-height:1.4;
+        }
+        .workout-pr-list{
+          display:flex;
+          flex-direction:column;
+          gap:8px;
+          max-height:440px;
+          overflow:auto;
+          padding-right:3px;
+        }
+        .workout-pr-row{
+          padding:11px 12px;
+          border:1px solid #272d35;
+          border-radius:11px;
+          background:#0b0e13;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:10px;
+        }
+        .workout-pr-main{
+          min-width:0;
+        }
+        .workout-pr-exercise{
+          display:flex;
+          align-items:center;
+          gap:6px;
+          min-width:0;
+          color:#f4f6f8;
+          font-size:12px;
+          font-weight:900;
+        }
+        .workout-pr-exercise span:first-child{
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .workout-pr-trophy{
+          flex:0 0 auto;
+          font-size:12px;
+        }
+        .workout-pr-meta{
+          margin-top:4px;
+          color:#747f8c;
+          font-size:9px;
+        }
+        .workout-pr-performance{
+          flex:0 0 auto;
+          text-align:right;
+          color:#fff;
+          font-size:13px;
+          font-weight:950;
+          white-space:nowrap;
+        }
+
+        .workout-history-head{
+          display:flex;
+          align-items:flex-end;
+          justify-content:space-between;
+          gap:14px;
+          margin-bottom:13px;
+        }
+        .workout-history-head-copy{
+          min-width:0;
+        }
+        .workout-history-tools{
+          width:min(310px,100%);
+          flex:0 0 auto;
+        }
+        .workout-history-count{
+          margin-top:5px;
+          color:#798391;
+          font-size:9px;
+          text-align:right;
+        }
+        .workout-log-date-group{
+          margin:10px 2px 4px;
+          color:#6f7986;
+          font-size:9px;
+          font-weight:950;
+          letter-spacing:.1em;
+          text-transform:uppercase;
+        }
+        .log-row.workout-pr-log{
+          border-color:rgba(239,67,85,.34);
+          background:
+            linear-gradient(90deg,rgba(239,67,85,.06),transparent 34%),
+            #0e1014;
+        }
+        .workout-log-title-line{
+          display:flex;
+          align-items:center;
+          gap:7px;
+          min-width:0;
+        }
+        .workout-log-title-line strong{
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .workout-log-pr-badge{
+          flex:0 0 auto;
+          border-radius:999px;
+          background:#ef4355;
+          color:#fff;
+          padding:3px 6px;
+          font-size:8px;
+          font-weight:950;
+          letter-spacing:.04em;
+        }
+        .workout-log-notes{
+          margin-top:4px;
+          color:#7e8793;
+          font-size:10px;
+          line-height:1.35;
+        }
+        .workout-history-card .log-list{
+          max-height:560px;
+          overflow:auto;
+          padding-right:3px;
+        }
+        .workout-empty{
+          padding:18px 4px;
+          color:#7d8794;
+          font-size:12px;
+        }
+        .workout-new-pr-flash{
+          animation:gymcelsPrPulse .7s ease;
+        }
+        @keyframes gymcelsPrPulse{
+          0%{box-shadow:0 0 0 0 rgba(239,67,85,.5)}
+          100%{box-shadow:0 0 0 18px rgba(239,67,85,0)}
+        }
+
+        @media(max-width:800px){
+          #workoutTracker{
+            padding:15px;
+            align-items:stretch;
+            flex-direction:column;
+          }
+          .workout-hub-title{font-size:22px}
+          .workout-hub-stats{
+            width:100%;
+            grid-template-columns:repeat(3,1fr);
+          }
+          .workout-hub-stat{min-width:0}
+          .workout-history-card{grid-column:auto}
+          .workout-history-head{
+            align-items:stretch;
+            flex-direction:column;
+          }
+          .workout-history-tools{width:100%}
+          .workout-history-count{text-align:left}
+          .workout-pr-list{max-height:360px}
+          .workout-history-card .log-list{max-height:none}
+          .log-row{
+            grid-template-columns:1fr;
+            align-items:start;
+          }
+          .log-actions{
+            width:100%;
+          }
+          .log-actions .mini-btn{
+            flex:1;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const hub = document.createElement('section');
+    hub.id = 'workoutTracker';
+    hub.innerHTML = `
+      <div>
+        <div class="workout-hub-kicker">Private lift tracker</div>
+        <div class="workout-hub-title">Log Lifts & Personal Records</div>
+        <div class="workout-hub-sub">Log working sets, beat your last performance, and keep your best sets organized automatically.</div>
+      </div>
+      <div class="workout-hub-stats">
+        <div class="workout-hub-stat"><b id="workoutHubPrCount">0</b><span>PRs</span></div>
+        <div class="workout-hub-stat"><b id="workoutHubExerciseCount">0</b><span>Exercises</span></div>
+        <div class="workout-hub-stat"><b id="workoutHubSetCount">0</b><span>Sets</span></div>
+      </div>
+    `;
+    grid.insertAdjacentElement('beforebegin',hub);
+
+    grid.classList.add('workout-dashboard-grid');
+    formCard.classList.add('workout-log-card');
+    historyCard.classList.add('workout-history-card');
+
+    const formTitle = $('formTitle');
+    if(formTitle && formTitle.textContent.trim() === 'Log a set'){
+      formTitle.textContent = 'Log a lift';
+    }
+
+    if(!formCard.querySelector('.workout-card-sub')){
+      const sub = document.createElement('p');
+      sub.className = 'workout-card-sub';
+      sub.textContent = 'Track each working set. Your last performance and PRs update automatically.';
+      formTitle?.insertAdjacentElement('afterend',sub);
+    }
+
+    const prCard = document.createElement('div');
+    prCard.className = 'member-card workout-pr-card';
+    prCard.innerHTML = `
+      <div class="workout-pr-top">
+        <div>
+          <h3>Personal Records 🏆</h3>
+          <p class="workout-card-sub">Your best logged set for every exercise.</p>
+        </div>
+        <span id="workoutPrCount" class="workout-pr-count">0 PRs</span>
+      </div>
+      <input id="workoutPrSearch" class="workout-pr-search" type="search"
+             maxlength="80" autocomplete="off" placeholder="Search your PRs...">
+      <div class="workout-pr-note">Weighted PRs compare weight + reps together. Rep-only lifts use your highest reps.</div>
+      <div id="workoutPrList" class="workout-pr-list">
+        <div class="workout-empty">Log a lift to start building your PR board.</div>
+      </div>
+    `;
+    grid.insertBefore(prCard,historyCard);
+
+    const oldHistoryTitle = historyCard.querySelector('h3');
+    if(oldHistoryTitle) oldHistoryTitle.remove();
+
+    const historyHead = document.createElement('div');
+    historyHead.className = 'workout-history-head';
+    historyHead.innerHTML = `
+      <div class="workout-history-head-copy">
+        <h3>Recent Sets</h3>
+        <p class="workout-card-sub">Your full lift history. Current PR sets are marked automatically.</p>
+      </div>
+      <div class="workout-history-tools">
+        <input id="workoutHistorySearch" class="workout-history-search" type="search"
+               maxlength="80" autocomplete="off" placeholder="Search exercise or notes...">
+        <div id="workoutHistoryCount" class="workout-history-count">0 sets</div>
+      </div>
+    `;
+    historyCard.insertBefore(historyHead,logList);
+
+    $('workoutPrSearch')?.addEventListener('input',(event)=>{
+      workoutPrQuery = String(event.target.value || '').trim().toLowerCase();
+      renderPersonalRecords(workoutLogCache);
+    });
+
+    $('workoutHistorySearch')?.addEventListener('input',(event)=>{
+      workoutHistoryQuery = String(event.target.value || '').trim().toLowerCase();
+      renderWorkoutHistory(workoutLogCache);
+    });
+  }
+
+  function workoutSetScore(row){
+    const weight = Number(row?.weight);
+    const reps = Number(row?.reps);
+
+    if(Number.isFinite(weight) && weight > 0){
+      if(Number.isFinite(reps) && reps > 0){
+        // Epley-style comparison is used only internally to rank logged sets.
+        return weight * (1 + reps / 30);
+      }
+      return weight;
+    }
+
+    if(Number.isFinite(reps) && reps > 0){
+      return reps;
+    }
+
+    return 0;
+  }
+
+  function workoutSetRecency(row){
+    const date = String(row?.workout_date || '');
+    const created = String(row?.created_at || '');
+    const stamp = Date.parse(created || (date ? `${date}T12:00:00` : ''));
+    return Number.isFinite(stamp) ? stamp : 0;
+  }
+
+  function isBetterWorkoutSet(candidate,current){
+    if(!current) return true;
+
+    const candidateScore = workoutSetScore(candidate);
+    const currentScore = workoutSetScore(current);
+
+    if(candidateScore !== currentScore) return candidateScore > currentScore;
+
+    const candidateWeight = Number(candidate?.weight) || 0;
+    const currentWeight = Number(current?.weight) || 0;
+    if(candidateWeight !== currentWeight) return candidateWeight > currentWeight;
+
+    const candidateReps = Number(candidate?.reps) || 0;
+    const currentReps = Number(current?.reps) || 0;
+    if(candidateReps !== currentReps) return candidateReps > currentReps;
+
+    return workoutSetRecency(candidate) > workoutSetRecency(current);
+  }
+
+  function getWorkoutPersonalRecords(rows){
+    const byExercise = new Map();
+
+    for(const row of rows || []){
+      const key = normalizeExercise(row.exercise);
+      if(!key) continue;
+
+      const current = byExercise.get(key);
+      if(!current || isBetterWorkoutSet(row,current)){
+        byExercise.set(key,row);
+      }
+    }
+
+    return [...byExercise.values()].sort((a,b)=>{
+      const recentDiff = workoutSetRecency(b) - workoutSetRecency(a);
+      if(recentDiff) return recentDiff;
+      return String(a.exercise || '').localeCompare(String(b.exercise || ''));
+    });
+  }
+
+  function workoutPerformanceText(row){
+    const weight = row?.weight != null && row.weight !== '' ? `${Number(row.weight)} lb` : '';
+    const reps = row?.reps != null && row.reps !== '' ? `${Number(row.reps)} reps` : '';
+
+    if(weight && reps) return `${weight} × ${Number(row.reps)}`;
+    return weight || reps || 'Logged set';
+  }
+
+  function workoutDateText(value){
+    if(!value) return 'No date';
+
+    try{
+      const d = new Date(`${value}T12:00:00`);
+      if(Number.isNaN(d.getTime())) return value;
+
+      return d.toLocaleDateString([],{
+        month:'short',
+        day:'numeric',
+        year:d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      });
+    }catch(_){
+      return value;
+    }
+  }
+
+  function renderPersonalRecords(rows){
+    const prList = $('workoutPrList');
+    const prCount = $('workoutPrCount');
+    const hubPrCount = $('workoutHubPrCount');
+    const hubExerciseCount = $('workoutHubExerciseCount');
+    const hubSetCount = $('workoutHubSetCount');
+
+    const records = getWorkoutPersonalRecords(rows);
+    workoutPrRowsById = new Set(
+      records
+        .map(row => row?.id != null ? String(row.id) : '')
+        .filter(Boolean)
+    );
+
+    if(prCount) prCount.textContent = `${records.length} PR${records.length === 1 ? '' : 's'}`;
+    if(hubPrCount) hubPrCount.textContent = String(records.length);
+    if(hubExerciseCount) hubExerciseCount.textContent = String(records.length);
+    if(hubSetCount) hubSetCount.textContent = String((rows || []).length);
+
+    if(!prList) return;
+
+    const filtered = workoutPrQuery
+      ? records.filter(row =>
+          String(row.exercise || '').toLowerCase().includes(workoutPrQuery)
+        )
+      : records;
+
+    if(!filtered.length){
+      prList.innerHTML = `<div class="workout-empty">${
+        records.length ? 'No PRs match that search.' : 'Log a lift to start building your PR board.'
+      }</div>`;
+      return;
+    }
+
+    prList.innerHTML = '';
+
+    for(const row of filtered){
+      const item = document.createElement('div');
+      item.className = 'workout-pr-row';
+
+      const main = document.createElement('div');
+      main.className = 'workout-pr-main';
+
+      const exercise = document.createElement('div');
+      exercise.className = 'workout-pr-exercise';
+
+      const exerciseName = document.createElement('span');
+      exerciseName.textContent = row.exercise || 'Exercise';
+
+      const trophy = document.createElement('span');
+      trophy.className = 'workout-pr-trophy';
+      trophy.textContent = '🏆';
+
+      exercise.append(exerciseName,trophy);
+
+      const meta = document.createElement('div');
+      meta.className = 'workout-pr-meta';
+      meta.textContent = `${workoutDateText(row.workout_date)}${row.set_number != null ? ` · Set ${row.set_number}` : ''}`;
+
+      main.append(exercise,meta);
+
+      const performance = document.createElement('div');
+      performance.className = 'workout-pr-performance';
+      performance.textContent = workoutPerformanceText(row);
+
+      item.append(main,performance);
+      prList.appendChild(item);
+    }
+  }
+
+  function renderWorkoutHistory(rows){
+    if(!logList) return;
+
+    const query = workoutHistoryQuery;
+    const filtered = query
+      ? (rows || []).filter(row =>
+          String(row.exercise || '').toLowerCase().includes(query) ||
+          String(row.notes || '').toLowerCase().includes(query)
+        )
+      : (rows || []);
+
+    const count = $('workoutHistoryCount');
+    if(count){
+      count.textContent = `${filtered.length} set${filtered.length === 1 ? '' : 's'}${query ? ` shown · ${(rows || []).length} total` : ''}`;
+    }
+
+    logList.innerHTML = '';
+
+    if(!filtered.length){
+      logList.innerHTML = `<div class="workout-empty">${
+        (rows || []).length ? 'No sets match that search.' : 'No workout logs yet.'
+      }</div>`;
+      return;
+    }
+
+    let lastDate = '';
+
+    for(const row of filtered){
+      const dateKey = String(row.workout_date || 'No date');
+
+      if(dateKey !== lastDate){
+        lastDate = dateKey;
+        const divider = document.createElement('div');
+        divider.className = 'workout-log-date-group';
+        divider.textContent = workoutDateText(row.workout_date);
+        logList.appendChild(divider);
+      }
+
+      const item = document.createElement('div');
+      const isPr = row.id != null && workoutPrRowsById.has(String(row.id));
+      item.className = `log-row${isPr ? ' workout-pr-log' : ''}`;
+
+      const main = document.createElement('div');
+      main.className = 'log-main';
+
+      const titleLine = document.createElement('div');
+      titleLine.className = 'workout-log-title-line';
+
+      const title = document.createElement('strong');
+      title.textContent = row.exercise || 'Workout';
+      titleLine.appendChild(title);
+
+      if(isPr){
+        const badge = document.createElement('span');
+        badge.className = 'workout-log-pr-badge';
+        badge.textContent = 'PR';
+        titleLine.appendChild(badge);
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'log-meta';
+
+      const parts = [
+        row.set_number != null ? `Set ${row.set_number}` : '',
+        row.weight != null ? `${row.weight} lb` : '',
+        row.reps != null ? `${row.reps} reps` : ''
+      ].filter(Boolean);
+
+      meta.textContent = parts.join(' · ') || 'Logged set';
+
+      main.append(titleLine,meta);
+
+      if(row.notes){
+        const notes = document.createElement('div');
+        notes.className = 'workout-log-notes';
+        notes.textContent = row.notes;
+        main.appendChild(notes);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'log-actions';
+
+      const edit = document.createElement('button');
+      edit.className = 'mini-btn';
+      edit.textContent = 'Edit';
+      edit.addEventListener('click',()=>{
+        $('editId').value = row.id;
+        $('exerciseInput').value = row.exercise || '';
+        $('weightInput').value = row.weight ?? '';
+        $('repsInput').value = row.reps ?? '';
+        $('setInput').value = row.set_number ?? '';
+        $('dateInput').value = row.workout_date || today();
+        $('notesInput').value = row.notes || '';
+
+        $('formTitle').textContent = 'Edit lift';
+        $('saveLogBtn').textContent = 'Update log →';
+        $('cancelEditBtn').classList.remove('hidden');
+
+        updateBeatLast();
+        document.querySelector('.workout-log-card')?.scrollIntoView({
+          behavior:'smooth',
+          block:'start'
+        });
+      });
+
+      const del = document.createElement('button');
+      del.className = 'mini-btn danger';
+      del.textContent = 'Delete';
+      del.addEventListener('click',async()=>{
+        if(!confirm('Delete this workout log?')) return;
+
+        const {error} = await db
+          .from('workout_logs')
+          .delete()
+          .eq('id',row.id);
+
+        if(error){
+          return msg($('logMsg'),error.message,'error');
+        }
+
+        await loadLogs();
+        window.dispatchEvent(new Event('gymcelsWorkoutChanged'));
+      });
+
+      actions.append(edit,del);
+      item.append(main,actions);
+      logList.appendChild(item);
+    }
+  }
+
+  installWorkoutRecordsUi();
+
   async function updateBeatLast() {
     const exercise = $('exerciseInput').value.trim();
     if (!exercise) {
@@ -970,7 +1656,7 @@ window.fpVerificationCallback = (() => {
 
   function clearForm() {
     $('editId').value=''; $('exerciseInput').value=''; $('weightInput').value=''; $('repsInput').value=''; $('setInput').value=''; $('dateInput').value=today(); $('notesInput').value='';
-    $('formTitle').textContent='Log a set'; $('saveLogBtn').textContent='Save log →'; $('cancelEditBtn').classList.add('hidden'); msg($('logMsg'),'');
+    $('formTitle').textContent='Log a lift'; $('saveLogBtn').textContent='Save log →'; $('cancelEditBtn').classList.add('hidden'); msg($('logMsg'),'');
     updateBeatLast();
   }
   $('cancelEditBtn').addEventListener('click', clearForm);
@@ -990,43 +1676,66 @@ window.fpVerificationCallback = (() => {
       workout_date, notes: $('notesInput').value.trim() || null
     };
     const editId = $('editId').value;
+
+    const sameExerciseBefore = workoutLogCache.filter(row =>
+      normalizeExercise(row.exercise) === normalizeExercise(exercise) &&
+      String(row.id) !== String(editId)
+    );
+
+    const priorBest = getWorkoutPersonalRecords(sameExerciseBefore)[0] || null;
+    const isNewPr = !!priorBest && isBetterWorkoutSet(payload,priorBest);
+    const isFirstRecord = !priorBest;
+
     let error;
     if (editId) ({ error } = await db.from('workout_logs').update(payload).eq('id', editId));
     else ({ error } = await db.from('workout_logs').insert(payload));
+
     if (error) return msg($('logMsg'), error.message, 'error');
-    msg($('logMsg'), editId ? 'Workout updated.' : 'Workout saved.', 'success');
+
+    if(isNewPr){
+      msg($('logMsg'), `🏆 NEW PR — ${workoutPerformanceText(payload)} on ${exercise}!`, 'success');
+    }else if(isFirstRecord && !editId){
+      msg($('logMsg'), `First ${exercise} record saved.`, 'success');
+    }else{
+      msg($('logMsg'), editId ? 'Lift updated.' : 'Lift saved.', 'success');
+    }
+
     await loadLogs();
+
+    if(isNewPr){
+      const prCard = document.querySelector('.workout-pr-card');
+      prCard?.classList.remove('workout-new-pr-flash');
+      void prCard?.offsetWidth;
+      prCard?.classList.add('workout-new-pr-flash');
+    }
+
     window.dispatchEvent(new Event('gymcelsWorkoutChanged'));
-    setTimeout(clearForm, 600);
+    setTimeout(clearForm, isNewPr ? 1300 : 700);
   });
 
   async function loadLogs() {
-    const { data, error } = await db.from('workout_logs').select('*').order('workout_date',{ascending:false}).order('created_at',{ascending:false});
-    if (error) { logList.innerHTML='<div class="empty-state"></div>'; logList.firstChild.textContent=error.message; return; }
-    if (!data?.length) { logList.innerHTML='<div class="empty-state">No workout logs yet.</div>'; return; }
-    logList.innerHTML='';
-    for (const row of data) {
-      const item=document.createElement('div'); item.className='log-row';
-      const main=document.createElement('div'); main.className='log-main';
-      const title=document.createElement('strong'); title.textContent=row.exercise || 'Workout';
-      const meta=document.createElement('div'); meta.className='log-meta';
-      const parts=[row.workout_date || '', row.set_number != null ? `Set ${row.set_number}` : '', row.weight != null ? `${row.weight} lb` : '', row.reps != null ? `${row.reps} reps` : ''].filter(Boolean);
-      meta.textContent=parts.join(' · ') + (row.notes ? ` — ${row.notes}` : '');
-      main.append(title,meta);
-      const actions=document.createElement('div'); actions.className='log-actions';
-      const edit=document.createElement('button'); edit.className='mini-btn'; edit.textContent='Edit';
-      edit.addEventListener('click',()=>{
-        $('editId').value=row.id; $('exerciseInput').value=row.exercise || ''; $('weightInput').value=row.weight ?? ''; $('repsInput').value=row.reps ?? ''; $('setInput').value=row.set_number ?? ''; $('dateInput').value=row.workout_date || today(); $('notesInput').value=row.notes || '';
-        $('formTitle').textContent='Edit log'; $('saveLogBtn').textContent='Update log →'; $('cancelEditBtn').classList.remove('hidden'); updateBeatLast(); document.querySelector('#members').scrollIntoView({behavior:'smooth'});
-      });
-      const del=document.createElement('button'); del.className='mini-btn danger'; del.textContent='Delete';
-      del.addEventListener('click',async()=>{
-        if(!confirm('Delete this workout log?')) return;
-        const { error }=await db.from('workout_logs').delete().eq('id',row.id);
-        if(error) return msg($('logMsg'),error.message,'error'); await loadLogs(); window.dispatchEvent(new Event('gymcelsWorkoutChanged'));
-      });
-      actions.append(edit,del); item.append(main,actions); logList.appendChild(item);
+    const { data, error } = await db
+      .from('workout_logs')
+      .select('*')
+      .order('workout_date',{ascending:false})
+      .order('created_at',{ascending:false});
+
+    if(error){
+      workoutLogCache = [];
+      workoutPrRowsById = new Set();
+
+      if(logList){
+        logList.innerHTML = '<div class="workout-empty"></div>';
+        logList.firstChild.textContent = error.message;
+      }
+
+      renderPersonalRecords([]);
+      return;
     }
+
+    workoutLogCache = data || [];
+    renderPersonalRecords(workoutLogCache);
+    renderWorkoutHistory(workoutLogCache);
   }
 
   db.auth.onAuthStateChange((event) => {
