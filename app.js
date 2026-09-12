@@ -14723,3 +14723,304 @@ setTimeout(() => {
 
   db.auth.onAuthStateChange(() => setTimeout(loadSplitData,80));
 })();
+// ============================================================
+// GYMCELS COMMUNITY ROLES / BADGES
+// Paste at the VERY BOTTOM of your current app.js.
+// Do not remove the code already there.
+// ============================================================
+(() => {
+  const ROLE_OPTIONS = [
+    ['', 'No community role'],
+    ['promoter', 'Promoter 📣'],
+    ['founding_member', 'Founding Member ⭐'],
+    ['contributor', 'Contributor 🛠️'],
+    ['content_creator', 'Content Creator 🎥'],
+    ['event_host', 'Event Host 🎙️'],
+    ['helper', 'Helper 🤝']
+  ];
+
+  const ROLE_META = {
+    admin: { label:'Admin', cls:'admin' },
+    moderator: { label:'Moderator', cls:'moderator' },
+    promoter: { label:'Promoter 📣', cls:'promoter' },
+    founding_member: { label:'Founding Member ⭐', cls:'founding-member' },
+    contributor: { label:'Contributor 🛠️', cls:'contributor' },
+    content_creator: { label:'Content Creator 🎥', cls:'content-creator' },
+    event_host: { label:'Event Host 🎙️', cls:'event-host' },
+    helper: { label:'Helper 🤝', cls:'helper' }
+  };
+
+  const roleLabel = role => ROLE_META[role]?.label || 'Member';
+
+  // Upgrade the site's existing Admin/Moderator badge renderer so it can
+  // render a staff badge AND a community badge beside the same name.
+  if(typeof staffBadgeMarkup === 'function'){
+    staffBadgeMarkup = function(roleValue){
+      const roles = [...new Set(
+        String(roleValue || '')
+          .split('|')
+          .map(v => v.trim())
+          .filter(Boolean)
+      )];
+
+      return roles.map(role => {
+        const meta = ROLE_META[role];
+        if(!meta) return '';
+        return `<span class="staff-badge ${meta.cls}">${meta.label}</span>`;
+      }).join('');
+    };
+  }
+
+  async function getCommunityRoleMap(userIds){
+    const ids = [...new Set((userIds || []).filter(Boolean))];
+    if(!ids.length || !window.gymcelsLolDb) return {};
+
+    try{
+      const {data,error} = await window.gymcelsLolDb.rpc(
+        'admin_get_member_community_roles',
+        {target_users:ids}
+      );
+      if(error) throw error;
+
+      return Object.fromEntries(
+        (data || []).map(row => [row.user_id, row.role || ''])
+      );
+    }catch(err){
+      console.error('Community role admin lookup error:',err);
+      return {};
+    }
+  }
+
+  function roleControlMarkup(currentRole=''){
+    const options = ROLE_OPTIONS.map(([value,label]) =>
+      `<option value="${value}"${value === currentRole ? ' selected' : ''}>${label}</option>`
+    ).join('');
+
+    return `
+      <div class="community-role-admin">
+        <div class="community-role-admin-copy">
+          <strong>Community role</strong>
+          <span>Visible badge beside this member's name. Does not give moderation powers.</span>
+        </div>
+        <div class="community-role-admin-controls">
+          <select data-community-role-select>${options}</select>
+          <button type="button" data-save-community-role>Save role</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function syncCardCommunityRole(card, currentRole=''){
+    if(!card) return;
+
+    card.dataset.communityRole = currentRole || '';
+
+    let control = card.querySelector('.community-role-admin');
+    if(!control){
+      const actions = card.querySelector('.staff-admin-actions');
+      const grid = card.querySelector('.staff-permission-grid');
+
+      if(actions){
+        actions.insertAdjacentHTML('beforebegin',roleControlMarkup(currentRole));
+      }else if(grid){
+        grid.insertAdjacentHTML('afterend',roleControlMarkup(currentRole));
+      }else{
+        card.insertAdjacentHTML('beforeend',roleControlMarkup(currentRole));
+      }
+      control = card.querySelector('.community-role-admin');
+    }
+
+    const select = control?.querySelector('[data-community-role-select]');
+    if(select) select.value = currentRole || '';
+
+    // Show the community badge immediately in the Admin card too.
+    card.querySelectorAll('.community-role-preview').forEach(node => node.remove());
+
+    if(currentRole){
+      const name = card.querySelector('.staff-admin-name');
+      const meta = ROLE_META[currentRole];
+      if(name && meta){
+        name.insertAdjacentHTML(
+          'beforeend',
+          `<span class="staff-badge ${meta.cls} community-role-preview">${meta.label}</span>`
+        );
+      }
+    }
+
+    const roleLine = card.querySelector('.staff-admin-role');
+    if(roleLine){
+      const baseText = roleLine.textContent || '';
+      const isAdmin = /administrator/i.test(baseText);
+      const isModerator = /moderator/i.test(baseText);
+
+      if(currentRole){
+        const prefix = isAdmin
+          ? 'Administrator · all permissions'
+          : (isModerator ? 'Moderator' : 'Community role');
+
+        roleLine.textContent = `${prefix} · ${roleLabel(currentRole)}`;
+      }else if(!isAdmin && !isModerator){
+        roleLine.textContent = 'Member';
+      }
+    }
+
+    // A role-only member has no moderation permissions; make that obvious.
+    const hasModPermission = [...card.querySelectorAll('[data-staff-permission]')]
+      .some(input => input.checked);
+
+    const note = card.querySelector('.staff-admin-note');
+    if(note && currentRole && !hasModPermission){
+      note.textContent = 'Community badge only — no moderation permissions.';
+    }
+  }
+
+  let decorating = false;
+
+  async function decorateRoleCards(container){
+    if(decorating || !container) return;
+
+    const cards = [...container.querySelectorAll('.staff-admin-card')]
+      .filter(card => !card.dataset.communityRoleDecorated);
+
+    if(!cards.length) return;
+
+    decorating = true;
+    cards.forEach(card => card.dataset.communityRoleDecorated = 'loading');
+
+    try{
+      const ids = cards.map(card => card.dataset.staffUser).filter(Boolean);
+      const roleMap = await getCommunityRoleMap(ids);
+
+      cards.forEach(card => {
+        syncCardCommunityRole(
+          card,
+          roleMap[card.dataset.staffUser] || ''
+        );
+        card.dataset.communityRoleDecorated = '1';
+      });
+    }finally{
+      decorating = false;
+    }
+  }
+
+  function updateStaffPanelWords(){
+    if(typeof staffAdminPanel === 'undefined' || !staffAdminPanel) return;
+
+    const head = staffAdminPanel.querySelector('.staff-current-head');
+    if(head){
+      const label = [...head.children].find(el => el.tagName !== 'BUTTON');
+      if(label && /moderator/i.test(label.textContent || '')){
+        label.textContent = 'Current moderators & roles';
+      }
+    }
+
+    staffAdminPanel.querySelectorAll('.staff-admin-empty').forEach(el => {
+      if((el.textContent || '').trim() === 'No moderators yet.'){
+        el.textContent = 'No moderators or community roles yet.';
+      }
+    });
+  }
+
+  async function decorateAllRoleCards(){
+    updateStaffPanelWords();
+
+    if(typeof staffSearchResults !== 'undefined' && staffSearchResults){
+      await decorateRoleCards(staffSearchResults);
+    }
+
+    if(typeof staffMembersList !== 'undefined' && staffMembersList){
+      await decorateRoleCards(staffMembersList);
+    }
+  }
+
+  document.addEventListener('click',async event => {
+    const btn = event.target.closest('[data-save-community-role]');
+    if(!btn) return;
+
+    const card = btn.closest('.staff-admin-card');
+    if(!card) return;
+
+    if(typeof chatIsSiteAdmin !== 'undefined' && !chatIsSiteAdmin) return;
+
+    const userId = card.dataset.staffUser;
+    const select = card.querySelector('[data-community-role-select]');
+    const newRole = String(select?.value || '');
+
+    if(!userId || !window.gymcelsLolDb) return;
+
+    btn.disabled = true;
+    const oldText = btn.textContent;
+    btn.textContent = 'Saving...';
+
+    try{
+      const {error} = await window.gymcelsLolDb.rpc(
+        'set_member_community_role',
+        {
+          target_user:userId,
+          new_role:newRole || null
+        }
+      );
+      if(error) throw error;
+
+      if(typeof setStaffPanelStatus === 'function'){
+        setStaffPanelStatus(
+          newRole
+            ? `✓ ${roleLabel(newRole)} role assigned.`
+            : '✓ Community role removed.',
+          'success'
+        );
+      }
+
+      syncCardCommunityRole(card,newRole);
+
+      // Refresh the current-role list and public areas so badges update now.
+      if(typeof loadCurrentStaffMembers === 'function'){
+        await loadCurrentStaffMembers();
+      }
+
+      if(
+        typeof staffSearchInput !== 'undefined'
+        && staffSearchInput?.value?.trim()
+        && typeof searchStaffMembers === 'function'
+      ){
+        await searchStaffMembers();
+      }
+
+      if(typeof loadCommunityChat === 'function'){
+        await loadCommunityChat(false);
+      }
+
+      if(typeof loadThreads === 'function'){
+        await loadThreads();
+      }
+
+      if(typeof activeThread !== 'undefined' && activeThread && typeof openThread === 'function'){
+        await openThread(activeThread.id);
+      }
+    }catch(err){
+      console.error('Community role save error:',err);
+
+      if(typeof setStaffPanelStatus === 'function'){
+        setStaffPanelStatus(err?.message || String(err),'error');
+      }
+    }finally{
+      btn.disabled = false;
+      btn.textContent = oldText || 'Save role';
+      setTimeout(decorateAllRoleCards,0);
+    }
+  });
+
+  const watch = container => {
+    if(!container) return;
+
+    new MutationObserver(() => {
+      setTimeout(decorateAllRoleCards,0);
+    }).observe(container,{childList:true,subtree:true});
+  };
+
+  if(typeof staffSearchResults !== 'undefined') watch(staffSearchResults);
+  if(typeof staffMembersList !== 'undefined') watch(staffMembersList);
+
+  // Initial pass.
+  setTimeout(decorateAllRoleCards,0);
+})();
