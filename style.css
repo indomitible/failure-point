@@ -7036,3 +7036,159 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
   .workout-split-editor-actions{flex-direction:column;align-items:stretch}
   #workoutSplitSaveBtn{width:100%}
 }
+/* ============================================================
+   GYMCELS COMMUNITY ROLES / BADGES
+   Paste at the VERY BOTTOM of your current style.css.
+   ============================================================ */
+
+/* Existing staff badge layout gets a little extra breathing room now that
+   a member can have both Moderator/Admin + a community badge. */
+.staff-admin-name .staff-badge,
+.chat-author .staff-badge,
+.chat-message-name .staff-badge,
+.thread-author .staff-badge,
+.thread-reply-author .staff-badge{
+  margin-left:5px;
+  vertical-align:middle;
+}
+
+/* Community role badge colors */
+.staff-badge.promoter{
+  color:#ffd36a;
+  border-color:rgba(255,196,72,.38);
+  background:rgba(255,184,43,.10);
+}
+
+.staff-badge.founding-member{
+  color:#d4b5ff;
+  border-color:rgba(176,116,255,.38);
+  background:rgba(147,78,230,.11);
+}
+
+.staff-badge.contributor{
+  color:#7ee6df;
+  border-color:rgba(73,205,194,.36);
+  background:rgba(54,184,174,.10);
+}
+
+.staff-badge.content-creator{
+  color:#ff9bc4;
+  border-color:rgba(255,101,164,.36);
+  background:rgba(235,73,141,.10);
+}
+
+.staff-badge.event-host{
+  color:#8cc8ff;
+  border-color:rgba(87,167,240,.36);
+  background:rgba(64,145,221,.10);
+}
+
+.staff-badge.helper{
+  color:#91e7a8;
+  border-color:rgba(90,205,121,.36);
+  background:rgba(66,177,96,.10);
+}
+
+
+/* Admin assignment control — lives inside the existing moderator card. */
+.community-role-admin{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:10px;
+  padding:10px;
+  border:1px solid #292f37;
+  border-radius:10px;
+  background:
+    linear-gradient(180deg,rgba(22,27,33,.96),rgba(14,18,23,.96));
+}
+
+.community-role-admin-copy{
+  min-width:0;
+}
+
+.community-role-admin-copy strong{
+  display:block;
+  color:#fff;
+  font-size:9px;
+  font-weight:950;
+}
+
+.community-role-admin-copy span{
+  display:block;
+  margin-top:3px;
+  color:#77818c;
+  font-size:8px;
+  line-height:1.35;
+}
+
+.community-role-admin-controls{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+
+.community-role-admin select{
+  min-width:170px;
+  height:34px;
+  border:1px solid #343c46;
+  border-radius:9px;
+  background:#0a0e12;
+  color:#fff;
+  padding:0 9px;
+  font:inherit;
+  font-size:9px;
+  font-weight:800;
+  outline:none;
+}
+
+.community-role-admin select:focus{
+  border-color:#ef4355;
+}
+
+.community-role-admin button{
+  height:34px;
+  border:0;
+  border-radius:9px;
+  background:#ef4355;
+  color:#fff;
+  padding:0 11px;
+  font-size:9px;
+  font-weight:950;
+  cursor:pointer;
+}
+
+.community-role-admin button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+@media(max-width:700px){
+  .community-role-admin{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .community-role-admin-controls{
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+
+  .community-role-admin select{
+    min-width:0;
+    width:100%;
+  }
+}
+
+@media(max-width:420px){
+  .community-role-admin-controls{
+    grid-template-columns:1fr;
+  }
+
+  .community-role-admin button{
+    width:100%;
+  }
+}
