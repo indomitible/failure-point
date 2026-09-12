@@ -1,6 +1,6 @@
 // ============================================================
-// GYMCELS COMMUNITY EXTRAS V2
-// Fixes REP flickering + keeps multi-role admin working.
+// GYMCELS COMMUNITY EXTRAS V3
+// One stable REP badge in chat + multi-role admin + profile reputation.
 // Replace the ENTIRE contents of community-extras.js with this.
 // ============================================================
 (() => {
@@ -53,6 +53,7 @@
     style.id = 'gymcelsCommunityExtrasCss';
     style.textContent = `
       #memberReputationPanel{display:none!important}
+      .member-rep-badge{display:none!important}
 
       .gc-extra-role-box{
         margin-top:10px;padding:12px;border:1px solid #29313a;border-radius:11px;
@@ -285,7 +286,7 @@
   });
 
   // ------------------------------------------------------------
-  // CHAT REP BADGES
+  // CHAT REP BADGES — V3: exactly one visible badge, no flicker
   // ------------------------------------------------------------
   async function fetchRepBatch(userIds, force = false) {
     const ids = [...new Set((userIds || []).filter(Boolean))];
@@ -307,7 +308,7 @@
 
         missing.forEach(id => {
           if (!repCache.has(id)) {
-            repCache.set(id, { reputation: 0, level: 'Newcomer' });
+            repCache.set(id, { reputation:0, level:'Newcomer' });
           }
         });
       } else {
@@ -318,41 +319,109 @@
     return Object.fromEntries(
       ids.map(id => [
         id,
-        repCache.get(id) || { reputation: 0, level: 'Newcomer' }
+        repCache.get(id) || { reputation:0, level:'Newcomer' }
       ])
     );
   }
 
-  async function decorateChatRep() {
-    const buttons = [...document.querySelectorAll('.chat-user-button[data-chat-user]')];
-    if (!buttons.length) return;
+  function renderOneRepBadge(parent, uid, rep) {
+    if (!parent || !uid) return;
 
-    const ids = buttons.map(btn => btn.dataset.chatUser).filter(Boolean);
-    const map = await fetchRepBatch(ids);
+    // Keep exactly ONE badge from community-extras.
+    const existing = [...parent.querySelectorAll(
+      `.gc-rep-badge[data-rep-user="${CSS.escape(uid)}"]`
+    )];
+
+    let badge = existing.shift() || null;
+    existing.forEach(extra => extra.remove());
+
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.dataset.repUser = uid;
+
+      const time = parent.querySelector('.chat-time');
+      if (time) parent.insertBefore(badge, time);
+      else parent.appendChild(badge);
+    }
+
+    const value = rep || { reputation:0, level:'Newcomer' };
+    const nextClass = `gc-rep-badge rep-${repLevelClass(value.level)}`;
+    const nextText = `${Number(value.reputation || 0)} REP`;
+
+    if (badge.className !== nextClass) badge.className = nextClass;
+    if (badge.textContent !== nextText) badge.textContent = nextText;
+    if (badge.title !== `${value.level} reputation`) {
+      badge.title = `${value.level} reputation`;
+    }
+  }
+
+  // Runs synchronously from already-known values. MutationObserver callbacks
+  // happen before paint, so a normal chat redraw does not visibly blink.
+  function decorateChatRepFromCache() {
+    const buttons = [...document.querySelectorAll('.chat-user-button[data-chat-user]')];
 
     buttons.forEach(btn => {
       const uid = btn.dataset.chatUser;
       const parent = btn.parentElement;
       if (!uid || !parent) return;
 
-      const rep = map[uid] || { reputation:0, level:'Newcomer' };
-      let badge = parent.querySelector(`.gc-rep-badge[data-rep-user="${CSS.escape(uid)}"]`);
-
-      if (!badge) {
-        badge = document.createElement('span');
-        badge.dataset.repUser = uid;
-        const time = parent.querySelector('.chat-time');
-        if (time) parent.insertBefore(badge, time);
-        else parent.appendChild(badge);
-      }
-
-      const nextClass = `gc-rep-badge rep-${repLevelClass(rep.level)}`;
-      const nextText = `${rep.reputation} REP`;
-
-      if (badge.className !== nextClass) badge.className = nextClass;
-      if (badge.textContent !== nextText) badge.textContent = nextText;
-      badge.title = `${rep.level} reputation`;
+      renderOneRepBadge(
+        parent,
+        uid,
+        repCache.get(uid) || { reputation:0, level:'Newcomer' }
+      );
     });
+  }
+
+  async function decorateChatRep(force = false) {
+    const buttons = [...document.querySelectorAll('.chat-user-button[data-chat-user]')];
+    if (!buttons.length) return;
+
+    // Immediately restore badges from cache before doing any network request.
+    decorateChatRepFromCache();
+
+    const ids = buttons.map(btn => btn.dataset.chatUser).filter(Boolean);
+    await fetchRepBatch(ids, force);
+
+    buttons.forEach(btn => {
+      const uid = btn.dataset.chatUser;
+      const parent = btn.parentElement;
+      if (!uid || !parent) return;
+      renderOneRepBadge(parent, uid, repCache.get(uid));
+    });
+  }
+
+  function isRepOnlyNode(node) {
+    if (!(node instanceof Element)) return false;
+    return node.matches('.gc-rep-badge,.member-rep-badge') ||
+      (
+        node.querySelectorAll &&
+        node.children.length > 0 &&
+        [...node.children].every(child =>
+          child.matches?.('.gc-rep-badge,.member-rep-badge')
+        )
+      );
+  }
+
+  function hasRealChatMutation(mutations) {
+    for (const mutation of mutations) {
+      const changed = [
+        ...mutation.addedNodes,
+        ...mutation.removedNodes
+      ];
+
+      for (const node of changed) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (String(node.textContent || '').trim()) return true;
+          continue;
+        }
+
+        if (node instanceof Element && !isRepOnlyNode(node)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   function connectChatObserver() {
@@ -362,13 +431,23 @@
     if (chatObserver) chatObserver.disconnect();
 
     observedChatNode = node;
-    chatObserver = new MutationObserver(() => {
+    chatObserver = new MutationObserver(mutations => {
+      // Ignore the old/new REP badge systems changing their own badge nodes.
+      if (!hasRealChatMutation(mutations)) return;
+
+      // Cache-first pass occurs synchronously, before the next paint.
+      decorateChatRepFromCache();
+
       clearTimeout(window.__gcRepChatTimer);
-      window.__gcRepChatTimer = setTimeout(decorateChatRep, 120);
+      window.__gcRepChatTimer = setTimeout(() => decorateChatRep(false), 80);
     });
 
-    chatObserver.observe(node, { childList:true, subtree:true });
-    decorateChatRep();
+    chatObserver.observe(node, {
+      childList:true,
+      subtree:true
+    });
+
+    decorateChatRep(false);
   }
 
   // ------------------------------------------------------------
@@ -600,5 +679,5 @@
   connectProfileObserver();
   ensureRepPanel();
 
-  console.log('[Gymcels] community-extras.js v2 loaded');
+  console.log('[Gymcels] community-extras.js v3 loaded');
 })();
