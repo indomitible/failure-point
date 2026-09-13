@@ -6778,13 +6778,13 @@ async function loadCommunityChat(scrollToBottom=false){
     const { data, error } = await client
       .from('messages')
       .select('id,user_id,display_name,avatar_url,message,created_at,reply_to_id')
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
       .limit(100);
 
     if(error) throw error;
 
 
-    let rows = data || [];
+    let rows = (data || []).reverse();
 
     if(signedIn){
       const blockedIds = await getMyBlockedUserIds();
