@@ -1,6 +1,6 @@
 // ============================================================
-// GYMCELS COMMUNITY EXTRAS V3
-// One stable REP badge in chat + multi-role admin + profile reputation.
+// GYMCELS COMMUNITY EXTRAS V4
+// Stable REP + multi-role admin + profile reputation + public chat stability.
 // Replace the ENTIRE contents of community-extras.js with this.
 // ============================================================
 (() => {
@@ -660,6 +660,350 @@
     });
   }
 
+
+  // ------------------------------------------------------------
+  // PUBLIC CHAT STABILITY V4
+  // Show sent messages immediately and stop the 3-second full redraw loop.
+  // ------------------------------------------------------------
+
+  let gcChatRealtimeChannel = null;
+  let gcChatRefreshTimer = null;
+  let gcChatRefreshRunning = false;
+
+  function gcEscape(text) {
+    return String(text ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function gcDisplayName(user) {
+    try {
+      if (typeof chatDisplayName === 'function') return chatDisplayName(user);
+    } catch (_) {}
+    return user?.user_metadata?.display_name ||
+      (user?.email ? user.email.split('@')[0] : 'Member');
+  }
+
+  function gcInitials(name) {
+    const source = String(name || 'GC').trim();
+    const parts = source.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return source.slice(0,2).toUpperCase();
+  }
+
+  function gcSetChatStatus(text, type='normal') {
+    try {
+      if (typeof setChatStatus === 'function') {
+        setChatStatus(text, type);
+        return;
+      }
+    } catch (_) {}
+    const el = document.getElementById('chatStatus');
+    if (el) el.textContent = text;
+  }
+
+  function gcAppendOptimisticMessage(row) {
+    const list = document.getElementById('chatMessages');
+    if (!list || !row?.id) return;
+
+    if (list.querySelector(`[data-message-id="${CSS.escape(String(row.id))}"]`)) {
+      list.scrollTop = list.scrollHeight;
+      return;
+    }
+
+    if (
+      list.children.length === 1 &&
+      list.firstElementChild?.classList.contains('chat-empty')
+    ) {
+      list.innerHTML = '';
+    }
+
+    const name = row.display_name || 'Member';
+    const safeName = gcEscape(name);
+    const safeUser = gcEscape(row.user_id || '');
+    const safeAvatar = gcEscape(row.avatar_url || '');
+    const safeMessage = gcEscape(row.message || '').replace(/\n/g,'<br>');
+    const when = row.created_at
+      ? new Date(row.created_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})
+      : '';
+
+    const avatar = row.avatar_url
+      ? `<div class="chat-avatar" data-chat-user="${safeUser}" data-chat-name="${safeName}" data-chat-avatar="${safeAvatar}">
+           <img src="${safeAvatar}" alt="${safeName} profile photo">
+         </div>`
+      : `<div class="chat-avatar" data-chat-user="${safeUser}" data-chat-name="${safeName}" data-chat-avatar="">
+           ${gcEscape(gcInitials(name))}
+         </div>`;
+
+    const shell = document.createElement('div');
+    shell.innerHTML = `
+      <div class="chat-message gc-optimistic-chat-message" data-message-id="${gcEscape(row.id)}">
+        <div class="chat-message-row">
+          <div class="chat-avatar-wrap">
+            ${avatar}
+            <span class="chat-presence-dot online" title="Online"></span>
+          </div>
+          <div class="chat-message-body">
+            <div class="chat-meta">
+              <div>
+                <button class="chat-user-button" type="button"
+                        data-chat-user="${safeUser}"
+                        data-chat-name="${safeName}"
+                        data-chat-avatar="${safeAvatar}">
+                  <span class="chat-user">${safeName}</span>
+                </button>
+                <span class="chat-time"> · ${gcEscape(when)}</span>
+              </div>
+              <div class="chat-message-actions">
+                <button class="chat-reply-btn" type="button" data-chat-reply="${gcEscape(row.id)}">Reply</button>
+                <button class="chat-delete" type="button" data-chat-delete="${gcEscape(row.id)}">Delete</button>
+              </div>
+            </div>
+            <div class="chat-text">${safeMessage}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const message = shell.firstElementChild;
+    if (message) list.appendChild(message);
+
+    list.scrollTop = list.scrollHeight;
+
+    try { decorateChatRepFromCache(); } catch (_) {}
+  }
+
+  async function gcBackgroundCanonicalRefresh(scrollToBottom=false) {
+    if (gcChatRefreshRunning) return;
+    gcChatRefreshRunning = true;
+    try {
+      if (typeof loadCommunityChat === 'function') {
+        await loadCommunityChat(scrollToBottom);
+      }
+    } catch (err) {
+      console.error('Gymcels background chat refresh error:', err);
+    } finally {
+      gcChatRefreshRunning = false;
+    }
+  }
+
+  function gcScheduleCanonicalRefresh(delay=500, scroll=false) {
+    clearTimeout(gcChatRefreshTimer);
+    gcChatRefreshTimer = setTimeout(
+      () => gcBackgroundCanonicalRefresh(scroll),
+      delay
+    );
+  }
+
+  async function gcSafeSendCommunityMessage() {
+    if (window.__gcChatSending) return;
+
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('chatSendBtn');
+    const text = input?.value?.trim();
+    if (!text) return;
+
+    window.__gcChatSending = true;
+    if (sendBtn) sendBtn.disabled = true;
+    gcSetChatStatus('Sending...');
+
+    try {
+      const db = await dbReady();
+      if (!db) throw new Error('Chat database connection is not ready.');
+
+      let session = null;
+      try {
+        if (typeof getChatSession === 'function') session = await getChatSession();
+      } catch (_) {}
+      if (!session?.user) {
+        const res = await db.auth.getSession();
+        session = res?.data?.session || null;
+      }
+      if (!session?.user) throw new Error('You must be logged in to send messages.');
+
+      const { data: muteData, error: muteError } = await db.rpc(
+        'get_chat_mute_status',
+        { target_user: session.user.id }
+      );
+      if (muteError) throw muteError;
+      const muteStatus = Array.isArray(muteData) ? muteData[0] : muteData;
+      if (muteStatus?.is_muted) throw new Error('You are currently muted from public chat.');
+
+      let replyId = null;
+      try {
+        if (typeof chatReplyTarget !== 'undefined' && chatReplyTarget?.id) {
+          replyId = chatReplyTarget.id;
+        }
+      } catch (_) {}
+
+      const payload = {
+        user_id: session.user.id,
+        display_name: gcDisplayName(session.user),
+        avatar_url: session.user?.user_metadata?.avatar_url || null,
+        message: text,
+        reply_to_id: replyId || null
+      };
+
+      const { data: inserted, error } = await db
+        .from('messages')
+        .insert(payload)
+        .select('id,user_id,display_name,avatar_url,message,created_at,reply_to_id')
+        .single();
+
+      if (error) throw error;
+
+      gcAppendOptimisticMessage(inserted);
+      input.value = '';
+
+      try {
+        if (typeof selectedMentions !== 'undefined') selectedMentions.clear();
+      } catch (_) {}
+      try {
+        if (typeof closeMentionSuggestions === 'function') closeMentionSuggestions();
+      } catch (_) {}
+      try {
+        if (typeof clearChatReply === 'function') clearChatReply();
+      } catch (_) {}
+
+      input.placeholder = 'Say something to the community...';
+      gcSetChatStatus('✓ MESSAGE SENT', 'success');
+
+      // These no longer block the message appearing.
+      try {
+        if (typeof refreshChatLevel === 'function') {
+          Promise.resolve(refreshChatLevel()).catch(err =>
+            console.error('Background chat XP refresh error:', err)
+          );
+        }
+      } catch (_) {}
+
+      try {
+        if (
+          typeof activeMentionUserIds === 'function' &&
+          inserted?.id
+        ) {
+          const ids = activeMentionUserIds(text);
+          if (ids?.length) {
+            db.rpc('create_mention_notifications', {
+              target_user_ids: ids,
+              target_message_id: Number(inserted.id),
+              mention_preview: text.slice(0,160)
+            }).then(({error}) => {
+              if (error) console.error('Mention notification error:', error);
+            });
+          }
+        }
+      } catch (_) {}
+
+      gcScheduleCanonicalRefresh(700, true);
+
+      setTimeout(() => {
+        const status = document.getElementById('chatStatus');
+        if (status?.textContent === '✓ MESSAGE SENT') status.textContent = '';
+      }, 3000);
+
+    } catch (err) {
+      gcSetChatStatus('Send failed: ' + (err?.message || String(err)), 'error');
+      console.error('Gymcels stable chat send error:', err);
+    } finally {
+      window.__gcChatSending = false;
+      if (sendBtn) sendBtn.disabled = false;
+    }
+  }
+
+  function installStableChatSend() {
+    try {
+      if (typeof sendCommunityMessage === 'function') {
+        sendCommunityMessage = gcSafeSendCommunityMessage;
+      }
+    } catch (err) {
+      console.error('Could not install stable Gymcels chat sender:', err);
+    }
+  }
+
+  function installStableChatStart() {
+    try {
+      if (typeof startCommunityChat !== 'function') return;
+
+      startCommunityChat = function() {
+        try {
+          if (typeof startPresenceHeartbeat === 'function') startPresenceHeartbeat();
+        } catch (_) {}
+
+        try {
+          if (typeof loadFriendsSection === 'function') {
+            Promise.resolve(loadFriendsSection()).catch(() => {});
+          }
+        } catch (_) {}
+
+        try {
+          if (typeof chatPollTimer !== 'undefined') {
+            clearInterval(chatPollTimer);
+            chatPollTimer = null;
+          }
+        } catch (_) {}
+
+        try {
+          if (typeof refreshChatLevel === 'function') {
+            Promise.resolve(refreshChatLevel()).catch(() => {});
+          }
+        } catch (_) {}
+
+        gcBackgroundCanonicalRefresh(true);
+
+        try {
+          if (typeof chatPollTimer !== 'undefined') {
+            chatPollTimer = setInterval(() => {
+              if (document.visibilityState === 'visible') {
+                gcBackgroundCanonicalRefresh(false);
+              }
+            }, 15000);
+          }
+        } catch (_) {}
+      };
+    } catch (err) {
+      console.error('Could not install stable Gymcels chat startup:', err);
+    }
+  }
+
+  async function installChatRealtime() {
+    try {
+      const db = await dbReady();
+      if (!db || gcChatRealtimeChannel) return;
+
+      gcChatRealtimeChannel = db
+        .channel('gymcels-public-chat-ui-v4')
+        .on(
+          'postgres_changes',
+          { event:'*', schema:'public', table:'messages' },
+          () => gcScheduleCanonicalRefresh(250, false)
+        )
+        .subscribe();
+    } catch (err) {
+      console.error('Gymcels chat realtime setup error:', err);
+    }
+  }
+
+  function forceSlowFallbackPollNow() {
+    try {
+      if (typeof chatPollTimer === 'undefined') return;
+      clearInterval(chatPollTimer);
+      chatPollTimer = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          gcBackgroundCanonicalRefresh(false);
+        }
+      }, 15000);
+    } catch (_) {}
+  }
+
+  installStableChatSend();
+  installStableChatStart();
+  installChatRealtime();
+  setTimeout(forceSlowFallbackPollNow, 1500);
+
   // ------------------------------------------------------------
   // START
   // ------------------------------------------------------------
@@ -679,5 +1023,5 @@
   connectProfileObserver();
   ensureRepPanel();
 
-  console.log('[Gymcels] community-extras.js v3 loaded');
+  console.log('[Gymcels] community-extras.js v4 loaded');
 })();
