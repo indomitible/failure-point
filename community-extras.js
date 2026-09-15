@@ -5974,7 +5974,7 @@
               href="${PAYHIP_URL}"
               target="_blank"
               rel="noopener"
-            >Buy 1,000 Credits</a>
+            >Buy for $5</a>
             <span class="gc-buy-credits-note">Secure checkout through Payhip</span>
           </div>
         </div>
