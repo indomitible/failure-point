@@ -6227,3 +6227,182 @@
 
   console.log('[Gymcels] Payhip purchase return handler loaded');
 })();
+// ============================================================
+// GYMCELS.LOL — VIP PURCHASE RETURN MESSAGE V2
+//
+// Payhip VIP success redirect:
+// https://gymcels.lol/?purchase=vip#vip
+//
+// Paste at the VERY BOTTOM of community-extras.js.
+// The VIP webhook still handles the actual activation.
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsVipPurchaseReturnV2) return;
+  window.__gymcelsVipPurchaseReturnV2 = true;
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('purchase') !== 'vip') return;
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  async function getDb(){
+    for(let i=0;i<60;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcVipPurchaseReturnStyles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'gcVipPurchaseReturnStyles';
+    style.textContent = `
+      #gcVipPurchaseReturnBanner{
+        position:fixed;
+        top:86px;
+        left:50%;
+        transform:translateX(-50%);
+        z-index:999999;
+        width:min(640px,calc(100vw - 28px));
+        padding:15px 44px 15px 16px;
+        border:1px solid rgba(239,190,67,.46);
+        border-radius:13px;
+        background:
+          linear-gradient(180deg,rgba(126,92,16,.18),rgba(29,23,10,.18)),
+          rgba(10,14,18,.97);
+        box-shadow:0 18px 50px rgba(0,0,0,.45);
+        color:#fff;
+      }
+
+      #gcVipPurchaseReturnBanner strong{
+        display:block;
+        color:#f6d767;
+        font-size:14px;
+        font-weight:1000;
+        margin-bottom:5px;
+      }
+
+      #gcVipPurchaseReturnBanner span{
+        color:#bcc4cd;
+        font-size:10px;
+        line-height:1.5;
+        font-weight:760;
+      }
+
+      #gcVipPurchaseReturnBanner.active{
+        border-color:rgba(91,220,137,.45);
+      }
+
+      #gcVipPurchaseReturnBanner.active strong{
+        color:#7ee6a4;
+      }
+
+      #gcVipPurchaseReturnClose{
+        position:absolute;
+        top:8px;
+        right:10px;
+        border:0;
+        background:transparent;
+        color:#929ca7;
+        font-size:19px;
+        line-height:1;
+        cursor:pointer;
+      }
+
+      @media(max-width:600px){
+        #gcVipPurchaseReturnBanner{
+          top:72px;
+          width:calc(100vw - 18px);
+          padding:13px 40px 13px 14px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function closeButtonHtml(){
+    return `<button id="gcVipPurchaseReturnClose" type="button" aria-label="Close">×</button>`;
+  }
+
+  function wireClose(banner){
+    banner.querySelector('#gcVipPurchaseReturnClose')?.addEventListener('click', () => {
+      banner.remove();
+    });
+  }
+
+  function showWaitingBanner(){
+    let banner = document.getElementById('gcVipPurchaseReturnBanner');
+
+    if(!banner){
+      banner = document.createElement('div');
+      banner.id = 'gcVipPurchaseReturnBanner';
+      document.body.appendChild(banner);
+    }
+
+    banner.className = '';
+    banner.innerHTML = `
+      ${closeButtonHtml()}
+      <strong>Thank you for your purchase ✓</strong>
+      <span>Your Gymcel VIP purchase was successful. VIP activation may take 2–5 minutes to appear on your account. If it does not show right away, give it a few minutes and refresh the site.</span>
+    `;
+    wireClose(banner);
+    return banner;
+  }
+
+  function showActiveBanner(){
+    const banner = document.getElementById('gcVipPurchaseReturnBanner') || showWaitingBanner();
+
+    banner.className = 'active';
+    banner.innerHTML = `
+      ${closeButtonHtml()}
+      <strong>Gymcel VIP activated ✓</strong>
+      <span>Your VIP status is now active on your Gymcels account. Enjoy your VIP perks.</span>
+    `;
+    wireClose(banner);
+  }
+
+  async function watchForVip(){
+    const db = await getDb();
+    if(!db) return;
+
+    // Check every 5 seconds for up to 5 minutes.
+    for(let i=0;i<60;i++){
+      try{
+        const { data, error } = await db.rpc('my_vip_status');
+
+        if(!error && data === true){
+          showActiveBanner();
+          break;
+        }
+      }catch(_){}
+
+      await sleep(5000);
+    }
+
+    // Remove only the purchase query flag, keep them on the VIP page.
+    window.history.replaceState({}, '', `${window.location.pathname}#vip`);
+  }
+
+  function boot(){
+    installStyles();
+
+    if(window.location.hash !== '#vip'){
+      window.location.hash = '#vip';
+    }
+
+    showWaitingBanner();
+    watchForVip();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot, {once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] VIP purchase return message V2 loaded');
+})();
