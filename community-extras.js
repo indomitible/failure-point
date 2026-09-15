@@ -6497,3 +6497,1195 @@
 
   console.log('[Gymcels] Physique photo hard fix loaded');
 })();
+// ============================================================
+// GYMCELS.LOL — DAY 7 FREE WHEEL UI V2
+//
+// EXACT ODDS:
+// 300 Credits 25%
+// 25% Coupon 20%
+// 500 Credits 20%
+// 350 Credits 18.5%
+// Emerald Charm 10%
+// Diamond Charm 5%
+// Ruby Charm 1%
+// Crown Charm 0.5%
+//
+// Paste at the VERY BOTTOM of community-extras.js.
+// Run the matching V2 Supabase SQL FIRST.
+//
+// The wheel uses ONLY saved Day 7 free spins.
+// It NEVER spends Gymcel Credits.
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsDay7FreeWheelV2) return;
+  window.__gymcelsDay7FreeWheelV2 = true;
+
+  const sleep = ms => new Promise(r => setTimeout(r,ms));
+
+  let rewards = [];
+  let inventory = [];
+  let wheelSpins = 0;
+  let creditBalance = 0;
+  let couponCount = 0;
+  let couponActive = false;
+  let isVip = false;
+  let spinning = false;
+  let rotation = 0;
+
+  const rarityRank = {
+    Rare:1,
+    Epic:2,
+    Legendary:3,
+    Mythic:4
+  };
+
+  const sliceColors = [
+    '#303741',
+    '#712d3a',
+    '#3a4652',
+    '#7b4b2d',
+    '#275643',
+    '#344e70',
+    '#6b2e43',
+    '#6c572b'
+  ];
+
+  function fmt(n){
+    return Number(n || 0).toLocaleString();
+  }
+
+  function esc(v=''){
+    return String(v).replace(/[&<>"']/g,ch=>({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[ch]));
+  }
+
+  async function getDb(){
+    for(let i=0;i<60;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  async function getSession(){
+    const db=await getDb();
+    if(!db) return null;
+
+    const {data}=await db.auth.getSession();
+    return data?.session || null;
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcDay7WheelV2Styles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcDay7WheelV2Styles';
+    style.textContent=`
+      #gcDay7FreeWheelV2{
+        grid-column:1/-1;
+        overflow:hidden;
+      }
+
+      .gcw2-head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:14px;
+        margin-bottom:17px;
+      }
+
+      .gcw2-head strong{
+        display:block;
+        color:#fff;
+        font-size:18px;
+        font-weight:1000;
+      }
+
+      .gcw2-head p{
+        max-width:650px;
+        margin:4px 0 0;
+        color:#89939e;
+        font-size:10px;
+        line-height:1.55;
+      }
+
+      .gcw2-spin-pill{
+        flex:0 0 auto;
+        min-width:88px;
+        padding:8px 11px;
+        border:1px solid rgba(239,67,85,.38);
+        border-radius:11px;
+        background:rgba(239,67,85,.08);
+        text-align:center;
+      }
+
+      .gcw2-spin-pill small{
+        display:block;
+        color:#9ba4af;
+        font-size:7px;
+        font-weight:950;
+        text-transform:uppercase;
+        letter-spacing:.07em;
+      }
+
+      .gcw2-spin-pill b{
+        display:block;
+        margin-top:2px;
+        color:#fff;
+        font-size:22px;
+      }
+
+      .gcw2-layout{
+        display:grid;
+        grid-template-columns:minmax(260px,360px) minmax(0,1fr);
+        gap:24px;
+        align-items:start;
+      }
+
+      .gcw2-stage{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+      }
+
+      .gcw2-wheel-wrap{
+        position:relative;
+        width:min(325px,80vw);
+        aspect-ratio:1;
+      }
+
+      .gcw2-pointer{
+        position:absolute;
+        left:50%;
+        top:-8px;
+        z-index:10;
+        transform:translateX(-50%);
+        width:0;
+        height:0;
+        border-left:14px solid transparent;
+        border-right:14px solid transparent;
+        border-bottom:28px solid #fff;
+        filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));
+      }
+
+      .gcw2-disc{
+        position:absolute;
+        inset:0;
+        overflow:hidden;
+        border:7px solid #15191e;
+        border-radius:50%;
+        box-shadow:
+          0 0 0 2px #343c46,
+          0 20px 50px rgba(0,0,0,.42);
+        transition:transform 4.2s cubic-bezier(.11,.73,.12,1);
+      }
+
+      .gcw2-disc::after{
+        content:'GC';
+        position:absolute;
+        left:50%;
+        top:50%;
+        z-index:5;
+        width:70px;
+        height:70px;
+        margin:-35px;
+        display:grid;
+        place-items:center;
+        border:2px solid #414953;
+        border-radius:50%;
+        background:#101419;
+        color:#fff;
+        font-size:13px;
+        font-weight:1000;
+        box-shadow:0 7px 20px rgba(0,0,0,.45);
+      }
+
+      .gcw2-wheel-label{
+        position:absolute;
+        left:50%;
+        top:50%;
+        z-index:4;
+        width:42px;
+        height:42px;
+        margin:-21px;
+        display:grid;
+        place-items:center;
+        border:1px solid rgba(255,255,255,.13);
+        border-radius:50%;
+        background:rgba(7,10,13,.62);
+        color:#fff;
+        font-size:19px;
+        font-weight:1000;
+        transform:
+          rotate(var(--angle))
+          translateY(-125px)
+          rotate(calc(var(--angle) * -1));
+        pointer-events:none;
+      }
+
+      .gcw2-wheel-label.credit{
+        font-size:10px;
+      }
+
+      .gcw2-wheel-label.coupon{
+        font-size:17px;
+      }
+
+      .gcw2-spin-btn{
+        width:min(325px,80vw);
+        margin-top:16px;
+        padding:13px 16px;
+        border:0;
+        border-radius:11px;
+        background:#ef4355;
+        color:#fff;
+        font:inherit;
+        font-size:11px;
+        font-weight:1000;
+        cursor:pointer;
+      }
+
+      .gcw2-spin-btn:hover:not(:disabled){
+        filter:brightness(1.08);
+        transform:translateY(-1px);
+      }
+
+      .gcw2-spin-btn:disabled{
+        opacity:.48;
+        cursor:default;
+        transform:none;
+      }
+
+      .gcw2-status{
+        min-height:18px;
+        margin-top:8px;
+        color:#87919d;
+        font-size:9px;
+        text-align:center;
+      }
+
+      .gcw2-status.ok{
+        color:#70e7aa;
+        font-weight:900;
+      }
+
+      .gcw2-status.err{
+        color:#ff7f8c;
+        font-weight:900;
+      }
+
+      .gcw2-result{
+        display:none;
+        width:min(325px,80vw);
+        box-sizing:border-box;
+        margin-top:10px;
+        padding:13px;
+        border:1px solid #303842;
+        border-radius:11px;
+        background:#0b0f13;
+        text-align:center;
+      }
+
+      .gcw2-result.show{
+        display:block;
+      }
+
+      .gcw2-result .icon{
+        display:block;
+        font-size:31px;
+      }
+
+      .gcw2-result strong{
+        display:block;
+        margin-top:4px;
+        color:#fff;
+        font-size:14px;
+      }
+
+      .gcw2-result span{
+        display:block;
+        margin-top:3px;
+        color:#919ba6;
+        font-size:9px;
+      }
+
+      .gcw2-side{
+        min-width:0;
+      }
+
+      .gcw2-section-title{
+        color:#fff;
+        font-size:10px;
+        font-weight:1000;
+        text-transform:uppercase;
+        letter-spacing:.075em;
+      }
+
+      .gcw2-odds{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:7px;
+        margin-top:9px;
+      }
+
+      .gcw2-odd{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        min-width:0;
+        padding:9px;
+        border:1px solid #29313a;
+        border-radius:9px;
+        background:#0c1014;
+      }
+
+      .gcw2-odd .ico{
+        width:25px;
+        text-align:center;
+        font-size:18px;
+      }
+
+      .gcw2-odd .copy{
+        flex:1;
+        min-width:0;
+      }
+
+      .gcw2-odd strong{
+        display:block;
+        overflow:hidden;
+        color:#fff;
+        font-size:9px;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
+
+      .gcw2-odd small{
+        color:#7c8793;
+        font-size:7px;
+      }
+
+      .gcw2-odd b{
+        color:#e1e6eb;
+        font-size:9px;
+      }
+
+      .gcw2-coupon{
+        margin-top:15px;
+        padding:12px;
+        border:1px solid rgba(244,198,70,.28);
+        border-radius:11px;
+        background:rgba(244,198,70,.055);
+      }
+
+      .gcw2-coupon-top{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .gcw2-coupon-top strong{
+        color:#fff;
+        font-size:10px;
+      }
+
+      .gcw2-coupon-top b{
+        color:#f1cf6a;
+        font-size:10px;
+      }
+
+      .gcw2-coupon p{
+        margin:5px 0 0;
+        color:#858f9a;
+        font-size:8px;
+        line-height:1.5;
+      }
+
+      .gcw2-coupon-btn{
+        width:100%;
+        margin-top:9px;
+        padding:9px 11px;
+        border:1px solid #3a424c;
+        border-radius:9px;
+        background:#171c22;
+        color:#fff;
+        font:inherit;
+        font-size:8px;
+        font-weight:950;
+        cursor:pointer;
+      }
+
+      .gcw2-coupon-btn.active{
+        border-color:rgba(103,232,165,.4);
+        background:rgba(103,232,165,.08);
+        color:#79e9af;
+      }
+
+      .gcw2-coupon-btn:disabled{
+        opacity:.5;
+        cursor:default;
+      }
+
+      .gcw2-charms{
+        margin-top:15px;
+        padding-top:14px;
+        border-top:1px solid #272e36;
+      }
+
+      .gcw2-charms-head{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px;
+        margin-bottom:8px;
+      }
+
+      .gcw2-charms-head strong{
+        color:#fff;
+        font-size:10px;
+      }
+
+      .gcw2-charms-head small{
+        color:#7e8894;
+        font-size:8px;
+      }
+
+      .gcw2-charm-list{
+        display:flex;
+        flex-direction:column;
+        gap:6px;
+      }
+
+      .gcw2-charm-row{
+        display:flex;
+        align-items:center;
+        gap:9px;
+        padding:8px 9px;
+        border:1px solid #293039;
+        border-radius:9px;
+        background:#0c1014;
+      }
+
+      .gcw2-charm-row .icon{
+        width:24px;
+        text-align:center;
+        font-size:19px;
+      }
+
+      .gcw2-charm-row .info{
+        flex:1;
+        min-width:0;
+      }
+
+      .gcw2-charm-row .info strong{
+        display:block;
+        color:#fff;
+        font-size:9px;
+      }
+
+      .gcw2-charm-row .info small{
+        color:#7e8894;
+        font-size:7px;
+      }
+
+      .gcw2-charm-row .qty{
+        color:#9ba4af;
+        font-size:8px;
+        font-weight:900;
+      }
+
+      .gcw2-equip{
+        padding:7px 9px;
+        border:1px solid #343c46;
+        border-radius:8px;
+        background:#181d23;
+        color:#dce2e8;
+        font:inherit;
+        font-size:7px;
+        font-weight:950;
+        cursor:pointer;
+      }
+
+      .gcw2-equip.equipped{
+        border-color:rgba(103,232,165,.38);
+        background:rgba(103,232,165,.08);
+        color:#73e5aa;
+      }
+
+      .gcw2-empty{
+        padding:10px;
+        border:1px dashed #303741;
+        border-radius:9px;
+        color:#77828d;
+        font-size:8px;
+        text-align:center;
+      }
+
+      .gcw2-Rare{color:#60b27d!important}
+      .gcw2-Epic{color:#71aafa!important}
+      .gcw2-Legendary{color:#ff6877!important}
+      .gcw2-Mythic{color:#f0cc63!important}
+
+      @media(max-width:760px){
+        .gcw2-layout{
+          grid-template-columns:1fr;
+        }
+
+        .gcw2-odds{
+          grid-template-columns:1fr 1fr;
+        }
+      }
+
+      @media(max-width:440px){
+        .gcw2-head{
+          align-items:center;
+        }
+
+        .gcw2-odds{
+          grid-template-columns:1fr;
+        }
+
+        .gcw2-wheel-label{
+          transform:
+            rotate(var(--angle))
+            translateY(-107px)
+            rotate(calc(var(--angle) * -1));
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function markup(){
+    return `
+      <section class="gc-store-card" id="gcDay7FreeWheelV2">
+        <div class="gcw2-head">
+          <div>
+            <strong>Day 7 Free Wheel</strong>
+            <p>
+              Every Day 7 login reward gives one free spin.
+              Credits cannot be used to buy spins.
+            </p>
+          </div>
+
+          <div class="gcw2-spin-pill">
+            <small>Free Spins</small>
+            <b id="gcw2SpinCount">0</b>
+          </div>
+        </div>
+
+        <div class="gcw2-layout">
+          <div class="gcw2-stage">
+            <div class="gcw2-wheel-wrap">
+              <div class="gcw2-pointer"></div>
+              <div class="gcw2-disc" id="gcw2Disc"></div>
+            </div>
+
+            <button class="gcw2-spin-btn" id="gcw2SpinBtn" type="button">
+              Loading wheel...
+            </button>
+
+            <div class="gcw2-status" id="gcw2Status"></div>
+            <div class="gcw2-result" id="gcw2Result"></div>
+          </div>
+
+          <div class="gcw2-side">
+            <div class="gcw2-section-title">Rewards + exact odds</div>
+            <div class="gcw2-odds" id="gcw2Odds"></div>
+
+            <div class="gcw2-coupon">
+              <div class="gcw2-coupon-top">
+                <strong>🎟️ 25% Off Coupon</strong>
+                <b id="gcw2CouponCount">x0</b>
+              </div>
+
+              <p id="gcw2CouponText">
+                One-time Store coupon. It never stacks with Gymcel VIP.
+              </p>
+
+              <button class="gcw2-coupon-btn" id="gcw2CouponBtn" type="button">
+                No coupon owned
+              </button>
+            </div>
+
+            <div class="gcw2-charms">
+              <div class="gcw2-charms-head">
+                <strong>My Name Charms</strong>
+                <small>Equip one beside your name</small>
+              </div>
+              <div class="gcw2-charm-list" id="gcw2CharmList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  function mount(){
+    if(document.getElementById('gcDay7FreeWheelV2')) return true;
+
+    const grid=document.querySelector('#gymcelStoreSection .gc-store-grid');
+    if(!grid) return false;
+
+    grid.insertAdjacentHTML('beforeend',markup());
+
+    document.getElementById('gcw2SpinBtn')
+      ?.addEventListener('click',spin);
+
+    document.getElementById('gcw2CouponBtn')
+      ?.addEventListener('click',toggleCoupon);
+
+    render();
+    loadState();
+    return true;
+  }
+
+  function rewardLabel(item){
+    if(item.reward_type==='credits'){
+      return `${fmt(item.credits_awarded)}`;
+    }
+
+    if(item.reward_type==='coupon'){
+      return '25%';
+    }
+
+    return item.icon_text || '★';
+  }
+
+  function buildWheel(){
+    const disc=document.getElementById('gcw2Disc');
+    if(!disc || !rewards.length) return;
+
+    let cursor=0;
+    const stops=[];
+    const labels=[];
+
+    rewards.forEach((item,index)=>{
+      const span=Number(item.chance_percent || 0)*3.6;
+      const start=cursor;
+      const end=cursor+span;
+      const mid=start+(span/2);
+
+      stops.push(
+        `${sliceColors[index%sliceColors.length]} ${start}deg ${end}deg`
+      );
+
+      const kind =
+        item.reward_type==='credits'
+          ? 'credit'
+          : item.reward_type==='coupon'
+            ? 'coupon'
+            : 'charm';
+
+      labels.push(`
+        <span
+          class="gcw2-wheel-label ${kind}"
+          style="--angle:${mid}deg"
+          title="${esc(item.reward_name)}"
+        >${esc(rewardLabel(item))}</span>
+      `);
+
+      cursor=end;
+    });
+
+    disc.style.background=`conic-gradient(${stops.join(',')})`;
+    disc.innerHTML=labels.join('');
+  }
+
+  function renderOdds(){
+    const el=document.getElementById('gcw2Odds');
+    if(!el) return;
+
+    el.innerHTML=rewards.map(item=>`
+      <div class="gcw2-odd">
+        <span class="ico">${esc(item.icon_text || '★')}</span>
+
+        <div class="copy">
+          <strong>${esc(item.reward_name)}</strong>
+          <small>
+            ${
+              item.reward_type==='credits'
+                ? 'Gymcel Credits'
+                : item.reward_type==='coupon'
+                  ? 'One-time coupon'
+                  : 'Name Charm'
+            }
+          </small>
+        </div>
+
+        <b>${Number(item.chance_percent || 0).toFixed(
+          Number(item.chance_percent || 0)%1 ? 1 : 0
+        )}%</b>
+      </div>
+    `).join('');
+  }
+
+  function renderCoupon(){
+    const countEl=document.getElementById('gcw2CouponCount');
+    const textEl=document.getElementById('gcw2CouponText');
+    const btn=document.getElementById('gcw2CouponBtn');
+
+    if(countEl) countEl.textContent=`x${couponCount}`;
+    if(!textEl || !btn) return;
+
+    btn.classList.toggle('active',couponActive);
+
+    if(couponCount<1){
+      textEl.textContent=
+        'Win this on the Day 7 wheel. It gives 25% off one Gymcel Credit Store purchase.';
+      btn.textContent='No coupon owned';
+      btn.disabled=true;
+      return;
+    }
+
+    if(isVip){
+      textEl.textContent=
+        'Saved. Your VIP 35% discount is better, so this coupon will not be consumed while VIP is active.';
+      btn.textContent=couponActive
+        ? 'Coupon saved · VIP takes priority'
+        : 'Coupon saved · VIP takes priority';
+      btn.disabled=true;
+      return;
+    }
+
+    textEl.textContent=couponActive
+      ? 'Armed for your next eligible Gymcel Credit Store purchase. It will be consumed after that purchase succeeds.'
+      : 'One-time 25% discount. Activate it when you want to use it on your next Store purchase.';
+
+    btn.textContent=couponActive
+      ? 'Coupon Active ✓ · Click to save it'
+      : 'Use on next Store purchase';
+
+    btn.disabled=false;
+  }
+
+  function renderCharms(){
+    const el=document.getElementById('gcw2CharmList');
+    if(!el) return;
+
+    if(!inventory.length){
+      el.innerHTML=`
+        <div class="gcw2-empty">
+          You have not won a Name Charm yet.
+        </div>
+      `;
+      return;
+    }
+
+    const sorted=[...inventory].sort((a,b)=>
+      (rarityRank[b.rarity]||0)-(rarityRank[a.rarity]||0)
+    );
+
+    el.innerHTML=sorted.map(item=>`
+      <div class="gcw2-charm-row">
+        <span class="icon">${esc(item.icon_text)}</span>
+
+        <div class="info">
+          <strong>${esc(item.item_name)}</strong>
+          <small class="gcw2-${esc(item.rarity)}">${esc(item.rarity)}</small>
+        </div>
+
+        <span class="qty">x${Number(item.quantity || 0)}</span>
+
+        <button
+          class="gcw2-equip ${item.equipped?'equipped':''}"
+          type="button"
+          data-gcw2-charm="${esc(item.item_key)}"
+          data-gcw2-equipped="${item.equipped?'1':'0'}"
+        >${item.equipped?'Equipped ✓':'Equip'}</button>
+      </div>
+    `).join('');
+
+    el.querySelectorAll('[data-gcw2-charm]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        equipCharm(
+          btn.dataset.gcw2Equipped==='1'
+            ? null
+            : btn.dataset.gcw2Charm
+        );
+      });
+    });
+  }
+
+  function render(){
+    const spinCount=document.getElementById('gcw2SpinCount');
+    const spinBtn=document.getElementById('gcw2SpinBtn');
+    const status=document.getElementById('gcw2Status');
+
+    if(spinCount) spinCount.textContent=String(wheelSpins);
+
+    if(spinBtn){
+      spinBtn.disabled=spinning || wheelSpins<1;
+      spinBtn.textContent=spinning
+        ? 'Spinning...'
+        : wheelSpins>0
+          ? `Use Free Spin (${wheelSpins})`
+          : 'Earn a free spin on Day 7';
+    }
+
+    if(status && !spinning && wheelSpins<1 && !status.classList.contains('ok')){
+      status.className='gcw2-status';
+      status.textContent='Your saved Day 7 spins will appear here.';
+    }
+
+    buildWheel();
+    renderOdds();
+    renderCoupon();
+    renderCharms();
+    syncSiteCounters();
+  }
+
+  function syncSiteCounters(){
+    const visibleBalance=document.getElementById('gcCreditBalance');
+    const desktopBalance=document.getElementById('gcDesktopCreditMini');
+    const visibleSpins=document.getElementById('gcWheelSpins');
+
+    if(visibleBalance) visibleBalance.textContent=fmt(creditBalance);
+    if(desktopBalance) desktopBalance.textContent=fmt(creditBalance);
+    if(visibleSpins) visibleSpins.textContent=String(wheelSpins);
+  }
+
+  async function loadState(){
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const session=await getSession();
+
+      if(!session?.user){
+        rewards=[];
+        inventory=[];
+        wheelSpins=0;
+        creditBalance=0;
+        couponCount=0;
+        couponActive=false;
+        isVip=false;
+        render();
+
+        const status=document.getElementById('gcw2Status');
+        if(status) status.textContent='Log in to use the Day 7 wheel.';
+        return;
+      }
+
+      const [
+        rewardsRes,
+        creditsRes,
+        charmsRes,
+        couponRes,
+        vipRes
+      ]=await Promise.all([
+        db.rpc('get_gymcel_day7_wheel_catalog'),
+        db.rpc('get_my_gymcel_credit_status'),
+        db.rpc('get_my_gymcel_name_charms'),
+        db.rpc('get_my_gymcel_coupon_status'),
+        db.rpc('my_vip_status')
+      ]);
+
+      if(rewardsRes.error) throw rewardsRes.error;
+      if(creditsRes.error) throw creditsRes.error;
+      if(charmsRes.error) throw charmsRes.error;
+      if(couponRes.error) throw couponRes.error;
+
+      rewards=rewardsRes.data || [];
+      inventory=charmsRes.data || [];
+
+      const creditsRow=Array.isArray(creditsRes.data)
+        ? creditsRes.data[0]
+        : creditsRes.data;
+
+      const couponRow=Array.isArray(couponRes.data)
+        ? couponRes.data[0]
+        : couponRes.data;
+
+      wheelSpins=Number(creditsRow?.wheel_spins || 0);
+      creditBalance=Number(creditsRow?.balance || 0);
+
+      couponCount=Number(couponRow?.coupon_25_count || 0);
+      couponActive=!!couponRow?.coupon_25_active;
+
+      isVip=vipRes.error
+        ? false
+        : Array.isArray(vipRes.data)
+          ? !!vipRes.data[0]
+          : !!vipRes.data;
+
+      render();
+
+    }catch(err){
+      console.error('[Gymcels] Day 7 Wheel V2 load error:',err);
+
+      const status=document.getElementById('gcw2Status');
+      if(status){
+        status.className='gcw2-status err';
+        status.textContent=
+          'Day 7 wheel is not active yet. Run the V2 wheel SQL first.';
+      }
+    }
+  }
+
+  function rewardCenterAngle(rewardKey){
+    let cursor=0;
+
+    for(const item of rewards){
+      const span=Number(item.chance_percent || 0)*3.6;
+      const mid=cursor+(span/2);
+
+      if(item.reward_key===rewardKey){
+        return mid;
+      }
+
+      cursor+=span;
+    }
+
+    return 0;
+  }
+
+  async function spin(){
+    if(spinning || wheelSpins<1) return;
+
+    const status=document.getElementById('gcw2Status');
+    const result=document.getElementById('gcw2Result');
+    const disc=document.getElementById('gcw2Disc');
+
+    spinning=true;
+    render();
+
+    if(status){
+      status.className='gcw2-status';
+      status.textContent='Rolling your free Day 7 reward...';
+    }
+
+    if(result){
+      result.classList.remove('show');
+      result.innerHTML='';
+    }
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {data,error}=await db.rpc('spin_gymcel_day7_free_wheel');
+
+      if(error) throw error;
+
+      const row=Array.isArray(data) ? data[0] : data;
+
+      if(!row?.success){
+        throw new Error('The wheel did not return a reward.');
+      }
+
+      wheelSpins=Number(row.remaining_spins || 0);
+      creditBalance=Number(row.new_balance || creditBalance);
+      couponCount=Number(row.coupon_25_count || couponCount);
+
+      const center=rewardCenterAngle(row.reward_key);
+      const currentMod=((rotation%360)+360)%360;
+
+      // Pointer is at 0deg/top. Rotate the selected segment center there.
+      const desired=(360-center)%360;
+      const delta=(desired-currentMod+360)%360;
+
+      rotation += 1440 + delta;
+
+      if(disc){
+        disc.style.transform=`rotate(${rotation}deg)`;
+      }
+
+      if(status){
+        status.className='gcw2-status';
+        status.textContent='Wheel spinning...';
+      }
+
+      await sleep(4350);
+
+      let sub='';
+
+      if(row.reward_type==='credits'){
+        sub=`${fmt(row.credits_awarded)} Gymcel Credits were added to your balance.`;
+      }else if(row.reward_type==='coupon'){
+        sub='One 25% off coupon was added to your coupon wallet.';
+      }else if(row.reward_type==='charm'){
+        sub=`Name Charm added to your inventory · x${Number(row.charm_quantity || 1)} owned.`;
+      }
+
+      if(result){
+        result.innerHTML=`
+          <span class="icon">${esc(row.icon_text || '★')}</span>
+          <strong>You won ${esc(row.reward_name)}!</strong>
+          <span>${esc(sub)}</span>
+        `;
+        result.classList.add('show');
+      }
+
+      if(status){
+        status.className='gcw2-status ok';
+        status.textContent=`✓ ${row.reward_name} added to your account.`;
+      }
+
+      syncSiteCounters();
+
+      window.dispatchEvent(new CustomEvent('gymcels-wheel-reward',{
+        detail:{
+          rewardKey:row.reward_key,
+          rewardType:row.reward_type,
+          rewardName:row.reward_name
+        }
+      }));
+
+      await loadState();
+
+    }catch(err){
+      console.error('[Gymcels] Day 7 Wheel V2 spin error:',err);
+
+      if(status){
+        status.className='gcw2-status err';
+        status.textContent=err?.message || 'Could not use your free spin.';
+      }
+
+      await loadState();
+
+    }finally{
+      spinning=false;
+      render();
+    }
+  }
+
+  async function toggleCoupon(){
+    if(couponCount<1 || isVip) return;
+
+    const btn=document.getElementById('gcw2CouponBtn');
+    const status=document.getElementById('gcw2Status');
+
+    if(btn) btn.disabled=true;
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {data,error}=await db.rpc(
+        'set_my_gymcel_coupon_25_active',
+        {activate:!couponActive}
+      );
+
+      if(error) throw error;
+
+      const row=Array.isArray(data) ? data[0] : data;
+
+      couponCount=Number(row?.coupon_25_count || 0);
+      couponActive=!!row?.coupon_25_active;
+
+      if(status){
+        status.className='gcw2-status ok';
+        status.textContent=couponActive
+          ? '✓ Your 25% coupon will apply to your next eligible Store purchase.'
+          : '✓ Coupon saved for later.';
+      }
+
+      render();
+
+    }catch(err){
+      console.error('[Gymcels] Coupon toggle error:',err);
+
+      if(status){
+        status.className='gcw2-status err';
+        status.textContent=err?.message || 'Could not update your coupon.';
+      }
+
+      await loadState();
+    }
+  }
+
+  async function equipCharm(itemKey){
+    const status=document.getElementById('gcw2Status');
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {error}=await db.rpc(
+        'equip_gymcel_name_charm',
+        {target_item:itemKey}
+      );
+
+      if(error) throw error;
+
+      if(status){
+        status.className='gcw2-status ok';
+        status.textContent=itemKey
+          ? '✓ Name Charm equipped.'
+          : '✓ Name Charm unequipped.';
+      }
+
+      await loadState();
+
+      window.dispatchEvent(new CustomEvent(
+        'gymcels-name-charm-changed',
+        {detail:{itemKey:itemKey || null}}
+      ));
+
+    }catch(err){
+      console.error('[Gymcels] Equip Name Charm error:',err);
+
+      if(status){
+        status.className='gcw2-status err';
+        status.textContent=err?.message || 'Could not equip that Name Charm.';
+      }
+    }
+  }
+
+  function boot(){
+    installStyles();
+
+    if(!mount()){
+      let tries=0;
+
+      const timer=setInterval(()=>{
+        tries++;
+
+        if(mount() || tries>100){
+          clearInterval(timer);
+        }
+      },250);
+    }
+
+    // Store content can be rebuilt dynamically.
+    new MutationObserver(()=>{
+      if(!document.getElementById('gcDay7FreeWheelV2')){
+        mount();
+      }
+    }).observe(document.body,{
+      childList:true,
+      subtree:true
+    });
+
+    window.addEventListener('hashchange',()=>{
+      if(location.hash==='#store'){
+        setTimeout(()=>{
+          mount();
+          loadState();
+        },220);
+      }
+    });
+
+    // Refresh after purchases so a used coupon disappears immediately.
+    window.addEventListener('gymcels-store-purchased',()=>{
+      setTimeout(loadState,200);
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] Day 7 Free Wheel V2 loaded');
+})();
