@@ -8030,3 +8030,14 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
   font-weight:1000 !important;
   text-shadow:0 1px 1px rgba(255,255,255,.18) !important;
 }
+/* Profile stat labels — high contrast on cosmetic backgrounds */
+#chatProfileOverlay .chat-public-profile .chat-public-stat > span{
+  color:#090b0e !important;
+  font-weight:1000 !important;
+  text-shadow:none !important;
+
+  background:rgba(255,255,255,.55) !important;
+  width:max-content !important;
+  padding:2px 5px !important;
+  border-radius:4px !important;
+}
