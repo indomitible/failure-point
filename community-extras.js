@@ -5473,16 +5473,14 @@
   },true);
 
   function watchOriginalCosmeticCard(){
-    const section=document.getElementById('gcCosmeticStoreSection');
-    if(!section || section.dataset.gcExpansionWatch==='1') return false;
-    section.dataset.gcExpansionWatch='1';
-    let timer;
-    new MutationObserver(()=>{
-      clearTimeout(timer);
-      timer=setTimeout(refreshState,160);
-    }).observe(section,{childList:true,subtree:true,characterData:true});
-    return true;
-  }
+  const section=document.getElementById('gcCosmeticStoreSection');
+  if(!section) return false;
+
+  // VIP pricing changes text/prices inside this section.
+  // Do NOT watch the whole section for mutations or it creates a refresh loop.
+  section.dataset.gcExpansionWatch='1';
+  return true;
+}
 
   function boot(){
     installStyles();
