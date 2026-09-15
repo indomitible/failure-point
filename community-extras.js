@@ -4721,3 +4721,796 @@
 
   console.log('[Gymcels] My Cosmetics inventory loaded');
 })();
+// ============================================================
+// GYMCELS STORE — PROFILE BACKGROUND EXPANSION V1
+// Adds:
+//   • Nonchalant Jon — 800
+//   • Cozy Kitty — 500
+//   • Skywalker Aura — 650
+//   • Studious Zyzz — 500
+//   • Stay Hard — 500
+//
+// Paste at the VERY BOTTOM of community-extras.js.
+// Keep the existing 200 Brah / Store / Admin / Inventory code above it.
+// Requires the supplied catalog SQL and the five JPG files in repo root.
+// ============================================================
+(() => {
+  'use strict';
+
+  if(window.__gymcelsBackgroundExpansionV1) return;
+  window.__gymcelsBackgroundExpansionV1 = true;
+
+  const ITEMS = {
+    profile_bg_200_brah: {
+      name:'200 Brah', price:500, asset:'200-brah-profile-bg.jpg', position:'center 18%'
+    },
+    profile_bg_nonchalant_jon: {
+      name:'Nonchalant Jon', price:800, asset:'nonchalant-jon-profile-bg.jpg', position:'center 28%'
+    },
+    profile_bg_cozy_kitty: {
+      name:'Cozy Kitty', price:500, asset:'cozy-kitty-profile-bg.jpg', position:'center center'
+    },
+    profile_bg_skywalker_aura: {
+      name:'Skywalker Aura', price:650, asset:'skywalker-aura-profile-bg.jpg', position:'center 20%'
+    },
+    profile_bg_studious_zyzz: {
+      name:'Studious Zyzz', price:500, asset:'studious-zyzz-profile-bg.jpg', position:'center 18%'
+    },
+    profile_bg_stay_hard: {
+      name:'Stay Hard', price:500, asset:'stay-hard-profile-bg.jpg', position:'center 22%'
+    }
+  };
+
+  const NEW_ITEM_KEYS = [
+    'profile_bg_nonchalant_jon',
+    'profile_bg_cozy_kitty',
+    'profile_bg_skywalker_aura',
+    'profile_bg_studious_zyzz',
+    'profile_bg_stay_hard'
+  ];
+
+  let balance=0;
+  let inventory=new Map();
+  let catalog=new Set();
+  let isAdmin=false;
+  let loading=false;
+  let activePublicProfileUser=null;
+
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+  async function getDb(){
+    for(let i=0;i<50;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  function esc(value=''){
+    return String(value)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function fmt(value){
+    return Number(value || 0).toLocaleString();
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcBackgroundExpansionStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcBackgroundExpansionStyles';
+    style.textContent=`
+      .gc-bg-expansion-title{
+        margin:13px 0 9px;
+        color:#8f99a5;
+        font-size:8px;
+        font-weight:1000;
+        letter-spacing:.10em;
+        text-transform:uppercase;
+      }
+
+      .gc-bg-expansion-grid{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+      }
+
+      .gc-bg-item{
+        display:grid;
+        grid-template-columns:minmax(135px,.72fr) minmax(0,1fr);
+        min-width:0;
+        gap:10px;
+        padding:9px;
+        border:1px solid #29313a;
+        border-radius:11px;
+        background:#0a0f14;
+      }
+
+      .gc-bg-item-preview{
+        position:relative;
+        min-height:175px;
+        border:1px solid #333d48;
+        border-radius:9px;
+        background:#070a0d center/cover no-repeat;
+        overflow:hidden;
+      }
+
+      .gc-bg-item-preview::after{
+        content:'';
+        position:absolute;
+        inset:0;
+        background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.34));
+        pointer-events:none;
+      }
+
+      .gc-bg-item-copy{
+        min-width:0;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+      }
+
+      .gc-bg-item-type{
+        color:#dfbe52;
+        font-size:7px;
+        font-weight:1000;
+        letter-spacing:.09em;
+      }
+
+      .gc-bg-item h4{
+        margin:4px 0 5px;
+        color:#fff;
+        font-size:15px;
+        line-height:1.05;
+        font-weight:1000;
+      }
+
+      .gc-bg-item-price{
+        margin-top:4px;
+        color:#f2cf5d;
+        font-size:10px;
+        font-weight:1000;
+      }
+
+      .gc-bg-item-btn{
+        margin-top:9px;
+        align-self:flex-start;
+        border:1px solid #ef4355;
+        border-radius:8px;
+        background:#ef4355;
+        color:#fff;
+        padding:8px 11px;
+        font:inherit;
+        font-size:8px;
+        font-weight:1000;
+        cursor:pointer;
+      }
+
+      .gc-bg-item-btn.equip{
+        border-color:#d0a935;
+        background:rgba(208,169,53,.10);
+        color:#ffe28b;
+      }
+
+      .gc-bg-item-btn.equipped{
+        border-color:#42b96e;
+        background:rgba(66,185,110,.10);
+        color:#86e2a8;
+      }
+
+      .gc-bg-item-btn:disabled{opacity:.65;cursor:not-allowed}
+
+      .gc-bg-item-status{
+        min-height:13px;
+        margin-top:6px;
+        color:#717c88;
+        font-size:7px;
+        line-height:1.35;
+        font-weight:800;
+      }
+
+      .gc-bg-item-status.ok{color:#70d997}
+      .gc-bg-item-status.err{color:#ff8493}
+
+      /* Replace the older hard-coded My Cosmetics UI with this complete inventory. */
+      #gcMyCosmeticsSection{display:none!important}
+
+      .gc-bg-inventory-section{
+        grid-column:1/-1;
+        border:1px solid #29313a;
+        border-radius:14px;
+        background:linear-gradient(180deg,#10151a,#0b0f13);
+        padding:15px;
+      }
+
+      .gc-bg-inventory-head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:11px;
+      }
+
+      .gc-bg-inventory-head strong{
+        color:#fff;
+        font-size:15px;
+        font-weight:1000;
+      }
+
+      .gc-bg-inventory-head p{
+        margin:4px 0 0;
+        color:#7e8894;
+        font-size:9px;
+      }
+
+      .gc-bg-owned-count{
+        padding:5px 8px;
+        border:1px solid #343d48;
+        border-radius:999px;
+        background:#090d11;
+        color:#aab3bd;
+        font-size:8px;
+        font-weight:1000;
+      }
+
+      .gc-bg-owned-grid{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:9px;
+      }
+
+      .gc-bg-owned-card{
+        display:grid;
+        grid-template-columns:105px minmax(0,1fr);
+        gap:10px;
+        padding:9px;
+        border:1px solid #29313a;
+        border-radius:10px;
+        background:#090d11;
+      }
+
+      .gc-bg-owned-preview{
+        min-height:116px;
+        border:1px solid #333c47;
+        border-radius:8px;
+        background:#070a0d center/cover no-repeat;
+      }
+
+      .gc-bg-owned-copy{
+        min-width:0;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+      }
+
+      .gc-bg-owned-copy small{
+        color:#dabb54;
+        font-size:7px;
+        font-weight:1000;
+      }
+
+      .gc-bg-owned-copy h4{
+        margin:4px 0;
+        color:#fff;
+        font-size:14px;
+        font-weight:1000;
+      }
+
+      .gc-bg-owned-copy p{
+        margin:0;
+        color:#77818c;
+        font-size:8px;
+        line-height:1.35;
+      }
+
+      .gc-bg-owned-actions{
+        display:flex;
+        gap:6px;
+        flex-wrap:wrap;
+        margin-top:7px;
+      }
+
+      .gc-bg-owned-actions button{
+        border:1px solid #36404b;
+        border-radius:7px;
+        background:#171d24;
+        color:#fff;
+        padding:7px 9px;
+        font:inherit;
+        font-size:8px;
+        font-weight:1000;
+        cursor:pointer;
+      }
+
+      .gc-bg-owned-actions .equip{
+        border-color:#d0a935;
+        color:#ffe18a;
+        background:rgba(208,169,53,.09);
+      }
+
+      .gc-bg-owned-actions .equipped{
+        border-color:#45bb70;
+        color:#82e0a4;
+        background:rgba(69,187,112,.09);
+      }
+
+      .gc-bg-inventory-empty{
+        grid-column:1/-1;
+        padding:17px;
+        border:1px dashed #303945;
+        border-radius:9px;
+        text-align:center;
+        color:#77818c;
+        font-size:9px;
+      }
+
+      #gcBgInventoryStatus{
+        min-height:13px;
+        margin-top:8px;
+        color:#7e8894;
+        font-size:8px;
+        font-weight:850;
+      }
+      #gcBgInventoryStatus.ok{color:#72dc97}
+      #gcBgInventoryStatus.err{color:#ff8998}
+
+      @media(max-width:850px){
+        .gc-bg-expansion-grid,.gc-bg-owned-grid{grid-template-columns:1fr}
+      }
+
+      @media(max-width:520px){
+        .gc-bg-item{grid-template-columns:110px minmax(0,1fr)}
+        .gc-bg-item-preview{min-height:145px}
+        .gc-bg-owned-card{grid-template-columns:90px minmax(0,1fr)}
+        .gc-bg-owned-preview{min-height:105px}
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  async function getSession(){
+    const db=await getDb();
+    if(!db) return null;
+    const {data}=await db.auth.getSession();
+    return data?.session || null;
+  }
+
+  function storeExpansionMarkup(){
+    return `
+      <div class="gc-bg-expansion-title">More profile backgrounds</div>
+      <div class="gc-bg-expansion-grid" id="gcBgExpansionGrid">
+        ${NEW_ITEM_KEYS.map(key=>{
+          const item=ITEMS[key];
+          return `
+            <article class="gc-bg-item" data-gc-bg-store-item="${esc(key)}">
+              <div class="gc-bg-item-preview" style="background-image:url('${esc(item.asset)}');background-position:${esc(item.position)}"></div>
+              <div class="gc-bg-item-copy">
+                <span class="gc-bg-item-type">PROFILE BACKGROUND</span>
+                <h4>${esc(item.name)}</h4>
+                <div class="gc-bg-item-price">🪙 ${fmt(item.price)} Gymcel Credits</div>
+                <button class="gc-bg-item-btn" type="button" data-gc-bg-action="${esc(key)}">Buy · ${fmt(item.price)}</button>
+                <div class="gc-bg-item-status" data-gc-bg-status="${esc(key)}"></div>
+              </div>
+            </article>`;
+        }).join('')}
+      </div>`;
+  }
+
+  function installStoreExpansion(){
+    const section=document.getElementById('gcCosmeticStoreSection');
+    if(!section) return false;
+    if(document.getElementById('gcBgExpansionGrid')) return true;
+
+    section.insertAdjacentHTML('beforeend',storeExpansionMarkup());
+
+    section.querySelectorAll('[data-gc-bg-action]').forEach(btn=>{
+      btn.addEventListener('click',()=>handleStoreAction(btn.dataset.gcBgAction,btn));
+    });
+
+    renderStoreExpansion();
+    return true;
+  }
+
+  function inventoryMarkup(){
+    return `
+      <section id="gcBgInventorySection" class="gc-bg-inventory-section">
+        <div class="gc-bg-inventory-head">
+          <div>
+            <strong>My Cosmetics</strong>
+            <p>Your purchased backgrounds stay here permanently. Equip any one whenever you want.</p>
+          </div>
+          <span id="gcBgOwnedCount" class="gc-bg-owned-count">0 owned</span>
+        </div>
+        <div id="gcBgOwnedGrid" class="gc-bg-owned-grid"></div>
+        <div id="gcBgInventoryStatus"></div>
+      </section>`;
+  }
+
+  function installInventory(){
+    if(document.getElementById('gcBgInventorySection')) return true;
+
+    const cosmeticSection=document.getElementById('gcCosmeticStoreSection');
+    if(!cosmeticSection) return false;
+
+    cosmeticSection.insertAdjacentHTML('afterend',inventoryMarkup());
+    renderInventory();
+    return true;
+  }
+
+  async function refreshState(){
+    if(loading) return;
+    loading=true;
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const session=await getSession();
+      inventory.clear();
+      catalog.clear();
+      balance=0;
+      isAdmin=false;
+
+      const catalogRes=await db.rpc('get_gymcel_store_catalog');
+      if(catalogRes.error) throw catalogRes.error;
+      (catalogRes.data || []).forEach(row=>catalog.add(row.item_key));
+
+      if(session?.user){
+        const [creditRes,inventoryRes,staffRes]=await Promise.all([
+          db.rpc('get_my_gymcel_credit_status'),
+          db.rpc('get_my_gymcel_store_inventory'),
+          db.rpc('my_staff_permissions')
+        ]);
+
+        if(creditRes.error) throw creditRes.error;
+        if(inventoryRes.error) throw inventoryRes.error;
+
+        const creditRow=Array.isArray(creditRes.data)?creditRes.data[0]:creditRes.data;
+        balance=Number(creditRow?.balance || 0);
+
+        (inventoryRes.data || []).forEach(row=>{
+          inventory.set(row.item_key,{owned:true,equipped:!!row.equipped});
+        });
+
+        if(!staffRes.error) isAdmin=!!staffRes.data?.is_admin;
+      }
+
+      renderStoreExpansion();
+      renderInventory();
+      syncCreditBalance();
+    }catch(err){
+      console.error('[Gymcels] background expansion state error:',err);
+      const status=document.getElementById('gcBgInventoryStatus');
+      if(status){
+        status.className='err';
+        status.textContent=err?.message || 'Could not load cosmetics.';
+      }
+    }finally{
+      loading=false;
+    }
+  }
+
+  function syncCreditBalance(){
+    const main=document.getElementById('gcCreditBalance');
+    const mini=document.getElementById('gcDesktopCreditMini');
+    if(main) main.textContent=fmt(balance);
+    if(mini) mini.textContent=fmt(balance);
+  }
+
+  function renderStoreExpansion(){
+    NEW_ITEM_KEYS.forEach(key=>{
+      const item=ITEMS[key];
+      const state=inventory.get(key) || {owned:false,equipped:false};
+      const btn=document.querySelector(`[data-gc-bg-action="${key}"]`);
+      const status=document.querySelector(`[data-gc-bg-status="${key}"]`);
+      if(!btn || !status) return;
+
+      btn.disabled=false;
+      status.className='gc-bg-item-status';
+
+      if(!catalog.has(key) && !state.owned){
+        btn.textContent=`Buy · ${fmt(item.price)}`;
+        status.classList.add('err');
+        status.textContent='Run the Store expansion SQL first.';
+        return;
+      }
+
+      if(state.equipped){
+        btn.className='gc-bg-item-btn equipped';
+        btn.textContent='Equipped ✓';
+        btn.disabled=true;
+        status.classList.add('ok');
+        status.textContent='Currently on your profile.';
+        return;
+      }
+
+      if(state.owned){
+        btn.className='gc-bg-item-btn equip';
+        btn.textContent='Equip Background';
+        status.classList.add('ok');
+        status.textContent='Owned permanently.';
+        return;
+      }
+
+      btn.className='gc-bg-item-btn';
+      btn.textContent=`Buy · ${fmt(item.price)}`;
+
+      if(isAdmin){
+        status.classList.add('ok');
+        status.textContent='Admin account — unlimited credits.';
+      }else if(balance < item.price){
+        status.textContent=`Need ${fmt(item.price-balance)} more credits.`;
+      }else{
+        status.textContent='You have enough credits.';
+      }
+    });
+  }
+
+  function renderInventory(){
+    const grid=document.getElementById('gcBgOwnedGrid');
+    const count=document.getElementById('gcBgOwnedCount');
+    if(!grid || !count) return;
+
+    const owned=[...inventory.entries()]
+      .filter(([key,state])=>state.owned && ITEMS[key])
+      .map(([key,state])=>({key,state,item:ITEMS[key]}));
+
+    count.textContent=`${owned.length} owned`;
+
+    if(!owned.length){
+      grid.innerHTML='<div class="gc-bg-inventory-empty">You do not own any profile backgrounds yet.</div>';
+      return;
+    }
+
+    grid.innerHTML=owned.map(({key,state,item})=>`
+      <article class="gc-bg-owned-card">
+        <div class="gc-bg-owned-preview" style="background-image:url('${esc(item.asset)}');background-position:${esc(item.position)}"></div>
+        <div class="gc-bg-owned-copy">
+          <small>PROFILE BACKGROUND</small>
+          <h4>${esc(item.name)}</h4>
+          <p>${state.equipped?'Currently shown on your public profile.':'Owned permanently.'}</p>
+          <div class="gc-bg-owned-actions">
+            ${state.equipped
+              ? `<button class="equipped" type="button" disabled>Equipped ✓</button><button type="button" data-gc-bg-unequip>Unequip</button>`
+              : `<button class="equip" type="button" data-gc-bg-equip="${esc(key)}">Equip Background</button>`
+            }
+          </div>
+        </div>
+      </article>`).join('');
+
+    grid.querySelectorAll('[data-gc-bg-equip]').forEach(btn=>{
+      btn.addEventListener('click',()=>equipBackground(btn.dataset.gcBgEquip,btn));
+    });
+    grid.querySelectorAll('[data-gc-bg-unequip]').forEach(btn=>{
+      btn.addEventListener('click',()=>unequipBackground(btn));
+    });
+  }
+
+  async function handleStoreAction(key,btn){
+    const state=inventory.get(key) || {owned:false,equipped:false};
+    if(state.owned) return equipBackground(key,btn);
+    return buyItem(key,btn);
+  }
+
+  async function buyItem(key,btn){
+    const item=ITEMS[key];
+    const status=document.querySelector(`[data-gc-bg-status="${key}"]`);
+
+    btn.disabled=true;
+    btn.textContent='Buying...';
+    if(status){ status.className='gc-bg-item-status'; status.textContent='Checking Gymcel Credits...'; }
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {data,error}=await db.rpc('purchase_gymcel_store_item',{target_item:key});
+      if(error) throw error;
+
+      const row=Array.isArray(data)?data[0]:data;
+      if(row && row.new_balance!==undefined) balance=Number(row.new_balance || 0);
+
+      if(!row?.success){
+        if(row?.status==='not_enough_credits'){
+          throw new Error(`Not enough Gymcel Credits. You have ${fmt(balance)}.`);
+        }
+        throw new Error('Purchase was not completed.');
+      }
+
+      inventory.set(key,{owned:true,equipped:false});
+      syncCreditBalance();
+      renderStoreExpansion();
+      renderInventory();
+
+      if(status){
+        status.className='gc-bg-item-status ok';
+        status.textContent=`Purchased ${item.name}.`;
+      }
+    }catch(err){
+      console.error('[Gymcels] expanded cosmetic purchase error:',err);
+      if(status){ status.className='gc-bg-item-status err'; status.textContent=err?.message || 'Could not purchase this background.'; }
+    }finally{
+      btn.disabled=false;
+      renderStoreExpansion();
+    }
+  }
+
+  async function equipBackground(key,btn){
+    const item=ITEMS[key];
+    const invStatus=document.getElementById('gcBgInventoryStatus');
+    const oldText=btn?.textContent;
+    if(btn){ btn.disabled=true; btn.textContent='Equipping...'; }
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {error}=await db.rpc('equip_gymcel_profile_background',{target_item:key});
+      if(error) throw error;
+
+      inventory.forEach((state,itemKey)=>inventory.set(itemKey,{...state,equipped:false}));
+      inventory.set(key,{owned:true,equipped:true});
+
+      renderStoreExpansion();
+      renderInventory();
+
+      if(invStatus){
+        invStatus.className='ok';
+        invStatus.textContent=`✓ ${item.name} equipped. Open your profile to see it.`;
+      }
+
+      const session=await getSession();
+      if(session?.user?.id && activePublicProfileUser===session.user.id){
+        applyExpandedPublicProfileBackground(session.user.id);
+      }
+    }catch(err){
+      console.error('[Gymcels] expanded cosmetic equip error:',err);
+      if(invStatus){ invStatus.className='err'; invStatus.textContent=err?.message || 'Could not equip background.'; }
+      if(btn){ btn.disabled=false; btn.textContent=oldText || 'Equip Background'; }
+    }
+  }
+
+  async function unequipBackground(btn){
+    const invStatus=document.getElementById('gcBgInventoryStatus');
+    const oldText=btn?.textContent;
+    if(btn){ btn.disabled=true; btn.textContent='Unequipping...'; }
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {error}=await db.rpc('equip_gymcel_profile_background',{target_item:null});
+      if(error) throw error;
+
+      inventory.forEach((state,itemKey)=>inventory.set(itemKey,{...state,equipped:false}));
+      clearExpandedProfileBackground();
+      renderStoreExpansion();
+      renderInventory();
+
+      if(invStatus){ invStatus.className='ok'; invStatus.textContent='Background unequipped.'; }
+    }catch(err){
+      console.error('[Gymcels] expanded cosmetic unequip error:',err);
+      if(invStatus){ invStatus.className='err'; invStatus.textContent=err?.message || 'Could not unequip background.'; }
+      if(btn){ btn.disabled=false; btn.textContent=oldText || 'Unequip'; }
+    }
+  }
+
+  function profileCard(){
+    return document.querySelector('#chatProfileOverlay .chat-public-profile');
+  }
+
+  function clearExpandedProfileBackground(){
+    const card=profileCard();
+    if(!card) return;
+    card.classList.remove('gc-profile-bg-active');
+    card.style.removeProperty('--gc-profile-background');
+    card.style.removeProperty('background-position');
+    card.style.removeProperty('background-size');
+  }
+
+  async function applyExpandedPublicProfileBackground(userId){
+    activePublicProfileUser=userId || null;
+    clearExpandedProfileBackground();
+    if(!userId) return;
+
+    try{
+      const db=await getDb();
+      if(!db) return;
+
+      const {data,error}=await db.rpc('get_public_profile_cosmetics',{target_user:userId});
+      if(error) throw error;
+
+      const row=Array.isArray(data)?data[0]:data;
+      const key=row?.equipped_background || null;
+      const item=ITEMS[key];
+      if(!item || activePublicProfileUser!==userId) return;
+
+      const card=profileCard();
+      if(!card) return;
+
+      card.style.setProperty('--gc-profile-background',`url("${item.asset}")`);
+      card.style.setProperty('background-position',item.position,'important');
+      card.style.setProperty('background-size','cover','important');
+      card.classList.add('gc-profile-bg-active');
+    }catch(err){
+      console.error('[Gymcels] expanded public profile background error:',err);
+    }
+  }
+
+  function wrapProfileOpener(){
+    try{
+      if(typeof openChatPublicProfile!=='function' || openChatPublicProfile.__gcBgExpansionWrapped) return false;
+
+      const original=openChatPublicProfile;
+      const wrapped=async function(userId,...rest){
+        activePublicProfileUser=userId || null;
+        const result=await original.call(this,userId,...rest);
+        setTimeout(()=>applyExpandedPublicProfileBackground(userId),140);
+        return result;
+      };
+      wrapped.__gcBgExpansionWrapped=true;
+      openChatPublicProfile=wrapped;
+      return true;
+    }catch(_){
+      return false;
+    }
+  }
+
+  document.addEventListener('click',event=>{
+    const el=event.target.closest('[data-chat-user],[data-leaderboard-user]');
+    if(!el) return;
+    const userId=el.dataset.chatUser || el.dataset.leaderboardUser || null;
+    if(userId){
+      activePublicProfileUser=userId;
+      setTimeout(()=>applyExpandedPublicProfileBackground(userId),220);
+    }
+  },true);
+
+  function watchOriginalCosmeticCard(){
+    const section=document.getElementById('gcCosmeticStoreSection');
+    if(!section || section.dataset.gcExpansionWatch==='1') return false;
+    section.dataset.gcExpansionWatch='1';
+    let timer;
+    new MutationObserver(()=>{
+      clearTimeout(timer);
+      timer=setTimeout(refreshState,160);
+    }).observe(section,{childList:true,subtree:true,characterData:true});
+    return true;
+  }
+
+  function boot(){
+    installStyles();
+
+    let tries=0;
+    const timer=setInterval(()=>{
+      tries++;
+      const storeOk=installStoreExpansion();
+      const invOk=installInventory();
+      wrapProfileOpener();
+      watchOriginalCosmeticCard();
+
+      if((storeOk && invOk) || tries>60){
+        clearInterval(timer);
+        refreshState();
+      }
+    },250);
+
+    getDb().then(db=>{
+      db?.auth?.onAuthStateChange?.(()=>setTimeout(refreshState,100));
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] Profile background expansion loaded');
+})();
