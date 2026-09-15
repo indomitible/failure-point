@@ -1025,3 +1025,140 @@
 
   console.log('[Gymcels] community-extras.js v4 loaded');
 })();
+// ============================================================
+// GYMCELS THREADS MOBILE REFRESH FIX V1
+// Paste this at the VERY BOTTOM of community-extras.js.
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsThreadsMobileRefreshV1) return;
+  window.__gymcelsThreadsMobileRefreshV1 = true;
+
+  let refreshTimer = null;
+  let refreshRunning = false;
+  let realtimeChannel = null;
+
+  function threadsVisible() {
+    return (
+      document.body?.dataset?.appScreen === 'threads' ||
+      location.hash === '#threads'
+    );
+  }
+
+  async function refreshThreadsNow({refreshOpenThread = true} = {}) {
+    if (refreshRunning) return;
+    if (typeof loadThreads !== 'function') return;
+
+    refreshRunning = true;
+
+    try {
+      await loadThreads();
+
+      if (
+        refreshOpenThread &&
+        typeof activeThread !== 'undefined' &&
+        activeThread?.id &&
+        typeof loadThreadReplies === 'function'
+      ) {
+        await loadThreadReplies(activeThread.id);
+      }
+    } catch (err) {
+      console.error('[Gymcels] Threads refresh error:', err);
+    } finally {
+      refreshRunning = false;
+    }
+  }
+
+  function scheduleThreadsRefresh(delay = 80, options = {}) {
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(
+      () => refreshThreadsNow(options),
+      delay
+    );
+  }
+
+  document.addEventListener('click', event => {
+    const target = event.target.closest(
+      '#navThreads,' +
+      '[data-app-route="threads"],' +
+      '[data-mobile-proxy="navThreads"],' +
+      '#mobileThreadsBtn'
+    );
+
+    if (!target) return;
+
+    scheduleThreadsRefresh(120);
+  }, true);
+
+  window.addEventListener('hashchange', () => {
+    if (threadsVisible()) scheduleThreadsRefresh(80);
+  });
+
+  window.addEventListener('popstate', () => {
+    if (threadsVisible()) scheduleThreadsRefresh(80);
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (
+      document.visibilityState === 'visible' &&
+      threadsVisible()
+    ) {
+      scheduleThreadsRefresh(40);
+    }
+  });
+
+  window.addEventListener('pageshow', () => {
+    if (threadsVisible()) scheduleThreadsRefresh(60);
+  });
+
+  window.addEventListener('focus', () => {
+    if (threadsVisible()) scheduleThreadsRefresh(80);
+  });
+
+  async function installThreadsRealtime() {
+    if (realtimeChannel || !window.gymcelsLolDb) return;
+
+    try {
+      realtimeChannel = window.gymcelsLolDb
+        .channel('gymcels-threads-ui-refresh-v1')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'forum_threads' },
+          () => {
+            if (threadsVisible()) {
+              scheduleThreadsRefresh(120, {refreshOpenThread:false});
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'forum_replies' },
+          () => {
+            if (threadsVisible()) {
+              scheduleThreadsRefresh(120, {refreshOpenThread:true});
+            }
+          }
+        )
+        .subscribe(status => {
+          if (status === 'CHANNEL_ERROR') {
+            console.warn('[Gymcels] Threads realtime unavailable; click/visibility refresh remains active.');
+          }
+        });
+    } catch (err) {
+      console.warn('[Gymcels] Threads realtime setup skipped:', err);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      installThreadsRealtime();
+      if (threadsVisible()) scheduleThreadsRefresh(100);
+    }, { once:true });
+  } else {
+    installThreadsRealtime();
+    if (threadsVisible()) scheduleThreadsRefresh(100);
+  }
+
+  console.log('[Gymcels] Threads mobile refresh fix loaded');
+})();
