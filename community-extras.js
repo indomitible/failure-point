@@ -7689,3 +7689,339 @@
 
   console.log('[Gymcels] Day 7 Free Wheel V2 loaded');
 })();
+// ============================================================
+// GYMCELS.LOL — EQUIPPED NAME CHARMS BESIDE USERNAMES V1
+//
+// Paste at the VERY BOTTOM of community-extras.js.
+//
+// Requires the Day 7 Wheel V2 SQL because it uses:
+//   get_public_gymcel_name_charm(target_user uuid)
+//
+// Shows the equipped charm:
+// • beside names in Public Chat
+// • on the Public Profile popup
+// • on your own Profile name
+// • beside names in Friends / member search
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsNameCharmsBesideNamesV1) return;
+  window.__gymcelsNameCharmsBesideNamesV1 = true;
+
+  const cache = new Map();
+  const CACHE_MS = 60000;
+  let decorating = false;
+  let ownUserId = null;
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  async function getDb(){
+    for(let i=0;i<60;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  function esc(v=''){
+    return String(v).replace(/[&<>"']/g, ch => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[ch]));
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcNameCharmBesideNameStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcNameCharmBesideNameStyles';
+    style.textContent=`
+      .gc-equipped-name-charm{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        margin-left:5px;
+        vertical-align:middle;
+        line-height:1;
+        font-size:14px;
+        filter:drop-shadow(0 1px 3px rgba(0,0,0,.45));
+        transform:translateY(-1px);
+        cursor:default;
+      }
+
+      .chat-user-button .gc-equipped-name-charm{
+        margin-left:4px;
+        font-size:13px;
+      }
+
+      #chatPublicName .gc-equipped-name-charm,
+      #profileDisplayName .gc-equipped-name-charm{
+        margin-left:7px;
+        font-size:.8em;
+      }
+
+      .friend-name .gc-equipped-name-charm,
+      .friend-search-result-name .gc-equipped-name-charm{
+        margin-left:4px;
+        font-size:12px;
+      }
+
+      .gc-equipped-name-charm[data-rarity="Rare"]{
+        text-shadow:0 0 7px rgba(70,220,130,.35);
+      }
+
+      .gc-equipped-name-charm[data-rarity="Epic"]{
+        text-shadow:0 0 8px rgba(90,160,255,.45);
+      }
+
+      .gc-equipped-name-charm[data-rarity="Legendary"]{
+        text-shadow:0 0 9px rgba(255,70,90,.55);
+      }
+
+      .gc-equipped-name-charm[data-rarity="Mythic"]{
+        text-shadow:0 0 10px rgba(255,210,80,.65);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  async function fetchCharm(userId, force=false){
+    const uid=String(userId || '').trim();
+    if(!uid) return null;
+
+    const now=Date.now();
+    const cached=cache.get(uid);
+
+    if(!force && cached && (now-cached.at)<CACHE_MS){
+      return cached.value;
+    }
+
+    const db=await getDb();
+    if(!db) return null;
+
+    try{
+      const {data,error}=await db.rpc(
+        'get_public_gymcel_name_charm',
+        {target_user:uid}
+      );
+
+      if(error) throw error;
+
+      const row=Array.isArray(data) ? (data[0] || null) : (data || null);
+
+      const value=row ? {
+        item_key:String(row.item_key || ''),
+        item_name:String(row.item_name || 'Name Charm'),
+        icon_text:String(row.icon_text || ''),
+        rarity:String(row.rarity || '')
+      } : null;
+
+      cache.set(uid,{at:now,value});
+      return value;
+
+    }catch(err){
+      console.error('[Gymcels] Name Charm lookup error:',err);
+      cache.set(uid,{at:now,value:null});
+      return null;
+    }
+  }
+
+  function charmHtml(charm){
+    if(!charm?.icon_text) return '';
+
+    return `
+      <span
+        class="gc-equipped-name-charm"
+        data-gc-equipped-charm="1"
+        data-rarity="${esc(charm.rarity)}"
+        title="${esc(charm.item_name)} · ${esc(charm.rarity)}"
+        aria-label="${esc(charm.item_name)}"
+      >${esc(charm.icon_text)}</span>
+    `;
+  }
+
+  function removeCharm(target){
+    target?.querySelector?.(':scope > .gc-equipped-name-charm')?.remove();
+  }
+
+  function putCharm(target,charm){
+    if(!target) return;
+
+    removeCharm(target);
+
+    if(!charm?.icon_text) return;
+
+    target.insertAdjacentHTML('beforeend',charmHtml(charm));
+  }
+
+  async function decorateChatButton(button){
+    const uid=button?.dataset?.chatUser;
+    const nameEl=button?.querySelector('.chat-user');
+
+    if(!uid || !nameEl) return;
+
+    const charm=await fetchCharm(uid);
+    putCharm(button,charm);
+  }
+
+  async function decorateFriendContainer(container){
+    const uid=container?.dataset?.chatUser;
+    if(!uid) return;
+
+    const nameEl=
+      container.querySelector('.friend-name') ||
+      container.querySelector('.friend-search-result-name');
+
+    if(!nameEl) return;
+
+    const charm=await fetchCharm(uid);
+    putCharm(nameEl,charm);
+  }
+
+  async function decorateOwnProfile(){
+    const nameEl=document.getElementById('profileDisplayName');
+    if(!nameEl) return;
+
+    if(!ownUserId){
+      const db=await getDb();
+      if(!db) return;
+
+      const {data}=await db.auth.getSession();
+      ownUserId=data?.session?.user?.id || null;
+    }
+
+    if(!ownUserId) return;
+
+    const charm=await fetchCharm(ownUserId);
+    putCharm(nameEl,charm);
+  }
+
+  async function decoratePublicProfile(userId){
+    const uid=String(userId || '').trim();
+    const nameEl=document.getElementById('chatPublicName');
+
+    if(!uid || !nameEl) return;
+
+    nameEl.dataset.gcCharmUser=uid;
+
+    const charm=await fetchCharm(uid,true);
+
+    // Do not apply a stale lookup if another profile was opened meanwhile.
+    if(nameEl.dataset.gcCharmUser !== uid) return;
+
+    putCharm(nameEl,charm);
+  }
+
+  async function decorateVisibleNames(){
+    if(decorating) return;
+    decorating=true;
+
+    try{
+      const chatButtons=[
+        ...document.querySelectorAll('.chat-user-button[data-chat-user]')
+      ];
+
+      const friendContainers=[
+        ...document.querySelectorAll('.friend-row-click[data-chat-user], .friend-search-result-main[data-chat-user]')
+      ];
+
+      await Promise.all([
+        ...chatButtons.map(decorateChatButton),
+        ...friendContainers.map(decorateFriendContainer),
+        decorateOwnProfile()
+      ]);
+
+      const publicName=document.getElementById('chatPublicName');
+      const publicUid=publicName?.dataset?.gcCharmUser;
+
+      if(publicUid){
+        const charm=await fetchCharm(publicUid);
+        putCharm(publicName,charm);
+      }
+
+    }finally{
+      decorating=false;
+    }
+  }
+
+  async function refreshOwnCharm(){
+    if(ownUserId) cache.delete(ownUserId);
+
+    await decorateOwnProfile();
+
+    // Public chat may currently contain the signed-in user's old charm.
+    if(ownUserId){
+      document
+        .querySelectorAll(`.chat-user-button[data-chat-user="${CSS.escape(ownUserId)}"]`)
+        .forEach(btn => {
+          decorateChatButton(btn);
+        });
+    }
+  }
+
+  function boot(){
+    installStyles();
+
+    getDb().then(async db=>{
+      if(db){
+        const {data}=await db.auth.getSession();
+        ownUserId=data?.session?.user?.id || null;
+      }
+
+      decorateVisibleNames();
+    });
+
+    // Chat/friends/profile content is dynamically rebuilt.
+    let timer=null;
+
+    const observer=new MutationObserver(()=>{
+      clearTimeout(timer);
+      timer=setTimeout(decorateVisibleNames,80);
+    });
+
+    observer.observe(document.body,{
+      childList:true,
+      subtree:true,
+      characterData:true
+    });
+
+    // When somebody clicks a user anywhere that opens the public profile,
+    // remember that exact user and decorate the profile name.
+    document.addEventListener('click',e=>{
+      const target=e.target.closest('[data-chat-user]');
+      if(!target) return;
+
+      const uid=target.dataset.chatUser;
+      if(!uid) return;
+
+      [50,300,800,1500].forEach(ms=>{
+        setTimeout(()=>decoratePublicProfile(uid),ms);
+      });
+    });
+
+    // The wheel dispatches this after Equip / Unequip.
+    window.addEventListener('gymcels-name-charm-changed',async ()=>{
+      await refreshOwnCharm();
+      setTimeout(decorateVisibleNames,100);
+      setTimeout(decorateVisibleNames,600);
+    });
+
+    // Periodic refresh keeps other people's newly-equipped charms current.
+    setInterval(()=>{
+      cache.clear();
+      decorateVisibleNames();
+    },60000);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] Equipped Name Charms beside usernames loaded');
+})();
