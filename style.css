@@ -7509,3 +7509,173 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
     min-height:52px;
   }
 }
+/* ===== Smaller profile popup so more background shows ===== */
+
+.profile-modal,
+.profile-popup,
+.member-profile-modal,
+.user-profile-modal,
+.profile-card-modal {
+  max-width: 430px !important;
+  width: calc(100% - 18px) !important;
+}
+
+.profile-modal-content,
+.profile-popup-content,
+.member-profile-card,
+.user-profile-card,
+.profile-card {
+  padding: 14px !important;
+  gap: 10px !important;
+  border-radius: 18px !important;
+}
+
+.profile-header,
+.profile-top,
+.profile-hero {
+  margin-bottom: 10px !important;
+  gap: 10px !important;
+}
+
+.profile-avatar,
+.profile-photo,
+.member-avatar {
+  width: 56px !important;
+  height: 56px !important;
+}
+
+.profile-name,
+.member-name,
+.profile-title {
+  font-size: 1.05rem !important;
+  line-height: 1.1 !important;
+  margin-bottom: 4px !important;
+}
+
+.profile-badges,
+.member-badges {
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+.profile-badges .badge,
+.member-badges .badge,
+.profile-role-badge {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  border-radius: 999px !important;
+}
+
+.profile-bio,
+.member-bio,
+.profile-about {
+  min-height: 42px !important;
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+  border-radius: 12px !important;
+}
+
+.profile-stats-grid,
+.member-stats-grid,
+.profile-grid {
+  gap: 10px !important;
+}
+
+.profile-stat,
+.member-stat,
+.profile-stat-card,
+.stat-box {
+  min-height: 86px !important;
+  padding: 12px !important;
+  border-radius: 14px !important;
+}
+
+.profile-stat-label,
+.member-stat-label,
+.stat-label {
+  font-size: 11px !important;
+  margin-bottom: 6px !important;
+  letter-spacing: 0.08em !important;
+}
+
+.profile-stat-value,
+.member-stat-value,
+.stat-value {
+  font-size: 18px !important;
+  line-height: 1.1 !important;
+}
+
+.profile-rep-card,
+.member-rep-card,
+.rep-card {
+  padding: 12px !important;
+  min-height: 84px !important;
+  border-radius: 14px !important;
+}
+
+.profile-rep-badge,
+.member-rep-badge,
+.rep-badge {
+  width: 64px !important;
+  min-width: 64px !important;
+  height: 64px !important;
+  font-size: 20px !important;
+  border-radius: 14px !important;
+}
+
+.profile-rep-title,
+.member-rep-title,
+.rep-title {
+  font-size: 18px !important;
+}
+
+.profile-rep-subtext,
+.member-rep-subtext,
+.rep-subtext {
+  font-size: 12px !important;
+}
+
+.profile-rep-card button,
+.member-rep-card button,
+.rep-card button {
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  min-height: auto !important;
+}
+
+.profile-physique,
+.member-physique,
+.physique-section {
+  margin-top: 12px !important;
+}
+
+.profile-physique h3,
+.member-physique h3,
+.physique-section h3 {
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+}
+
+.profile-physique img,
+.member-physique img,
+.physique-image {
+  max-height: 220px !important;
+  object-fit: cover !important;
+  border-radius: 14px !important;
+}
+
+.profile-physique-empty,
+.member-physique-empty,
+.physique-empty {
+  min-height: 150px !important;
+  font-size: 13px !important;
+  border-radius: 14px !important;
+}
+
+.profile-close,
+.member-profile-close,
+.profile-modal-close {
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 18px !important;
+}
