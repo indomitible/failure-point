@@ -8118,3 +8118,12 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
     width:min(260px,100%) !important;
   }
 }
+/* FIX PHYSIQUE PHOTOS - SHOW FULL IMAGE */
+.profile-physique-card img,
+.chat-public-physique-frame img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #0a0c0f;
+}
