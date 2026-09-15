@@ -7836,3 +7836,191 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
     font-size:16px !important;
   }
 }
+/* =========================================================
+   GYMCELS PROFILE COSMETIC — ACTUAL COMPACT VERSION
+   ========================================================= */
+
+#chatProfileOverlay .chat-public-profile{
+  width:min(360px,calc(100vw - 12px)) !important;
+  max-width:360px !important;
+  padding:11px !important;
+  border-radius:15px !important;
+}
+
+/* Let the purchased background show much more */
+#chatProfileOverlay .chat-public-profile.gc-profile-bg-active{
+  background-image:
+    linear-gradient(
+      rgba(5,7,10,.34),
+      rgba(5,7,10,.48)
+    ),
+    var(--gc-profile-background) !important;
+
+  background-size:cover !important;
+  background-position:center 15% !important;
+}
+
+/* ---------- HEADER ---------- */
+
+#chatProfileOverlay .chat-public-head{
+  gap:8px !important;
+  padding-right:30px !important;
+  align-items:flex-start !important;
+}
+
+#chatProfileOverlay .chat-public-avatar{
+  width:48px !important;
+  height:48px !important;
+  min-width:48px !important;
+}
+
+#chatProfileOverlay .chat-public-name{
+  font-size:17px !important;
+  line-height:1.05 !important;
+}
+
+#chatProfileOverlay .chat-public-sub{
+  font-size:9px !important;
+  margin-top:2px !important;
+}
+
+#chatProfileOverlay .chat-public-status{
+  font-size:9px !important;
+  margin-top:2px !important;
+  gap:4px !important;
+}
+
+#chatProfileOverlay .chat-public-status .status-dot{
+  width:6px !important;
+  height:6px !important;
+}
+
+#chatProfileOverlay .public-vip-badge,
+#chatProfileOverlay .chat-public-staff-badge{
+  font-size:8px !important;
+  padding:3px 6px !important;
+}
+
+/* ---------- BIO ---------- */
+
+#chatProfileOverlay .chat-public-bio{
+  min-height:0 !important;
+  margin-top:6px !important;
+  padding:7px 9px !important;
+  font-size:10px !important;
+  border-radius:9px !important;
+
+  background:rgba(5,8,11,.48) !important;
+  backdrop-filter:blur(2px) !important;
+}
+
+/* ---------- STATS ---------- */
+
+#chatProfileOverlay .chat-public-stats{
+  gap:6px !important;
+  margin-top:9px !important;
+}
+
+#chatProfileOverlay .chat-public-stat{
+  min-height:48px !important;
+  padding:7px 8px !important;
+  border-radius:9px !important;
+
+  background:rgba(5,8,11,.48) !important;
+  border-color:rgba(255,255,255,.10) !important;
+  backdrop-filter:blur(2px) !important;
+}
+
+#chatProfileOverlay .chat-public-stat span{
+  font-size:7px !important;
+  letter-spacing:.06em !important;
+}
+
+#chatProfileOverlay .chat-public-stat b{
+  font-size:15px !important;
+  margin-top:2px !important;
+}
+
+/* ---------- REP ---------- */
+
+#chatProfileOverlay #gcReputationPanel{
+  min-height:0 !important;
+  padding:8px !important;
+  margin-top:8px !important;
+  border-radius:10px !important;
+
+  background:rgba(5,8,11,.50) !important;
+  border-color:rgba(255,255,255,.10) !important;
+  backdrop-filter:blur(2px) !important;
+}
+
+#chatProfileOverlay #gcReputationPanel .gc-rep-score{
+  width:48px !important;
+  height:48px !important;
+  min-width:48px !important;
+}
+
+#chatProfileOverlay #gcReputationPanel button{
+  min-height:30px !important;
+  padding:7px 10px !important;
+  font-size:9px !important;
+}
+
+/* ---------- PHYSIQUE ---------- */
+
+#chatProfileOverlay .chat-public-physique{
+  margin-top:8px !important;
+  padding-top:8px !important;
+}
+
+#chatProfileOverlay .chat-public-physique-title{
+  margin-bottom:5px !important;
+  font-size:8px !important;
+}
+
+/* THIS was the main thing keeping it huge */
+#chatProfileOverlay .chat-public-physique-frame{
+  width:min(205px,100%) !important;
+  aspect-ratio:4/5 !important;
+  border-radius:10px !important;
+  background:rgba(5,8,11,.42) !important;
+  border-color:rgba(255,255,255,.10) !important;
+}
+
+#chatProfileOverlay .chat-public-physique-empty{
+  padding:8px !important;
+  font-size:9px !important;
+}
+
+/* ---------- CLOSE BUTTON ---------- */
+
+#chatProfileOverlay .chat-profile-close{
+  width:28px !important;
+  height:28px !important;
+  right:9px !important;
+  top:8px !important;
+  font-size:15px !important;
+}
+
+/* ---------- EXTRA PROFILE SECTIONS ---------- */
+
+#chatProfileOverlay .chat-friend-area{
+  margin-top:8px !important;
+  padding-top:8px !important;
+  gap:6px !important;
+}
+
+#chatProfileOverlay .chat-public-achievements-title{
+  margin-top:8px !important;
+}
+
+@media(max-width:500px){
+  #chatProfileOverlay{
+    padding:6px !important;
+  }
+
+  #chatProfileOverlay .chat-public-profile{
+    width:min(350px,calc(100vw - 10px)) !important;
+    padding:9px !important;
+  }
+}
