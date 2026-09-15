@@ -8040,44 +8040,38 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
   width:max-content !important;
   padding:2px 5px !important;
   border-radius:4px !important;
-}
-/* Remove the light boxes behind profile stat labels */
-#chatProfileOverlay .chat-public-profile .chat-public-stat > span{
-  background:transparent !important;
-  padding:0 !important;
-  border-radius:0 !important;
 
-  color:#0b0d10 !important;
-  font-weight:1000 !important;
-  text-shadow:0 1px 1px rgba(255,255,255,.25) !important;
-}
 /* Profile stat boxes: black boxes + white text */
 #chatProfileOverlay .chat-public-stat{
   background:rgba(5,7,10,.88) !important;
   border:1px solid rgba(255,255,255,.10) !important;
 }
 
-#chatProfileOverlay .chat-public-stat > span{
-  color:#ffffff !important;
-  background:transparent !important;
-  padding:0 !important;
-  border-radius:0 !important;
-  text-shadow:none !important;
-  font-weight:900 !important;
-}
+
 
 #chatProfileOverlay .chat-public-stat > b{
   color:#ffffff !important;
 }
+
+/* BLACK LABEL TEXT + STRONG WHITE OUTLINE — NO BOX */
 #chatProfileOverlay .chat-public-stat > span{
-  color:#050505 !important;
+  color:#080808 !important;
   background:transparent !important;
-  padding:0 !important;
   border:none !important;
+  padding:0 !important;
   border-radius:0 !important;
 
-  -webkit-text-stroke:0.45px #ffffff !important;
-  text-shadow:none !important;
+  -webkit-text-stroke:0 !important;
+
+  text-shadow:
+    -1px -1px 0 #fff,
+     1px -1px 0 #fff,
+    -1px  1px 0 #fff,
+     1px  1px 0 #fff,
+     0   -1px 0 #fff,
+     0    1px 0 #fff,
+    -1px  0   0 #fff,
+     1px  0   0 #fff !important;
 
   font-weight:1000 !important;
 }
