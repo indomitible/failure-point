@@ -5821,3 +5821,194 @@
 
   console.log('[Gymcels] VIP Store discount UI loaded');
 })();
+// ============================================================
+// GYMCELS.LOL — BUY 1,000 CREDITS PAYHIP CARD
+// Paste at the VERY BOTTOM of community-extras.js
+// Upload gymcel-credits-coin.png to the repo root first.
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsBuyCreditsCardV1) return;
+  window.__gymcelsBuyCreditsCardV1 = true;
+
+  const PAYHIP_URL = 'https://payhip.com/b/PmMvf';
+
+  function installStyles(){
+    if(document.getElementById('gcBuyCreditsCardStyles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'gcBuyCreditsCardStyles';
+    style.textContent = `
+      .gc-buy-credits-card{
+        grid-column:1/-1;
+        display:grid;
+        grid-template-columns:150px minmax(0,1fr);
+        gap:16px;
+        align-items:center;
+        padding:16px;
+        margin-bottom:14px;
+        border:1px solid rgba(240,190,55,.35);
+        border-radius:14px;
+        background:
+          radial-gradient(circle at 15% 50%,rgba(255,183,35,.10),transparent 34%),
+          linear-gradient(180deg,#11161b,#0b0f13);
+        box-shadow:0 14px 40px rgba(0,0,0,.22);
+      }
+
+      .gc-buy-credits-logo{
+        width:136px;
+        height:136px;
+        display:grid;
+        place-items:center;
+        border-radius:18px;
+        background:#080b0f;
+        overflow:hidden;
+      }
+
+      .gc-buy-credits-logo img{
+        width:100%;
+        height:100%;
+        object-fit:contain;
+        display:block;
+      }
+
+      .gc-buy-credits-copy{
+        min-width:0;
+      }
+
+      .gc-buy-credits-kicker{
+        color:#e9bb3f;
+        font-size:8px;
+        font-weight:1000;
+        letter-spacing:.11em;
+        text-transform:uppercase;
+      }
+
+      .gc-buy-credits-title{
+        margin:4px 0 5px;
+        color:#fff;
+        font-size:22px;
+        line-height:1.05;
+        font-weight:1000;
+      }
+
+      .gc-buy-credits-desc{
+        margin:0;
+        max-width:650px;
+        color:#8c96a1;
+        font-size:10px;
+        line-height:1.5;
+      }
+
+      .gc-buy-credits-actions{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:12px;
+      }
+
+      .gc-buy-credits-btn{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        min-height:38px;
+        padding:0 16px;
+        border:1px solid #ef4355;
+        border-radius:9px;
+        background:#ef4355;
+        color:#fff !important;
+        text-decoration:none !important;
+        font-size:9px;
+        font-weight:1000;
+        cursor:pointer;
+      }
+
+      .gc-buy-credits-note{
+        color:#7b8590;
+        font-size:8px;
+        font-weight:800;
+      }
+
+      @media(max-width:650px){
+        .gc-buy-credits-card{
+          grid-template-columns:92px minmax(0,1fr);
+          gap:12px;
+          padding:12px;
+        }
+
+        .gc-buy-credits-logo{
+          width:88px;
+          height:88px;
+          border-radius:13px;
+        }
+
+        .gc-buy-credits-title{
+          font-size:17px;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function cardMarkup(){
+    return `
+      <section class="gc-buy-credits-card" id="gcBuyCreditsCard">
+        <div class="gc-buy-credits-logo">
+          <img src="gymcel-credits-coin.png" alt="Gymcel Credits coin">
+        </div>
+
+        <div class="gc-buy-credits-copy">
+          <div class="gc-buy-credits-kicker">GYMCEL CREDITS</div>
+          <h3 class="gc-buy-credits-title">Buy 1,000 Credits</h3>
+          <p class="gc-buy-credits-desc">
+            Add 1,000 Gymcel Credits to your account and use them on profile backgrounds
+            and future Gymcel Store items.
+          </p>
+
+          <div class="gc-buy-credits-actions">
+            <a
+              class="gc-buy-credits-btn"
+              href="${PAYHIP_URL}"
+              target="_blank"
+              rel="noopener"
+            >Buy 1,000 Credits</a>
+            <span class="gc-buy-credits-note">Secure checkout through Payhip</span>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  function installCard(){
+    if(document.getElementById('gcBuyCreditsCard')) return true;
+
+    const grid = document.querySelector('#gymcelStoreSection .gc-store-grid');
+    if(!grid) return false;
+
+    grid.insertAdjacentHTML('afterbegin', cardMarkup());
+    return true;
+  }
+
+  function boot(){
+    installStyles();
+
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries++;
+      if(installCard() || tries > 60){
+        clearInterval(timer);
+      }
+    }, 250);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot, {once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] Buy 1,000 Credits card loaded');
+})();
