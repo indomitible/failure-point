@@ -7679,3 +7679,160 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
   height: 34px !important;
   font-size: 18px !important;
 }
+/* =========================================================
+   GYMCELS PUBLIC PROFILE — COMPACT + MORE BACKGROUND V2
+   ========================================================= */
+
+#chatProfileOverlay .chat-public-profile{
+  width:min(390px,calc(100vw - 14px)) !important;
+  max-width:390px !important;
+  padding:12px !important;
+  border-radius:16px !important;
+}
+
+/* Show much more of purchased profile backgrounds */
+#chatProfileOverlay .chat-public-profile.gc-profile-bg-active{
+  background-image:
+    linear-gradient(
+      rgba(8,10,13,.48),
+      rgba(8,10,13,.60)
+    ),
+    var(--gc-profile-background) !important;
+
+  background-size:cover !important;
+  background-position:center 18% !important;
+}
+
+/* Top profile area */
+#chatProfileOverlay .chat-public-profile-header{
+  gap:9px !important;
+  margin-bottom:9px !important;
+}
+
+#chatProfileOverlay .chat-public-avatar{
+  width:54px !important;
+  height:54px !important;
+}
+
+#chatProfileOverlay .chat-public-name{
+  font-size:18px !important;
+  line-height:1.05 !important;
+}
+
+#chatProfileOverlay .chat-public-bio{
+  min-height:38px !important;
+  padding:9px 11px !important;
+  margin-top:8px !important;
+
+  background:rgba(6,9,12,.58) !important;
+  border-color:rgba(255,255,255,.12) !important;
+  backdrop-filter:blur(3px) !important;
+}
+
+/* Stats */
+#chatProfileOverlay .chat-public-stats{
+  gap:7px !important;
+  margin-top:9px !important;
+}
+
+#chatProfileOverlay .chat-public-stat{
+  min-height:67px !important;
+  padding:9px 10px !important;
+
+  background:rgba(6,9,12,.56) !important;
+  border-color:rgba(255,255,255,.12) !important;
+  backdrop-filter:blur(3px) !important;
+}
+
+#chatProfileOverlay .chat-public-stat span{
+  font-size:8px !important;
+}
+
+#chatProfileOverlay .chat-public-stat b{
+  font-size:17px !important;
+  margin-top:4px !important;
+}
+
+/* Reputation */
+#chatProfileOverlay #gcReputationPanel{
+  min-height:68px !important;
+  padding:9px 10px !important;
+  margin-top:9px !important;
+
+  background:
+    radial-gradient(
+      circle at 0 0,
+      rgba(239,67,85,.10),
+      transparent 42%
+    ),
+    rgba(6,9,12,.58) !important;
+
+  border-color:rgba(255,255,255,.12) !important;
+  backdrop-filter:blur(3px) !important;
+}
+
+#chatProfileOverlay #gcReputationPanel .gc-rep-score{
+  width:54px !important;
+  min-width:54px !important;
+  height:54px !important;
+}
+
+#chatProfileOverlay #gcReputationPanel button{
+  padding:8px 11px !important;
+  min-height:34px !important;
+  font-size:10px !important;
+}
+
+/* Physique section */
+#chatProfileOverlay .chat-public-physique{
+  margin-top:10px !important;
+  padding-top:10px !important;
+}
+
+#chatProfileOverlay .chat-public-physique-title{
+  font-size:10px !important;
+  margin-bottom:7px !important;
+}
+
+#chatProfileOverlay .chat-public-physique img{
+  max-height:215px !important;
+  object-fit:cover !important;
+}
+
+#chatProfileOverlay .chat-public-physique-empty{
+  min-height:135px !important;
+  height:135px !important;
+
+  background:rgba(5,8,11,.52) !important;
+  border-color:rgba(255,255,255,.12) !important;
+  backdrop-filter:blur(3px) !important;
+}
+
+/* Reduce general spacing inside popup */
+#chatProfileOverlay .chat-public-profile > *{
+  margin-bottom:8px !important;
+}
+
+/* Close button */
+#chatProfileOverlay .chat-public-close{
+  width:31px !important;
+  height:31px !important;
+}
+
+/* Mobile */
+@media(max-width:500px){
+  #chatProfileOverlay .chat-public-profile{
+    width:calc(100vw - 12px) !important;
+    max-width:380px !important;
+    padding:10px !important;
+  }
+
+  #chatProfileOverlay .chat-public-stat{
+    min-height:62px !important;
+    padding:8px !important;
+  }
+
+  #chatProfileOverlay .chat-public-stat b{
+    font-size:16px !important;
+  }
+}
