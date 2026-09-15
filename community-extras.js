@@ -6012,3 +6012,218 @@
 
   console.log('[Gymcels] Buy 1,000 Credits card loaded');
 })();
+// ============================================================
+// GYMCELS.LOL — PAYHIP 1,000 CREDIT RETURN MESSAGE V1
+//
+// Payhip success redirect URL:
+// https://gymcels.lol/?purchase=credits1000#store
+//
+// Paste at the VERY BOTTOM of community-extras.js.
+// This does NOT award credits itself — the secure Payhip webhook does.
+// It only opens the Store, shows purchase status, and refreshes balance.
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsPayhipReturnV1) return;
+  window.__gymcelsPayhipReturnV1 = true;
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('purchase') !== 'credits1000') return;
+
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  async function getDb(){
+    for(let i=0;i<60;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcPayhipReturnStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcPayhipReturnStyles';
+    style.textContent=`
+      #gcPayhipPurchaseBanner{
+        margin:0 0 14px;
+        padding:13px 15px;
+        border:1px solid rgba(80,220,135,.38);
+        border-radius:12px;
+        background:
+          linear-gradient(180deg,rgba(35,115,67,.18),rgba(17,45,29,.16)),
+          #0b1014;
+        color:#fff;
+      }
+
+      #gcPayhipPurchaseBanner strong{
+        display:block;
+        margin-bottom:4px;
+        color:#7ee6a4;
+        font-size:13px;
+        font-weight:1000;
+      }
+
+      #gcPayhipPurchaseBanner span{
+        color:#aab4bd;
+        font-size:9px;
+        line-height:1.45;
+        font-weight:750;
+      }
+
+      #gcPayhipPurchaseBanner.gc-waiting{
+        border-color:rgba(239,190,67,.38);
+      }
+
+      #gcPayhipPurchaseBanner.gc-waiting strong{
+        color:#f0ca59;
+      }
+
+      #gcPayhipPurchaseBanner.gc-error{
+        border-color:rgba(255,91,109,.45);
+      }
+
+      #gcPayhipPurchaseBanner.gc-error strong{
+        color:#ff8795;
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function ensureStoreRoute(){
+    if(window.location.hash !== '#store'){
+      window.location.hash='#store';
+    }
+  }
+
+  function findStoreContainer(){
+    return (
+      document.getElementById('gymcelStoreSection') ||
+      document.querySelector('[data-app-screen-section="store"]') ||
+      document.querySelector('.gc-store-page') ||
+      null
+    );
+  }
+
+  function installBanner(){
+    if(document.getElementById('gcPayhipPurchaseBanner')) {
+      return document.getElementById('gcPayhipPurchaseBanner');
+    }
+
+    const store=findStoreContainer();
+    if(!store) return null;
+
+    const banner=document.createElement('div');
+    banner.id='gcPayhipPurchaseBanner';
+    banner.className='gc-waiting';
+    banner.innerHTML=`
+      <strong>Payment complete ✓</strong>
+      <span>We received your purchase. Checking for your 1,000 Gymcel Credits…</span>
+    `;
+
+    store.insertAdjacentElement('afterbegin',banner);
+    return banner;
+  }
+
+  function updateBalanceUi(balance){
+    const value=Number(balance || 0).toLocaleString();
+
+    [
+      document.getElementById('gcCreditBalance'),
+      document.getElementById('gcDesktopCreditMini')
+    ].forEach(el=>{
+      if(el) el.textContent=value;
+    });
+  }
+
+  async function refreshCredits(){
+    const banner=installBanner();
+
+    const db=await getDb();
+    if(!db){
+      if(banner){
+        banner.className='gc-error';
+        banner.innerHTML=`
+          <strong>Purchase completed</strong>
+          <span>Your payment went through, but the site could not refresh your balance yet. Refresh the Store in a few seconds.</span>
+        `;
+      }
+      return;
+    }
+
+    const {data:sessionData}=await db.auth.getSession();
+    const session=sessionData?.session || null;
+
+    if(!session?.user){
+      if(banner){
+        banner.className='gc-waiting';
+        banner.innerHTML=`
+          <strong>Payment complete ✓</strong>
+          <span>Log into the Gymcels account that uses the same email as your Payhip purchase to see your credits.</span>
+        `;
+      }
+      return;
+    }
+
+    // Poll because Payhip redirect and webhook can finish a few seconds apart.
+    for(let attempt=1; attempt<=15; attempt++){
+      const {data,error}=await db.rpc('get_my_gymcel_credit_status');
+
+      if(!error){
+        const row=Array.isArray(data) ? data[0] : data;
+        const balance=Number(row?.balance || 0);
+
+        updateBalanceUi(balance);
+
+        if(banner){
+          banner.className='';
+          banner.innerHTML=`
+            <strong>Purchase complete ✓</strong>
+            <span>Your Gymcel Credit balance is now <b>${balance.toLocaleString()}</b>. If this purchase just finished, the webhook may still be updating for a few seconds.</span>
+          `;
+        }
+      }
+
+      // Give the webhook time to arrive, then re-check.
+      if(attempt < 15) await sleep(2000);
+    }
+
+    if(banner){
+      banner.innerHTML=`
+        <strong>Purchase return complete ✓</strong>
+        <span>Your balance has been refreshed. If the new 1,000 credits are not showing yet, wait a few seconds and refresh the Store once.</span>
+      `;
+    }
+
+    // Remove only the query flag so refreshing the page doesn't replay the banner.
+    const cleanUrl = `${window.location.pathname}${window.location.hash || '#store'}`;
+    window.history.replaceState({},'',cleanUrl);
+  }
+
+  function boot(){
+    installStyles();
+    ensureStoreRoute();
+
+    let tries=0;
+    const timer=setInterval(()=>{
+      tries++;
+      const banner=installBanner();
+
+      if(banner || tries>60){
+        clearInterval(timer);
+        refreshCredits();
+      }
+    },250);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] Payhip purchase return handler loaded');
+})();
