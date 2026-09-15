@@ -4246,3 +4246,478 @@
 
   console.log('[Gymcels] Admin unlimited credits + grants loaded');
 })();
+// ============================================================
+// GYMCELS MY COSMETICS INVENTORY V1
+// Adds a dedicated "My Cosmetics" area to the Store where owned
+// profile backgrounds can be equipped / unequipped.
+//
+// Paste at the VERY BOTTOM of community-extras.js.
+// Requires the existing Store Cosmetics SQL/functions.
+// ============================================================
+(() => {
+  'use strict';
+
+  if(window.__gymcelsMyCosmeticsV1) return;
+  window.__gymcelsMyCosmeticsV1 = true;
+
+  const ITEMS = {
+    profile_bg_200_brah: {
+      name: '200 Brah',
+      type: 'Profile Background',
+      asset: '200-brah-profile-bg.jpg',
+      price: 500
+    }
+  };
+
+  let ownedRows=[];
+  let currentSession=null;
+  let loading=false;
+
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+  async function getDb(){
+    for(let i=0;i<40;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  function esc(value=''){
+    return String(value)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcMyCosmeticsStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcMyCosmeticsStyles';
+    style.textContent=`
+      .gc-my-cosmetics-section{
+        grid-column:1/-1;
+        border:1px solid #29313a;
+        border-radius:14px;
+        background:linear-gradient(180deg,#10151a,#0b0f13);
+        padding:16px;
+      }
+
+      .gc-my-cosmetics-head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:13px;
+      }
+
+      .gc-my-cosmetics-head strong{
+        display:block;
+        color:#fff;
+        font-size:15px;
+        font-weight:1000;
+      }
+
+      .gc-my-cosmetics-head p{
+        margin:4px 0 0;
+        color:#7f8995;
+        font-size:9px;
+      }
+
+      .gc-my-cosmetics-count{
+        flex:0 0 auto;
+        padding:5px 8px;
+        border:1px solid #343d48;
+        border-radius:999px;
+        color:#aab3bd;
+        background:#090d11;
+        font-size:8px;
+        font-weight:950;
+      }
+
+      .gc-my-cosmetics-list{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+      }
+
+      .gc-owned-cosmetic{
+        display:grid;
+        grid-template-columns:118px minmax(0,1fr);
+        gap:11px;
+        min-width:0;
+        padding:10px;
+        border:1px solid #29313a;
+        border-radius:11px;
+        background:#0a0e12;
+      }
+
+      .gc-owned-cosmetic-preview{
+        min-height:128px;
+        border:1px solid #323b46;
+        border-radius:9px;
+        background:#070a0d center 18%/cover no-repeat;
+      }
+
+      .gc-owned-cosmetic-copy{
+        min-width:0;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+      }
+
+      .gc-owned-cosmetic-type{
+        color:#d6b64f;
+        font-size:7px;
+        font-weight:1000;
+        letter-spacing:.09em;
+        text-transform:uppercase;
+      }
+
+      .gc-owned-cosmetic h4{
+        margin:4px 0 4px;
+        color:#fff;
+        font-size:16px;
+        font-weight:1000;
+      }
+
+      .gc-owned-cosmetic p{
+        margin:0;
+        color:#717c88;
+        font-size:8px;
+        line-height:1.45;
+      }
+
+      .gc-owned-cosmetic-actions{
+        display:flex;
+        gap:7px;
+        flex-wrap:wrap;
+        margin-top:9px;
+      }
+
+      .gc-owned-cosmetic-btn{
+        border:1px solid #343d48;
+        border-radius:8px;
+        background:#171d24;
+        color:#fff;
+        padding:8px 10px;
+        font:inherit;
+        font-size:8px;
+        font-weight:1000;
+        cursor:pointer;
+      }
+
+      .gc-owned-cosmetic-btn.equip{
+        border-color:#d5aa30;
+        color:#ffe38b;
+        background:rgba(213,170,48,.09);
+      }
+
+      .gc-owned-cosmetic-btn.equipped{
+        border-color:#4cbd75;
+        color:#83e2a5;
+        background:rgba(76,189,117,.09);
+      }
+
+      .gc-owned-cosmetic-btn:disabled{opacity:.6;cursor:not-allowed}
+
+      #gcMyCosmeticsStatus{
+        min-height:14px;
+        margin-top:9px;
+        color:#7f8995;
+        font-size:8px;
+        font-weight:850;
+      }
+
+      #gcMyCosmeticsStatus.ok{color:#72dc97}
+      #gcMyCosmeticsStatus.err{color:#ff8998}
+
+      .gc-my-cosmetics-empty{
+        grid-column:1/-1;
+        padding:18px;
+        border:1px dashed #303945;
+        border-radius:10px;
+        color:#77818c;
+        text-align:center;
+        font-size:9px;
+      }
+
+      /* Make the first Store cosmetic card clearly Admin-unlimited. */
+      body.gc-admin-unlimited-credits #gcStoreCosmeticStatus{
+        color:#ffe18a!important;
+      }
+
+      body.gc-admin-unlimited-credits #gcStoreCosmeticAction.buy::after{
+        content:' · Admin ∞';
+      }
+
+      @media(max-width:800px){
+        .gc-my-cosmetics-list{grid-template-columns:1fr}
+      }
+
+      @media(max-width:460px){
+        .gc-owned-cosmetic{grid-template-columns:92px minmax(0,1fr)}
+        .gc-owned-cosmetic-preview{min-height:112px}
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function inventoryMarkup(){
+    return `
+      <section id="gcMyCosmeticsSection" class="gc-my-cosmetics-section">
+        <div class="gc-my-cosmetics-head">
+          <div>
+            <strong>My Cosmetics</strong>
+            <p>Everything you buy with Gymcel Credits stays here permanently. Equip what you want on your profile.</p>
+          </div>
+          <span id="gcMyCosmeticsCount" class="gc-my-cosmetics-count">0 owned</span>
+        </div>
+
+        <div id="gcMyCosmeticsList" class="gc-my-cosmetics-list"></div>
+        <div id="gcMyCosmeticsStatus"></div>
+      </section>`;
+  }
+
+  function installInventory(){
+    if(document.getElementById('gcMyCosmeticsSection')) return true;
+
+    const grid=document.querySelector('#gymcelStoreSection .gc-store-grid');
+    if(!grid) return false;
+
+    const cosmeticStore=document.getElementById('gcCosmeticStoreSection');
+    if(cosmeticStore){
+      cosmeticStore.insertAdjacentHTML('afterend',inventoryMarkup());
+    }else{
+      grid.insertAdjacentHTML('beforeend',inventoryMarkup());
+    }
+
+    loadInventory();
+    return true;
+  }
+
+  function renderInventory(){
+    const list=document.getElementById('gcMyCosmeticsList');
+    const count=document.getElementById('gcMyCosmeticsCount');
+    const status=document.getElementById('gcMyCosmeticsStatus');
+
+    if(!list || !count || !status) return;
+
+    count.textContent=`${ownedRows.length} owned`;
+    status.className='';
+
+    if(!currentSession?.user){
+      list.innerHTML='<div class="gc-my-cosmetics-empty">Log in to see your cosmetics.</div>';
+      return;
+    }
+
+    if(!ownedRows.length){
+      list.innerHTML='<div class="gc-my-cosmetics-empty">You do not own any cosmetics yet. Buy one above and it will appear here.</div>';
+      return;
+    }
+
+    list.innerHTML=ownedRows.map(row=>{
+      const item=ITEMS[row.item_key] || {
+        name:row.item_key,
+        type:'Cosmetic',
+        asset:'',
+        price:0
+      };
+
+      return `
+        <article class="gc-owned-cosmetic" data-gc-owned-item="${esc(row.item_key)}">
+          <div class="gc-owned-cosmetic-preview" ${item.asset?`style="background-image:url('${esc(item.asset)}')"`:''}></div>
+          <div class="gc-owned-cosmetic-copy">
+            <span class="gc-owned-cosmetic-type">${esc(item.type)}</span>
+            <h4>${esc(item.name)}</h4>
+            <p>${row.equipped ? 'Currently shown on your public profile.' : 'Owned permanently. Equip it whenever you want.'}</p>
+
+            <div class="gc-owned-cosmetic-actions">
+              ${row.equipped
+                ? `<button class="gc-owned-cosmetic-btn equipped" type="button" disabled>Equipped ✓</button>
+                   <button class="gc-owned-cosmetic-btn" type="button" data-gc-unequip-owned="${esc(row.item_key)}">Unequip</button>`
+                : `<button class="gc-owned-cosmetic-btn equip" type="button" data-gc-equip-owned="${esc(row.item_key)}">Equip Background</button>`
+              }
+            </div>
+          </div>
+        </article>`;
+    }).join('');
+
+    list.querySelectorAll('[data-gc-equip-owned]').forEach(btn=>{
+      btn.addEventListener('click',()=>equipItem(btn.dataset.gcEquipOwned,btn));
+    });
+
+    list.querySelectorAll('[data-gc-unequip-owned]').forEach(btn=>{
+      btn.addEventListener('click',()=>unequipItem(btn));
+    });
+  }
+
+  async function loadInventory(){
+    if(loading) return;
+    loading=true;
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {data:sessionData}=await db.auth.getSession();
+      currentSession=sessionData?.session || null;
+
+      if(!currentSession?.user){
+        ownedRows=[];
+        renderInventory();
+        return;
+      }
+
+      const {data,error}=await db.rpc('get_my_gymcel_store_inventory');
+      if(error) throw error;
+
+      ownedRows=(data || []).map(row=>({
+        item_key:row.item_key,
+        purchased_at:row.purchased_at,
+        equipped:!!row.equipped
+      }));
+
+      renderInventory();
+    }catch(err){
+      console.error('[Gymcels] My Cosmetics load error:',err);
+      const status=document.getElementById('gcMyCosmeticsStatus');
+      if(status){
+        status.className='err';
+        status.textContent=err?.message || 'Could not load your cosmetics.';
+      }
+    }finally{
+      loading=false;
+    }
+  }
+
+  async function equipItem(itemKey,btn){
+    const status=document.getElementById('gcMyCosmeticsStatus');
+    btn.disabled=true;
+    btn.textContent='Equipping...';
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {error}=await db.rpc('equip_gymcel_profile_background',{
+        target_item:itemKey
+      });
+      if(error) throw error;
+
+      ownedRows=ownedRows.map(row=>({
+        ...row,
+        equipped:row.item_key===itemKey
+      }));
+
+      renderInventory();
+
+      status.className='ok';
+      status.textContent='✓ Background equipped. Open your profile to see it.';
+
+      // Keep the original Store item card synced too.
+      if(typeof loadState==='function'){
+        try{ await loadState(); }catch(_){}
+      }
+
+      // If your own profile popup is already open, refresh the cosmetic immediately.
+      if(typeof applyPublicProfileBackground==='function' && currentSession?.user?.id){
+        try{ await applyPublicProfileBackground(currentSession.user.id); }catch(_){}
+      }
+    }catch(err){
+      console.error('[Gymcels] My Cosmetics equip error:',err);
+      status.className='err';
+      status.textContent=err?.message || 'Could not equip background.';
+      btn.disabled=false;
+      btn.textContent='Equip Background';
+    }
+  }
+
+  async function unequipItem(btn){
+    const status=document.getElementById('gcMyCosmeticsStatus');
+    btn.disabled=true;
+    btn.textContent='Unequipping...';
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {error}=await db.rpc('equip_gymcel_profile_background',{
+        target_item:null
+      });
+      if(error) throw error;
+
+      ownedRows=ownedRows.map(row=>({...row,equipped:false}));
+      renderInventory();
+
+      status.className='ok';
+      status.textContent='Background unequipped.';
+
+      if(typeof clearPublicProfileBackground==='function'){
+        try{ clearPublicProfileBackground(); }catch(_){}
+      }
+    }catch(err){
+      console.error('[Gymcels] My Cosmetics unequip error:',err);
+      status.className='err';
+      status.textContent=err?.message || 'Could not unequip background.';
+      btn.disabled=false;
+      btn.textContent='Unequip';
+    }
+  }
+
+  // Refresh inventory after a successful Store purchase by watching the
+  // original Store cosmetic card for its Owned/Equip state change.
+  function watchPurchaseCard(){
+    const card=document.getElementById('gcCosmeticStoreSection');
+    if(!card || card.dataset.gcInventoryWatch==='1') return;
+
+    card.dataset.gcInventoryWatch='1';
+
+    new MutationObserver(()=>{
+      clearTimeout(watchPurchaseCard._timer);
+      watchPurchaseCard._timer=setTimeout(loadInventory,120);
+    }).observe(card,{childList:true,subtree:true,characterData:true});
+  }
+
+  function fixAdminCosmeticMessaging(){
+    if(!document.body.classList.contains('gc-admin-unlimited-credits')) return;
+
+    const status=document.getElementById('gcStoreCosmeticStatus');
+    if(status && !/owned|equipped/i.test(status.textContent || '')){
+      status.className='ok';
+      status.textContent='Admin account — unlimited Gymcel Credits.';
+    }
+  }
+
+  function boot(){
+    installStyles();
+
+    let tries=0;
+    const timer=setInterval(()=>{
+      tries++;
+      installInventory();
+      watchPurchaseCard();
+      fixAdminCosmeticMessaging();
+      if(tries>60) clearInterval(timer);
+    },250);
+
+    getDb().then(db=>{
+      db?.auth?.onAuthStateChange?.((_event,session)=>{
+        currentSession=session || null;
+        setTimeout(loadInventory,100);
+      });
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] My Cosmetics inventory loaded');
+})();
