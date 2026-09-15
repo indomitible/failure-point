@@ -1965,15 +1965,27 @@
   console.log('[Gymcels] compact moderator/community-role manager loaded');
 })();
 // ============================================================
-// GYMCELS STORE + CREDITS + DAILY STREAK UI V1
-// Paste at the VERY BOTTOM of community-extras.js.
-// Requires the supplied Supabase SQL to be run first.
+// GYMCELS STORE + CREDITS + DAILY STREAK UI V2
+// MANUAL CLAIM VERSION
+//
+// IMPORTANT:
+// Replace the old V1 Store block with this V2 block.
+// Do NOT keep V1 and V2 together.
+//
+// Changes:
+//   • Daily reward is NOT auto-claimed anymore.
+//   • If today's reward is unclaimed, Store becomes the first screen shown.
+//   • Big "Claim today's reward" button.
+//   • After claiming, balance/streak/reward track updates immediately.
+//   • Store URL changes to #store.
+//   • Already-claimed users are not forced into Store again that day.
+//   • Daily workout streak UI remains enabled.
 // ============================================================
 (() => {
   'use strict';
 
-  if (window.__gymcelsStoreCreditsV1) return;
-  window.__gymcelsStoreCreditsV1 = true;
+  if (window.__gymcelsStoreCreditsV2) return;
+  window.__gymcelsStoreCreditsV2 = true;
 
   const REWARDS = [
     {day:1, credits:100,  icon:'🪙', label:'100 Credits'},
@@ -1988,6 +2000,8 @@
   let creditState = null;
   let currentSession = null;
   let claimRunning = false;
+  let authBooted = false;
+  let forcedRewardScreenForSession = false;
 
   const sleep = ms => new Promise(resolve => setTimeout(resolve,ms));
 
@@ -2012,16 +2026,18 @@
     return Number(number || 0).toLocaleString();
   }
 
-
   // ============================================================
   // STORE UI
   // ============================================================
 
   function installStoreStyles(){
-    if(document.getElementById('gcStoreStyles')) return;
+    if(document.getElementById('gcStoreStylesV2')) return;
+
+    // Remove V1 styles if they somehow remained after editing.
+    document.getElementById('gcStoreStyles')?.remove();
 
     const style=document.createElement('style');
-    style.id='gcStoreStyles';
+    style.id='gcStoreStylesV2';
     style.textContent=`
       #gymcelStoreSection{display:none}
       body.gym-app-mode[data-app-screen="store"] #gymcelStoreSection{display:block!important}
@@ -2189,7 +2205,7 @@
 
       .gc-reward-day.current{
         border-color:#ef4355;
-        box-shadow:inset 0 0 0 1px rgba(239,67,85,.12);
+        box-shadow:inset 0 0 0 1px rgba(239,67,85,.13);
         background:rgba(239,67,85,.08);
       }
 
@@ -2207,9 +2223,58 @@
         font-weight:1000;
       }
 
+      .gc-claim-zone{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        margin-top:13px;
+        padding:12px;
+        border:1px solid #2b343e;
+        border-radius:11px;
+        background:#090d11;
+      }
+
+      .gc-claim-copy strong{
+        display:block;
+        color:#fff;
+        font-size:10px;
+        font-weight:1000;
+      }
+
+      .gc-claim-copy span{
+        display:block;
+        margin-top:3px;
+        color:#7c8793;
+        font-size:8px;
+      }
+
+      #gcClaimDailyRewardBtn{
+        flex:0 0 auto;
+        min-width:170px;
+        border:0;
+        border-radius:10px;
+        background:linear-gradient(180deg,#f34b5d,#df3549);
+        color:#fff;
+        padding:12px 15px;
+        font:inherit;
+        font-size:10px;
+        font-weight:1000;
+        cursor:pointer;
+        box-shadow:0 8px 24px rgba(239,67,85,.16);
+      }
+
+      #gcClaimDailyRewardBtn:hover{filter:brightness(1.06)}
+      #gcClaimDailyRewardBtn:disabled{
+        cursor:not-allowed;
+        background:#1a2129;
+        color:#707b87;
+        box-shadow:none;
+      }
+
       #gcDailyRewardStatus{
         min-height:16px;
-        margin-top:11px;
+        margin-top:10px;
         color:#87919d;
         font-size:9px;
         font-weight:850;
@@ -2217,6 +2282,7 @@
 
       #gcDailyRewardStatus.success{color:#72dc97}
       #gcDailyRewardStatus.reward{color:#ffd36b}
+      #gcDailyRewardStatus.error{color:#ff8998}
 
       .gc-store-note{
         margin-top:10px;
@@ -2304,6 +2370,8 @@
         .gc-store-shell{padding:22px 0 92px}
         .gc-store-head{flex-direction:column}
         .gc-credit-balance-card{width:100%;box-sizing:border-box}
+        .gc-claim-zone{flex-direction:column;align-items:stretch}
+        #gcClaimDailyRewardBtn{width:100%}
       }
     `;
 
@@ -2332,16 +2400,25 @@
               <div class="gc-store-card-title">
                 <div>
                   <strong>Daily Login Rewards</strong>
-                  <p>Open Gymcels every day to keep your login streak alive.</p>
+                  <p>Open Gymcels every day and claim your reward to keep the streak alive.</p>
                 </div>
                 <span class="gc-login-streak-pill">🔥 <b id="gcLoginStreak">0</b> day streak</span>
               </div>
 
               <div id="gcRewardTrack" class="gc-reward-track"></div>
-              <div id="gcDailyRewardStatus">Log in to start earning Gymcel Credits.</div>
+
+              <div class="gc-claim-zone">
+                <div class="gc-claim-copy">
+                  <strong id="gcClaimTitle">Today's reward is waiting</strong>
+                  <span id="gcClaimSub">Claim it before the day ends.</span>
+                </div>
+                <button id="gcClaimDailyRewardBtn" type="button">Claim today's reward</button>
+              </div>
+
+              <div id="gcDailyRewardStatus"></div>
 
               <div class="gc-store-note">
-                Miss a day and your daily-login reward streak resets to Day 1. Rewards are automatically claimed once per day while signed in.
+                Miss a day and your daily-login reward streak resets to Day 1. Rewards must be claimed once per day while signed in.
               </div>
             </section>
 
@@ -2375,8 +2452,7 @@
   }
 
   function buildStore(){
-    if(document.getElementById('gymcelStoreSection')) return;
-
+    document.getElementById('gymcelStoreSection')?.remove();
     installStoreStyles();
 
     const main=document.querySelector('main');
@@ -2386,6 +2462,8 @@
     section.id='gymcelStoreSection';
     section.innerHTML=storeMarkup();
     main.appendChild(section);
+
+    document.getElementById('gcClaimDailyRewardBtn')?.addEventListener('click',claimDailyReward);
 
     installStoreNavigation();
     renderStore();
@@ -2449,7 +2527,7 @@
     document.body.classList.remove('mobile-nav-open');
   }
 
-  function openStore(){
+  function openStore({updateUrl=true,scroll=true}={}){
     document.body.classList.add('gym-app-mode');
     document.body.dataset.appScreen='store';
     document.title='Store · Gymcels.lol';
@@ -2463,8 +2541,16 @@
     });
 
     closeMobileDrawer();
-    window.scrollTo({top:0,behavior:'smooth'});
-    refreshCreditStatus(false);
+
+    if(updateUrl && location.hash!=='#store'){
+      history.replaceState(null,'','#store');
+    }
+
+    if(scroll){
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    refreshCreditStatus();
   }
 
   document.addEventListener('click',event => {
@@ -2476,7 +2562,6 @@
     openStore();
   },true);
 
-  // When the normal app router changes screens, remove Store's active highlight.
   new MutationObserver(() => {
     const storeOpen=document.body.dataset.appScreen==='store';
     document.querySelectorAll('[data-gc-store-open].desktop-app-nav-item').forEach(btn => {
@@ -2484,9 +2569,14 @@
     });
   }).observe(document.body,{attributes:true,attributeFilter:['data-app-screen']});
 
+  // If someone reloads while #store is in the URL, restore Store after the site's router boots.
+  setTimeout(() => {
+    if(location.hash==='#store') openStore({updateUrl:false,scroll:false});
+  },450);
+
 
   // ============================================================
-  // CREDITS + DAILY LOGIN CLAIM
+  // CREDITS + MANUAL DAILY LOGIN CLAIM
   // ============================================================
 
   function normalizedState(row={}){
@@ -2500,7 +2590,7 @@
       wheel_spins:Number(row.wheel_spins || 0),
       wheel_awarded:!!row.wheel_awarded,
       new_claim:!!row.new_claim,
-      claimed_today:row.claimed_today !== undefined ? !!row.claimed_today : true
+      claimed_today:!!row.claimed_today
     };
   }
 
@@ -2515,7 +2605,7 @@
     }
 
     const current=Math.max(1,Math.min(7,Number(creditState?.reward_day || 1)));
-    const claimed=!!creditState?.claimed_today || !!creditState?.new_claim;
+    const claimed=!!creditState?.claimed_today;
 
     return REWARDS.map(item => {
       const done=item.day < current || (item.day===current && claimed);
@@ -2530,6 +2620,11 @@
     }).join('');
   }
 
+  function currentReward(){
+    const day=Math.max(1,Math.min(7,Number(creditState?.reward_day || 1)));
+    return REWARDS.find(item => item.day===day) || REWARDS[0];
+  }
+
   function renderStore(){
     const balance=document.getElementById('gcCreditBalance');
     const streak=document.getElementById('gcLoginStreak');
@@ -2537,6 +2632,9 @@
     const track=document.getElementById('gcRewardTrack');
     const status=document.getElementById('gcDailyRewardStatus');
     const mini=document.getElementById('gcDesktopCreditMini');
+    const claimBtn=document.getElementById('gcClaimDailyRewardBtn');
+    const claimTitle=document.getElementById('gcClaimTitle');
+    const claimSub=document.getElementById('gcClaimSub');
 
     if(balance) balance.textContent=fmt(creditState?.balance || 0);
     if(streak) streak.textContent=fmt(creditState?.login_streak || 0);
@@ -2544,37 +2642,64 @@
     if(track) track.innerHTML=rewardTrackHtml();
     if(mini) mini.textContent=currentSession?.user ? fmt(creditState?.balance || 0) : '';
 
-    if(!status) return;
+    if(!status || !claimBtn || !claimTitle || !claimSub) return;
 
     status.className='';
 
     if(!currentSession?.user){
-      status.textContent='Log in to start earning Gymcel Credits.';
+      claimTitle.textContent='Log in to claim rewards';
+      claimSub.textContent='Daily Gymcel Credits are available to signed-in members.';
+      claimBtn.textContent='Log in to claim';
+      claimBtn.disabled=true;
+      status.textContent='';
       return;
     }
 
     if(!creditState){
-      status.textContent='Loading today’s reward...';
+      claimTitle.textContent='Loading your daily reward...';
+      claimSub.textContent='Checking your Gymcel account.';
+      claimBtn.textContent='Loading...';
+      claimBtn.disabled=true;
+      status.textContent='';
       return;
     }
 
-    if(creditState.new_claim){
-      if(creditState.wheel_awarded){
-        status.className='reward';
-        status.textContent='🎡 Day 7 complete — 1 wheel spin was saved to your account.';
-      }else{
-        status.className='success';
-        status.textContent=`✓ Day ${creditState.reward_day} reward claimed — +${fmt(creditState.credits_awarded)} Gymcel Credits.`;
-      }
-    }else{
+    const reward=currentReward();
+
+    if(creditState.claimed_today){
+      claimTitle.textContent=`Day ${creditState.reward_day} claimed`;
+      claimSub.textContent='Come back tomorrow for the next daily reward.';
+      claimBtn.textContent='Claimed ✓';
+      claimBtn.disabled=true;
       status.className='success';
-      status.textContent=`✓ Today’s Day ${creditState.reward_day} reward is already claimed. Come back tomorrow.`;
+      status.textContent='✓ Today’s reward has already been claimed.';
+      return;
     }
+
+    claimTitle.textContent=`Day ${reward.day} reward is ready`;
+    claimSub.textContent=reward.day===7
+      ? 'Claim today to receive your saved wheel spin.'
+      : `Claim today to receive ${fmt(reward.credits)} Gymcel Credits.`;
+
+    claimBtn.textContent=reward.day===7
+      ? 'Claim wheel spin'
+      : `Claim ${fmt(reward.credits)} credits`;
+
+    claimBtn.disabled=claimRunning;
+    status.textContent='Your reward will only be added after you press Claim.';
   }
 
   async function claimDailyReward(){
-    if(claimRunning || !currentSession?.user) return;
+    if(claimRunning || !currentSession?.user || creditState?.claimed_today) return;
+
     claimRunning=true;
+    renderStore();
+
+    const status=document.getElementById('gcDailyRewardStatus');
+    if(status){
+      status.className='';
+      status.textContent='Claiming reward...';
+    }
 
     try{
       const db=await getDb();
@@ -2584,59 +2709,97 @@
       if(error) throw error;
 
       const row=Array.isArray(data) ? data[0] : data;
-      creditState=normalizedState({...row,claimed_today:true});
+      creditState=normalizedState({
+        ...row,
+        claimed_today:true
+      });
+
       renderStore();
-    }catch(err){
-      console.error('[Gymcels] daily credit claim error:',err);
-      const status=document.getElementById('gcDailyRewardStatus');
+
       if(status){
-        status.className='';
-        status.textContent='Credits are not active yet. Run the Store/Credits SQL in Supabase.';
+        if(creditState.wheel_awarded){
+          status.className='reward';
+          status.textContent='🎡 Day 7 complete — 1 wheel spin was saved to your account.';
+        }else{
+          status.className='success';
+          status.textContent=`✓ +${fmt(creditState.credits_awarded)} Gymcel Credits added to your balance.`;
+        }
+      }
+    }catch(err){
+      console.error('[Gymcels] manual daily credit claim error:',err);
+
+      if(status){
+        status.className='error';
+        status.textContent=err?.message || 'Could not claim today’s reward.';
       }
     }finally{
       claimRunning=false;
+      renderStore();
     }
   }
 
-  async function refreshCreditStatus(claimIfNeeded=true){
+  async function refreshCreditStatus(){
     if(!currentSession?.user){
       creditState=null;
       renderStore();
       return;
     }
 
-    if(claimIfNeeded){
-      await claimDailyReward();
-      return;
-    }
-
     try{
       const db=await getDb();
-      if(!db) return;
+      if(!db) throw new Error('Database connection is not ready.');
 
       const {data,error}=await db.rpc('get_my_gymcel_credit_status');
       if(error) throw error;
 
       const row=Array.isArray(data) ? data[0] : data;
-      if(row) creditState=normalizedState(row);
+      creditState=normalizedState(row || {});
       renderStore();
+
+      // First screen after login:
+      // Only force Store when today's reward has NOT been claimed yet.
+      if(
+        !creditState.claimed_today &&
+        !forcedRewardScreenForSession
+      ){
+        forcedRewardScreenForSession=true;
+        setTimeout(() => openStore({updateUrl:true,scroll:false}),120);
+      }
     }catch(err){
       console.error('[Gymcels] credit status error:',err);
+
+      const status=document.getElementById('gcDailyRewardStatus');
+      if(status){
+        status.className='error';
+        status.textContent='Could not load Gymcel Credits.';
+      }
     }
   }
 
   async function installCreditAuth(){
+    if(authBooted) return;
+    authBooted=true;
+
     const db=await getDb();
     if(!db) return;
 
     db.auth.onAuthStateChange((_event,session) => {
+      const oldId=currentSession?.user?.id || null;
+      const newId=session?.user?.id || null;
+
       currentSession=session || null;
-      setTimeout(() => refreshCreditStatus(true),0);
+
+      if(oldId!==newId){
+        forcedRewardScreenForSession=false;
+        creditState=null;
+      }
+
+      setTimeout(() => refreshCreditStatus(),0);
     });
 
     const {data}=await db.auth.getSession();
     currentSession=data?.session || null;
-    await refreshCreditStatus(true);
+    await refreshCreditStatus();
   }
 
 
@@ -2653,7 +2816,13 @@
   function shiftDay(key,offset){
     const match=String(key || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if(!match) return null;
-    const d=new Date(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3])));
+
+    const d=new Date(Date.UTC(
+      Number(match[1]),
+      Number(match[2])-1,
+      Number(match[3])
+    ));
+
     d.setUTCDate(d.getUTCDate()+offset);
     return d.toISOString().slice(0,10);
   }
@@ -2667,7 +2836,12 @@
   }
 
   function computeDailyWorkoutStreak(logs){
-    const days=new Set((logs || []).map(row => dateKey(row.workout_date)).filter(Boolean));
+    const days=new Set(
+      (logs || [])
+        .map(row => dateKey(row.workout_date))
+        .filter(Boolean)
+    );
+
     if(!days.size) return {current:0,best:0};
 
     const today=localTodayKey();
@@ -2678,8 +2852,10 @@
     else if(days.has(yesterday)) anchor=yesterday;
 
     let current=0;
+
     if(anchor){
       let cursor=anchor;
+
       while(days.has(cursor)){
         current++;
         cursor=shiftDay(cursor,-1);
@@ -2694,6 +2870,7 @@
     for(const day of sorted){
       if(last && shiftDay(last,1)===day) run++;
       else run=1;
+
       if(run>best) best=run;
       last=day;
     }
@@ -2733,6 +2910,7 @@
           item.name=String(item.name || '')
             .replace('4 Week Streak','4 Day Streak')
             .replace('12 Week Streak','12 Day Streak');
+
           item.hint=String(item.hint || '')
             .replace('4-week workout streak','4-day workout streak')
             .replace('12-week workout streak','12-day workout streak');
@@ -2743,10 +2921,13 @@
 
   function replaceWeekUnit(el){
     if(!el) return;
+
     const text=String(el.textContent || '');
+
     const next=text
       .replace(/\bweeks?\b/gi,match => /^week$/i.test(match)?'day':'days')
       .replace(/\bwk\b/gi,'d');
+
     if(next!==text) el.textContent=next;
   }
 
@@ -2759,15 +2940,23 @@
 
     const profileCurrent=document.getElementById('profileCurrentStreak')?.closest('.profile-stat');
     const profileBest=document.getElementById('profileBestStreak')?.closest('.profile-stat');
-    if(profileCurrent) profileCurrent.title='Consecutive days with at least one logged workout';
-    if(profileBest) profileBest.title='Best consecutive daily workout streak';
+
+    if(profileCurrent){
+      profileCurrent.title='Consecutive days with at least one logged workout';
+    }
+
+    if(profileBest){
+      profileBest.title='Best consecutive daily workout streak';
+    }
 
     const metric=document.getElementById('leaderboardMetricLabel');
+
     if(metric && /weekly/i.test(metric.textContent || '')){
       metric.textContent='Best daily streak';
     }
 
     const activeStreak=document.querySelector('[data-leaderboard-mode="streak"].active');
+
     if(activeStreak){
       document.querySelectorAll('#communityLeaderboard .leaderboard-row').forEach(row => {
         replaceWeekUnit(row.querySelector('.leaderboard-member small'));
@@ -2776,13 +2965,15 @@
     }
 
     document.querySelectorAll('.chat-achievement').forEach(el => {
-      if(el.childNodes.length){
-        [...el.childNodes].forEach(node => {
-          if(node.nodeType===Node.TEXT_NODE && /Week Streak/.test(node.textContent || '')){
-            node.textContent=node.textContent.replace(/Week Streak/g,'Day Streak');
-          }
-        });
-      }
+      [...el.childNodes].forEach(node => {
+        if(
+          node.nodeType===Node.TEXT_NODE &&
+          /Week Streak/.test(node.textContent || '')
+        ){
+          node.textContent=node.textContent.replace(/Week Streak/g,'Day Streak');
+        }
+      });
+
       if(el.title){
         el.title=el.title
           .replace(/week workout streak/gi,'day workout streak')
@@ -2803,10 +2994,16 @@
 
     targets.forEach(target => {
       if(target.dataset.gcDailyStreakWatch==='1') return;
+
       target.dataset.gcDailyStreakWatch='1';
+
       new MutationObserver(() => {
         setTimeout(patchDailyStreakUi,0);
-      }).observe(target,{childList:true,subtree:true,characterData:true});
+      }).observe(target,{
+        childList:true,
+        subtree:true,
+        characterData:true
+      });
     });
   }
 
@@ -2823,16 +3020,16 @@
     patchDailyStreakUi();
     installCreditAuth();
 
-    // Existing mobile/admin patches can rebuild drawers later.
     setInterval(() => {
       installStoreNavigation();
       patchDailyStreakUi();
     },1500);
 
-    // Re-run own profile once so its streak calculation immediately becomes daily.
     setTimeout(() => {
       try{
-        if(typeof refreshMemberProfile==='function') refreshMemberProfile();
+        if(typeof refreshMemberProfile==='function'){
+          refreshMemberProfile();
+        }
       }catch(_){}
     },500);
   }
@@ -2843,5 +3040,5 @@
     boot();
   }
 
-  console.log('[Gymcels] Store + Gymcel Credits + daily streaks loaded');
+  console.log('[Gymcels] Store + manual daily claim + daily streaks V2 loaded');
 })();
