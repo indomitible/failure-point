@@ -8041,3 +8041,13 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
   padding:2px 5px !important;
   border-radius:4px !important;
 }
+/* Remove the light boxes behind profile stat labels */
+#chatProfileOverlay .chat-public-profile .chat-public-stat > span{
+  background:transparent !important;
+  padding:0 !important;
+  border-radius:0 !important;
+
+  color:#0b0d10 !important;
+  font-weight:1000 !important;
+  text-shadow:0 1px 1px rgba(255,255,255,.25) !important;
+}
