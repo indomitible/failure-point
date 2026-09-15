@@ -6406,3 +6406,94 @@
 
   console.log('[Gymcels] VIP purchase return message V2 loaded');
 })();
+// ============================================================
+// GYMCELS.LOL — PHYSIQUE PHOTO CROPPING HARD FIX V1
+//
+// Paste at the VERY BOTTOM of community-extras.js.
+// This uses inline !important styles so older CSS cannot crop physique photos.
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsPhysiqueHardFixV1) return;
+  window.__gymcelsPhysiqueHardFixV1 = true;
+
+  const FRAME_SELECTORS = [
+    '.profile-physique-card',
+    '.chat-public-physique-frame'
+  ];
+
+  const IMG_SELECTORS = [
+    '.profile-physique-card img',
+    '.chat-public-physique-frame img'
+  ];
+
+  function force(el, prop, value){
+    if (!el) return;
+    el.style.setProperty(prop, value, 'important');
+  }
+
+  function fixFrame(frame){
+    if (!frame.querySelector('img')) return;
+
+    // Keep whatever width your current design uses.
+    // Only remove the forced crop/portrait sizing.
+    force(frame, 'height', 'auto');
+    force(frame, 'min-height', '0');
+    force(frame, 'max-height', 'none');
+    force(frame, 'aspect-ratio', 'auto');
+    force(frame, 'display', 'block');
+    force(frame, 'overflow', 'hidden');
+  }
+
+  function fixImage(img){
+    force(img, 'width', '100%');
+    force(img, 'height', 'auto');
+    force(img, 'min-height', '0');
+    force(img, 'max-height', 'none');
+    force(img, 'aspect-ratio', 'auto');
+    force(img, 'object-fit', 'contain');
+    force(img, 'object-position', 'center center');
+    force(img, 'display', 'block');
+    force(img, 'transform', 'none');
+
+    img.removeAttribute('width');
+    img.removeAttribute('height');
+  }
+
+  function applyPhysiqueFix(){
+    FRAME_SELECTORS.forEach(selector => {
+      document.querySelectorAll(selector).forEach(fixFrame);
+    });
+
+    IMG_SELECTORS.forEach(selector => {
+      document.querySelectorAll(selector).forEach(fixImage);
+    });
+  }
+
+  function boot(){
+    applyPhysiqueFix();
+
+    // Public profile photos are inserted dynamically when a member is opened.
+    const observer = new MutationObserver(() => {
+      applyPhysiqueFix();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    [250, 750, 1500, 3000].forEach(ms => {
+      setTimeout(applyPhysiqueFix, ms);
+    });
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot, { once:true });
+  } else {
+    boot();
+  }
+
+  console.log('[Gymcels] Physique photo hard fix loaded');
+})();
