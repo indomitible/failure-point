@@ -1964,3 +1964,884 @@
 
   console.log('[Gymcels] compact moderator/community-role manager loaded');
 })();
+// ============================================================
+// GYMCELS STORE + CREDITS + DAILY STREAK UI V1
+// Paste at the VERY BOTTOM of community-extras.js.
+// Requires the supplied Supabase SQL to be run first.
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsStoreCreditsV1) return;
+  window.__gymcelsStoreCreditsV1 = true;
+
+  const REWARDS = [
+    {day:1, credits:100,  icon:'🪙', label:'100 Credits'},
+    {day:2, credits:250,  icon:'🪙', label:'250 Credits'},
+    {day:3, credits:400,  icon:'🪙', label:'400 Credits'},
+    {day:4, credits:500,  icon:'🪙', label:'500 Credits'},
+    {day:5, credits:700,  icon:'🪙', label:'700 Credits'},
+    {day:6, credits:1000, icon:'🪙', label:'1,000 Credits'},
+    {day:7, credits:0,    icon:'🎡', label:'Wheel Spin'}
+  ];
+
+  let creditState = null;
+  let currentSession = null;
+  let claimRunning = false;
+
+  const sleep = ms => new Promise(resolve => setTimeout(resolve,ms));
+
+  async function getDb(){
+    for(let i=0;i<40;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  function esc(value=''){
+    return String(value)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function fmt(number){
+    return Number(number || 0).toLocaleString();
+  }
+
+
+  // ============================================================
+  // STORE UI
+  // ============================================================
+
+  function installStoreStyles(){
+    if(document.getElementById('gcStoreStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcStoreStyles';
+    style.textContent=`
+      #gymcelStoreSection{display:none}
+      body.gym-app-mode[data-app-screen="store"] #gymcelStoreSection{display:block!important}
+      body.gym-app-mode[data-app-screen="store"] main > *:not(#gymcelStoreSection){display:none!important}
+
+      .gc-store-shell{
+        min-height:calc(100vh - 67px);
+        padding:30px 0 80px;
+      }
+
+      .gc-store-head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:16px;
+        margin-bottom:16px;
+      }
+
+      .gc-store-kicker{
+        color:#ef4355;
+        font-size:9px;
+        font-weight:1000;
+        letter-spacing:.16em;
+        text-transform:uppercase;
+      }
+
+      .gc-store-head h1{
+        margin:5px 0 5px;
+        color:#fff;
+        font-size:34px;
+        line-height:1;
+        letter-spacing:-.04em;
+      }
+
+      .gc-store-head p{
+        margin:0;
+        color:#858f9b;
+        font-size:11px;
+      }
+
+      .gc-credit-balance-card{
+        flex:0 0 auto;
+        min-width:190px;
+        padding:13px 15px;
+        border:1px solid rgba(245,190,56,.34);
+        border-radius:13px;
+        background:
+          radial-gradient(circle at 100% 0,rgba(245,190,56,.12),transparent 48%),
+          #0d1116;
+      }
+
+      .gc-credit-balance-card span{
+        display:block;
+        color:#9a8653;
+        font-size:8px;
+        font-weight:950;
+        letter-spacing:.09em;
+        text-transform:uppercase;
+      }
+
+      .gc-credit-balance-card strong{
+        display:flex;
+        align-items:center;
+        gap:7px;
+        margin-top:4px;
+        color:#fff1b8;
+        font-size:24px;
+        font-weight:1000;
+      }
+
+      .gc-store-grid{
+        display:grid;
+        grid-template-columns:minmax(0,1.5fr) minmax(260px,.65fr);
+        gap:14px;
+      }
+
+      .gc-store-card{
+        border:1px solid #29313a;
+        border-radius:14px;
+        background:linear-gradient(180deg,#10151a,#0b0f13);
+        padding:16px;
+      }
+
+      .gc-store-card-title{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .gc-store-card-title strong{
+        display:block;
+        color:#fff;
+        font-size:15px;
+        font-weight:1000;
+      }
+
+      .gc-store-card-title p{
+        margin:4px 0 0;
+        color:#7f8995;
+        font-size:9px;
+        line-height:1.45;
+      }
+
+      .gc-login-streak-pill{
+        flex:0 0 auto;
+        display:inline-flex;
+        align-items:center;
+        gap:5px;
+        padding:6px 9px;
+        border:1px solid rgba(239,67,85,.35);
+        border-radius:999px;
+        background:rgba(239,67,85,.07);
+        color:#ff8794;
+        font-size:9px;
+        font-weight:1000;
+      }
+
+      .gc-reward-track{
+        display:grid;
+        grid-template-columns:repeat(7,minmax(0,1fr));
+        gap:7px;
+        margin-top:14px;
+      }
+
+      .gc-reward-day{
+        position:relative;
+        min-width:0;
+        min-height:104px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        padding:9px 5px;
+        border:1px solid #29313a;
+        border-radius:10px;
+        background:#0b1015;
+      }
+
+      .gc-reward-day small{
+        color:#727d89;
+        font-size:7px;
+        font-weight:950;
+        text-transform:uppercase;
+        letter-spacing:.05em;
+      }
+
+      .gc-reward-icon{
+        display:block;
+        margin:8px 0 5px;
+        font-size:19px;
+      }
+
+      .gc-reward-day b{
+        color:#dce2e8;
+        font-size:8px;
+        line-height:1.25;
+      }
+
+      .gc-reward-day.done{
+        border-color:rgba(93,199,123,.35);
+        background:rgba(62,161,91,.08);
+      }
+
+      .gc-reward-day.current{
+        border-color:#ef4355;
+        box-shadow:inset 0 0 0 1px rgba(239,67,85,.12);
+        background:rgba(239,67,85,.08);
+      }
+
+      .gc-reward-day.wheel{
+        border-color:rgba(174,118,255,.28);
+        background:rgba(139,78,225,.06);
+      }
+
+      .gc-reward-check{
+        position:absolute;
+        top:6px;
+        right:7px;
+        color:#72dc97;
+        font-size:9px;
+        font-weight:1000;
+      }
+
+      #gcDailyRewardStatus{
+        min-height:16px;
+        margin-top:11px;
+        color:#87919d;
+        font-size:9px;
+        font-weight:850;
+      }
+
+      #gcDailyRewardStatus.success{color:#72dc97}
+      #gcDailyRewardStatus.reward{color:#ffd36b}
+
+      .gc-store-note{
+        margin-top:10px;
+        color:#626d79;
+        font-size:8px;
+        line-height:1.45;
+      }
+
+      .gc-coming-icon{
+        width:46px;
+        height:46px;
+        display:grid;
+        place-items:center;
+        border:1px solid #303945;
+        border-radius:12px;
+        background:#0a0e12;
+        font-size:22px;
+        margin-bottom:12px;
+      }
+
+      .gc-coming-list{
+        display:grid;
+        gap:8px;
+        margin-top:14px;
+      }
+
+      .gc-coming-row{
+        padding:10px;
+        border:1px solid #262e37;
+        border-radius:9px;
+        background:#0b1015;
+      }
+
+      .gc-coming-row strong{
+        display:block;
+        color:#dce2e8;
+        font-size:9px;
+      }
+
+      .gc-coming-row span{
+        display:block;
+        margin-top:3px;
+        color:#6f7985;
+        font-size:8px;
+      }
+
+      .gc-wheel-count{
+        margin-top:12px;
+        padding:10px;
+        border:1px solid rgba(172,117,255,.25);
+        border-radius:9px;
+        color:#cbb0ff;
+        background:rgba(135,76,218,.06);
+        font-size:9px;
+        font-weight:900;
+      }
+
+      .gc-store-nav-balance{
+        margin-left:auto;
+        color:#e7c45f;
+        font-size:8px;
+        font-weight:1000;
+      }
+
+      .gc-store-home-action{
+        border-color:rgba(245,190,56,.25)!important;
+      }
+
+      .gc-store-home-action .gc-store-home-credit{
+        color:#e6c257!important;
+      }
+
+      @media(max-width:900px){
+        .gc-store-grid{grid-template-columns:1fr}
+        .gc-reward-track{
+          display:flex;
+          overflow-x:auto;
+          padding-bottom:5px;
+          scrollbar-width:thin;
+        }
+        .gc-reward-day{flex:0 0 92px}
+      }
+
+      @media(max-width:800px){
+        .gc-store-shell{padding:22px 0 92px}
+        .gc-store-head{flex-direction:column}
+        .gc-credit-balance-card{width:100%;box-sizing:border-box}
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function storeMarkup(){
+    return `
+      <div class="gc-store-shell">
+        <div class="wrap">
+          <div class="gc-store-head">
+            <div>
+              <div class="gc-store-kicker">GYMCEL ECONOMY</div>
+              <h1>Store</h1>
+              <p>Log in daily, build your streak, earn Gymcel Credits, and spend them here.</p>
+            </div>
+
+            <div class="gc-credit-balance-card">
+              <span>Gymcel Credits</span>
+              <strong>🪙 <b id="gcCreditBalance">0</b></strong>
+            </div>
+          </div>
+
+          <div class="gc-store-grid">
+            <section class="gc-store-card">
+              <div class="gc-store-card-title">
+                <div>
+                  <strong>Daily Login Rewards</strong>
+                  <p>Open Gymcels every day to keep your login streak alive.</p>
+                </div>
+                <span class="gc-login-streak-pill">🔥 <b id="gcLoginStreak">0</b> day streak</span>
+              </div>
+
+              <div id="gcRewardTrack" class="gc-reward-track"></div>
+              <div id="gcDailyRewardStatus">Log in to start earning Gymcel Credits.</div>
+
+              <div class="gc-store-note">
+                Miss a day and your daily-login reward streak resets to Day 1. Rewards are automatically claimed once per day while signed in.
+              </div>
+            </section>
+
+            <aside class="gc-store-card">
+              <div class="gc-coming-icon">🛒</div>
+              <div class="gc-store-card-title">
+                <div>
+                  <strong>Gymcel Store</strong>
+                  <p>Your credit balance is ready. We’ll add the things you can buy next.</p>
+                </div>
+              </div>
+
+              <div class="gc-coming-list">
+                <div class="gc-coming-row">
+                  <strong>Store Items</strong>
+                  <span>Coming in the next step.</span>
+                </div>
+                <div class="gc-coming-row">
+                  <strong>Day 7 Reward Wheel</strong>
+                  <span>The wheel itself comes next; Day 7 spins are already saved to your account.</span>
+                </div>
+              </div>
+
+              <div class="gc-wheel-count">
+                🎡 Saved wheel spins: <b id="gcWheelSpins">0</b>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function buildStore(){
+    if(document.getElementById('gymcelStoreSection')) return;
+
+    installStoreStyles();
+
+    const main=document.querySelector('main');
+    if(!main) return;
+
+    const section=document.createElement('section');
+    section.id='gymcelStoreSection';
+    section.innerHTML=storeMarkup();
+    main.appendChild(section);
+
+    installStoreNavigation();
+    renderStore();
+  }
+
+  function makeDesktopStoreNav(){
+    const nav=document.querySelector('.desktop-app-nav');
+    if(!nav || nav.querySelector('[data-gc-store-open]')) return;
+
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='desktop-app-nav-item';
+    btn.dataset.gcStoreOpen='1';
+    btn.innerHTML='<span>🪙</span><b>Store</b><em class="gc-store-nav-balance" id="gcDesktopCreditMini"></em>';
+
+    const nutrition=nav.querySelector('[data-app-route="nutrition"]');
+    if(nutrition) nutrition.insertAdjacentElement('afterend',btn);
+    else nav.appendChild(btn);
+  }
+
+  function makeMobileStoreNav(){
+    const grid=document.querySelector('#mobileNavDrawer .mobile-drawer-grid');
+    if(!grid || grid.querySelector('[data-gc-store-open]')) return;
+
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='mobile-drawer-link';
+    btn.dataset.gcStoreOpen='1';
+    btn.innerHTML='<span>🪙</span><b>Store</b>';
+
+    const nutrition=grid.querySelector('[data-mobile-proxy="navNutrition"]');
+    if(nutrition) nutrition.insertAdjacentElement('afterend',btn);
+    else grid.prepend(btn);
+  }
+
+  function makeHomeStoreShortcut(){
+    const actions=document.querySelector('.app-home-actions');
+    if(!actions || actions.querySelector('[data-gc-store-open]')) return;
+
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='gc-store-home-action';
+    btn.dataset.gcStoreOpen='1';
+    btn.innerHTML='<span>🪙</span><strong>Store</strong><small class="gc-store-home-credit">Gymcel Credits + daily rewards</small>';
+    actions.appendChild(btn);
+  }
+
+  function installStoreNavigation(){
+    makeDesktopStoreNav();
+    makeMobileStoreNav();
+    makeHomeStoreShortcut();
+  }
+
+  function closeMobileDrawer(){
+    const drawer=document.getElementById('mobileNavDrawer');
+    const backdrop=document.getElementById('mobileNavBackdrop');
+    drawer?.classList.remove('open','show');
+    backdrop?.classList.remove('open','show');
+    drawer?.setAttribute('aria-hidden','true');
+    backdrop?.setAttribute('aria-hidden','true');
+    document.body.classList.remove('mobile-nav-open');
+  }
+
+  function openStore(){
+    document.body.classList.add('gym-app-mode');
+    document.body.dataset.appScreen='store';
+    document.title='Store · Gymcels.lol';
+
+    document.querySelectorAll('.desktop-app-nav-item').forEach(btn => {
+      btn.classList.toggle('active',!!btn.dataset.gcStoreOpen);
+    });
+
+    document.querySelectorAll('.mobile-bottom-item').forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    closeMobileDrawer();
+    window.scrollTo({top:0,behavior:'smooth'});
+    refreshCreditStatus(false);
+  }
+
+  document.addEventListener('click',event => {
+    const storeBtn=event.target.closest('[data-gc-store-open]');
+    if(!storeBtn) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    openStore();
+  },true);
+
+  // When the normal app router changes screens, remove Store's active highlight.
+  new MutationObserver(() => {
+    const storeOpen=document.body.dataset.appScreen==='store';
+    document.querySelectorAll('[data-gc-store-open].desktop-app-nav-item').forEach(btn => {
+      btn.classList.toggle('active',storeOpen);
+    });
+  }).observe(document.body,{attributes:true,attributeFilter:['data-app-screen']});
+
+
+  // ============================================================
+  // CREDITS + DAILY LOGIN CLAIM
+  // ============================================================
+
+  function normalizedState(row={}){
+    return {
+      balance:Number(row.balance || 0),
+      total_earned:Number(row.total_earned || 0),
+      login_streak:Number(row.login_streak || 0),
+      best_login_streak:Number(row.best_login_streak || 0),
+      reward_day:Number(row.reward_day || 1),
+      credits_awarded:Number(row.credits_awarded || 0),
+      wheel_spins:Number(row.wheel_spins || 0),
+      wheel_awarded:!!row.wheel_awarded,
+      new_claim:!!row.new_claim,
+      claimed_today:row.claimed_today !== undefined ? !!row.claimed_today : true
+    };
+  }
+
+  function rewardTrackHtml(){
+    if(!currentSession?.user){
+      return REWARDS.map(item => `
+        <div class="gc-reward-day ${item.day===7?'wheel':''}">
+          <small>Day ${item.day}</small>
+          <span class="gc-reward-icon">${item.icon}</span>
+          <b>${esc(item.label)}</b>
+        </div>`).join('');
+    }
+
+    const current=Math.max(1,Math.min(7,Number(creditState?.reward_day || 1)));
+    const claimed=!!creditState?.claimed_today || !!creditState?.new_claim;
+
+    return REWARDS.map(item => {
+      const done=item.day < current || (item.day===current && claimed);
+      const now=item.day===current;
+      return `
+        <div class="gc-reward-day ${item.day===7?'wheel':''} ${done?'done':''} ${now?'current':''}">
+          ${done?'<span class="gc-reward-check">✓</span>':''}
+          <small>Day ${item.day}</small>
+          <span class="gc-reward-icon">${item.icon}</span>
+          <b>${esc(item.label)}</b>
+        </div>`;
+    }).join('');
+  }
+
+  function renderStore(){
+    const balance=document.getElementById('gcCreditBalance');
+    const streak=document.getElementById('gcLoginStreak');
+    const wheel=document.getElementById('gcWheelSpins');
+    const track=document.getElementById('gcRewardTrack');
+    const status=document.getElementById('gcDailyRewardStatus');
+    const mini=document.getElementById('gcDesktopCreditMini');
+
+    if(balance) balance.textContent=fmt(creditState?.balance || 0);
+    if(streak) streak.textContent=fmt(creditState?.login_streak || 0);
+    if(wheel) wheel.textContent=fmt(creditState?.wheel_spins || 0);
+    if(track) track.innerHTML=rewardTrackHtml();
+    if(mini) mini.textContent=currentSession?.user ? fmt(creditState?.balance || 0) : '';
+
+    if(!status) return;
+
+    status.className='';
+
+    if(!currentSession?.user){
+      status.textContent='Log in to start earning Gymcel Credits.';
+      return;
+    }
+
+    if(!creditState){
+      status.textContent='Loading today’s reward...';
+      return;
+    }
+
+    if(creditState.new_claim){
+      if(creditState.wheel_awarded){
+        status.className='reward';
+        status.textContent='🎡 Day 7 complete — 1 wheel spin was saved to your account.';
+      }else{
+        status.className='success';
+        status.textContent=`✓ Day ${creditState.reward_day} reward claimed — +${fmt(creditState.credits_awarded)} Gymcel Credits.`;
+      }
+    }else{
+      status.className='success';
+      status.textContent=`✓ Today’s Day ${creditState.reward_day} reward is already claimed. Come back tomorrow.`;
+    }
+  }
+
+  async function claimDailyReward(){
+    if(claimRunning || !currentSession?.user) return;
+    claimRunning=true;
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {data,error}=await db.rpc('claim_gymcel_daily_login_reward');
+      if(error) throw error;
+
+      const row=Array.isArray(data) ? data[0] : data;
+      creditState=normalizedState({...row,claimed_today:true});
+      renderStore();
+    }catch(err){
+      console.error('[Gymcels] daily credit claim error:',err);
+      const status=document.getElementById('gcDailyRewardStatus');
+      if(status){
+        status.className='';
+        status.textContent='Credits are not active yet. Run the Store/Credits SQL in Supabase.';
+      }
+    }finally{
+      claimRunning=false;
+    }
+  }
+
+  async function refreshCreditStatus(claimIfNeeded=true){
+    if(!currentSession?.user){
+      creditState=null;
+      renderStore();
+      return;
+    }
+
+    if(claimIfNeeded){
+      await claimDailyReward();
+      return;
+    }
+
+    try{
+      const db=await getDb();
+      if(!db) return;
+
+      const {data,error}=await db.rpc('get_my_gymcel_credit_status');
+      if(error) throw error;
+
+      const row=Array.isArray(data) ? data[0] : data;
+      if(row) creditState=normalizedState(row);
+      renderStore();
+    }catch(err){
+      console.error('[Gymcels] credit status error:',err);
+    }
+  }
+
+  async function installCreditAuth(){
+    const db=await getDb();
+    if(!db) return;
+
+    db.auth.onAuthStateChange((_event,session) => {
+      currentSession=session || null;
+      setTimeout(() => refreshCreditStatus(true),0);
+    });
+
+    const {data}=await db.auth.getSession();
+    currentSession=data?.session || null;
+    await refreshCreditStatus(true);
+  }
+
+
+  // ============================================================
+  // DAILY WORKOUT STREAKS — replace weekly display/calculation
+  // ============================================================
+
+  function dateKey(value){
+    if(!value) return null;
+    const match=String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return match ? `${match[1]}-${match[2]}-${match[3]}` : null;
+  }
+
+  function shiftDay(key,offset){
+    const match=String(key || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!match) return null;
+    const d=new Date(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3])));
+    d.setUTCDate(d.getUTCDate()+offset);
+    return d.toISOString().slice(0,10);
+  }
+
+  function localTodayKey(){
+    const now=new Date();
+    const y=now.getFullYear();
+    const m=String(now.getMonth()+1).padStart(2,'0');
+    const d=String(now.getDate()).padStart(2,'0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function computeDailyWorkoutStreak(logs){
+    const days=new Set((logs || []).map(row => dateKey(row.workout_date)).filter(Boolean));
+    if(!days.size) return {current:0,best:0};
+
+    const today=localTodayKey();
+    const yesterday=shiftDay(today,-1);
+
+    let anchor=null;
+    if(days.has(today)) anchor=today;
+    else if(days.has(yesterday)) anchor=yesterday;
+
+    let current=0;
+    if(anchor){
+      let cursor=anchor;
+      while(days.has(cursor)){
+        current++;
+        cursor=shiftDay(cursor,-1);
+      }
+    }
+
+    const sorted=[...days].sort();
+    let best=0;
+    let run=0;
+    let last=null;
+
+    for(const day of sorted){
+      if(last && shiftDay(last,1)===day) run++;
+      else run=1;
+      if(run>best) best=run;
+      last=day;
+    }
+
+    return {current,best};
+  }
+
+  function installDailyWorkoutCalculator(){
+    try{
+      if(typeof computeWorkoutWeekStreak==='function'){
+        computeWorkoutWeekStreak=computeDailyWorkoutStreak;
+      }
+    }catch(err){
+      console.warn('[Gymcels] could not replace local workout streak calculator:',err);
+    }
+
+    try{
+      if(typeof refreshMemberProfile==='function' && !refreshMemberProfile.__gcDailyWrapped){
+        const original=refreshMemberProfile;
+
+        const wrapped=async function(...args){
+          const result=await original.apply(this,args);
+          patchDailyStreakUi();
+          return result;
+        };
+
+        wrapped.__gcDailyWrapped=true;
+        refreshMemberProfile=wrapped;
+      }
+    }catch(err){
+      console.warn('[Gymcels] could not wrap member profile streak refresh:',err);
+    }
+
+    try{
+      if(typeof CHAT_ACHIEVEMENTS!=='undefined' && Array.isArray(CHAT_ACHIEVEMENTS)){
+        CHAT_ACHIEVEMENTS.forEach(item => {
+          item.name=String(item.name || '')
+            .replace('4 Week Streak','4 Day Streak')
+            .replace('12 Week Streak','12 Day Streak');
+          item.hint=String(item.hint || '')
+            .replace('4-week workout streak','4-day workout streak')
+            .replace('12-week workout streak','12-day workout streak');
+        });
+      }
+    }catch(_){}
+  }
+
+  function replaceWeekUnit(el){
+    if(!el) return;
+    const text=String(el.textContent || '');
+    const next=text
+      .replace(/\bweeks?\b/gi,match => /^week$/i.test(match)?'day':'days')
+      .replace(/\bwk\b/gi,'d');
+    if(next!==text) el.textContent=next;
+  }
+
+  function patchDailyStreakUi(){
+    replaceWeekUnit(document.getElementById('profileCurrentStreak'));
+    replaceWeekUnit(document.getElementById('profileBestStreak'));
+    replaceWeekUnit(document.getElementById('chatPublicCurrentStreak'));
+    replaceWeekUnit(document.getElementById('chatPublicBestStreak'));
+    replaceWeekUnit(document.getElementById('appHomeStreak'));
+
+    const profileCurrent=document.getElementById('profileCurrentStreak')?.closest('.profile-stat');
+    const profileBest=document.getElementById('profileBestStreak')?.closest('.profile-stat');
+    if(profileCurrent) profileCurrent.title='Consecutive days with at least one logged workout';
+    if(profileBest) profileBest.title='Best consecutive daily workout streak';
+
+    const metric=document.getElementById('leaderboardMetricLabel');
+    if(metric && /weekly/i.test(metric.textContent || '')){
+      metric.textContent='Best daily streak';
+    }
+
+    const activeStreak=document.querySelector('[data-leaderboard-mode="streak"].active');
+    if(activeStreak){
+      document.querySelectorAll('#communityLeaderboard .leaderboard-row').forEach(row => {
+        replaceWeekUnit(row.querySelector('.leaderboard-member small'));
+        replaceWeekUnit(row.querySelector('.leaderboard-value b'));
+      });
+    }
+
+    document.querySelectorAll('.chat-achievement').forEach(el => {
+      if(el.childNodes.length){
+        [...el.childNodes].forEach(node => {
+          if(node.nodeType===Node.TEXT_NODE && /Week Streak/.test(node.textContent || '')){
+            node.textContent=node.textContent.replace(/Week Streak/g,'Day Streak');
+          }
+        });
+      }
+      if(el.title){
+        el.title=el.title
+          .replace(/week workout streak/gi,'day workout streak')
+          .replace(/weekly workout streak/gi,'daily workout streak');
+      }
+    });
+  }
+
+  function watchStreakUi(){
+    const targets=[
+      document.getElementById('memberProfile'),
+      document.getElementById('chatProfileOverlay'),
+      document.getElementById('communityLeaderboard'),
+      document.getElementById('appHomeDashboard'),
+      document.getElementById('chatAchievements'),
+      document.getElementById('chatPublicAchievements')
+    ].filter(Boolean);
+
+    targets.forEach(target => {
+      if(target.dataset.gcDailyStreakWatch==='1') return;
+      target.dataset.gcDailyStreakWatch='1';
+      new MutationObserver(() => {
+        setTimeout(patchDailyStreakUi,0);
+      }).observe(target,{childList:true,subtree:true,characterData:true});
+    });
+  }
+
+
+  // ============================================================
+  // BOOT
+  // ============================================================
+
+  function boot(){
+    buildStore();
+    installStoreNavigation();
+    installDailyWorkoutCalculator();
+    watchStreakUi();
+    patchDailyStreakUi();
+    installCreditAuth();
+
+    // Existing mobile/admin patches can rebuild drawers later.
+    setInterval(() => {
+      installStoreNavigation();
+      patchDailyStreakUi();
+    },1500);
+
+    // Re-run own profile once so its streak calculation immediately becomes daily.
+    setTimeout(() => {
+      try{
+        if(typeof refreshMemberProfile==='function') refreshMemberProfile();
+      }catch(_){}
+    },500);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] Store + Gymcel Credits + daily streaks loaded');
+})();
