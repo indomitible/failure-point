@@ -5514,3 +5514,312 @@
 
   console.log('[Gymcels] Profile background expansion loaded');
 })();
+// ============================================================
+// GYMCELS.LOL — VIP STORE DISCOUNT UI V1
+// Gymcel VIP members get 35% off Gymcel Credit Store items only.
+// Does NOT affect Gymcel Protocol, VIP membership, or Payhip products.
+//
+// Paste at the VERY BOTTOM of community-extras.js.
+// Run the matching Supabase SQL first.
+// ============================================================
+(() => {
+  'use strict';
+
+  if(window.__gymcelsVipStoreDiscountV1) return;
+  window.__gymcelsVipStoreDiscountV1 = true;
+
+  const DISCOUNT = 0.35;
+  const PAY_RATE = 1 - DISCOUNT;
+
+  let isVip = false;
+  let isAdmin = false;
+  let stateLoaded = false;
+  let applying = false;
+
+  const fmt = n => Number(n || 0).toLocaleString();
+  const vipPrice = base => Math.round(Number(base || 0) * PAY_RATE);
+
+  async function getDb(){
+    for(let i=0;i<50;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await new Promise(r=>setTimeout(r,100));
+    }
+    return null;
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcVipStoreDiscountStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcVipStoreDiscountStyles';
+    style.textContent=`
+      .gc-vip-store-perk{
+        display:flex;
+        align-items:center;
+        gap:7px;
+        flex-wrap:wrap;
+        margin:9px 0 2px;
+        color:#f8d85f;
+        font-size:9px;
+        font-weight:1000;
+      }
+
+      .gc-vip-store-perk-badge{
+        display:inline-flex;
+        align-items:center;
+        padding:4px 7px;
+        border:1px solid rgba(248,216,95,.48);
+        border-radius:999px;
+        background:rgba(248,216,95,.09);
+        color:#ffe37d;
+        font-size:8px;
+        font-weight:1000;
+        letter-spacing:.05em;
+      }
+
+      .gc-vip-price-wrap{
+        display:flex;
+        align-items:center;
+        gap:7px;
+        flex-wrap:wrap;
+      }
+
+      .gc-vip-price-now{
+        color:#f4cf54;
+        font-weight:1000;
+      }
+
+      .gc-vip-price-old{
+        color:#6f7883;
+        text-decoration:line-through;
+        text-decoration-thickness:1px;
+        font-size:.85em;
+        font-weight:800;
+      }
+
+      .gc-vip-price-tag{
+        display:inline-flex;
+        align-items:center;
+        padding:3px 6px;
+        border:1px solid rgba(239,67,85,.48);
+        border-radius:999px;
+        background:rgba(239,67,85,.12);
+        color:#ff8e9a;
+        font-size:7px;
+        font-weight:1000;
+        white-space:nowrap;
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  async function loadState(){
+    const db=await getDb();
+    if(!db) return;
+
+    const {data:sessionData}=await db.auth.getSession();
+    const session=sessionData?.session || null;
+
+    isVip=false;
+    isAdmin=false;
+
+    if(session?.user){
+      const [vipRes,staffRes]=await Promise.all([
+        db.rpc('my_vip_status'),
+        db.rpc('my_staff_permissions')
+      ]);
+
+      if(!vipRes.error) isVip=vipRes.data === true;
+      if(!staffRes.error) isAdmin=!!staffRes.data?.is_admin;
+    }
+
+    stateLoaded=true;
+    applyDiscountUi();
+  }
+
+  function getBasePrice(el){
+    if(!el) return 0;
+
+    if(el.dataset.gcVipBasePrice){
+      return Number(el.dataset.gcVipBasePrice || 0);
+    }
+
+    const match=(el.textContent || '').replace(/,/g,'').match(/(\d+)/);
+    const price=match ? Number(match[1]) : 0;
+
+    if(price > 0) el.dataset.gcVipBasePrice=String(price);
+    return price;
+  }
+
+  function setPriceDisplay(el,base){
+    if(!el || !base) return;
+
+    if(isVip && !isAdmin){
+      const discounted=vipPrice(base);
+      const desired=`
+        <span class="gc-vip-price-wrap">
+          <span class="gc-vip-price-now">🪙 ${fmt(discounted)} Gymcel Credits</span>
+          <span class="gc-vip-price-old">${fmt(base)}</span>
+          <span class="gc-vip-price-tag">VIP 35% OFF</span>
+        </span>`;
+      if(el.innerHTML.trim() !== desired.trim()) el.innerHTML=desired;
+    }else{
+      const desired=`🪙 ${fmt(base)} Gymcel Credits`;
+      if((el.textContent || '').trim() !== desired) el.textContent=desired;
+    }
+  }
+
+  function setBuyButton(btn,base){
+    if(!btn || !base) return;
+
+    const text=(btn.textContent || '').trim().toLowerCase();
+
+    // Never overwrite equip / equipped / buying states.
+    if(
+      text.includes('equip') ||
+      text.includes('buying') ||
+      btn.disabled
+    ) return;
+
+    const desired=`Buy · ${fmt(isAdmin ? base : (isVip ? vipPrice(base) : base))}`;
+    if((btn.textContent || '').trim() !== desired) btn.textContent=desired;
+  }
+
+  function addPerkNotice(){
+    const section=document.getElementById('gcCosmeticStoreSection');
+    if(!section) return;
+
+    let note=document.getElementById('gcVipStorePerkNote');
+
+    if(!isVip || isAdmin){
+      note?.remove();
+      return;
+    }
+
+    if(!note){
+      note=document.createElement('div');
+      note.id='gcVipStorePerkNote';
+      note.className='gc-vip-store-perk';
+      const head=section.querySelector('.gc-cosmetic-store-head');
+      (head || section).insertAdjacentElement('afterend',note);
+    }
+
+    const desired=`
+      <span class="gc-vip-store-perk-badge">GYMCEL VIP 🔱</span>
+      <span>35% off every Gymcel Credit Store item.</span>`;
+    if(note.innerHTML.trim() !== desired.trim()) note.innerHTML=desired;
+  }
+
+  function apply200Brah(){
+    const section=document.getElementById('gcCosmeticStoreSection');
+    if(!section) return;
+
+    const priceEl=section.querySelector('.gc-store-item-price');
+    const btn=document.getElementById('gcStoreCosmeticAction');
+    const status=document.getElementById('gcStoreCosmeticStatus');
+
+    const base=getBasePrice(priceEl);
+    if(!base) return;
+
+    setPriceDisplay(priceEl,base);
+    setBuyButton(btn,base);
+
+    if(
+      isVip &&
+      !isAdmin &&
+      status &&
+      btn &&
+      !(btn.textContent || '').toLowerCase().includes('equip')
+    ){
+      if(status.className!=='ok') status.className='ok';
+      const desiredStatus=`VIP price: ${fmt(vipPrice(base))} credits — 35% off.`;
+      if(status.textContent!==desiredStatus) status.textContent=desiredStatus;
+    }
+  }
+
+  function applyExpansionCards(){
+    document.querySelectorAll('[data-gc-bg-store-item]').forEach(card=>{
+      const priceEl=card.querySelector('.gc-bg-item-price');
+      const btn=card.querySelector('[data-gc-bg-action]');
+      const status=card.querySelector('.gc-bg-item-status');
+
+      const base=getBasePrice(priceEl);
+      if(!base) return;
+
+      setPriceDisplay(priceEl,base);
+      setBuyButton(btn,base);
+
+      if(
+        isVip &&
+        !isAdmin &&
+        status &&
+        btn &&
+        !(btn.textContent || '').toLowerCase().includes('equip')
+      ){
+        if(status.className!=='gc-bg-item-status ok') status.className='gc-bg-item-status ok';
+        const desiredStatus=`VIP price: ${fmt(vipPrice(base))} credits — 35% off.`;
+        if(status.textContent!==desiredStatus) status.textContent=desiredStatus;
+      }
+    });
+  }
+
+  function applyDiscountUi(){
+    if(!stateLoaded || applying) return;
+
+    applying=true;
+    try{
+      addPerkNotice();
+      apply200Brah();
+      applyExpansionCards();
+    }finally{
+      applying=false;
+    }
+  }
+
+  function watchStore(){
+    const root=document.getElementById('gymcelStoreSection') || document.body;
+    if(root.dataset.gcVipDiscountWatch==='1') return;
+
+    root.dataset.gcVipDiscountWatch='1';
+
+    let timer;
+    new MutationObserver(()=>{
+      if(applying) return;
+      clearTimeout(timer);
+      timer=setTimeout(applyDiscountUi,80);
+    }).observe(root,{
+      childList:true,
+      subtree:true,
+      characterData:true
+    });
+  }
+
+  function boot(){
+    installStyles();
+    watchStore();
+
+    let tries=0;
+    const timer=setInterval(()=>{
+      tries++;
+      applyDiscountUi();
+      if(document.getElementById('gcCosmeticStoreSection') || tries>60){
+        clearInterval(timer);
+      }
+    },250);
+
+    loadState();
+
+    getDb().then(db=>{
+      db?.auth?.onAuthStateChange?.(()=>setTimeout(loadState,120));
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] VIP Store discount UI loaded');
+})();
