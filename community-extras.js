@@ -1162,3 +1162,805 @@
 
   console.log('[Gymcels] Threads mobile refresh fix loaded');
 })();
+// ============================================================
+// GYMCELS ADMIN UI CLEANUP V1
+// Separates Moderator Permissions from Community Roles and
+// collapses long lists into dropdown sections.
+// Paste at the VERY BOTTOM of community-extras.js.
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsAdminUiCleanupV1) return;
+  window.__gymcelsAdminUiCleanupV1 = true;
+
+  const ROLE_OPTIONS = [
+    ['promoter', 'Promoter 📣'],
+    ['founding_member', 'Founding Member ⭐'],
+    ['contributor', 'Contributor 🛠️'],
+    ['content_creator', 'Content Creator 🎥'],
+    ['event_host', 'Event Host 🎙️'],
+    ['helper', 'Helper 🤝']
+  ];
+
+  let built = false;
+  let roleEditorUser = null;
+  let roleHolderRows = [];
+  let syncTimer = null;
+
+  function esc(value='') {
+    return String(value)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function installAdminStyles(){
+    if(document.getElementById('gcAdminCleanupStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcAdminCleanupStyles';
+    style.textContent=`
+      #staffAdminPanel.gc-admin-cleanup-ready > .staff-admin-head{
+        margin-bottom:12px;
+      }
+
+      .gc-admin-accordion{
+        margin-top:10px;
+        border:1px solid #2a3139;
+        border-radius:13px;
+        background:#0d1116;
+        overflow:hidden;
+      }
+
+      .gc-admin-accordion > summary{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        min-height:54px;
+        padding:13px 15px;
+        cursor:pointer;
+        list-style:none;
+        user-select:none;
+        background:#10151b;
+      }
+
+      .gc-admin-accordion > summary::-webkit-details-marker{display:none}
+
+      .gc-admin-summary-main{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        min-width:0;
+      }
+
+      .gc-admin-summary-icon{
+        width:29px;
+        height:29px;
+        flex:0 0 29px;
+        display:grid;
+        place-items:center;
+        border:1px solid #303844;
+        border-radius:9px;
+        background:#0a0e12;
+        font-size:13px;
+      }
+
+      .gc-admin-summary-copy strong{
+        display:block;
+        color:#fff;
+        font-size:12px;
+        font-weight:950;
+      }
+
+      .gc-admin-summary-copy small{
+        display:block;
+        margin-top:2px;
+        color:#7f8995;
+        font-size:8px;
+        line-height:1.35;
+      }
+
+      .gc-admin-summary-right{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex:0 0 auto;
+      }
+
+      .gc-admin-count{
+        min-width:24px;
+        padding:4px 8px;
+        border:1px solid #343d48;
+        border-radius:999px;
+        background:#090d11;
+        color:#aab3bf;
+        text-align:center;
+        font-size:8px;
+        font-weight:950;
+      }
+
+      .gc-admin-chevron{
+        color:#818b97;
+        font-size:13px;
+        transition:transform .16s ease;
+      }
+
+      .gc-admin-accordion[open] > summary .gc-admin-chevron{transform:rotate(180deg)}
+
+      .gc-admin-accordion-body{
+        padding:13px;
+        border-top:1px solid #242b33;
+      }
+
+      /* Community-role controls no longer appear inside moderator cards. */
+      #gcModeratorManager .gc-extra-role-box,
+      #gcModeratorManager .community-role-admin,
+      #gcModeratorManager .community-roles-admin-v2{
+        display:none!important;
+      }
+
+      /* Old Current Moderators label is replaced by our compact dropdown title. */
+      #gcCurrentModeratorsBox .staff-current-head strong{display:none!important}
+      #gcCurrentModeratorsBox .staff-current-head{
+        justify-content:flex-end;
+        margin:0 0 8px;
+        padding:0;
+        border:0;
+      }
+
+      .gc-admin-subdetails{
+        margin-top:12px;
+        border:1px solid #252d36;
+        border-radius:10px;
+        background:#0a0e12;
+        overflow:hidden;
+      }
+
+      .gc-admin-subdetails > summary{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        list-style:none;
+        cursor:pointer;
+        padding:11px 12px;
+        color:#dce2e9;
+        font-size:9px;
+        font-weight:950;
+      }
+
+      .gc-admin-subdetails > summary::-webkit-details-marker{display:none}
+      .gc-admin-subdetails-body{padding:0 10px 10px}
+
+      #gcCurrentModeratorsListWrap #staffMembersList,
+      #gcRoleHoldersList{
+        max-height:330px;
+        overflow:auto;
+        padding-right:3px;
+      }
+
+      .gc-role-search{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        gap:8px;
+      }
+
+      .gc-role-search input{
+        min-width:0;
+        width:100%;
+        box-sizing:border-box;
+        border:1px solid #303844;
+        border-radius:10px;
+        background:#0a0e12;
+        color:#fff;
+        padding:11px 12px;
+        outline:none;
+        font:inherit;
+        font-size:10px;
+      }
+
+      .gc-role-search input:focus{border-color:#ef4355}
+
+      .gc-role-search button,
+      .gc-role-save-btn,
+      .gc-role-manage-btn{
+        border:0;
+        border-radius:9px;
+        background:#ef4355;
+        color:#fff;
+        padding:10px 13px;
+        font-size:9px;
+        font-weight:950;
+        cursor:pointer;
+      }
+
+      .gc-role-search button:disabled,
+      .gc-role-save-btn:disabled{opacity:.55;cursor:not-allowed}
+
+      #gcRoleSearchResults{
+        margin-top:8px;
+      }
+
+      .gc-role-search-row,
+      .gc-role-holder-row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        padding:9px 10px;
+        border:1px solid #252d36;
+        border-radius:9px;
+        background:#10151a;
+        margin-top:6px;
+      }
+
+      .gc-role-person{
+        min-width:0;
+      }
+
+      .gc-role-person strong{
+        display:block;
+        color:#fff;
+        font-size:10px;
+        font-weight:950;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
+
+      .gc-role-person small{
+        display:block;
+        margin-top:2px;
+        color:#7f8995;
+        font-size:8px;
+      }
+
+      .gc-role-manage-btn{
+        flex:0 0 auto;
+        background:#1c232b;
+        border:1px solid #323b46;
+        padding:7px 10px;
+      }
+
+      .gc-role-editor{
+        margin-top:10px;
+        padding:12px;
+        border:1px solid #2b343e;
+        border-radius:11px;
+        background:#0a0e12;
+      }
+
+      .gc-role-editor-head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:10px;
+        margin-bottom:10px;
+      }
+
+      .gc-role-editor-head strong{
+        display:block;
+        color:#fff;
+        font-size:11px;
+        font-weight:950;
+      }
+
+      .gc-role-editor-head small{
+        display:block;
+        margin-top:2px;
+        color:#7e8894;
+        font-size:8px;
+      }
+
+      .gc-role-grid{
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:7px;
+      }
+
+      .gc-role-option{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        min-width:0;
+        padding:9px 10px;
+        border:1px solid #29313a;
+        border-radius:9px;
+        background:#10151a;
+        color:#dfe5eb;
+        cursor:pointer;
+      }
+
+      .gc-role-option:has(input:checked){
+        border-color:rgba(239,67,85,.58);
+        background:rgba(239,67,85,.08);
+      }
+
+      .gc-role-option input{margin:0;accent-color:#ef4355}
+      .gc-role-option span{
+        min-width:0;
+        font-size:9px;
+        font-weight:900;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
+
+      .gc-role-editor-actions{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        margin-top:10px;
+      }
+
+      #gcRoleStatus{
+        min-height:12px;
+        color:#7f8995;
+        font-size:8px;
+        font-weight:800;
+      }
+      #gcRoleStatus.ok{color:#70dea0}
+      #gcRoleStatus.err{color:#ff8998}
+
+      .gc-role-badges{
+        display:flex;
+        flex-wrap:wrap;
+        gap:4px;
+        margin-top:4px;
+      }
+
+      .gc-role-mini-badge{
+        display:inline-flex;
+        align-items:center;
+        padding:2px 5px;
+        border:1px solid #343d47;
+        border-radius:999px;
+        color:#b7c0ca;
+        background:#0a0e12;
+        font-size:7px;
+        font-weight:900;
+      }
+
+      @media(max-width:700px){
+        .gc-role-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .gc-admin-accordion > summary{padding:12px}
+        .gc-admin-accordion-body{padding:10px}
+      }
+
+      @media(max-width:430px){
+        .gc-role-grid{grid-template-columns:1fr}
+        .gc-role-search{grid-template-columns:1fr}
+        .gc-role-search button{width:100%}
+        .gc-admin-summary-copy small{display:none}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function accordionSummary(icon,title,sub,countId){
+    return `
+      <span class="gc-admin-summary-main">
+        <span class="gc-admin-summary-icon">${icon}</span>
+        <span class="gc-admin-summary-copy">
+          <strong>${title}</strong>
+          <small>${sub}</small>
+        </span>
+      </span>
+      <span class="gc-admin-summary-right">
+        <span class="gc-admin-count" id="${countId}">0</span>
+        <span class="gc-admin-chevron">⌄</span>
+      </span>`;
+  }
+
+  function buildAdminLayout(){
+    if(built) return true;
+
+    const panel=document.getElementById('staffAdminPanel');
+    const search=document.querySelector('#staffAdminPanel > .staff-admin-search');
+    const searchResults=document.getElementById('staffSearchResults');
+    const divider=document.querySelector('#staffAdminPanel > .staff-admin-divider');
+    const currentHead=document.querySelector('#staffAdminPanel > .staff-current-head');
+    const currentList=document.getElementById('staffMembersList');
+    const status=document.getElementById('staffPanelStatus');
+
+    if(!panel || !search || !searchResults || !currentHead || !currentList || !status) return false;
+
+    installAdminStyles();
+    panel.classList.add('gc-admin-cleanup-ready');
+
+    const mod=document.createElement('details');
+    mod.id='gcModeratorManager';
+    mod.className='gc-admin-accordion';
+    mod.open=true;
+    mod.innerHTML=`
+      <summary>${accordionSummary('🛡️','Moderator Permissions','Only people with real moderation powers appear here.','gcModeratorCount')}</summary>
+      <div class="gc-admin-accordion-body" id="gcModeratorBody"></div>`;
+
+    const modBody=mod.querySelector('#gcModeratorBody');
+
+    const currentDetails=document.createElement('details');
+    currentDetails.id='gcCurrentModeratorsBox';
+    currentDetails.className='gc-admin-subdetails';
+    currentDetails.innerHTML=`
+      <summary>
+        <span>Current Moderators</span>
+        <span class="gc-admin-chevron">⌄</span>
+      </summary>
+      <div class="gc-admin-subdetails-body" id="gcCurrentModeratorsListWrap"></div>`;
+
+    const currentWrap=currentDetails.querySelector('#gcCurrentModeratorsListWrap');
+
+    modBody.appendChild(search);
+    modBody.appendChild(searchResults);
+    if(divider) divider.remove();
+    currentWrap.appendChild(currentHead);
+    currentWrap.appendChild(currentList);
+    modBody.appendChild(currentDetails);
+    modBody.appendChild(status);
+
+    const roles=document.createElement('details');
+    roles.id='gcCommunityRolesManager';
+    roles.className='gc-admin-accordion';
+    roles.innerHTML=`
+      <summary>${accordionSummary('🏷️','Community Roles','Promoter, Helper, Contributor and other profile/chat badges.','gcRoleHolderCount')}</summary>
+      <div class="gc-admin-accordion-body">
+        <div class="gc-role-search">
+          <input id="gcRoleSearchInput" type="search" maxlength="40" autocomplete="off" placeholder="Search username to manage roles...">
+          <button id="gcRoleSearchBtn" type="button">Search</button>
+        </div>
+        <div id="gcRoleSearchResults"></div>
+        <div id="gcRoleEditorMount"></div>
+
+        <details class="gc-admin-subdetails" id="gcRoleHoldersDetails">
+          <summary>
+            <span>Role Holders</span>
+            <span class="gc-admin-chevron">⌄</span>
+          </summary>
+          <div class="gc-admin-subdetails-body">
+            <div id="gcRoleHoldersList"><div class="staff-admin-empty">Loading role holders...</div></div>
+          </div>
+        </details>
+      </div>`;
+
+    // Keep the original owner header at top, then the two compact dropdown managers.
+    const head=panel.querySelector(':scope > .staff-admin-head');
+    if(head){
+      head.insertAdjacentElement('afterend',roles);
+      head.insertAdjacentElement('afterend',mod);
+    }else{
+      panel.prepend(roles);
+      panel.prepend(mod);
+    }
+
+    built=true;
+    bindRoleManager();
+    watchModeratorList();
+    loadRoleHolders();
+    syncModeratorList();
+    return true;
+  }
+
+  function isModeratorCard(card){
+    if(!card) return false;
+
+    if(card.querySelector('.staff-badge.admin,.staff-badge.moderator')) return true;
+
+    const checks=[...card.querySelectorAll('[data-staff-permission]')];
+    return checks.some(input => input.checked);
+  }
+
+  function syncModeratorList(){
+    if(!built) return;
+
+    const list=document.getElementById('staffMembersList');
+    if(!list) return;
+
+    let count=0;
+    list.querySelectorAll('.staff-admin-card').forEach(card => {
+      const moderator=isModeratorCard(card);
+      card.style.display=moderator ? '' : 'none';
+      if(moderator) count++;
+    });
+
+    const countEl=document.getElementById('gcModeratorCount');
+    if(countEl) countEl.textContent=String(count);
+
+    const empty=list.querySelector('.staff-admin-empty');
+    if(empty && list.querySelectorAll('.staff-admin-card').length){
+      empty.style.display=count ? 'none' : '';
+      if(!count) empty.textContent='No moderators yet.';
+    }
+  }
+
+  function watchModeratorList(){
+    const list=document.getElementById('staffMembersList');
+    const search=document.getElementById('staffSearchResults');
+
+    if(list && !list.dataset.gcAdminCleanupWatch){
+      list.dataset.gcAdminCleanupWatch='1';
+      new MutationObserver(() => {
+        clearTimeout(syncTimer);
+        syncTimer=setTimeout(syncModeratorList,30);
+      }).observe(list,{childList:true,subtree:true});
+    }
+
+    if(search && !search.dataset.gcAdminCleanupWatch){
+      search.dataset.gcAdminCleanupWatch='1';
+      new MutationObserver(() => {
+        // Existing community-extras may re-inject old role controls; CSS keeps them hidden.
+        clearTimeout(syncTimer);
+        syncTimer=setTimeout(syncModeratorList,30);
+      }).observe(search,{childList:true,subtree:true});
+    }
+  }
+
+  async function getRolesForUsers(ids){
+    const unique=[...new Set((ids || []).filter(Boolean))];
+    if(!unique.length || !window.gymcelsLolDb) return {};
+
+    const {data,error}=await window.gymcelsLolDb.rpc(
+      'admin_get_member_community_roles',
+      {target_users:unique}
+    );
+    if(error) throw error;
+
+    const map={};
+    unique.forEach(id => map[id]=[]);
+    (data || []).forEach(row => {
+      if(!map[row.user_id]) map[row.user_id]=[];
+      if(row.role && !map[row.user_id].includes(row.role)) map[row.user_id].push(row.role);
+    });
+    return map;
+  }
+
+  function roleLabel(role){
+    return ROLE_OPTIONS.find(([value]) => value===role)?.[1] || role;
+  }
+
+  function roleBadgesHtml(roles){
+    return `<div class="gc-role-badges">${(roles || []).map(role =>
+      `<span class="gc-role-mini-badge">${esc(roleLabel(role))}</span>`
+    ).join('')}</div>`;
+  }
+
+  async function searchRoleMembers(){
+    const input=document.getElementById('gcRoleSearchInput');
+    const results=document.getElementById('gcRoleSearchResults');
+    const btn=document.getElementById('gcRoleSearchBtn');
+    const query=String(input?.value || '').trim();
+
+    if(!query){
+      if(results) results.innerHTML='<div class="staff-admin-empty">Type a username first.</div>';
+      return;
+    }
+
+    btn.disabled=true;
+    if(results) results.innerHTML='<div class="staff-admin-empty">Searching...</div>';
+
+    try{
+      const {data,error}=await window.gymcelsLolDb.rpc(
+        'admin_search_staff_members',
+        {search_text:query}
+      );
+      if(error) throw error;
+
+      const rows=data || [];
+      const roleMap=await getRolesForUsers(rows.map(row => row.user_id));
+
+      if(!rows.length){
+        results.innerHTML='<div class="staff-admin-empty">No member found with that username.</div>';
+        return;
+      }
+
+      results.innerHTML=rows.map(row => `
+        <div class="gc-role-search-row" data-gc-role-search-user="${esc(row.user_id || '')}">
+          <div class="gc-role-person">
+            <strong>${esc(row.display_name || 'Member')}</strong>
+            <small>${(roleMap[row.user_id] || []).length ? 'Current community roles' : 'No community roles yet'}</small>
+            ${roleBadgesHtml(roleMap[row.user_id] || [])}
+          </div>
+          <button class="gc-role-manage-btn" type="button" data-gc-manage-role-user="${esc(row.user_id || '')}" data-gc-manage-role-name="${esc(row.display_name || 'Member')}">Manage</button>
+        </div>`).join('');
+    }catch(err){
+      console.error('[Gymcels] role search error:',err);
+      if(results) results.innerHTML=`<div class="staff-admin-empty">Search failed: ${esc(err?.message || String(err))}</div>`;
+    }finally{
+      btn.disabled=false;
+    }
+  }
+
+  async function openRoleEditor(userId,name){
+    const mount=document.getElementById('gcRoleEditorMount');
+    if(!mount || !userId) return;
+
+    mount.innerHTML='<div class="staff-admin-empty">Loading roles...</div>';
+
+    try{
+      const roleMap=await getRolesForUsers([userId]);
+      const selected=new Set(roleMap[userId] || []);
+      roleEditorUser={userId,name:name || 'Member'};
+
+      mount.innerHTML=`
+        <div class="gc-role-editor">
+          <div class="gc-role-editor-head">
+            <div>
+              <strong>${esc(roleEditorUser.name)}</strong>
+              <small>Choose any combination of community badges.</small>
+            </div>
+            <span class="gc-admin-count" id="gcRoleEditorCount">${selected.size}</span>
+          </div>
+
+          <div class="gc-role-grid">
+            ${ROLE_OPTIONS.map(([value,label]) => `
+              <label class="gc-role-option">
+                <input type="checkbox" data-gc-clean-role="${value}" ${selected.has(value) ? 'checked' : ''}>
+                <span>${esc(label)}</span>
+              </label>`).join('')}
+          </div>
+
+          <div class="gc-role-editor-actions">
+            <span id="gcRoleStatus"></span>
+            <button id="gcRoleSaveBtn" class="gc-role-save-btn" type="button">Save roles</button>
+          </div>
+        </div>`;
+
+      mount.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }catch(err){
+      console.error('[Gymcels] role editor error:',err);
+      mount.innerHTML=`<div class="staff-admin-empty">Could not load roles: ${esc(err?.message || String(err))}</div>`;
+    }
+  }
+
+  async function saveRoleEditor(){
+    if(!roleEditorUser || !window.gymcelsLolDb) return;
+
+    const btn=document.getElementById('gcRoleSaveBtn');
+    const status=document.getElementById('gcRoleStatus');
+    const roles=[...document.querySelectorAll('[data-gc-clean-role]:checked')]
+      .map(input => input.dataset.gcCleanRole)
+      .filter(Boolean);
+
+    btn.disabled=true;
+    btn.textContent='Saving...';
+    if(status){status.className='';status.textContent='Saving roles...';}
+
+    try{
+      const {error}=await window.gymcelsLolDb.rpc(
+        'set_member_community_roles',
+        {target_user:roleEditorUser.userId,new_roles:roles}
+      );
+      if(error) throw error;
+
+      if(status){
+        status.className='ok';
+        status.textContent=roles.length
+          ? `Saved ${roles.length} role${roles.length===1?'':'s'}.`
+          : 'All community roles removed.';
+      }
+
+      await loadRoleHolders();
+
+      // Refresh public badge surfaces without changing moderation permissions.
+      try{ if(typeof loadCommunityChat==='function') await loadCommunityChat(false); }catch(_){}
+      try{ if(typeof loadThreads==='function') await loadThreads(); }catch(_){}
+
+      // Refresh the role search row too if a query is still present.
+      if(document.getElementById('gcRoleSearchInput')?.value.trim()){
+        await searchRoleMembers();
+      }
+    }catch(err){
+      console.error('[Gymcels] save community roles error:',err);
+      if(status){status.className='err';status.textContent=err?.message || String(err);}
+    }finally{
+      btn.disabled=false;
+      btn.textContent='Save roles';
+    }
+  }
+
+  async function loadRoleHolders(){
+    const list=document.getElementById('gcRoleHoldersList');
+    const count=document.getElementById('gcRoleHolderCount');
+    if(!list || !window.gymcelsLolDb) return;
+
+    list.innerHTML='<div class="staff-admin-empty">Loading role holders...</div>';
+
+    try{
+      const {data,error}=await window.gymcelsLolDb.rpc('admin_list_staff_members');
+      if(error) throw error;
+
+      const rows=data || [];
+      const roleMap=await getRolesForUsers(rows.map(row => row.user_id));
+
+      roleHolderRows=rows
+        .map(row => ({...row,community_roles:roleMap[row.user_id] || []}))
+        .filter(row => row.community_roles.length > 0)
+        .sort((a,b) => String(a.display_name || '').localeCompare(String(b.display_name || '')));
+
+      if(count) count.textContent=String(roleHolderRows.length);
+
+      if(!roleHolderRows.length){
+        list.innerHTML='<div class="staff-admin-empty">No community role holders yet.</div>';
+        return;
+      }
+
+      list.innerHTML=roleHolderRows.map(row => `
+        <div class="gc-role-holder-row">
+          <div class="gc-role-person">
+            <strong>${esc(row.display_name || 'Member')}</strong>
+            ${roleBadgesHtml(row.community_roles)}
+          </div>
+          <button class="gc-role-manage-btn" type="button" data-gc-manage-role-user="${esc(row.user_id || '')}" data-gc-manage-role-name="${esc(row.display_name || 'Member')}">Manage</button>
+        </div>`).join('');
+    }catch(err){
+      console.error('[Gymcels] load role holders error:',err);
+      list.innerHTML=`<div class="staff-admin-empty">Could not load role holders: ${esc(err?.message || String(err))}</div>`;
+    }
+  }
+
+  function updateRoleEditorCount(){
+    const count=document.getElementById('gcRoleEditorCount');
+    if(count){
+      count.textContent=String(document.querySelectorAll('[data-gc-clean-role]:checked').length);
+    }
+  }
+
+  function bindRoleManager(){
+    const searchBtn=document.getElementById('gcRoleSearchBtn');
+    const searchInput=document.getElementById('gcRoleSearchInput');
+
+    searchBtn?.addEventListener('click',searchRoleMembers);
+    searchInput?.addEventListener('keydown',event => {
+      if(event.key==='Enter'){
+        event.preventDefault();
+        searchRoleMembers();
+      }
+    });
+
+    document.addEventListener('click',event => {
+      const manage=event.target.closest('[data-gc-manage-role-user]');
+      if(manage){
+        const rolesBox=document.getElementById('gcCommunityRolesManager');
+        if(rolesBox) rolesBox.open=true;
+        openRoleEditor(manage.dataset.gcManageRoleUser,manage.dataset.gcManageRoleName || 'Member');
+        return;
+      }
+
+      if(event.target.closest('#gcRoleSaveBtn')) saveRoleEditor();
+    });
+
+    document.addEventListener('change',event => {
+      if(event.target.matches('[data-gc-clean-role]')) updateRoleEditorCount();
+    });
+
+    document.getElementById('staffRefreshBtn')?.addEventListener('click',() => {
+      setTimeout(() => {
+        syncModeratorList();
+        loadRoleHolders();
+      },250);
+    });
+  }
+
+  function boot(){
+    if(buildAdminLayout()) return;
+
+    // The admin panel is injected/initialized after auth; retry without touching other UI.
+    let tries=0;
+    const timer=setInterval(() => {
+      tries++;
+      if(buildAdminLayout() || tries>40) clearInterval(timer);
+    },250);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] compact moderator/community-role manager loaded');
+})();
