@@ -3754,3 +3754,495 @@
 
   console.log('[Gymcels] Store Cosmetics V1 loaded — 200 Brah');
 })();
+// ============================================================
+// GYMCELS ADMIN CREDITS V1
+// Admin gets unlimited Store purchasing power + a credit grant panel.
+// Paste at the VERY BOTTOM of community-extras.js.
+// Requires the supplied Admin Credits SQL.
+// ============================================================
+(() => {
+  'use strict';
+
+  if(window.__gymcelsAdminCreditsV1) return;
+  window.__gymcelsAdminCreditsV1 = true;
+
+  let isAdmin = false;
+  let selectedUser = null;
+  let searchRunning = false;
+
+  const sleep = ms => new Promise(resolve => setTimeout(resolve,ms));
+
+  async function getDb(){
+    for(let i=0;i<40;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  function esc(value=''){
+    return String(value)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function fmt(value){
+    return Number(value || 0).toLocaleString();
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcAdminCreditsStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcAdminCreditsStyles';
+    style.textContent=`
+      .gc-admin-credit-panel{
+        grid-column:1/-1;
+        border:1px solid rgba(239,67,85,.32);
+        border-radius:14px;
+        background:
+          radial-gradient(circle at 0 0,rgba(239,67,85,.08),transparent 45%),
+          #0c1015;
+        padding:15px;
+      }
+
+      .gc-admin-credit-head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:12px;
+      }
+
+      .gc-admin-credit-head strong{
+        display:block;
+        color:#fff;
+        font-size:14px;
+        font-weight:1000;
+      }
+
+      .gc-admin-credit-head p{
+        margin:4px 0 0;
+        color:#7f8995;
+        font-size:9px;
+      }
+
+      .gc-admin-infinite-pill{
+        flex:0 0 auto;
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:6px 9px;
+        border:1px solid rgba(245,190,56,.35);
+        border-radius:999px;
+        color:#ffe18a;
+        background:rgba(245,190,56,.07);
+        font-size:9px;
+        font-weight:1000;
+      }
+
+      .gc-admin-credit-search{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        gap:8px;
+      }
+
+      .gc-admin-credit-search input,
+      .gc-admin-credit-form input{
+        width:100%;
+        min-width:0;
+        box-sizing:border-box;
+        border:1px solid #303844;
+        border-radius:9px;
+        background:#090d11;
+        color:#fff;
+        padding:10px 11px;
+        outline:none;
+        font:inherit;
+        font-size:9px;
+      }
+
+      .gc-admin-credit-search input:focus,
+      .gc-admin-credit-form input:focus{border-color:#ef4355}
+
+      .gc-admin-credit-search button,
+      #gcAdminCreditGrantBtn{
+        border:0;
+        border-radius:9px;
+        background:#ef4355;
+        color:#fff;
+        padding:10px 13px;
+        font:inherit;
+        font-size:9px;
+        font-weight:1000;
+        cursor:pointer;
+      }
+
+      .gc-admin-credit-search button:disabled,
+      #gcAdminCreditGrantBtn:disabled{opacity:.55;cursor:not-allowed}
+
+      #gcAdminCreditResults{
+        display:grid;
+        gap:6px;
+        margin-top:8px;
+      }
+
+      .gc-admin-credit-result{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        padding:9px 10px;
+        border:1px solid #29313a;
+        border-radius:9px;
+        background:#10151a;
+      }
+
+      .gc-admin-credit-result strong{
+        display:block;
+        color:#fff;
+        font-size:10px;
+        font-weight:950;
+      }
+
+      .gc-admin-credit-result small{
+        display:block;
+        margin-top:2px;
+        color:#77818d;
+        font-size:8px;
+      }
+
+      .gc-admin-credit-select{
+        border:1px solid #343e49;
+        border-radius:8px;
+        background:#1a2129;
+        color:#fff;
+        padding:7px 9px;
+        font-size:8px;
+        font-weight:950;
+        cursor:pointer;
+      }
+
+      .gc-admin-credit-selected{
+        margin-top:10px;
+        padding:10px;
+        border:1px solid rgba(93,199,123,.28);
+        border-radius:9px;
+        background:rgba(62,161,91,.06);
+        color:#dce8e0;
+        font-size:9px;
+      }
+
+      .gc-admin-credit-form{
+        display:grid;
+        grid-template-columns:minmax(120px,.35fr) minmax(0,1fr) auto;
+        gap:8px;
+        margin-top:8px;
+      }
+
+      #gcAdminCreditStatus{
+        min-height:14px;
+        margin-top:8px;
+        color:#818b97;
+        font-size:8px;
+        font-weight:850;
+      }
+
+      #gcAdminCreditStatus.ok{color:#72dc97}
+      #gcAdminCreditStatus.err{color:#ff8998}
+
+      body.gc-admin-unlimited-credits #gcCreditBalance{
+        font-size:0!important;
+      }
+
+      body.gc-admin-unlimited-credits #gcCreditBalance::after{
+        content:'∞';
+        font-size:24px;
+      }
+
+      body.gc-admin-unlimited-credits #gcDesktopCreditMini{
+        font-size:0!important;
+      }
+
+      body.gc-admin-unlimited-credits #gcDesktopCreditMini::after{
+        content:'∞';
+        font-size:8px;
+      }
+
+      @media(max-width:700px){
+        .gc-admin-credit-form{grid-template-columns:1fr}
+        .gc-admin-credit-search{grid-template-columns:1fr}
+        .gc-admin-credit-search button,
+        #gcAdminCreditGrantBtn{width:100%}
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  async function detectAdmin(){
+    try{
+      const db=await getDb();
+      if(!db) return false;
+
+      const {data,error}=await db.rpc('my_staff_permissions');
+      if(error) throw error;
+
+      isAdmin=!!data?.is_admin;
+      document.body.classList.toggle('gc-admin-unlimited-credits',isAdmin);
+
+      if(isAdmin){
+        installPanel();
+        decorateAdminStore();
+      }
+
+      return isAdmin;
+    }catch(err){
+      console.error('[Gymcels] admin credit detection error:',err);
+      return false;
+    }
+  }
+
+  function panelMarkup(){
+    return `
+      <section id="gcAdminCreditPanel" class="gc-admin-credit-panel">
+        <div class="gc-admin-credit-head">
+          <div>
+            <strong>Admin Credit Controls</strong>
+            <p>Grant Gymcel Credits to any member. Your own Store purchasing power is unlimited.</p>
+          </div>
+          <span class="gc-admin-infinite-pill">🪙 ∞ Admin</span>
+        </div>
+
+        <div class="gc-admin-credit-search">
+          <input id="gcAdminCreditSearchInput" type="search" maxlength="40" autocomplete="off" placeholder="Search username...">
+          <button id="gcAdminCreditSearchBtn" type="button">Search</button>
+        </div>
+
+        <div id="gcAdminCreditResults"></div>
+        <div id="gcAdminCreditSelected"></div>
+        <div id="gcAdminCreditStatus"></div>
+      </section>`;
+  }
+
+  function installPanel(){
+    if(!isAdmin || document.getElementById('gcAdminCreditPanel')) return true;
+
+    const grid=document.querySelector('#gymcelStoreSection .gc-store-grid');
+    if(!grid) return false;
+
+    grid.insertAdjacentHTML('beforeend',panelMarkup());
+
+    document.getElementById('gcAdminCreditSearchBtn')
+      ?.addEventListener('click',searchMembers);
+
+    document.getElementById('gcAdminCreditSearchInput')
+      ?.addEventListener('keydown',event => {
+        if(event.key==='Enter'){
+          event.preventDefault();
+          searchMembers();
+        }
+      });
+
+    return true;
+  }
+
+  async function searchMembers(){
+    if(searchRunning || !isAdmin) return;
+
+    const input=document.getElementById('gcAdminCreditSearchInput');
+    const btn=document.getElementById('gcAdminCreditSearchBtn');
+    const results=document.getElementById('gcAdminCreditResults');
+    const status=document.getElementById('gcAdminCreditStatus');
+    const query=String(input?.value || '').trim();
+
+    if(!query){
+      status.className='err';
+      status.textContent='Type a username first.';
+      return;
+    }
+
+    searchRunning=true;
+    btn.disabled=true;
+    results.innerHTML='<div class="gc-admin-credit-selected">Searching...</div>';
+    status.textContent='';
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {data,error}=await db.rpc('admin_search_staff_members',{
+        search_text:query
+      });
+
+      if(error) throw error;
+
+      const rows=data || [];
+
+      if(!rows.length){
+        results.innerHTML='<div class="gc-admin-credit-selected">No member found.</div>';
+        return;
+      }
+
+      results.innerHTML=rows.map(row => `
+        <div class="gc-admin-credit-result">
+          <div>
+            <strong>${esc(row.display_name || 'Member')}</strong>
+            <small>${esc(row.role || 'member')}</small>
+          </div>
+          <button class="gc-admin-credit-select"
+                  type="button"
+                  data-gc-credit-user="${esc(row.user_id || '')}"
+                  data-gc-credit-name="${esc(row.display_name || 'Member')}">
+            Select
+          </button>
+        </div>`).join('');
+
+      results.querySelectorAll('[data-gc-credit-user]').forEach(button => {
+        button.addEventListener('click',() => {
+          selectMember(
+            button.dataset.gcCreditUser,
+            button.dataset.gcCreditName || 'Member'
+          );
+        });
+      });
+    }catch(err){
+      console.error('[Gymcels] admin credit member search error:',err);
+      status.className='err';
+      status.textContent=err?.message || 'Search failed.';
+      results.innerHTML='';
+    }finally{
+      searchRunning=false;
+      btn.disabled=false;
+    }
+  }
+
+  function selectMember(userId,name){
+    selectedUser={userId,name};
+
+    const selected=document.getElementById('gcAdminCreditSelected');
+    const status=document.getElementById('gcAdminCreditStatus');
+
+    selected.innerHTML=`
+      <div class="gc-admin-credit-selected">
+        Sending credits to <strong>${esc(name)}</strong>
+      </div>
+      <div class="gc-admin-credit-form">
+        <input id="gcAdminCreditAmount" type="number" min="1" max="10000000" step="1" placeholder="Credits">
+        <input id="gcAdminCreditNote" type="text" maxlength="120" placeholder="Optional note, e.g. Event reward">
+        <button id="gcAdminCreditGrantBtn" type="button">Send Credits</button>
+      </div>`;
+
+    status.className='';
+    status.textContent='';
+
+    document.getElementById('gcAdminCreditGrantBtn')
+      ?.addEventListener('click',grantCredits);
+
+    document.getElementById('gcAdminCreditAmount')?.focus();
+  }
+
+  async function grantCredits(){
+    if(!isAdmin || !selectedUser) return;
+
+    const amountInput=document.getElementById('gcAdminCreditAmount');
+    const noteInput=document.getElementById('gcAdminCreditNote');
+    const btn=document.getElementById('gcAdminCreditGrantBtn');
+    const status=document.getElementById('gcAdminCreditStatus');
+
+    const amount=Math.floor(Number(amountInput?.value || 0));
+    const note=String(noteInput?.value || '').trim();
+
+    if(!Number.isFinite(amount) || amount < 1){
+      status.className='err';
+      status.textContent='Enter at least 1 credit.';
+      return;
+    }
+
+    btn.disabled=true;
+    btn.textContent='Sending...';
+    status.className='';
+    status.textContent='Adding credits...';
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {data,error}=await db.rpc('admin_grant_gymcel_credits',{
+        target_user:selectedUser.userId,
+        credit_amount:amount,
+        grant_note:note || null
+      });
+
+      if(error) throw error;
+
+      const row=Array.isArray(data) ? data[0] : data;
+
+      status.className='ok';
+      status.textContent=`✓ Sent ${fmt(row?.amount_granted || amount)} credits to ${row?.display_name || selectedUser.name}. New balance: ${fmt(row?.new_balance || 0)}.`;
+
+      amountInput.value='';
+      noteInput.value='';
+    }catch(err){
+      console.error('[Gymcels] admin grant credits error:',err);
+      status.className='err';
+      status.textContent=err?.message || 'Could not send credits.';
+    }finally{
+      btn.disabled=false;
+      btn.textContent='Send Credits';
+    }
+  }
+
+  function decorateAdminStore(){
+    if(!isAdmin) return;
+
+    document.body.classList.add('gc-admin-unlimited-credits');
+
+    const cosmeticStatus=document.getElementById('gcStoreCosmeticStatus');
+    const cosmeticAction=document.getElementById('gcStoreCosmeticAction');
+
+    if(cosmeticStatus && cosmeticAction && !/owned|equipped/i.test(cosmeticStatus.textContent || '')){
+      cosmeticStatus.className='ok';
+      cosmeticStatus.textContent='Admin account — unlimited Gymcel Credits.';
+    }
+  }
+
+  function boot(){
+    installStyles();
+
+    detectAdmin();
+
+    let tries=0;
+    const timer=setInterval(() => {
+      tries++;
+
+      if(isAdmin){
+        installPanel();
+        decorateAdminStore();
+      }
+
+      if(tries>60) clearInterval(timer);
+    },250);
+
+    getDb().then(db => {
+      db?.auth?.onAuthStateChange?.(() => {
+        isAdmin=false;
+        selectedUser=null;
+        document.body.classList.remove('gc-admin-unlimited-credits');
+        document.getElementById('gcAdminCreditPanel')?.remove();
+        setTimeout(detectAdmin,100);
+      });
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] Admin unlimited credits + grants loaded');
+})();
