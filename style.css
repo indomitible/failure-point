@@ -8066,3 +8066,55 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
 
   font-weight:1000 !important;
 }
+/* =========================================================
+   DESKTOP PUBLIC PROFILE — BIGGER UI + MORE BACKGROUND
+   ========================================================= */
+
+@media (min-width:801px){
+
+  #chatProfileOverlay .chat-public-profile{
+    width:min(520px,calc(100vw - 80px)) !important;
+    max-width:520px !important;
+    padding:16px !important;
+  }
+
+  /* Show much more of purchased profile backgrounds */
+  #chatProfileOverlay .chat-public-profile.gc-profile-bg-active{
+    background-size:contain !important;
+    background-position:center top !important;
+    background-repeat:no-repeat !important;
+    background-color:#080b0f !important;
+  }
+
+  /* Give the larger popup a little more breathing room */
+  #chatProfileOverlay .chat-public-head{
+    gap:12px !important;
+  }
+
+  #chatProfileOverlay .chat-public-avatar{
+    width:62px !important;
+    height:62px !important;
+    min-width:62px !important;
+  }
+
+  #chatProfileOverlay .chat-public-name{
+    font-size:21px !important;
+  }
+
+  #chatProfileOverlay .chat-public-stats{
+    gap:8px !important;
+  }
+
+  #chatProfileOverlay .chat-public-stat{
+    min-height:62px !important;
+    padding:9px 11px !important;
+  }
+
+  #chatProfileOverlay .chat-public-stat > b{
+    font-size:18px !important;
+  }
+
+  #chatProfileOverlay .chat-public-physique-frame{
+    width:min(260px,100%) !important;
+  }
+}
