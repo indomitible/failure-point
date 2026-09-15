@@ -8127,3 +8127,22 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
   object-position: center center !important;
   background: #0a0c0f;
 }
+/* PHYSIQUE PHOTO - KEEP ORIGINAL IMAGE SHAPE */
+.profile-physique-card,
+.chat-public-physique-frame {
+  width: min(520px, 100%) !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.profile-physique-card img,
+.chat-public-physique-frame img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  display: block !important;
+}
