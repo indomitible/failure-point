@@ -3042,3 +3042,715 @@
 
   console.log('[Gymcels] Store + manual daily claim + daily streaks V2 loaded');
 })();
+// ============================================================
+// GYMCELS STORE COSMETICS V1
+// First item: "200 Brah" profile background — 500 credits
+//
+// Paste this at the VERY BOTTOM of community-extras.js,
+// underneath Store V2.
+// Requires:
+//   • Store/Credits setup already working
+//   • supplied Store Cosmetics SQL
+//   • 200-brah-profile-bg.jpg uploaded beside index.html
+// ============================================================
+(() => {
+  'use strict';
+
+  if (window.__gymcelsStoreCosmeticsV1) return;
+  window.__gymcelsStoreCosmeticsV1 = true;
+
+  const ITEM_KEY = 'profile_bg_200_brah';
+  const ITEM_NAME = '200 Brah';
+  const ITEM_PRICE = 500;
+  const ITEM_ASSET = '200-brah-profile-bg.jpg';
+
+  let catalogReady = false;
+  let inventory = new Map();
+  let balance = 0;
+  let loading = false;
+  let activePublicProfileUser = null;
+
+  const sleep = ms => new Promise(resolve => setTimeout(resolve,ms));
+
+  async function getDb(){
+    for(let i=0;i<40;i++){
+      if(window.gymcelsLolDb) return window.gymcelsLolDb;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  function fmt(value){
+    return Number(value || 0).toLocaleString();
+  }
+
+  function esc(value=''){
+    return String(value)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function installStyles(){
+    if(document.getElementById('gcStoreCosmeticsStyles')) return;
+
+    const style=document.createElement('style');
+    style.id='gcStoreCosmeticsStyles';
+    style.textContent=`
+      .gc-cosmetic-store-section{
+        grid-column:1/-1;
+        margin-top:0;
+      }
+
+      .gc-cosmetic-store-head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:13px;
+      }
+
+      .gc-cosmetic-store-head strong{
+        display:block;
+        color:#fff;
+        font-size:15px;
+        font-weight:1000;
+      }
+
+      .gc-cosmetic-store-head p{
+        margin:4px 0 0;
+        color:#7d8793;
+        font-size:9px;
+      }
+
+      .gc-store-item-card{
+        display:grid;
+        grid-template-columns:minmax(240px,.72fr) minmax(0,1fr);
+        gap:15px;
+        padding:12px;
+        border:1px solid #29313a;
+        border-radius:13px;
+        background:#0b1015;
+      }
+
+      .gc-store-item-preview{
+        position:relative;
+        min-height:250px;
+        border:1px solid #343d47;
+        border-radius:11px;
+        overflow:hidden;
+        background:#080b0e center 18%/cover no-repeat;
+      }
+
+      .gc-store-item-preview::after{
+        content:'';
+        position:absolute;
+        inset:0;
+        background:linear-gradient(to top,rgba(5,7,9,.72),rgba(5,7,9,.08) 52%);
+        pointer-events:none;
+      }
+
+      .gc-store-item-preview-label{
+        position:absolute;
+        left:10px;
+        bottom:9px;
+        z-index:2;
+        padding:5px 7px;
+        border:1px solid rgba(255,255,255,.16);
+        border-radius:999px;
+        background:rgba(6,8,11,.72);
+        backdrop-filter:blur(6px);
+        color:#fff;
+        font-size:8px;
+        font-weight:950;
+      }
+
+      .gc-store-item-copy{
+        display:flex;
+        min-width:0;
+        flex-direction:column;
+        justify-content:center;
+      }
+
+      .gc-store-item-type{
+        color:#e6c257;
+        font-size:8px;
+        font-weight:1000;
+        letter-spacing:.09em;
+        text-transform:uppercase;
+      }
+
+      .gc-store-item-copy h3{
+        margin:5px 0 5px;
+        color:#fff;
+        font-size:24px;
+        line-height:1;
+        letter-spacing:-.035em;
+      }
+
+      .gc-store-item-copy p{
+        margin:0;
+        color:#7f8995;
+        font-size:9px;
+        line-height:1.5;
+        max-width:500px;
+      }
+
+      .gc-store-item-price{
+        display:flex;
+        align-items:center;
+        gap:6px;
+        margin-top:13px;
+        color:#ffe18a;
+        font-size:15px;
+        font-weight:1000;
+      }
+
+      .gc-store-item-actions{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-top:12px;
+        flex-wrap:wrap;
+      }
+
+      .gc-store-item-btn{
+        min-width:130px;
+        border:1px solid #343d48;
+        border-radius:9px;
+        background:#171d24;
+        color:#fff;
+        padding:10px 12px;
+        font:inherit;
+        font-size:9px;
+        font-weight:1000;
+        cursor:pointer;
+      }
+
+      .gc-store-item-btn.buy{
+        border-color:#ef4355;
+        background:#ef4355;
+      }
+
+      .gc-store-item-btn.equip{
+        border-color:#d3a72c;
+        background:rgba(211,167,44,.11);
+        color:#ffe38b;
+      }
+
+      .gc-store-item-btn.equipped{
+        border-color:#4cbd75;
+        background:rgba(76,189,117,.10);
+        color:#83e2a5;
+      }
+
+      .gc-store-item-btn:disabled{
+        opacity:.58;
+        cursor:not-allowed;
+      }
+
+      #gcStoreCosmeticStatus{
+        min-height:14px;
+        margin-top:9px;
+        color:#7c8793;
+        font-size:8px;
+        font-weight:850;
+      }
+
+      #gcStoreCosmeticStatus.ok{color:#78dfa0}
+      #gcStoreCosmeticStatus.err{color:#ff8998}
+
+      /* Public profile cosmetic background */
+      .chat-public-profile.gc-profile-bg-active{
+        background-image:
+          linear-gradient(rgba(10,13,17,.72),rgba(10,13,17,.82)),
+          var(--gc-profile-background)!important;
+        background-size:cover!important;
+        background-position:center 18%!important;
+        background-repeat:no-repeat!important;
+        background-color:#101216!important;
+      }
+
+      .chat-public-profile.gc-profile-bg-active .chat-public-stat,
+      .chat-public-profile.gc-profile-bg-active #gcReputationPanel,
+      .chat-public-profile.gc-profile-bg-active .chat-public-bio{
+        backdrop-filter:blur(4px);
+      }
+
+      .chat-public-profile.gc-profile-bg-active .chat-public-stat{
+        background:rgba(7,9,12,.75)!important;
+      }
+
+      .chat-public-profile.gc-profile-bg-active #gcReputationPanel{
+        background:
+          radial-gradient(circle at 0 0,rgba(239,67,85,.12),transparent 42%),
+          rgba(8,11,15,.79)!important;
+      }
+
+      @media(max-width:720px){
+        .gc-store-item-card{grid-template-columns:1fr}
+        .gc-store-item-preview{min-height:330px}
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  async function getSession(){
+    const db=await getDb();
+    if(!db) return null;
+    const {data}=await db.auth.getSession();
+    return data?.session || null;
+  }
+
+  function getItemState(){
+    return inventory.get(ITEM_KEY) || {owned:false,equipped:false};
+  }
+
+  async function loadState(){
+    if(loading) return;
+    loading=true;
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const session=await getSession();
+
+      if(!session?.user){
+        balance=0;
+        inventory.clear();
+        renderItem();
+        return;
+      }
+
+      const [creditRes,inventoryRes,catalogRes]=await Promise.all([
+        db.rpc('get_my_gymcel_credit_status'),
+        db.rpc('get_my_gymcel_store_inventory'),
+        db.rpc('get_gymcel_store_catalog')
+      ]);
+
+      if(creditRes.error) throw creditRes.error;
+      if(inventoryRes.error) throw inventoryRes.error;
+      if(catalogRes.error) throw catalogRes.error;
+
+      const creditRow=Array.isArray(creditRes.data) ? creditRes.data[0] : creditRes.data;
+      balance=Number(creditRow?.balance || 0);
+
+      inventory.clear();
+      (inventoryRes.data || []).forEach(row => {
+        inventory.set(row.item_key,{
+          owned:true,
+          equipped:!!row.equipped
+        });
+      });
+
+      catalogReady=(catalogRes.data || []).some(row => row.item_key===ITEM_KEY);
+
+      renderItem();
+      syncVisibleCreditBalance();
+    }catch(err){
+      console.error('[Gymcels] Store cosmetics load error:',err);
+
+      const status=document.getElementById('gcStoreCosmeticStatus');
+      if(status){
+        status.className='err';
+        status.textContent='Profile cosmetics are not active yet. Run the Store Cosmetics SQL.';
+      }
+    }finally{
+      loading=false;
+    }
+  }
+
+  function syncVisibleCreditBalance(){
+    document.getElementById('gcCreditBalance')?.replaceChildren(document.createTextNode(fmt(balance)));
+    const mini=document.getElementById('gcDesktopCreditMini');
+    if(mini) mini.textContent=fmt(balance);
+  }
+
+  function itemMarkup(){
+    return `
+      <section class="gc-store-card gc-cosmetic-store-section" id="gcCosmeticStoreSection">
+        <div class="gc-cosmetic-store-head">
+          <div>
+            <strong>Profile Cosmetics</strong>
+            <p>Buy cosmetics permanently with Gymcel Credits, then equip them on your public profile.</p>
+          </div>
+        </div>
+
+        <article class="gc-store-item-card">
+          <div class="gc-store-item-preview"
+               style="background-image:url('${esc(ITEM_ASSET)}')">
+            <span class="gc-store-item-preview-label">Profile Background</span>
+          </div>
+
+          <div class="gc-store-item-copy">
+            <span class="gc-store-item-type">PROFILE BACKGROUND</span>
+            <h3>${esc(ITEM_NAME)}</h3>
+            <p>
+              Replaces the plain public-profile background with this image.
+              Your stats, REP, roles and physique stay readable over a dark overlay.
+            </p>
+
+            <div class="gc-store-item-price">🪙 ${fmt(ITEM_PRICE)} Gymcel Credits</div>
+
+            <div class="gc-store-item-actions">
+              <button id="gcStoreCosmeticAction" class="gc-store-item-btn buy" type="button">
+                Buy · ${fmt(ITEM_PRICE)}
+              </button>
+              <button id="gcStoreCosmeticUnequip" class="gc-store-item-btn" type="button" hidden>
+                Unequip
+              </button>
+            </div>
+
+            <div id="gcStoreCosmeticStatus"></div>
+          </div>
+        </article>
+      </section>`;
+  }
+
+  function installItem(){
+    if(document.getElementById('gcCosmeticStoreSection')) return true;
+
+    const grid=document.querySelector('#gymcelStoreSection .gc-store-grid');
+    if(!grid) return false;
+
+    grid.insertAdjacentHTML('beforeend',itemMarkup());
+
+    document.getElementById('gcStoreCosmeticAction')
+      ?.addEventListener('click',handlePrimaryAction);
+
+    document.getElementById('gcStoreCosmeticUnequip')
+      ?.addEventListener('click',unequipBackground);
+
+    renderItem();
+    loadState();
+    return true;
+  }
+
+  function renderItem(){
+    const action=document.getElementById('gcStoreCosmeticAction');
+    const unequip=document.getElementById('gcStoreCosmeticUnequip');
+    const status=document.getElementById('gcStoreCosmeticStatus');
+
+    if(!action || !unequip || !status) return;
+
+    const state=getItemState();
+    status.className='';
+
+    if(!catalogReady && !state.owned){
+      action.className='gc-store-item-btn buy';
+      action.textContent=`Buy · ${fmt(ITEM_PRICE)}`;
+    }
+
+    if(state.equipped){
+      action.className='gc-store-item-btn equipped';
+      action.textContent='Equipped ✓';
+      action.disabled=true;
+      unequip.hidden=false;
+      status.className='ok';
+      status.textContent='This background is equipped on your public profile.';
+      return;
+    }
+
+    action.disabled=false;
+    unequip.hidden=true;
+
+    if(state.owned){
+      action.className='gc-store-item-btn equip';
+      action.textContent='Equip Background';
+      status.className='ok';
+      status.textContent='Owned permanently.';
+      return;
+    }
+
+    action.className='gc-store-item-btn buy';
+    action.textContent=`Buy · ${fmt(ITEM_PRICE)}`;
+
+    if(balance < ITEM_PRICE){
+      status.textContent=`You need ${fmt(ITEM_PRICE-balance)} more Gymcel Credits.`;
+    }else{
+      status.textContent='You have enough credits to buy this background.';
+    }
+  }
+
+  async function handlePrimaryAction(){
+    const state=getItemState();
+
+    if(state.owned){
+      await equipBackground();
+    }else{
+      await buyItem();
+    }
+  }
+
+  async function buyItem(){
+    const action=document.getElementById('gcStoreCosmeticAction');
+    const status=document.getElementById('gcStoreCosmeticStatus');
+
+    action.disabled=true;
+    action.textContent='Buying...';
+    status.className='';
+    status.textContent='Checking your Gymcel Credits...';
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {data,error}=await db.rpc('purchase_gymcel_store_item',{
+        target_item:ITEM_KEY
+      });
+
+      if(error) throw error;
+
+      const row=Array.isArray(data) ? data[0] : data;
+
+      balance=Number(row?.new_balance || 0);
+
+      if(!row?.success && row?.status==='not_enough_credits'){
+        status.className='err';
+        status.textContent=`Not enough credits. You currently have ${fmt(balance)}.`;
+        syncVisibleCreditBalance();
+        renderItem();
+        return;
+      }
+
+      inventory.set(ITEM_KEY,{
+        owned:true,
+        equipped:false
+      });
+
+      syncVisibleCreditBalance();
+
+      status.className='ok';
+      status.textContent=`Purchased ${ITEM_NAME}. It is now permanently in your inventory.`;
+
+      renderItem();
+    }catch(err){
+      console.error('[Gymcels] Store purchase error:',err);
+      status.className='err';
+      status.textContent=err?.message || 'Could not purchase this item.';
+    }finally{
+      action.disabled=false;
+      renderItem();
+    }
+  }
+
+  async function equipBackground(){
+    const action=document.getElementById('gcStoreCosmeticAction');
+    const status=document.getElementById('gcStoreCosmeticStatus');
+
+    action.disabled=true;
+    action.textContent='Equipping...';
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {error}=await db.rpc('equip_gymcel_profile_background',{
+        target_item:ITEM_KEY
+      });
+
+      if(error) throw error;
+
+      inventory.forEach((value,key) => {
+        inventory.set(key,{...value,equipped:false});
+      });
+
+      inventory.set(ITEM_KEY,{owned:true,equipped:true});
+
+      status.className='ok';
+      status.textContent='200 Brah is now equipped on your public profile.';
+      renderItem();
+
+      const session=await getSession();
+      if(session?.user?.id===activePublicProfileUser){
+        applyPublicProfileBackground(activePublicProfileUser);
+      }
+    }catch(err){
+      console.error('[Gymcels] equip profile background error:',err);
+      status.className='err';
+      status.textContent=err?.message || 'Could not equip this background.';
+    }finally{
+      action.disabled=false;
+      renderItem();
+    }
+  }
+
+  async function unequipBackground(){
+    const btn=document.getElementById('gcStoreCosmeticUnequip');
+    const status=document.getElementById('gcStoreCosmeticStatus');
+
+    btn.disabled=true;
+    btn.textContent='Unequipping...';
+
+    try{
+      const db=await getDb();
+      if(!db) throw new Error('Database connection is not ready.');
+
+      const {error}=await db.rpc('equip_gymcel_profile_background',{
+        target_item:null
+      });
+
+      if(error) throw error;
+
+      const current=getItemState();
+      inventory.set(ITEM_KEY,{...current,equipped:false});
+
+      clearPublicProfileBackground();
+      status.className='ok';
+      status.textContent='Profile background unequipped.';
+      renderItem();
+    }catch(err){
+      console.error('[Gymcels] unequip profile background error:',err);
+      status.className='err';
+      status.textContent=err?.message || 'Could not unequip this background.';
+    }finally{
+      btn.disabled=false;
+      btn.textContent='Unequip';
+    }
+  }
+
+  // ============================================================
+  // PUBLIC PROFILE BACKGROUND
+  // ============================================================
+
+  function profileCard(){
+    return document.querySelector('#chatProfileOverlay .chat-public-profile');
+  }
+
+  function clearPublicProfileBackground(){
+    const card=profileCard();
+    if(!card) return;
+
+    card.classList.remove('gc-profile-bg-active');
+    card.style.removeProperty('--gc-profile-background');
+  }
+
+  async function applyPublicProfileBackground(userId){
+    activePublicProfileUser=userId || null;
+    clearPublicProfileBackground();
+
+    if(!userId) return;
+
+    try{
+      const db=await getDb();
+      if(!db) return;
+
+      const {data,error}=await db.rpc('get_public_profile_cosmetics',{
+        target_user:userId
+      });
+
+      if(error) throw error;
+
+      const row=Array.isArray(data) ? data[0] : data;
+      const equipped=row?.equipped_background || null;
+
+      if(activePublicProfileUser!==userId) return;
+
+      const card=profileCard();
+      if(!card) return;
+
+      if(equipped===ITEM_KEY){
+        card.style.setProperty(
+          '--gc-profile-background',
+          `url("${ITEM_ASSET}")`
+        );
+        card.classList.add('gc-profile-bg-active');
+      }
+    }catch(err){
+      console.error('[Gymcels] public profile cosmetic error:',err);
+    }
+  }
+
+  // Wrap the site's current public profile opener so backgrounds load
+  // every time a profile is opened, regardless of where it was clicked.
+  function wrapPublicProfileOpener(){
+    try{
+      if(
+        typeof openChatPublicProfile!=='function' ||
+        openChatPublicProfile.__gcCosmeticsWrapped
+      ) return false;
+
+      const original=openChatPublicProfile;
+
+      const wrapped=async function(userId,...rest){
+        activePublicProfileUser=userId || null;
+        clearPublicProfileBackground();
+
+        const result=await original.call(this,userId,...rest);
+        setTimeout(() => applyPublicProfileBackground(userId),50);
+        return result;
+      };
+
+      wrapped.__gcCosmeticsWrapped=true;
+      openChatPublicProfile=wrapped;
+      return true;
+    }catch(err){
+      console.warn('[Gymcels] could not wrap public profile opener:',err);
+      return false;
+    }
+  }
+
+  // Fallback capture for chat/profile clicks in case another later patch
+  // replaces the opener after this file loads.
+  document.addEventListener('click',event => {
+    const el=event.target.closest(
+      '[data-chat-user],[data-leaderboard-user]'
+    );
+
+    if(!el) return;
+
+    const userId=
+      el.dataset.chatUser ||
+      el.dataset.leaderboardUser ||
+      null;
+
+    if(userId){
+      activePublicProfileUser=userId;
+      setTimeout(() => applyPublicProfileBackground(userId),120);
+    }
+  },true);
+
+  document.getElementById('chatProfileClose')?.addEventListener('click',() => {
+    activePublicProfileUser=null;
+    clearPublicProfileBackground();
+  });
+
+  // ============================================================
+  // BOOT
+  // ============================================================
+
+  function boot(){
+    installStyles();
+
+    let tries=0;
+    const timer=setInterval(() => {
+      tries++;
+
+      const storeDone=installItem();
+      const profileDone=wrapPublicProfileOpener();
+
+      if((storeDone && profileDone) || tries>40){
+        clearInterval(timer);
+      }
+    },250);
+
+    // Refresh ownership/balance after auth changes.
+    getDb().then(db => {
+      db?.auth?.onAuthStateChange?.(() => {
+        setTimeout(loadState,80);
+      });
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+
+  console.log('[Gymcels] Store Cosmetics V1 loaded — 200 Brah');
+})();
