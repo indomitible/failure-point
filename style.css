@@ -8069,3 +8069,15 @@ body.gym-app-mode[data-app-screen="settings"] #dashboardView > #staffReportsPane
 #chatProfileOverlay .chat-public-stat > b{
   color:#ffffff !important;
 }
+#chatProfileOverlay .chat-public-stat > span{
+  color:#050505 !important;
+  background:transparent !important;
+  padding:0 !important;
+  border:none !important;
+  border-radius:0 !important;
+
+  -webkit-text-stroke:0.45px #ffffff !important;
+  text-shadow:none !important;
+
+  font-weight:1000 !important;
+}
